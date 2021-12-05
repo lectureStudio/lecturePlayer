@@ -1,0 +1,19 @@
+﻿**/resources/
+
+# Eclipse Core
+**/.classpath
+**/.project
+**/.settings/
+
+# IntelliJ IDEA
+**/*.iml
+**/.idea
+
+# VS Code
+.vscode
+
+# Maven Build
+**/target
+
+# Node
+node_modules/

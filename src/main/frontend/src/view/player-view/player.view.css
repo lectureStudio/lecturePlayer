@@ -1,0 +1,40 @@
+player-view {
+	background-color: #f8f9fa;
+	display: flex;
+	flex-grow: 1;
+	flex-direction: column;
+}
+player-view > .player-container,
+player-view .slide-container {
+	display: flex;
+	flex-grow: 1;
+	flex-direction: row;
+}
+player-view .slide-container {
+	flex-direction: column;
+}
+player-view .feed-container {
+	flex-grow: 0;
+	flex-direction: column;
+}
+player-view .right-container {
+	background-color: rgba(233, 236, 239, 0.8);
+	border-radius: .25rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 0.5em 0.5em;
+	margin-left: 0.5em;
+}
+player-view slide-view {
+	flex-grow: 1;
+}
+player-view .feed-container video {
+	background-color: #6c757d;
+	border-radius: .25rem;
+	padding: .25rem;
+	max-width: 15em;
+}
+player-view .invisible {
+	display: none;
+}
