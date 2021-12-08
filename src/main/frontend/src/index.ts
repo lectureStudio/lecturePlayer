@@ -51,7 +51,7 @@ class LecturePlayer {
 
 	constructor() {
 		this.playbackModel = new PlaybackModel();
-		this.courseStateService = new CourseStateService("https://" + window.location.hostname);
+		this.courseStateService = new CourseStateService("https://" + window.location.host);
 		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus", this.playbackModel);
 		this.playbackService = new PlaybackService(this.playbackModel);
 	}
