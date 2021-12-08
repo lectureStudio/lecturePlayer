@@ -499,6 +499,10 @@ export class JanusService {
 				Janus.error("WebRTC error:", error);
 				
 				console.error("WebRTC error:", error);
+
+				deviceConstraints.videoDeviceId = null;
+
+				this.publishOwnFeed(remoteFeed, deviceConstraints)
 			}
 		});
 	}
