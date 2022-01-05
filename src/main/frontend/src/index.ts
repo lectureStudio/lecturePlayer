@@ -102,6 +102,10 @@ class LecturePlayer {
 		this.setRaiseHand(false);
 	}
 
+	setDeviceConstraints(deviceConstraints: any): void {
+		this.janusService.setDeviceConstraints(deviceConstraints);
+	}
+
 	setContainer(container: HTMLElement): void {
 		this.container = container;
 	}
