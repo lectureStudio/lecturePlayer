@@ -76,20 +76,14 @@ export class PlaybackService {
 	}
 
 	addDocument(document: SlideDocument): void {
-console.log("add document", document.getDocumentId());
-
 		this.documents.set(BigInt(document.getDocumentId()), document);
 	}
 
 	removeDocument(docId: bigint): void {
-console.log("remove document", docId);
-
 		this.documents.delete(BigInt(docId));
 	}
 
 	selectDocument(docId: bigint): void {
-console.log("select document", docId)
-
 		const document = this.documents.get(BigInt(docId));
 
 		if (document) {

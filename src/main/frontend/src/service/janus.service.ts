@@ -25,6 +25,8 @@ export class JanusService {
 
 	private opaqueId: string;
 
+	private deviceConstraints: any;
+
 	private myusername: string;
 
 	private dataCallback: (data: any) => void;
@@ -46,6 +48,10 @@ export class JanusService {
 
 	setPlayerView(playerView: PlayerView): void {
 		this.playerView = playerView;
+	}
+
+	setDeviceConstraints(deviceConstraints: any): void {
+		this.deviceConstraints = deviceConstraints;
 	}
 
 	setRoomId(roomId: number) {
@@ -158,10 +164,6 @@ export class JanusService {
 				this.publisherLocalStream = stream;
 
 				const localVideoFeed = this.getElementById("localVideoFeed") as HTMLMediaElement;
-
-				for (const audioTrack of stream.getAudioTracks()) {
-					console.log(audioTrack.getConstraints());
-				}
 
 				Janus.attachMediaStream(localVideoFeed, stream);
 
@@ -350,6 +352,8 @@ export class JanusService {
 
 					Janus.attachMediaStream(video, stream);
 
+					this.setAudioSink(video, this.deviceConstraints.audioOutput);
+
 					this.playbackModel.mainVideoAvailable = hasVideo;
 				}
 				else {
@@ -376,6 +380,8 @@ export class JanusService {
 					}
 
 					Janus.attachMediaStream(video, stream);
+
+					this.setAudioSink(video, this.deviceConstraints.audioOutput);
 				}
 
 				this.checkVideoCount();
@@ -412,6 +418,17 @@ export class JanusService {
 				Janus.log("detached...");
 			}
 		});
+	}
+
+	private setAudioSink(element: HTMLMediaElement, audioSink: string) {
+		if (!('sinkId' in HTMLMediaElement.prototype)) {
+			return;
+		}
+
+		element.setSinkId(audioSink)
+			.catch(error => {
+				console.error(error);
+			});
 	}
 
 	private checkVideoCount() {
