@@ -340,6 +340,14 @@ export class JanusService {
 
 				for (const videoTrack of stream.getVideoTracks()) {
 					if (videoTrack.muted == false) {
+						const removeListener = (event: MediaStreamTrackEvent) => {
+							this.onVideoTrackRemoved(remoteFeed, event.track);
+
+							stream.removeEventListener("removetrack", removeListener);
+						};
+
+						stream.addEventListener("removetrack", removeListener);
+
 						hasVideo = true;
 						break;
 					}
@@ -429,6 +437,12 @@ export class JanusService {
 			.catch(error => {
 				console.error(error);
 			});
+	}
+
+	private onVideoTrackRemoved(remoteFeed: PluginHandle, track: MediaStreamTrack) {
+		this.playbackModel.mainVideoAvailable = false;
+		remoteFeed.hasVideo = false;
+		this.checkVideoCount();
 	}
 
 	private checkVideoCount() {
