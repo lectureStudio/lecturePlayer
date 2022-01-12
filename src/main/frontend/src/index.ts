@@ -154,6 +154,10 @@ class LecturePlayer {
 		this.playbackModel.setMuted(muted);
 	}
 
+	setUserId(userId: string) {
+		this.janusService.setUserId(userId);
+	}
+
 	setRoomId(id: number) {
 		this.roomId = id;
 
