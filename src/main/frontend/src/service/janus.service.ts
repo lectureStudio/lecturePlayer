@@ -54,6 +54,10 @@ export class JanusService {
 		this.deviceConstraints = deviceConstraints;
 	}
 
+	setUserId(userId: string) {
+		this.opaqueId = userId;
+	}
+
 	setRoomId(roomId: number) {
 		this.myroom = roomId;
 	}
