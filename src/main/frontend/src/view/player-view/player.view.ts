@@ -132,6 +132,10 @@ class PlayerView extends WebViewElement {
 		this.playerControls.setOnSettings(observer);
 	}
 
+	addToolbarElement(element: HTMLElement){
+		this.playerControls.addToolbarElement(element);
+	}
+
 	private cannotPlay() {
 		this.playerControls.setPlayMediaVisible(true);
 

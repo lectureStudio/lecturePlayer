@@ -28,6 +28,8 @@ class WebPlayerControls extends WebViewElement {
 
 	private duration: HTMLSpanElement;
 
+	private toolbar: HTMLElement;
+
 	private muteObserver: Observer<boolean>;
 
 
@@ -222,6 +224,10 @@ class WebPlayerControls extends WebViewElement {
 		property.subscribe(active => {
 			this.setVisible(this.showQuizButton, active);
 		});
+	}
+
+	addToolbarElement(element: HTMLElement){
+		this.toolbar.appendChild(element);
 	}
 
 	private updateVolumeIndicator(volume: number) {

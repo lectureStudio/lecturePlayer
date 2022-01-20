@@ -48,6 +48,8 @@ class LecturePlayer {
 
 	private startTime: bigint;
 
+	private playerView: PlayerView;
+
 
 	constructor() {
 		this.playbackModel = new PlaybackModel();
@@ -164,9 +166,24 @@ class LecturePlayer {
 		this.janusService.setRoomId(id);
 	}
 
+	private toolbarElementsBuffer: HTMLButtonElement[] = [];
+
+	addToolbarElement(element: HTMLButtonElement){
+		if(this.playerView){
+			return this.playerView.addToolbarElement(element);
+		}
+		this.toolbarElementsBuffer.push(element);
+	}
+
+	private loadToolbarElementBuffer(){
+		while(this.toolbarElementsBuffer.length){
+			this.playerView.addToolbarElement(this.toolbarElementsBuffer.shift());
+		}
+	}
+
 	private setDocuments(courseState: CourseState, documents: SlideDocument[]) {
 		const playerView = new PlayerView(this.playbackModel);
-
+		this.playerView = playerView;
 		this.setView(playerView);
 
 		this.playbackService.initialize(playerView, courseState, documents, this.startTime);
@@ -184,6 +201,8 @@ class LecturePlayer {
 			}
 		});
 		this.janusService.start();
+
+		this.loadToolbarElementBuffer();
 	}
 
 	private processData(data: ArrayBuffer) {
