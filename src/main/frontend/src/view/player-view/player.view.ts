@@ -15,6 +15,10 @@ class PlayerView extends WebViewElement {
 
 	private readonly playbackModel: PlaybackModel;
 
+	private playerContainer: HTMLElement;
+
+	private slideContainer: HTMLElement;
+
 	private slideView: WebSlideView;
 
 	private playerControls: WebPlayerControls;
@@ -55,7 +59,7 @@ class PlayerView extends WebViewElement {
 				});
 		});
 		this.videoFeed.addEventListener("play", () => {
-			window.dispatchEvent(new Event("resize"));
+			// window.dispatchEvent(new Event("resize"));
 		});
 
 		this.playbackModel.elementAProperty.subscribe(this.setElementA.bind(this));
@@ -82,7 +86,7 @@ class PlayerView extends WebViewElement {
 
 		this.slideView.repaint();
 
-		window.dispatchEvent(new Event("resize"));
+		new ResizeObserver(this.computeViewSize.bind(this)).observe(this.playerContainer);
 	}
 
 	getSlideView(): SlideView {
@@ -113,7 +117,7 @@ class PlayerView extends WebViewElement {
 			this.classList.remove("fullscreen");
 		}
 
-		window.dispatchEvent(new Event('resize'));
+		this.computeViewSize();
 	}
 
 	setOnVolume(observer: Observer<number>): void {
@@ -135,7 +139,7 @@ class PlayerView extends WebViewElement {
 	private cannotPlay() {
 		this.playerControls.setPlayMediaVisible(true);
 
-		window.dispatchEvent(new Event("resize"));
+		// window.dispatchEvent(new Event("resize"));
 	}
 
 	private setElementA(element: HTMLElement): void {
@@ -179,7 +183,28 @@ class PlayerView extends WebViewElement {
 		this.setElementVisible(this.rightContainer, this.playbackModel.videoAvailable
 			|| this.playbackModel.localVideoAvailable || this.containerA.hasChildNodes());
 
-		window.dispatchEvent(new Event("resize"));
+		// window.dispatchEvent(new Event("resize"));
+
+		this.computeViewSize();
+	}
+
+	private computeViewSize() {
+		const slideRatio = 4 / 3;
+		let width = this.offsetWidth - this.rightContainer.offsetWidth;
+		let height = this.offsetHeight;
+		const viewRatio = width / height;
+
+		if (viewRatio > slideRatio) {
+			width = height * slideRatio;
+		}
+		else {
+			height = width / slideRatio;
+		}
+
+		// this.playerContainer.style.width = ((width) / this.offsetWidth * 100) + "%";
+		this.playerContainer.style.height = ((height + this.playerControls.offsetHeight) / this.offsetHeight * 100) + "%";
+
+		// this.slideView.repaint();
 	}
 }
 

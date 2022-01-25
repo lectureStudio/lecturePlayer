@@ -4,7 +4,6 @@ import { RenderSurface } from "../../render/render-surface";
 import { TextLayerSurface } from "../../render/text-layer-surface";
 import { ViewElement } from "../view-element";
 import { WebViewElement } from "../web-view-element";
-import { WebPlayerControls } from "../../component";
 
 @ViewElement({
 	selector: "slide-view",
@@ -20,8 +19,6 @@ class WebSlideView extends WebViewElement implements SlideView {
 	private volatileRenderSurface: RenderSurface;
 
 	private textLayerSurface: TextLayerSurface;
-
-	private playerControls: WebPlayerControls;
 
 
 	constructor() {
@@ -39,9 +36,7 @@ class WebSlideView extends WebViewElement implements SlideView {
 		this.volatileRenderSurface = new RenderSurface(volatileCanvas);
 		this.textLayerSurface = new TextLayerSurface(textLayer);
 
-		this.resize();
-
-		window.addEventListener('resize', this.resize.bind(this), false);
+		new ResizeObserver(this.resize.bind(this)).observe(this);
 	}
 
 	getActionRenderSurface(): RenderSurface {
@@ -64,6 +59,13 @@ class WebSlideView extends WebViewElement implements SlideView {
 		this.resize();
 	}
 
+	repaintSize(width: number, height: number): void {
+		this.slideRenderSurface.setSize(width, height);
+		this.actionRenderSurface.setSize(width, height);
+		this.volatileRenderSurface.setSize(width, height);
+		this.textLayerSurface.setSize(width, height);
+	}
+
 	private resize() {
 		const slideView = this.querySelector('.slide-view') as HTMLElement;
 		const slideRatio = 4 / 3;
@@ -82,8 +84,6 @@ class WebSlideView extends WebViewElement implements SlideView {
 		this.actionRenderSurface.setSize(width, height);
 		this.volatileRenderSurface.setSize(width, height);
 		this.textLayerSurface.setSize(width, height);
-
-		//slideView.style.flexBasis = height + "px";
 	}
 }
 
