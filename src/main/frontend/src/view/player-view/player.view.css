@@ -4,13 +4,13 @@ player-view {
 	flex-grow: 1;
 	flex-direction: column;
 }
-player-view > .player-container,
-player-view .slide-container {
+player-view > .player-container {
 	display: flex;
-	flex-grow: 1;
 	flex-direction: row;
 }
 player-view .slide-container {
+	display: flex;
+	flex-grow: 1;
 	flex-direction: column;
 }
 player-view .feed-container {
