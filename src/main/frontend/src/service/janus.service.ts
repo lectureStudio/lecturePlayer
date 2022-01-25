@@ -31,6 +31,8 @@ export class JanusService {
 
 	private dataCallback: (data: any) => void;
 
+	private errorCallback: (data: any) => void;
+
 
 	constructor(serverUrl: string, playbackModel: PlaybackModel) {
 		this.serverUrl = serverUrl;
@@ -66,6 +68,12 @@ export class JanusService {
 		Utils.checkFunction(consumer);
 
 		this.dataCallback = consumer;
+	}
+
+	setOnError(consumer: (data: any) => void) {
+		Utils.checkFunction(consumer);
+
+		this.errorCallback = consumer;
 	}
 
 	start() {
@@ -174,7 +182,19 @@ export class JanusService {
 				localVideoFeed.muted = true;
 				let hasVideo = false;
 
+				const constraints = {
+					width: { min: 640, ideal: 640, max: 1280 },
+					height: { min: 360, ideal: 360 },
+					aspectRatio: { ideal: 1.7777777778 },
+					frameRate: { max: 30 },
+					facingMode: { ideal: "user" }
+				};
+
 				for (const videoTrack of stream.getVideoTracks()) {
+					videoTrack.applyConstraints(constraints);
+
+					console.log(videoTrack.getConstraints());
+
 					if (videoTrack.muted == false) {
 						hasVideo = true;
 						break;
@@ -216,7 +236,9 @@ export class JanusService {
 			error: (cause: any) => {
 				Janus.error(cause);
 
-				console.log(cause);
+				if (this.errorCallback) {
+					this.errorCallback(cause);
+				}
 			},
 			destroyed: () => {
 				Janus.log("Janus destroyed");
@@ -501,15 +523,15 @@ export class JanusService {
 				audioRecv: false,
 				videoRecv: false,
 				audioSend: true,
+				videoSend: useVideo,
 				audio: {
 					deviceId: deviceConstraints.audioDeviceId,
 					echoCancellation: true
 				},
-				videoSend: useVideo,
 				video: {
 					deviceId: deviceConstraints.videoDeviceId,
 					width: 1280,
-					height: 720
+					height: 720,
 				},
 				failIfNoAudio: true,
 				failIfNoVideo: false,
