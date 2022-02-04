@@ -218,10 +218,23 @@ class WebPlayerControls extends WebViewElement {
 
 	setOnShowQuizActive(property: Property<boolean>): void {
 		this.setVisible(this.showQuizButton, property.value);
+		this.pulseButton(this.showQuizButton, property.value);
 
 		property.subscribe(active => {
 			this.setVisible(this.showQuizButton, active);
+			this.pulseButton(this.showQuizButton, active);
 		});
+	}
+
+	private pulseButton(button: HTMLElement, pulse: boolean) {
+		const classList = button.classList;
+
+		if (pulse) {
+			classList.add("pulse");
+		}
+		else {
+			classList.remove("pulse");
+		}
 	}
 
 	private updateVolumeIndicator(volume: number) {
