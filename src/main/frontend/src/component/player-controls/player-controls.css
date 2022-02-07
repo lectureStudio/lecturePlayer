@@ -77,7 +77,13 @@
 	color: #15803D;
 }
 #controlContainer .pulse {
+	--animation-color: #15803D;
 	animation: button-pulse 2s 5;
+	z-index: 10;
+}
+#controlContainer .pulse-infinite {
+	--animation-color: #007db5;
+	animation: button-pulse 2s infinite;
 	z-index: 10;
 }
 
@@ -226,26 +232,26 @@
 
 @-webkit-keyframes button-pulse {
 	0% {
-		-webkit-box-shadow: 0 0 0 0 rgba(21, 128, 61, 1);
+		-webkit-box-shadow: 0 0 0 0 var(--animation-color);
 	}
 	70% {
-		-webkit-box-shadow: 0 0 0 10px rgba(21, 128, 61, 0);
+		-webkit-box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
 	}
 	100% {
-		-webkit-box-shadow: 0 0 0 0 rgba(21, 128, 61, 0);
+		-webkit-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
 	}
 }
 @keyframes button-pulse {
 	0% {
-		-moz-box-shadow: 0 0 0 0 rgba(21, 128, 61, 1);
-		box-shadow: 0 0 0 0 rgba(21, 128, 61, 1);
+		-moz-box-shadow: 0 0 0 0 var(--animation-color);
+		box-shadow: 0 0 0 0 var(--animation-color);
 	}
 	70% {
-		-moz-box-shadow: 0 0 0 10px rgba(21, 128, 61, 0);
-		box-shadow: 0 0 0 10px rgba(21, 128, 61, 0);
+		-moz-box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+		box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
 	}
 	100% {
-		-moz-box-shadow: 0 0 0 0 rgba(21, 128, 61, 0);
-		box-shadow: 0 0 0 0 rgba(21, 128, 61, 0);
+		-moz-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+		box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
 	}
 }

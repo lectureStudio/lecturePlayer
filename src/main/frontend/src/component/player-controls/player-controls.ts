@@ -151,6 +151,7 @@ class WebPlayerControls extends WebViewElement {
 
 	setPlayMediaVisible(visible: boolean): void {
 		this.setVisible(this.playMediaButton, visible);
+		this.toggleClass(this.playMediaButton, visible, "pulse-infinite");
 	}
 
 	setOnPlayMedia(observer: Observer<void>): void {
@@ -218,22 +219,22 @@ class WebPlayerControls extends WebViewElement {
 
 	setOnShowQuizActive(property: Property<boolean>): void {
 		this.setVisible(this.showQuizButton, property.value);
-		this.pulseButton(this.showQuizButton, property.value);
+		this.toggleClass(this.showQuizButton, property.value, "pulse");
 
 		property.subscribe(active => {
 			this.setVisible(this.showQuizButton, active);
-			this.pulseButton(this.showQuizButton, active);
+			this.toggleClass(this.showQuizButton, active, "pulse");
 		});
 	}
 
-	private pulseButton(button: HTMLElement, pulse: boolean) {
+	private toggleClass(button: HTMLElement, add: boolean, name: string) {
 		const classList = button.classList;
 
-		if (pulse) {
-			classList.add("pulse");
+		if (add) {
+			classList.add(name);
 		}
 		else {
-			classList.remove("pulse");
+			classList.remove(name);
 		}
 	}
 
