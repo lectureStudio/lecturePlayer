@@ -305,6 +305,7 @@ export class JanusService {
 
 				peerContext.handle = pluginHandle;
 				peerContext.streams = new Map();
+				peerContext.streamIds = new Map();
 				peerContext.isPrimary = isPrimary;
 
 				const subscribe = {
@@ -358,28 +359,53 @@ export class JanusService {
 
 						peerContext.feedId = message["id"];
 
+						const streams = message["streams"];
+
+						if (streams) {
+							for (const stream of streams) {
+								const mid: string = stream["mid"];
+								const description: string = stream["feed_description"];
+
+								if (mid && description) {
+									peerContext.streamIds.set(mid, description);
+								}
+							}
+						}
+
 						this.peers.push(peerContext);
 					}
 				}
 
 				if (jsep) {
-					console.log("jsep", jsep);
-
 					this.createAnswer(peerContext, jsep);
 				}
 			},
 			onremotetrack: (track: MediaStreamTrack, mid: string, active: boolean) => {
 				console.log("Remote track (mid=" + mid + ") " + (active ? "added" : "removed") + ":", track);
 
+				const streamDescription = peerContext.streamIds.get(mid);
+				const isScreenTrack = streamDescription && track.kind === "video" && streamDescription === "screen";
+
 				if (!active) {
 					// Track removed, get rid of the stream and the rendering.
 					peerContext.removeStream(mid);
+
+					this.playbackModel.screenVideoAvailable = false;
 
 					this.checkVideoCount();
 					return;
 				}
 
 				const stream = peerContext.addStreamTrack(track, mid);
+
+				if (isScreenTrack) {
+					const screenFeed = this.getElementById("screenFeed") as HTMLVideoElement;
+
+					Janus.attachMediaStream(screenFeed, stream);
+
+					this.playbackModel.screenVideoAvailable = true;
+					return;
+				}
 
 				if (peerContext.isPrimary) {
 					const video = this.playerView.getMediaElement() as HTMLVideoElement;
@@ -578,6 +604,8 @@ class PeerContext {
 	handle: PluginHandle;
 
 	streams: Map<string, MediaStream>;
+
+	streamIds: Map<string, string>;
 
 	feedId: string;
 

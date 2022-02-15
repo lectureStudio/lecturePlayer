@@ -21,6 +21,8 @@ class PlaybackModel {
 
 	private readonly _mainVideoAvailable = new Property<boolean>();
 
+	private readonly _screenVideoAvailable = new Property<boolean>();
+
 	private readonly _localVideoAvailable = new Property<boolean>();
 
 	private readonly _selectedPageIndex = new Property<number>();
@@ -116,6 +118,18 @@ class PlaybackModel {
 
 	set mainVideoAvailable(available: boolean) {
 		this._mainVideoAvailable.value = available;
+	}
+
+	get screenVideoAvailableProperty() {
+		return this._screenVideoAvailable;
+	}
+
+	get screenVideoAvailable() {
+		return this._screenVideoAvailable.value;
+	}
+
+	set screenVideoAvailable(available: boolean) {
+		this._screenVideoAvailable.value = available;
 	}
 
 	get localVideoAvailableProperty() {

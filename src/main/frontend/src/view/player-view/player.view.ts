@@ -27,6 +27,8 @@ class PlayerView extends WebViewElement {
 
 	private videoFeedContainer: HTMLElement;
 
+	private screenFeedContainer: HTMLElement;
+
 	private mainVideoFeedContainer: HTMLElement;
 
 	private localVideoFeedContainer: HTMLElement;
@@ -62,6 +64,7 @@ class PlayerView extends WebViewElement {
 		this.playbackModel.videoAvailableProperty.subscribe(this.setVideoAvailable.bind(this));
 		this.playbackModel.mainVideoAvailableProperty.subscribe(this.setMainVideoAvailable.bind(this));
 		this.playbackModel.localVideoAvailableProperty.subscribe(this.setLocalVideoAvailable.bind(this));
+		this.playbackModel.screenVideoAvailableProperty.subscribe(this.setScreenVideoAvailable.bind(this));
 
 		this.playerControls.setOnRaiseHand(this.playbackModel.raisedHandProperty);
 		this.playerControls.setOnRaiseHandActive(this.playbackModel.webrtcPublisherConnectedProperty);
@@ -173,6 +176,11 @@ class PlayerView extends WebViewElement {
 	private setLocalVideoAvailable(available: boolean): void {
 		this.setElementVisible(this.localVideoFeedContainer, available);
 		this.updateRightContainer();
+	}
+
+	private setScreenVideoAvailable(available: boolean): void {
+		this.setElementVisible(this.slideView, !available);
+		this.setElementVisible(this.screenFeedContainer, available);
 	}
 
 	private updateRightContainer() {
