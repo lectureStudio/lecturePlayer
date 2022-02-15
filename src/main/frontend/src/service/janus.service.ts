@@ -1,4 +1,4 @@
-import { Janus } from "janus-gateway";
+import { Janus, JSEP, PluginHandle, DebugLevel } from "janus-gateway";
 import { PlayerView } from "..";
 import { PlaybackModel } from "../model/playback-model";
 import { Utils } from "../utils/utils";
@@ -15,11 +15,11 @@ export class JanusService {
 
 	private publisherLocalStream: MediaStream;
 
-	private publisherHandle: Janus.PluginHandle;
+	private publisherHandle: PluginHandle;
 
 	private publisherId: Number;
 
-	private remoteFeeds: PluginHandle[];
+	private peers: PeerContext[];
 
 	private myroom: number;
 
@@ -42,7 +42,7 @@ export class JanusService {
 		this.publisherId = null;
 		this.publisherLocalStream = null;
 		this.dataCallback = null;
-		this.remoteFeeds = [];
+		this.peers = [];
 
 		this.opaqueId = "course-" + Janus.randomString(12);
 		this.myusername = Janus.randomString(12);
@@ -79,7 +79,7 @@ export class JanusService {
 	start() {
 		// Initialize the library (all console debuggers enabled).
 		Janus.init({
-			// debug: "all",
+			debug: false,
 			callback: () => {
 				// Make sure the browser supports WebRTC.
 				if (!Janus.isWebrtcSupported()) {
@@ -295,15 +295,17 @@ export class JanusService {
 	}
 
 	private attachToPublisher(publisher: any, isPrimary: boolean) {
-		let remoteFeed: PluginHandle = null;
+		let peerContext = new PeerContext();
 
 		this.janus.attach({
 			plugin: "janus.plugin.videoroom",
 			opaqueId: this.opaqueId,
 			success: (pluginHandle: PluginHandle) => {
-				remoteFeed = pluginHandle;
-				remoteFeed.isPrimary = isPrimary;
-				remoteFeed.hasVideo = false;
+				console.log("Plugin attached! (" + pluginHandle.getPlugin() + ", id=" + pluginHandle.getId() + ")");
+
+				peerContext.handle = pluginHandle;
+				peerContext.streams = new Map();
+				peerContext.isPrimary = isPrimary;
 
 				const subscribe = {
 					request: "join",
@@ -312,12 +314,12 @@ export class JanusService {
 					feed: publisher.id
 				};
 
-				remoteFeed.send({ message: subscribe });
+				peerContext.handle.send({ message: subscribe });
 			},
 			error: (cause: any) => {
-				Janus.error("  -- Error attaching plugin...", cause);
+				console.error("  -- Error attaching plugin...", cause);
 
-				if (remoteFeed.isPrimary) {
+				if (peerContext.isPrimary) {
 					this.stopSpeech();
 				}
 			},
@@ -330,13 +332,16 @@ export class JanusService {
 			webrtcState: (isConnected: boolean) => {
 				Janus.log("Janus says our WebRTC PeerConnection is " + (isConnected ? "up" : "down") + " now");
 
-				if (remoteFeed.isPrimary) {
+				if (peerContext.isPrimary) {
 					this.playbackModel.webrtcConnected = isConnected;
 
 					if (!isConnected) {
 						this.stopSpeech();
 					}
 				}
+			},
+			slowLink: (state: { uplink: boolean }) => {
+				console.warn("Janus reports problems " + (state?.uplink ? "sending" : "receiving"));
 			},
 			onmessage: (message: any, jsep?: JSEP) => {
 				const event = message["videoroom"];
@@ -351,100 +356,99 @@ export class JanusService {
 						// Subscriber created and attached.
 						Janus.log("Successfully attached to feed " + message["id"] + " (" + message["display"] + ") in room " + message["room"]);
 
-						remoteFeed.rfid = message["id"];
+						peerContext.feedId = message["id"];
 
-						this.remoteFeeds.push(remoteFeed);
+						this.peers.push(peerContext);
 					}
 				}
 
 				if (jsep) {
-					this.createAnswer(remoteFeed, jsep, remoteFeed.isPrimary);
+					console.log("jsep", jsep);
+
+					this.createAnswer(peerContext, jsep);
 				}
 			},
-			onremotestream: (stream: MediaStream) => {
-				let hasVideo = false;
+			onremotetrack: (track: MediaStreamTrack, mid: string, active: boolean) => {
+				console.log("Remote track (mid=" + mid + ") " + (active ? "added" : "removed") + ":", track);
 
-				for (const videoTrack of stream.getVideoTracks()) {
-					if (videoTrack.muted == false) {
-						const removeListener = (event: MediaStreamTrackEvent) => {
-							this.onVideoTrackRemoved(remoteFeed, event.track);
+				if (!active) {
+					// Track removed, get rid of the stream and the rendering.
+					peerContext.removeStream(mid);
 
-							stream.removeEventListener("removetrack", removeListener);
-						};
-
-						stream.addEventListener("removetrack", removeListener);
-
-						hasVideo = true;
-						break;
-					}
+					this.checkVideoCount();
+					return;
 				}
 
-				remoteFeed.hasVideo = hasVideo;
+				const stream = peerContext.addStreamTrack(track, mid);
 
-				if (remoteFeed.isPrimary) {
+				if (peerContext.isPrimary) {
 					const video = this.playerView.getMediaElement() as HTMLVideoElement;
 
 					Janus.attachMediaStream(video, stream);
 
-					this.setAudioSink(video, this.deviceConstraints.audioOutput);
+					this.playbackModel.mainVideoAvailable = peerContext.hasVideoTracks();
 
-					this.playbackModel.mainVideoAvailable = hasVideo;
+					this.checkVideoCount();
+					return;
 				}
-				else {
-					let video = this.getElementById("videoFeed-" + publisher.id) as HTMLVideoElement;
 
-					if (!video) {
-						video = document.createElement("video");
-						video.id = "videoFeed-" + publisher.id;
-						video.autoplay = true;
-						video.playsInline = true;
-	
-						const div = document.createElement("div");
-						div.id = "videoFeedDiv-" + publisher.id;
-						div.classList.add("invisible");
-						div.appendChild(video);
-	
-						const videoFeedContainer = this.getElementById("videoFeedContainer");
-						videoFeedContainer.appendChild(div);
+				if (track.kind === "audio") {
+					const audio = document.createElement("audio");
+					audio.id = "videoFeed-" + publisher.id;
+					audio.autoplay = true;
+
+					const videoFeedContainer = this.getElementById("videoFeedContainer");
+					videoFeedContainer.appendChild(audio);
+
+					if (this.deviceConstraints) {
+						this.setAudioSink(audio, this.deviceConstraints.audioOutput);
 					}
 
-					if (hasVideo) {
-						const videoFeedDiv = this.getElementById("videoFeedDiv-" + publisher.id);
-						videoFeedDiv.classList.remove("invisible");
-					}
+					Janus.attachMediaStream(audio, stream);
+				}
+				else if (track.kind === "video") {
+					const video = document.createElement("video");
+					video.id = "videoFeed-" + publisher.id;
+					video.autoplay = true;
+					video.playsInline = true;
+
+					const div = document.createElement("div");
+					div.id = "videoFeedDiv-" + publisher.id;
+					div.appendChild(video);
+
+					const videoFeedContainer = this.getElementById("videoFeedContainer");
+					videoFeedContainer.appendChild(div);
 
 					Janus.attachMediaStream(video, stream);
 
-					this.setAudioSink(video, this.deviceConstraints.audioOutput);
+					this.checkVideoCount();
 				}
-
-				this.checkVideoCount();
 			},
 			ondataopen: (label: string, protocol: string) => {
 				Janus.log("The DataChannel is available!" + " - " + label + " - " + protocol);
 			},
 			ondata: (data: any) => {
-				if (remoteFeed.isPrimary) {
+				if (peerContext.isPrimary) {
 					this.dataCallback(data);
 				}
 			},
 			oncleanup: () => {
-				if (!remoteFeed.isPrimary) {
+				if (!peerContext.isPrimary) {
 					const videoFeedContainer = this.getElementById("videoFeedContainer");
 					const videoFeedDiv = this.getElementById("videoFeedDiv-" + publisher.id);
 
 					videoFeedContainer.removeChild(videoFeedDiv);
 				}
 
-				this.remoteFeeds = this.remoteFeeds.filter(item => item !== remoteFeed);
+				this.peers = this.peers.filter(item => item !== peerContext);
 
-				if (remoteFeed.isPrimary) {
+				if (peerContext.isPrimary) {
 					this.stopSpeech();
 				}
 
 				this.checkVideoCount();
 
-				if (remoteFeed.isPrimary) {
+				if (peerContext.isPrimary) {
 					this.janus.destroy();
 				}
 			},
@@ -467,15 +471,15 @@ export class JanusService {
 
 	private onVideoTrackRemoved(remoteFeed: PluginHandle, track: MediaStreamTrack) {
 		this.playbackModel.mainVideoAvailable = false;
-		remoteFeed.hasVideo = false;
+
 		this.checkVideoCount();
 	}
 
 	private checkVideoCount() {
 		let hasVideo = false;
 
-		for (const remoteFeed of this.remoteFeeds) {
-			if (remoteFeed.hasVideo === true) {
+		for (const peerContext of this.peers) {
+			if (peerContext.hasVideoTracks()) {
 				hasVideo = true;
 				break;
 			}
@@ -495,17 +499,17 @@ export class JanusService {
 		remoteFeed.send({ message: subscribe });
 	}
 
-	private createAnswer(remoteFeed: PluginHandle, jsep: JSEP, wantData: boolean) {
-		remoteFeed.createAnswer({
+	private createAnswer(peerContext: PeerContext, jsep: JSEP) {
+		peerContext.handle.createAnswer({
 			jsep: jsep,
-			media: { audioSend: false, videoSend: false, data: wantData },	// We want recvonly audio/video.
+			media: { audioSend: false, videoSend: false, data: peerContext.isPrimary },	// We want recvonly audio/video.
 			success: (jsep: JSEP) => {
 				const body = {
 					request: "start",
 					room: this.myroom
 				};
 
-				remoteFeed.send({ message: body, jsep: jsep });
+				peerContext.handle.send({ message: body, jsep: jsep });
 			},
 			error: (error: any) => {
 				Janus.error("WebRTC error: ", error);
@@ -566,5 +570,48 @@ export class JanusService {
 
 	private getElementById(id: string) {
 		return document.getElementById(id);
+	}
+}
+
+class PeerContext {
+
+	handle: PluginHandle;
+
+	streams: Map<string, MediaStream>;
+
+	feedId: string;
+
+	isPrimary: boolean;
+
+
+	addStreamTrack(track: MediaStreamTrack, mid: string): MediaStream {
+		const stream = new MediaStream();
+		stream.addTrack(track.clone());
+
+		this.streams.set(mid, stream);
+
+		return stream;
+	}
+
+	removeStream(mid: string): void {
+		const stream: MediaStream = this.streams.get(mid);
+
+		if (stream) {
+			for (const track of stream.getTracks()) {
+				track.stop();
+			}
+		}
+
+		this.streams.delete(mid);
+	}
+
+	hasVideoTracks(): boolean {
+		for (const stream of this.streams.values()) {
+			if (stream.getVideoTracks().length > 0) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

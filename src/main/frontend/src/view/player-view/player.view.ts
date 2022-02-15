@@ -49,7 +49,6 @@ class PlayerView extends WebViewElement {
 			this.setElementA(elementA);
 		}
 
-		// const video = this.getElementById("videoFeed") as HTMLVideoElement;
 		this.videoFeed.addEventListener("canplay", () => {
 			this.videoFeed.play()
 				.catch(error => {
@@ -57,9 +56,6 @@ class PlayerView extends WebViewElement {
 						this.cannotPlay();
 					}
 				});
-		});
-		this.videoFeed.addEventListener("play", () => {
-			// window.dispatchEvent(new Event("resize"));
 		});
 
 		this.playbackModel.elementAProperty.subscribe(this.setElementA.bind(this));
