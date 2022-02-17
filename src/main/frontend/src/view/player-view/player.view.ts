@@ -23,6 +23,8 @@ class PlayerView extends WebViewElement {
 
 	private playerControls: WebPlayerControls;
 
+	private audioFeed: HTMLMediaElement;
+
 	private videoFeed: HTMLMediaElement;
 
 	private videoFeedContainer: HTMLElement;
@@ -51,8 +53,8 @@ class PlayerView extends WebViewElement {
 			this.setElementA(elementA);
 		}
 
-		this.videoFeed.addEventListener("canplay", () => {
-			this.videoFeed.play()
+		this.audioFeed.addEventListener("canplay", () => {
+			this.audioFeed.play()
 				.catch(error => {
 					if (error.name == "NotAllowedError") {
 						this.cannotPlay();
@@ -74,7 +76,7 @@ class PlayerView extends WebViewElement {
 			this.setFullscreen(fullscreen);
 		});
 		this.playerControls.setOnPlayMedia(() => {
-			this.videoFeed.play()
+			this.audioFeed.play()
 				.then(() => {
 					this.playerControls.setPlayMediaVisible(false);
 				})
@@ -93,7 +95,7 @@ class PlayerView extends WebViewElement {
 	}
 
 	getMediaElement(): HTMLMediaElement {
-		return this.videoFeed;
+		return this.audioFeed;
 	}
 
 	setDuration(durationMs: number): void {

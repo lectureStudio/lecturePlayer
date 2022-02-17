@@ -408,13 +408,24 @@ export class JanusService {
 				}
 
 				if (peerContext.isPrimary) {
-					const video = this.playerView.getMediaElement() as HTMLVideoElement;
+					if (track.kind === "audio") {
+						const audio = this.playerView.getMediaElement() as HTMLVideoElement;
+	
+						if (this.deviceConstraints) {
+							this.setAudioSink(audio, this.deviceConstraints.audioOutput);
+						}
 
-					Janus.attachMediaStream(video, stream);
+						Janus.attachMediaStream(audio, stream);
+					}
+					else if (track.kind === "video") {
+						const video = this.getElementById("videoFeed") as HTMLVideoElement;
 
-					this.playbackModel.mainVideoAvailable = peerContext.hasVideoTracks();
+						Janus.attachMediaStream(video, stream);
 
-					this.checkVideoCount();
+						this.playbackModel.mainVideoAvailable = peerContext.hasVideoTracks();
+
+						this.checkVideoCount();
+					}
 					return;
 				}
 
