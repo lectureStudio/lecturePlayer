@@ -8,11 +8,16 @@
 	position: relative;
 	text-align: center;
 	box-sizing: border-box;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
 }
 .slide-view > canvas {
 	position: absolute;
 	transform: translate(-50%, 0);
 	left: 50%;
+	border: 1px solid #94A3B8;
+	border-radius: 0.2em;
 }
 .slide-view .slide-canvas {
 	visibility: hidden;

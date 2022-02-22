@@ -1,7 +1,12 @@
+player-controls {
+	width: 100%;
+}
+
 #controlContainer {
 	--seek-before-width: 0%;
 	--volume-before-width: 100%;
 	--buffered-width: 0%;
+	width: 100%;
 	position: relative;
 	display: flex;
 	flex-direction: row;
@@ -24,17 +29,17 @@
 }
 
 #controlContainer button {
-    padding: 0;
-    border: 0;
-    background: transparent;
+	padding: 0;
+	border: 0;
+	background: transparent;
 	border-radius: 0.333em;
-    cursor: pointer;
-    outline: none;
+	cursor: pointer;
+	outline: none;
 	min-width: 40px;
-    width: 40px;
+	width: 40px;
 	min-height: 40px;
-    height: 40px;
-	font-size: 18px;
+	height: 40px;
+	font-size: 1.25em;
 }
 #controlContainer button:hover {
 	color: rgba(0, 125, 181, 1);
@@ -46,17 +51,23 @@
 #controlContainer button.selected:hover {
 	background-color: rgba(0, 125, 181, 0.8);
 }
+#controlContainer button.active {
+	color: rgba(0, 125, 181, 1);
+}
+#controlContainer button.active:hover {
+	color: rgba(0, 125, 181, 0.8);
+}
 #controlContainer button.selected path {
 	color: #F9FAFB;
 	stroke: #F9FAFB;
 }
-#controlContainer button.active {
+#controlContainer #raiseHandButton button.active {
 	background-color: rgba(25, 135, 84, 1);
 }
-#controlContainer button.active:hover {
+#controlContainer #raiseHandButton button.active:hover {
 	background-color: rgba(255, 193, 7, 1);
 }
-#controlContainer button.active path {
+#controlContainer #raiseHandButton button.active path {
 	stroke: #F9FAFB;
 }
 #controlContainer button svg {
@@ -86,6 +97,8 @@
 	animation: button-pulse 2s infinite;
 	z-index: 10;
 }
+
+
 
 #controlContainer .control-bar {
 	width: 100%;

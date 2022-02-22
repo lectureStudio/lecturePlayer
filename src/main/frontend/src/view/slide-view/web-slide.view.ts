@@ -67,7 +67,6 @@ class WebSlideView extends WebViewElement implements SlideView {
 	}
 
 	private resize() {
-		const slideView = this.querySelector('.slide-view') as HTMLElement;
 		const slideRatio = 4 / 3;
 		let width = this.clientWidth;
 		let height = this.clientHeight;
