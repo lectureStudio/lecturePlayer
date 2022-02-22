@@ -16,6 +16,8 @@ class WebPlayerControls extends WebViewElement {
 
 	private playMediaButton: HTMLButtonElement;
 
+	private chatButton: HTMLButtonElement;
+
 	private settingsButton: HTMLButtonElement;
 
 	private raiseHandButton: HTMLButtonElement;
@@ -39,6 +41,10 @@ class WebPlayerControls extends WebViewElement {
 		this.updateVolumeIndicator(parseFloat(this.volumeSlider.value) / 100);
 		this.setFullscreen(false);
 
+		document.addEventListener("fullscreenchange", () => {
+			this.setFullscreen(document.fullscreenElement !== null);
+		});
+
 		this.volumeIndicator.addEventListener("click", () => {
 			this.setMuted(!this.volumeIndicator.classList.contains("icon-mute"));
 		});
@@ -46,9 +52,6 @@ class WebPlayerControls extends WebViewElement {
 			const inputRange = this.volumeSlider as any;
 
 			this.controlContainer.style.setProperty('--volume-before-width', inputRange.value / inputRange.max * 100 + '%');
-		});
-		this.fullscreenButton.addEventListener("click", () => {
-			this.setFullscreen(this.fullscreenButton.classList.contains("icon-expand"));
 		});
 		this.raiseHandButton.addEventListener("click", () => {
 			this.setSelected(this.raiseHandButton, !this.raiseHandButton.classList.contains("selected"));
@@ -111,10 +114,10 @@ class WebPlayerControls extends WebViewElement {
 
 	setFullscreen(fullscreen: boolean): void {
 		if (fullscreen) {
-			this.setFullscreenIndicator("icon-contract");
+			this.setFullscreenIndicator("bi-fullscreen-exit");
 		}
 		else {
-			this.setFullscreenIndicator("icon-expand");
+			this.setFullscreenIndicator("bi-fullscreen");
 		}
 	}
 
@@ -185,7 +188,7 @@ class WebPlayerControls extends WebViewElement {
 	setOnFullscreen(observer: Observer<boolean>): void {
 		this.fullscreenButton.addEventListener("click", () => {
 			event.stopPropagation();
-			observer(!this.fullscreenButton.classList.contains("icon-expand"));
+			observer(!(document.fullscreenElement));
 		}, false);
 	}
 
@@ -227,6 +230,23 @@ class WebPlayerControls extends WebViewElement {
 		});
 	}
 
+	setChatEnabled(enabled: boolean): void {
+		this.setVisible(this.chatButton, enabled);
+	}
+
+	setOnChatAction(property: Property<boolean>): void {
+		this.setActive(this.chatButton, property.value);
+
+		property.subscribe(show => {
+			this.setActive(this.chatButton, show);
+		});
+
+		this.chatButton.addEventListener("click", () => {
+			event.stopPropagation();
+			property.value = this.chatButton.classList.contains("active");
+		}, false);
+	}
+
 	private toggleClass(button: HTMLElement, add: boolean, name: string) {
 		const classList = button.classList;
 
@@ -256,7 +276,7 @@ class WebPlayerControls extends WebViewElement {
 	private setFullscreenIndicator(indicatorName: string): void {
 		const classList = this.fullscreenButton.classList;
 
-		classList.remove("icon-expand", "icon-contract");
+		classList.remove("bi-fullscreen", "bi-fullscreen-exit");
 		classList.add(indicatorName);
 	}
 

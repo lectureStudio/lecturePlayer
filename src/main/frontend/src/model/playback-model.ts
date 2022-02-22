@@ -11,6 +11,8 @@ class PlaybackModel {
 
 	private readonly _showQuiz = new Property<boolean>();
 
+	private readonly _showChat = new Property<boolean>();
+
 	private readonly _showQuizActive = new Property<boolean>();
 
 	private readonly _webrtcConnected = new Property<boolean>();
@@ -60,6 +62,18 @@ class PlaybackModel {
 
 	set raisedHand(raised: boolean) {
 		this._raisedHand.value = raised;
+	}
+
+	get showChatProperty() {
+		return this._showChat;
+	}
+
+	get showChat() {
+		return this._showChat.value;
+	}
+
+	set showChat(show: boolean) {
+		this._showChat.value = show;
 	}
 
 	get showQuizProperty() {

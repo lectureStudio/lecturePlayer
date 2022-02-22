@@ -14,12 +14,12 @@ player-view .slide-container {
 	flex-direction: column;
 }
 player-view .feed-container {
+	display: flex;
 	flex-grow: 0;
 	flex-direction: column;
 }
 player-view .right-container {
 	background-color: rgba(233, 236, 239, 0.8);
-	border-radius: .25rem;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -30,11 +30,29 @@ player-view slide-view {
 	flex-grow: 1;
 }
 player-view .feed-container video {
-	background-color: #6c757d;
-	border-radius: .25rem;
-	padding: .25rem;
+	border: 2px solid #94A3B8;
 	max-width: 15em;
+}
+player-view .chat-container > * {
+	min-width: 15em;
 }
 player-view .invisible {
 	display: none;
+}
+
+textarea[id=messageTextarea] {
+	resize: none;
+	border-radius: 0;
+}
+textarea[id=messageTextarea]:focus {   
+	border-color: #86b7fe;
+	outline: 0;
+	box-shadow: 0 0 0 -0.25rem rgba(13, 110, 253, 0.25);
+}
+
+#chatModal .modal-body {
+	padding: 0;
+}
+#chatModal .modal-footer {
+	border-top: 0;
 }

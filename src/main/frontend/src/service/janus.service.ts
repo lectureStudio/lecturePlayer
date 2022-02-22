@@ -401,7 +401,7 @@ export class JanusService {
 	
 						const div = document.createElement("div");
 						div.id = "videoFeedDiv-" + publisher.id;
-						div.classList.add("invisible");
+						div.classList.add("feed-container", "invisible");
 						div.appendChild(video);
 	
 						const videoFeedContainer = this.getElementById("videoFeedContainer");

@@ -1,17 +1,42 @@
-<div class="player-container" id="playerContainer">
-	<div class="slide-container" id="slideContainer">
-		<slide-view id="slideView"></slide-view>
-		<player-controls id="playerControls"></player-controls>
+<div class="d-flex flex-column flex-md-row h-100 bg-light" id="playerContainer">
+	<div class="order-md-0 order-2 d-flex flex-column h-100 w-100">
+		<div class="d-flex flex-row h-100 w-100">
+			<div class="d-flex h-100 w-100 pb-1 px-1">
+				<div class="d-flex h-100 w-100" id="slideContainer">
+					<slide-view class="d-flex h-100 w-100" id="slideView"></slide-view>
+				</div>
+			</div>
+		</div>
+		<div class="w-100 d-flex align-items-end">
+			<player-controls id="playerControls"></player-controls>
+		</div>
 	</div>
-	<div class="right-container" id="rightContainer">
-		<div class="feed-container invisible" id="videoFeedContainer">
-			<div class="invisible" id="mainVideoFeedContainer">
+	<div class="d-flex flex-column bg-white" id="rightContainer">
+		<div class="order-md-2 order-1 d-flex flex-row flex-md-column" id="videoFeedContainer">
+			<div class="feed-container invisible" id="localVideoFeedContainer">
+				<video id="localVideoFeed" autoplay playsinline muted></video>
+			</div>
+			<div class="feed-container invisible" id="mainVideoFeedContainer">
 				<video id="videoFeed" autoplay playsinline></video>
 			</div>
 		</div>
-		<div class="feed-container invisible" id="localVideoFeedContainer">
-			<video id="localVideoFeed" autoplay playsinline muted></video>
+		<div class="order-md-last order-last mt-auto d-flex flex-row d-sm-none d-md-block d-none d-sm-block chat-container" id="chatContainer">
 		</div>
-		<div id="containerA"></div>
+	</div>
+</div>
+
+<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="modal-title" id="chatModalLabel">Chat</div>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+			</div>
+		</div>
 	</div>
 </div>
