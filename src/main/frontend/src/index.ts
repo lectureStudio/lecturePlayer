@@ -62,7 +62,7 @@ class LecturePlayer {
 		return new Promise<void>((resolve, reject) => {
 			this.courseStateService.getCourseState(this.roomId)
 				.then((courseState: CourseState) => {
-					// console.log("Course state", courseState);
+					console.log("Course state", courseState);
 
 					// Load all initially opened documents.
 					const promises = [];
@@ -77,7 +77,13 @@ class LecturePlayer {
 						.then(documents => {
 							// console.log(documents);
 
-							this.setDocuments(courseState, documents);
+							try {
+								this.setDocuments(courseState, documents);
+							}
+							catch (e) {
+								reject(e);
+								return;
+							}
 
 							resolve();
 						})
@@ -114,6 +120,10 @@ class LecturePlayer {
 
 	setContainerA(element: HTMLElement): void {
 		this.playbackModel.elementAProperty.value = element;
+	}
+
+	setOnError(consumer: Observer<any>): void {
+		this.janusService.setOnError(consumer);
 	}
 
 	setOnConnectedState(consumer: Observer<boolean>): void {
