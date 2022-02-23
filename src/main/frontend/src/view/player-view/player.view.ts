@@ -69,7 +69,7 @@ class PlayerView extends WebViewElement {
 		});
 
 		this.playbackModel.elementAProperty.subscribe(this.setChat.bind(this));
-		this.playbackModel.videoAvailableProperty.subscribe(this.setVideoAvailable.bind(this));
+		// this.playbackModel.videoAvailableProperty.subscribe(this.setVideoAvailable.bind(this));
 		this.playbackModel.mainVideoAvailableProperty.subscribe(this.setMainVideoAvailable.bind(this));
 		this.playbackModel.localVideoAvailableProperty.subscribe(this.setLocalVideoAvailable.bind(this));
 
@@ -316,8 +316,6 @@ class PlayerView extends WebViewElement {
 	private updateRightContainer() {
 		this.setElementVisible(this.rightContainer, this.playbackModel.videoAvailable
 			|| this.playbackModel.localVideoAvailable || this.chatContainer.hasChildNodes());
-
-		window.dispatchEvent(new Event("resize"));
 
 		this.computeViewSize();
 	}

@@ -87,8 +87,6 @@ export class PlaybackService {
 		const document = this.documents.get(BigInt(docId));
 
 		if (document) {
-			console.log("found document to select", docId)
-
 			this.actionPlayer.setDocument(document);
 		}
 	}
