@@ -158,7 +158,7 @@ class WebPlayerControls extends WebViewElement {
 	}
 
 	setOnPlayMedia(observer: Observer<void>): void {
-		this.playMediaButton.addEventListener("click", () => {
+		this.playMediaButton.addEventListener("click", (event) => {
 			event.stopPropagation();
 			observer();
 		}, false);
@@ -179,14 +179,15 @@ class WebPlayerControls extends WebViewElement {
 	}
 
 	setOnSettings(observer: Observer<boolean>): void {
-		this.settingsButton.addEventListener("click", () => {
+		this.settingsButton.addEventListener("click", (event) => {
 			event.stopPropagation();
+			this.settingsButton.disabled = true;
 			observer(true);
 		}, false);
 	}
 
 	setOnFullscreen(observer: Observer<boolean>): void {
-		this.fullscreenButton.addEventListener("click", () => {
+		this.fullscreenButton.addEventListener("click", (event) => {
 			event.stopPropagation();
 			observer(!(document.fullscreenElement));
 		}, false);
@@ -197,7 +198,7 @@ class WebPlayerControls extends WebViewElement {
 			this.setSelected(this.raiseHandButton, raise);
 		});
 
-		this.raiseHandButton.addEventListener("click", () => {
+		this.raiseHandButton.addEventListener("click", (event) => {
 			event.stopPropagation();
 			property.value = this.raiseHandButton.classList.contains("selected");
 		}, false);
@@ -214,7 +215,7 @@ class WebPlayerControls extends WebViewElement {
 			this.setSelected(this.showQuizButton, show);
 		});
 
-		this.showQuizButton.addEventListener("click", () => {
+		this.showQuizButton.addEventListener("click", (event) => {
 			event.stopPropagation();
 			property.value = this.showQuizButton.classList.contains("selected");
 		}, false);
@@ -241,7 +242,7 @@ class WebPlayerControls extends WebViewElement {
 			this.setActive(this.chatButton, show);
 		});
 
-		this.chatButton.addEventListener("click", () => {
+		this.chatButton.addEventListener("click", (event) => {
 			event.stopPropagation();
 			property.value = this.chatButton.classList.contains("active");
 		}, false);

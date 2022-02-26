@@ -193,8 +193,6 @@ export class JanusService {
 				for (const videoTrack of stream.getVideoTracks()) {
 					videoTrack.applyConstraints(constraints);
 
-					console.log(videoTrack.getConstraints());
-
 					if (videoTrack.muted == false) {
 						hasVideo = true;
 						break;
@@ -398,6 +396,22 @@ export class JanusService {
 						video.id = "videoFeed-" + publisher.id;
 						video.autoplay = true;
 						video.playsInline = true;
+
+						// for (const key in video) {
+						// 	if(/^on/.test(key)) {
+						// 		const eventType = key.substr(2);
+
+						// 		console.log("addEventListener: " + eventType);
+
+						// 		if (eventType === "timeupdate") {
+						// 			continue;
+						// 		}
+
+						// 		video.addEventListener(eventType, (e: any) => {
+						// 			console.log(e);
+						// 		});
+						// 	}
+						// }
 	
 						const div = document.createElement("div");
 						div.id = "videoFeedDiv-" + publisher.id;

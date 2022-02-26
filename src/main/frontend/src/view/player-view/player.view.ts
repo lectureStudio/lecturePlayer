@@ -98,8 +98,6 @@ class PlayerView extends WebViewElement {
 				});
 		});
 
-		this.slideView.repaint();
-
 		const chatModalElement = document.getElementById("chatModal");
 		chatModalElement.addEventListener("hidden.bs.modal", (e: any) => {
 			this.playbackModel.showChat = false;
@@ -117,6 +115,12 @@ class PlayerView extends WebViewElement {
 		this.playbackModel.showChat = !mql.matches;
 
 		new ResizeObserver(this.computeViewSize.bind(this)).observe(this.playerContainer);
+
+		this.style.display = "none";
+	}
+
+	show() {
+		this.style.display = "flex";
 	}
 
 	getSlideView(): SlideView {

@@ -37,6 +37,8 @@ class WebSlideView extends WebViewElement implements SlideView {
 		this.textLayerSurface = new TextLayerSurface(textLayer);
 
 		new ResizeObserver(this.resize.bind(this)).observe(this);
+
+		this.resize();
 	}
 
 	getActionRenderSurface(): RenderSurface {
@@ -59,13 +61,6 @@ class WebSlideView extends WebViewElement implements SlideView {
 		this.resize();
 	}
 
-	repaintSize(width: number, height: number): void {
-		this.slideRenderSurface.setSize(width, height);
-		this.actionRenderSurface.setSize(width, height);
-		this.volatileRenderSurface.setSize(width, height);
-		this.textLayerSurface.setSize(width, height);
-	}
-
 	private resize() {
 		const slideRatio = 4 / 3;
 		let width = this.clientWidth;
@@ -77,6 +72,10 @@ class WebSlideView extends WebViewElement implements SlideView {
 		}
 		else {
 			height = width / slideRatio;
+		}
+
+		if (width === 0 || height === 0) {
+			return;
 		}
 
 		this.slideRenderSurface.setSize(width, height);

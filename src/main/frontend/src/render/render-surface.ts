@@ -41,6 +41,10 @@ class RenderSurface {
 	}
 
 	renderSurface(surface: RenderSurface): void {
+		if (surface.canvas.width === 0 || surface.canvas.height === 0) {
+			return;
+		}
+
 		this.canvasContext.drawImage(surface.canvas, 0, 0);
 	}
 
