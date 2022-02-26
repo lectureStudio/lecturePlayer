@@ -69,6 +69,10 @@ export class PlaybackService {
 
 		this.actionPlayer = new StreamActionPlayer(executor, new SyncState(mediaPlayer));
 		this.actionPlayer.start();
+
+		this.playbackModel.webrtcConnectedProperty.subscribe(() => {
+			playerView.show();
+		});
 	}
 
 	addAction(action: Action): void {
