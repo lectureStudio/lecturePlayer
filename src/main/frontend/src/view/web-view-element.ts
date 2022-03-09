@@ -1,5 +1,5 @@
-import Mustache from "mustache";
-import morphdom from "morphdom";
+// import Mustache from "mustache";
+// import morphdom from "morphdom";
 
 class WebViewElement extends HTMLElement {
 
@@ -11,11 +11,11 @@ class WebViewElement extends HTMLElement {
 	}
 
 	protected render(): void {
-		if (this.template) {
-			const template = Mustache.render(this.template, this);
+		// if (this.template) {
+		// 	const template = Mustache.render(this.template, this);
 
-			morphdom(this.lastElementChild, template);
-		}
+		// 	morphdom(this.lastElementChild, template);
+		// }
 	}
 
 }

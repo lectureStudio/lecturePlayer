@@ -32,6 +32,7 @@ player-view slide-view {
 player-view .feed-container video {
 	border: 2px solid #94A3B8;
 	max-width: 15em;
+	max-height: 9em;
 }
 player-view .chat-container > * {
 	min-width: 15em;
@@ -55,4 +56,13 @@ textarea[id=messageTextarea]:focus {
 }
 #chatModal .modal-footer {
 	border-top: 0;
+}
+
+
+@media (max-width: 576px) {
+	player-view .feed-container video {
+		border: 2px solid #94A3B8;
+		max-width: 10em;
+		max-height: 5em;
+	}
 }
