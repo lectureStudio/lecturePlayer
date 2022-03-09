@@ -105,7 +105,7 @@ class PlayerView extends WebViewElement {
 
 		this.chatModal = new bootstrap.Modal(chatModalElement, {});
 
-		const mql = window.matchMedia("(max-width: 768px)");
+		const mql = window.matchMedia("(max-width: 576px)");
 		mql.addEventListener('change', (e: MediaQueryListEvent) => {
 			this.chatModalState = e.matches;
 			this.playbackModel.showChat = !mql.matches;
