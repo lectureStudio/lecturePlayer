@@ -1,11 +1,8 @@
-import { Janus } from "janus-gateway";
-import { PlayerView } from "..";
-import { PlaybackModel } from "../model/playback-model";
+import { Janus, JSEP, PluginHandle } from "janus-gateway";
+import { PlayerView } from "../component/player-view/player-view";
 import { Utils } from "../utils/utils";
 
-export class JanusService {
-
-	private readonly playbackModel: PlaybackModel;
+export class JanusService extends EventTarget {
 
 	private readonly serverUrl: string;
 
@@ -15,7 +12,7 @@ export class JanusService {
 
 	private publisherLocalStream: MediaStream;
 
-	private publisherHandle: Janus.PluginHandle;
+	private publisherHandle: PluginHandle;
 
 	private publisherId: Number;
 
@@ -34,9 +31,10 @@ export class JanusService {
 	private errorCallback: (data: any) => void;
 
 
-	constructor(serverUrl: string, playbackModel: PlaybackModel) {
+	constructor(serverUrl: string) {
+		super();
+
 		this.serverUrl = serverUrl;
-		this.playbackModel = playbackModel;
 		this.janus = null;
 		this.publisherHandle = null;
 		this.publisherId = null;
@@ -127,12 +125,13 @@ export class JanusService {
 			webrtcState: (isConnected: boolean) => {
 				Janus.log("Janus says our WebRTC PeerConnection is " + (isConnected ? "up" : "down") + " now");
 
-				this.playbackModel.webrtcPublisherConnected = isConnected;
-
-				if (!isConnected) {
-					this.playbackModel.localVideoAvailable = false;
-					this.playbackModel.raisedHand = false;
-				}
+				const event = new CustomEvent("speech-state", {
+					detail: {
+						peerId: this.publisherId,
+						connected: isConnected
+					}
+				});
+				this.dispatchEvent(event);
 			},
 			onmessage: (message: any, jsep?: JSEP) => {
 				const event = message["videoroom"];
@@ -175,7 +174,7 @@ export class JanusService {
 			onlocalstream: (stream: MediaStream) => {
 				this.publisherLocalStream = stream;
 
-				const localVideoFeed = this.getElementById("localVideoFeed") as HTMLMediaElement;
+				const localVideoFeed = this.playerView.getLocalVideo();
 
 				Janus.attachMediaStream(localVideoFeed, stream);
 
@@ -198,8 +197,6 @@ export class JanusService {
 						break;
 					}
 				}
-
-				this.playbackModel.localVideoAvailable = hasVideo;
 			},
 			onremotestream: (stream: MediaStream) => {
 				// The publisher stream is sendonly, we don't expect anything here.
@@ -220,8 +217,6 @@ export class JanusService {
 			var unpublish = { request: "unpublish" };
 
 			this.publisherHandle.send({ message: unpublish });
-
-			this.playbackModel.localVideoAvailable = false;
 		}
 	}
 
@@ -329,12 +324,18 @@ export class JanusService {
 				Janus.log("Janus says our WebRTC PeerConnection is " + (isConnected ? "up" : "down") + " now");
 
 				if (remoteFeed.isPrimary) {
-					this.playbackModel.webrtcConnected = isConnected;
-
 					if (!isConnected) {
 						this.stopSpeech();
 					}
 				}
+
+				const event = new CustomEvent("publisher-state", {
+					detail: {
+						peerId: publisher.id,
+						connected: isConnected
+					}
+				});
+				this.dispatchEvent(event);
 			},
 			onmessage: (message: any, jsep?: JSEP) => {
 				const event = message["videoroom"];
@@ -379,56 +380,11 @@ export class JanusService {
 
 				remoteFeed.hasVideo = hasVideo;
 
-				if (remoteFeed.isPrimary) {
-					const video = this.playerView.getMediaElement() as HTMLVideoElement;
+				const video = this.playerView.getVideo(publisher.id, remoteFeed.isPrimary);
 
-					Janus.attachMediaStream(video, stream);
+				Janus.attachMediaStream(video, stream);
 
-					this.setAudioSink(video, this.deviceConstraints.audioOutput);
-
-					this.playbackModel.mainVideoAvailable = hasVideo;
-				}
-				else {
-					let video = this.getElementById("videoFeed-" + publisher.id) as HTMLVideoElement;
-
-					if (!video) {
-						video = document.createElement("video");
-						video.id = "videoFeed-" + publisher.id;
-						video.autoplay = true;
-						video.playsInline = true;
-
-						// for (const key in video) {
-						// 	if(/^on/.test(key)) {
-						// 		const eventType = key.substr(2);
-
-						// 		console.log("addEventListener: " + eventType);
-
-						// 		if (eventType === "timeupdate") {
-						// 			continue;
-						// 		}
-
-						// 		video.addEventListener(eventType, (e: any) => {
-						// 			console.log(e);
-						// 		});
-						// 	}
-						// }
-	
-						const div = document.createElement("div");
-						div.id = "videoFeedDiv-" + publisher.id;
-						div.classList.add("feed-container", "invisible");
-						div.appendChild(video);
-	
-						const videoFeedContainer = this.getElementById("videoFeedContainer");
-						videoFeedContainer.appendChild(div);
-					}
-
-					if (hasVideo) {
-						const videoFeedDiv = this.getElementById("videoFeedDiv-" + publisher.id);
-						videoFeedDiv.classList.remove("invisible");
-					}
-
-					Janus.attachMediaStream(video, stream);
-
+				if (this.deviceConstraints) {
 					this.setAudioSink(video, this.deviceConstraints.audioOutput);
 				}
 
@@ -444,10 +400,7 @@ export class JanusService {
 			},
 			oncleanup: () => {
 				if (!remoteFeed.isPrimary) {
-					const videoFeedContainer = this.getElementById("videoFeedContainer");
-					const videoFeedDiv = this.getElementById("videoFeedDiv-" + publisher.id);
-
-					videoFeedContainer.removeChild(videoFeedDiv);
+					this.playerView.removeVideo(publisher.id);
 				}
 
 				this.remoteFeeds = this.remoteFeeds.filter(item => item !== remoteFeed);
@@ -480,8 +433,9 @@ export class JanusService {
 	}
 
 	private onVideoTrackRemoved(remoteFeed: PluginHandle, track: MediaStreamTrack) {
-		this.playbackModel.mainVideoAvailable = false;
+		// this.playbackModel.mainVideoAvailable = false;
 		remoteFeed.hasVideo = false;
+
 		this.checkVideoCount();
 	}
 
@@ -495,7 +449,7 @@ export class JanusService {
 			}
 		}
 
-		this.playbackModel.videoAvailable = hasVideo;
+		// this.playbackModel.videoAvailable = hasVideo;
 	}
 
 	private joinAsPublisher(remoteFeed: PluginHandle) {
@@ -576,9 +530,5 @@ export class JanusService {
 				this.publishOwnFeed(remoteFeed, deviceConstraints)
 			}
 		});
-	}
-
-	private getElementById(id: string) {
-		return document.getElementById(id);
 	}
 }

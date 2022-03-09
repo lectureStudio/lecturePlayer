@@ -1,22 +1,17 @@
 import { ActionPlayer } from "./action-player";
 import { ActionExecutor } from "./action-executor";
-import { SyncState } from "../utils/sync-state";
 import { Action } from "./action";
 import { SlideDocument } from "../model/document";
 
 class StreamActionPlayer extends ActionPlayer {
-
-	private readonly syncState: SyncState;
 
 	private actions: Action[];
 
 	private requestID: number;
 
 
-	constructor(executor: ActionExecutor, syncState: SyncState) {
+	constructor(executor: ActionExecutor) {
 		super(executor);
-
-		this.syncState = syncState;
 	}
 
 	addAction(action: Action): void {
@@ -41,7 +36,6 @@ class StreamActionPlayer extends ActionPlayer {
 		while (actionCount > 0) {
 			// Get next action for execution.
 			const action = this.actions[0];
-			const time = this.syncState.audioTime;
 
 			// if (time >= action.timestamp) {
 				//console.log("action latency: " + (time - action.timestamp));

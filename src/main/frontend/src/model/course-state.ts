@@ -6,4 +6,6 @@ export interface CourseState {
 
 	readonly avtiveDocument: CourseStateDocument;
 
+	readonly timeStarted: number;
+	
 }

@@ -1,4 +1,7 @@
 {
+	"assumptions": {
+		"setPublicClassFields": true
+	},
 	"presets": [
 		[
 			"@babel/env",
@@ -9,10 +12,11 @@
 		"@babel/typescript"
 	],
 	"plugins": [
+
 		[
 			"@babel/proposal-decorators",
 			{
-				"legacy": true
+				"decoratorsBeforeExport": true
 			}
 		],
 		[
