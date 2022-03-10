@@ -107,7 +107,11 @@ export class PlayerControls extends LitElement {
 	}
 
 	private onSettings(): void {
-
+		const event = new CustomEvent("player-settings", {
+			bubbles: true,
+			composed: true,
+		});
+		this.dispatchEvent(event);
 	}
 
 	private getFormattedDuration(): string {

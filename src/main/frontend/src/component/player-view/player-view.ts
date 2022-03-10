@@ -3,6 +3,7 @@ import { customElement, property, query } from 'lit/decorators.js';
 import { MediaPlayer } from '../../media/media-player';
 import { PlayerControls } from '../controls/player-controls';
 import { I18nLitElement } from '../i18n-mixin';
+import { SettingsModal } from '../settings-modal/settings-modal';
 import { SlideView } from '../slide-view/slide-view';
 import { PlayerViewController } from './player-view.controller';
 import { playerViewStyles } from './player-view.styles';
@@ -38,6 +39,18 @@ export class PlayerView extends I18nLitElement {
 		}, false);
 		this.controls.addEventListener("player-mute", (e: CustomEvent) => {
 			this.mediaPlayer.muted = e.detail;
+		}, false);
+		this.controls.addEventListener("player-settings", (e: CustomEvent) => {
+			console.log("onSettings listener");
+
+			const settingsModal = new SettingsModal();
+
+			document.body.appendChild(settingsModal);
+
+			settingsModal.show = true;
+
+			// const modal = this.shadowRoot.querySelector('settings-modal');
+			// modal.show = true;
 		}, false);
 	}
 
@@ -123,6 +136,7 @@ export class PlayerView extends I18nLitElement {
 				<div class="order-md-last order-last mt-auto d-flex flex-row d-sm-none d-md-block d-none d-sm-block chat-container" id="chatContainer">
 				</div>
 			</div>
+
 		`;
 	}
 }

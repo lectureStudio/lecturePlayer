@@ -39,23 +39,6 @@ module.exports = {
 					exports: 'Janus',
 				},
 			},
-			// Process component templates
-			{
-				test: /\.html$/,
-				type: 'asset/source',
-				exclude: [
-					path.resolve(__dirname, './src/index.html')
-				]
-			},
-			{
-				test: /\.(s?)css$/,
-				type: 'asset/source',
-				exclude: [
-					path.resolve(__dirname, './src/style.css'),
-					path.resolve(__dirname, './src/icons.css'),
-					path.resolve(__dirname, './src/tooltip.css')
-				]
-			},
 			{
 				test: /\.(woff|woff2|eot|ttf|otf)$/i,
 				type: 'asset/inline',
