@@ -42,7 +42,6 @@
 		"postcss-loader": "^5.0.0",
 		"resize-observer-polyfill": "^1.5.1",
 		"style-loader": "^2.0.0",
-		"tailwindcss": "^2.0.3",
 		"to-string-loader": "^1.1.5",
 		"typescript": "^3.9.9",
 		"webpack": "^5.24.2",
@@ -54,7 +53,6 @@
 	"dependencies": {
 		"@types/node": "^10.12.18",
 		"janus-gateway": "git://github.com/meetecho/janus-gateway.git",
-		"lottie-web": "^5.7.12",
 		"pdfjs-dist": "^2.6.347"
 	}
 }
