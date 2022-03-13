@@ -148,10 +148,28 @@ class PlayerView extends WebViewElement {
 			if (this.requestFullscreen) {
 				this.requestFullscreen();
 			}
+			else if (this.mozRequestFullScreen) {
+				this.mozRequestFullScreen();
+			}
+			else if (this.webkitRequestFullScreen) {
+				this.webkitRequestFullScreen();
+			}
+			else if (this.msRequestFullscreen) {
+				this.msRequestFullscreen();
+			}
 		}
 		else {
 			if (document.exitFullscreen) {
 				document.exitFullscreen();
+			}
+			else if (document.mozCancelFullScreen) {
+				document.mozCancelFullScreen();
+			}
+			else if (document.webkitExitFullscreen) {
+				document.webkitExitFullscreen();
+			}
+			else if (document.msExitFullscreen) {
+				document.msExitFullscreen();
 			}
 		}
 
