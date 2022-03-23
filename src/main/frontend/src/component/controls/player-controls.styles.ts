@@ -244,6 +244,11 @@ export const playerControlsStyles = css`
 	}
 
 
+	#volumeIndicator .svg-icon {
+		display: none;
+	}
+
+	
 	@-webkit-keyframes button-pulse {
 		0% {
 			-webkit-box-shadow: 0 0 0 0 var(--animation-color);

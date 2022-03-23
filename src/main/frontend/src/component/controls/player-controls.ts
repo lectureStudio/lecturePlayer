@@ -18,6 +18,9 @@ export class PlayerControls extends LitElement {
 	@query('.volatile-canvas')
 	volatileCanvas: HTMLCanvasElement;
 
+	@query('#volumeIndicator')
+	volumeIndicator: HTMLElement;
+
 	@query('.text-layer')
 	textLayer: HTMLElement;
 
@@ -41,8 +44,23 @@ export class PlayerControls extends LitElement {
 	render() {
 		return html`
 			<div class="col nav-left">
-				<button id="volumeIndicator"></button>
-				<input type="range" id="volumeSlider" max="100" value="100" .value="${this.volume}">
+				<button id="volumeIndicator">
+					<svg class="svg-icon volume-mute hidden" viewBox="0 0 16 16">
+						<path d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06zM6 5.04 4.312 6.39A.5.5 0 0 1 4 6.5H2v3h2a.5.5 0 0 1 .312.11L6 10.96V5.04zm7.854.606a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0z"/>
+					</svg>
+					<svg class="svg-icon volume-off hidden" viewBox="4 0 16 16">
+						<path d="M10.717 3.55A.5.5 0 0 1 11 4v8a.5.5 0 0 1-.812.39L7.825 10.5H5.5A.5.5 0 0 1 5 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06zM10 5.04 8.312 6.39A.5.5 0 0 1 8 6.5H6v3h2a.5.5 0 0 1 .312.11L10 10.96V5.04z"/>
+					</svg>
+					<svg class="svg-icon volume-down hidden" viewBox="2 0 16 16">
+						<path d="M9 4a.5.5 0 0 0-.812-.39L5.825 5.5H3.5A.5.5 0 0 0 3 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 9 12V4zM6.312 6.39 8 5.04v5.92L6.312 9.61A.5.5 0 0 0 6 9.5H4v-3h2a.5.5 0 0 0 .312-.11zM12.025 8a4.486 4.486 0 0 1-1.318 3.182L10 10.475A3.489 3.489 0 0 0 11.025 8 3.49 3.49 0 0 0 10 5.525l.707-.707A4.486 4.486 0 0 1 12.025 8z"/>
+					</svg>
+					<svg class="svg-icon volume-up hidden" viewBox="0 0 16 16">
+						<path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"/>
+						<path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z"/>
+						<path d="M10.025 8a4.486 4.486 0 0 1-1.318 3.182L8 10.475A3.489 3.489 0 0 0 9.025 8c0-.966-.392-1.841-1.025-2.475l.707-.707A4.486 4.486 0 0 1 10.025 8zM7 4a.5.5 0 0 0-.812-.39L3.825 5.5H1.5A.5.5 0 0 0 1 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 7 12V4zM4.312 6.39 6 5.04v5.92L4.312 9.61A.5.5 0 0 0 4 9.5H2v-3h2a.5.5 0 0 0 .312-.11z"/>
+					</svg>
+				</button>
+				<input type="range" id="volumeSlider" max="100" value="100" .value="${this.volume}" @input="${this.onVolume}">
 				<span id="duration">${this.getFormattedDuration()}</span>
 			</div>
 			<div class="col nav-center">
@@ -59,8 +77,8 @@ export class PlayerControls extends LitElement {
 					</svg>
 				</button>
 				<button class="hidden" id="playMediaButton">
-					<svg viewBox="0 0 512 512">
-						<path d="M112 111v290c0 17.44 17 28.52 31 20.16l247.9-148.37c12.12-7.25 12.12-26.33 0-33.58L143 90.84c-14-8.36-31 2.72-31 20.16z" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32"/>
+					<svg viewBox="0 0 16 16">
+						<path d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>
 					</svg>
 				</button>
 			</div>
@@ -112,6 +130,30 @@ export class PlayerControls extends LitElement {
 			composed: true,
 		});
 		this.dispatchEvent(event);
+	}
+
+	private onVolume(e: InputEvent): void {
+		this.volume = parseInt((e.target as HTMLInputElement).value);
+
+		this.volumeIndicator.querySelectorAll("svg").forEach(element => {
+			element.style.display = "none";
+		});
+
+		let volElement: HTMLElement = null;
+
+		if (this.volume === 0) {
+			volElement = this.volumeIndicator.querySelector(":nth-child(2)");
+		}
+		else if (this.volume <= 50) {
+			volElement = this.volumeIndicator.querySelector(":nth-child(3)");
+		}
+		else if (this.volume > 50) {
+			volElement = this.volumeIndicator.querySelector(":nth-child(4)");
+		}
+
+		if (volElement) {
+			volElement.style.display = "inherit";
+		}
 	}
 
 	private getFormattedDuration(): string {

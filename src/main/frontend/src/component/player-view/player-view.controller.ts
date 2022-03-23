@@ -59,7 +59,7 @@ export class PlayerViewController implements ReactiveController {
 	}
 
 	hostConnected() {
-		this.start();
+		// this.start();
 	}
 
 	hostDisconnected() {

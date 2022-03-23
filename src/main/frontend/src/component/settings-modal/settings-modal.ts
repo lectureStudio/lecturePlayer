@@ -31,7 +31,7 @@ export class SettingsModal extends I18nLitElement {
 		console.log("render SettingsModal");
 
 		return html`
-			<web-dialog center open>
+			<web-dialog open>
 				<header>
 					<h3>The standard Lorem Ipsum passage</h3>
 				</header>
