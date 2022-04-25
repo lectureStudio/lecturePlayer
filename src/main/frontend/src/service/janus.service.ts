@@ -321,6 +321,12 @@ export class JanusService {
 			},
 			iceState: (state: 'connected' | 'failed') => {
 				Janus.log("ICE state changed to " + state);
+
+				if (state === "failed" && this.errorCallback) {
+					this.errorCallback({
+						cause: "ICE failed"
+					});
+				}
 			},
 			mediaState: (medium: 'audio' | 'video', receiving: boolean, mid?: number) => {
 				Janus.log("Janus " + (receiving ? "started" : "stopped") + " receiving our " + medium);
