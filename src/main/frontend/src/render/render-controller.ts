@@ -58,6 +58,11 @@ class RenderController {
 	constructor() {
 		this.pageChangeListener = this.pageChanged.bind(this);
 		this.lastTransform = new Transform();
+
+		document.addEventListener("visibilitychange", () => {
+			window.dispatchEvent(new Event('resize'));
+			this.renderAllLayers();
+		}, false);
 	}
 
 	setPage(page: Page): void {

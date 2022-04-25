@@ -119,6 +119,33 @@ class PlayerView extends WebViewElement {
 		this.style.display = "none";
 	}
 
+	initEntryModal() {
+		const entryModalElement = document.getElementById("entry-modal");
+		const entryModalLabel = document.getElementById("entry-modal-label");
+
+		const entryModal = bootstrap.Modal.getOrCreateInstance(entryModalElement, {
+			backdrop: "static",
+			keyboard: false
+		});
+
+		const hiddenHandler = () => {
+			this.videoFeed.play()
+				.then(() => {
+					const videos = this.querySelectorAll("video");
+					videos.forEach(function (video) {
+						video.play();
+					});
+				})
+				.catch(error => {
+					console.error(error);
+				});
+		};
+
+		entryModalElement.addEventListener("hidden.bs.modal", hiddenHandler);
+
+		entryModal.show();
+	}
+
 	show() {
 		this.style.display = "flex";
 	}
@@ -193,7 +220,9 @@ class PlayerView extends WebViewElement {
 	}
 
 	private cannotPlay() {
-		this.playerControls.setPlayMediaVisible(true);
+		this.initEntryModal();
+
+		//this.playerControls.setPlayMediaVisible(true);
 
 		// window.dispatchEvent(new Event("resize"));
 	}
