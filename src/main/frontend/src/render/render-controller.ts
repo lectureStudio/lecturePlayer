@@ -151,7 +151,7 @@ class RenderController {
 	private pageChanged(event: PageEvent): void {
 		switch (event.changeType) {
 			case PageChangeType.PageTransform:
-				this.renderAllLayers();
+				this.renderAllLayers(this.page);
 				break;
 
 			case PageChangeType.Clear:
