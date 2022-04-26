@@ -58,11 +58,6 @@ class RenderController {
 	constructor() {
 		this.pageChangeListener = this.pageChanged.bind(this);
 		this.lastTransform = new Transform();
-
-		document.addEventListener("visibilitychange", () => {
-			window.dispatchEvent(new Event('resize'));
-			this.renderAllLayers();
-		}, false);
 	}
 
 	setPage(page: Page): void {
@@ -77,7 +72,7 @@ class RenderController {
 			this.enableRendering();
 		}
 
-		this.renderAllLayers();
+		this.renderAllLayers(page);
 	}
 
 	setSeek(seek: boolean): void {
@@ -96,7 +91,7 @@ class RenderController {
 			}
 			else {
 				// Page transform changed. Update all layers.
-				this.renderAllLayers();
+				this.renderAllLayers(this.page);
 			}
 		}
 	}
@@ -146,7 +141,7 @@ class RenderController {
 	}
 
 	private slideRenderSurfaceSizeChanged(event: SizeEvent): void {
-		this.renderAllLayers();
+		this.renderAllLayers(this.page);
 	}
 
 	private actionRenderSurfaceSizeChanged(event: SizeEvent): void {
@@ -217,8 +212,8 @@ class RenderController {
 		}
 	}
 
-	private renderAllLayers(): void {
-		const promise = this.renderSlideLayer(this.page);
+	private renderAllLayers(page: Page): void {
+		const promise = this.renderSlideLayer(page);
 		promise.then((imageSource: CanvasImageSource) => {
 			if (imageSource) {
 				const pageTransform = this.getPageTransform();
@@ -229,14 +224,21 @@ class RenderController {
 				this.volatileRenderSurface.setTransform(pageTransform);
 
 				this.actionRenderSurface.renderImageSource(imageSource);
-				this.actionRenderSurface.renderShapes(this.page.getShapes());
+				this.actionRenderSurface.renderShapes(page.getShapes());
 				this.volatileRenderSurface.clear();
-				this.textLayerSurface.render(this.page);
+				this.textLayerSurface.render(page);
 
 				this.lastShape = null;
+
+				if (!Object.is(page, this.page)) {
+					// Keep the view up to date.
+					this.renderAllLayers(this.page);
+				}
 			}
 		})
-		.catch(error => {});
+		.catch(error => {
+			console.error(error)
+		});
 	}
 
 	private renderPermanentLayer(shape: Shape, dirtyRegion: Rectangle): void {
