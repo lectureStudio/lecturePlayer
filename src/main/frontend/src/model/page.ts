@@ -75,6 +75,10 @@ class Page {
 		}
 	}
 
+	getPageNumber(): number {
+		return this.pageNumber;
+	}
+
 	getSlideShape(): SlideShape {
 		return this.slideShape;
 	}
