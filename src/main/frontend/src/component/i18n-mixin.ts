@@ -1,11 +1,18 @@
 import { LitElement } from 'lit';
 import i18next, { t } from 'i18next';
 
+import bootstrapStyle from '../bootstrap.min.css';
+
 type Constructor<T = {}> = new (...args: any[]) => T;
 
 export const I18nMixin = <T extends Constructor<LitElement>>(superClass: T) => {
 
 	class I18nMixinClass extends superClass {
+
+		static styles = [
+			bootstrapStyle
+		];
+
 
 		connectedCallback() {
 			super.connectedCallback();

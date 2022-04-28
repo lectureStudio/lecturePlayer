@@ -15,7 +15,7 @@ export class LecturePlayer extends I18nLitElement {
 	];
 
 	@property()
-	courseId: number = 2;
+	courseId: number = 1;
 
 
 	render() {

@@ -45,17 +45,11 @@ module.exports = {
 			},
 			// Process the global stylesheet
 			{
-				test: /\.(s?)css$/,
-				use: [
-					'style-loader',
-					'css-loader',
-					'postcss-loader'
-				],
-				exclude: [
-					/node_modules/,
-					path.resolve(__dirname, "src/view"),
-					path.resolve(__dirname, "src/component")
-				],
+				test: /\.css$/,
+				loader: 'lit-css-loader',
+				options: {
+					specifier: 'lit-element' // defaults to `lit`
+				}
 			},
 			{
 				test: /\.worker\.ts$/,

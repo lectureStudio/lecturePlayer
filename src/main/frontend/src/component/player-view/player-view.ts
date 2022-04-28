@@ -41,16 +41,8 @@ export class PlayerView extends I18nLitElement {
 			this.mediaPlayer.muted = e.detail;
 		}, false);
 		this.controls.addEventListener("player-settings", (e: CustomEvent) => {
-			console.log("onSettings listener");
-
 			const settingsModal = new SettingsModal();
-
-			document.body.appendChild(settingsModal);
-
-			settingsModal.show = true;
-
-			// const modal = this.shadowRoot.querySelector('settings-modal');
-			// modal.show = true;
+			settingsModal.open();
 		}, false);
 	}
 
