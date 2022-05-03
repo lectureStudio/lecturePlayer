@@ -51,13 +51,30 @@ export const playerViewStyles = css`
 		border: 2px solid #94A3B8;
 		max-width: 15em;
 	}
+
+	:host .chat-container {
+		display: none !important;
+		flex-direction: row !important;
+		margin-top: auto !important;
+		order: 6 !important;
+	}
 	:host .chat-container > * {
 		min-width: 15em;
 	}
-	:host .invisible {
+	:host(:not([chatVisible])) chat-box {
 		display: none;
 	}
 
+
+	@media (min-width: 576px) {
+		:host .center-container {
+			order: 0 !important;
+		}
+		:host .chat-container {
+			display: block !important;
+			order: 6 !important;
+		}
+	}
 	@media (min-width: 768px) {
 		.flex-md-column {
 			flex-direction: column !important;

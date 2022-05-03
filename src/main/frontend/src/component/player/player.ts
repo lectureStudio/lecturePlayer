@@ -8,24 +8,25 @@ import { State } from '../../utils/state';
 @customElement('lecture-player')
 export class LecturePlayer extends I18nLitElement {
 
-	private controller = new PlayerController(this);
-
 	static styles = [
+		I18nLitElement.styles,
 		playerStyles,
 	];
 
-	@property()
-	courseId: number = 1;
+	private controller = new PlayerController(this);
+
+	@property({ reflect: true })
+	state: State = State.CONNECTING;
+
+	@property({ type: Number })
+	courseId: number;
 
 
 	render() {
-		switch (this.controller.state) {
-			case State.CONNECTING:
-				return html`<player-loading></player-loading>`;
-			case State.CONNECTED:
-				return html`<player-view></player-view>`;
-			case State.DISCONNECTED:
-				return html`<player-offline></player-offline>`;
-		}
+		return html`
+			<player-loading></player-loading>
+			<player-view .courseId="${this.courseId}"></player-view>
+			<player-offline></player-offline>
+		`;
 	}
 }

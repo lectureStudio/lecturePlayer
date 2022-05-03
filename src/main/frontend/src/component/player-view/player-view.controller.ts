@@ -12,11 +12,11 @@ import { StreamSpeechPublishedAction } from "../../action/stream.speech.publishe
 import { CourseState } from "../../model/course-state";
 import { CourseStateDocument } from "../../model/course-state-document";
 import { SlideDocument } from "../../model/document";
-import { PlaybackModel } from "../../model/playback-model";
 import { WhiteboardDocument } from "../../model/whiteboard.document";
 import { CourseStateService } from "../../service/course.service";
 import { JanusService } from "../../service/janus.service";
 import { PlaybackService } from "../../service/playback.service";
+import { State } from "../../utils/state";
 import { PlayerView } from "./player-view";
 
 export class PlayerViewController implements ReactiveController {
@@ -34,14 +34,11 @@ export class PlayerViewController implements ReactiveController {
 
 	private playbackService: PlaybackService;
 
-	private playbackModel: PlaybackModel;
-
 
 	constructor(host: PlayerView) {
 		this.host = host;
 		this.host.addController(this);
 
-		this.playbackModel = new PlaybackModel();
 		this.courseStateService = new CourseStateService("https://" + window.location.host);
 		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus");
 		this.playbackService = new PlaybackService();
@@ -50,24 +47,35 @@ export class PlayerViewController implements ReactiveController {
 			console.log("speech-state", e.detail);
 		}, false);
 		this.janusService.addEventListener("publisher-state", (e: CustomEvent) => {
-			console.log("publisher-state", e.detail);
+			this.pushConnectionEvent(e.detail.connected ? State.CONNECTED : State.DISCONNECTED);
 		}, false);
-
-		this.playbackModel.webrtcConnectedProperty.subscribe(() => {
-			// playerView.show();
-		});
 	}
 
 	hostConnected() {
-		// this.start();
+		this.connect()
+			.then((courseState: CourseState) => {
+				this.host.courseState = courseState;
+				this.host.chatVisible = courseState.messageFeature !== null;
+			})
+			.catch(error => {
+				console.error(error);
+
+				this.pushConnectionEvent(State.DISCONNECTED);
+			});
 	}
 
-	hostDisconnected() {
-		
+	private pushConnectionEvent(state: State): void {
+		const event = new CustomEvent("player-connection-state", {
+			bubbles: true,
+			composed: true,
+			detail: state
+		});
+
+		this.host.dispatchEvent(event);
 	}
 
-	private start(): Promise<void> {
-		return new Promise<void>((resolve, reject) => {
+	private connect(): Promise<CourseState> {
+		return new Promise<CourseState>((resolve, reject) => {
 			this.courseStateService.getCourseState(this.host.courseId)
 				.then((courseState: CourseState) => {
 					console.log("Course state", courseState);
@@ -83,8 +91,6 @@ export class PlayerViewController implements ReactiveController {
 
 					Promise.all(promises)
 						.then(documents => {
-							// console.log(documents);
-
 							try {
 								this.setDocuments(courseState, documents);
 							}
@@ -93,7 +99,7 @@ export class PlayerViewController implements ReactiveController {
 								return;
 							}
 
-							resolve();
+							resolve(courseState);
 						})
 						.catch(error => {
 							reject(error);
@@ -106,8 +112,6 @@ export class PlayerViewController implements ReactiveController {
 	}
 
 	private setDocuments(courseState: CourseState, documents: SlideDocument[]) {
-		this.host.startTime = courseState.timeStarted;
-
 		this.playbackService.initialize(this.host, courseState, documents);
 
 		this.janusService.setRoomId(this.host.courseId);

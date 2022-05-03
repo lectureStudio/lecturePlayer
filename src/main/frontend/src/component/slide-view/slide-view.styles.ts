@@ -20,7 +20,7 @@ export const slideViewStyles = css`
 		transform: translate(-50%, 0);
 		left: 50%;
 		border: 1px solid #94A3B8;
-		border-radius: 0.2em;
+		border-radius: 0.25em;
 	}
 	:host .slide-canvas {
 		visibility: hidden;

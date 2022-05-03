@@ -1,8 +1,9 @@
 import { html, PropertyValues } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { MediaPlayer } from '../../media/media-player';
+import { CourseState } from '../../model/course-state';
 import { PlayerControls } from '../controls/player-controls';
-import { I18nLitElement } from '../i18n-mixin';
+import { I18nLitElement, t } from '../i18n-mixin';
 import { SettingsModal } from '../settings-modal/settings-modal';
 import { SlideView } from '../slide-view/slide-view';
 import { PlayerViewController } from './player-view.controller';
@@ -20,10 +21,13 @@ export class PlayerView extends I18nLitElement {
 	private mediaPlayer: MediaPlayer;
 
 	@property()
-	courseId: number = 2;
+	courseId: number;
 
 	@property()
-	startTime: number = 0;
+	courseState: CourseState;
+
+	@property({ type: Boolean, reflect: true })
+	chatVisible: boolean;
 
 	@query("player-controls")
 	controls: PlayerControls;
@@ -32,13 +36,13 @@ export class PlayerView extends I18nLitElement {
 	videoFeedContainer: HTMLElement;
 
 
-	override firstUpdated(_changedProperties: PropertyValues): void {
+	firstUpdated(_changedProperties: PropertyValues): void {
 		this.controls.addEventListener("player-volume", (e: CustomEvent) => {
-			this.mediaPlayer.muted = false;
-			this.mediaPlayer.volume = e.detail;
+			// this.mediaPlayer.muted = false;
+			// this.mediaPlayer.volume = e.detail.volume;
 		}, false);
-		this.controls.addEventListener("player-mute", (e: CustomEvent) => {
-			this.mediaPlayer.muted = e.detail;
+		this.controls.addEventListener("player-chat-visibility", (e: CustomEvent) => {
+			this.chatVisible = !this.chatVisible;
 		}, false);
 		this.controls.addEventListener("player-settings", (e: CustomEvent) => {
 			const settingsModal = new SettingsModal();
@@ -65,7 +69,7 @@ export class PlayerView extends I18nLitElement {
 				this.mediaPlayer = new MediaPlayer(video);
 				this.mediaPlayer.muted = false;
 				this.mediaPlayer.addTimeListener(() => {
-					this.controls.duration = (Date.now() - this.startTime);
+					this.controls.duration = (Date.now() - this.courseState.timeStarted);
 				});
 			}
 		}
@@ -119,16 +123,16 @@ export class PlayerView extends I18nLitElement {
 					<slide-view></slide-view>
 				</div>
 				<div class="controls-container">
-					<player-controls></player-controls>
+					<player-controls .hasChat="${this.courseState?.messageFeature !== null}" .chatVisible="${this.chatVisible}"></player-controls>
 				</div>
 			</div>
-			<div class="right-container" id="right-container">
-				<div class="video-feed-container" id="video-feed-container">
+			<div class="right-container">
+				<div class="video-feed-container">
 				</div>
-				<div class="order-md-last order-last mt-auto d-flex flex-row d-sm-none d-md-block d-none d-sm-block chat-container" id="chatContainer">
+				<div class="chat-container">
+					<chat-box .courseId="${this.courseId}" .featureId="${this.courseState?.messageFeature?.featureId}"></chat-box>
 				</div>
 			</div>
-
 		`;
 	}
 }

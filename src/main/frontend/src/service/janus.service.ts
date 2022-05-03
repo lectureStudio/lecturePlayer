@@ -126,6 +126,8 @@ export class JanusService extends EventTarget {
 				Janus.log("Janus says our WebRTC PeerConnection is " + (isConnected ? "up" : "down") + " now");
 
 				const event = new CustomEvent("speech-state", {
+					bubbles: true,
+					composed: true,
 					detail: {
 						peerId: this.publisherId,
 						connected: isConnected
@@ -330,6 +332,8 @@ export class JanusService extends EventTarget {
 				}
 
 				const event = new CustomEvent("publisher-state", {
+					bubbles: true,
+					composed: true,
 					detail: {
 						peerId: publisher.id,
 						connected: isConnected

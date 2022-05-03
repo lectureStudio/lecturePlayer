@@ -7,9 +7,14 @@ import './component/controls/player-controls';
 import './component/settings-modal/settings-modal'
 import './component/player-loading/player-loading';
 import './component/player-offline/player-offline';
+import './component/chat-box/chat-box';
+import './component/message-form/message-form';
+import './component/toast/toast';
 
 import i18next from 'i18next';
 import LanguageDetector from "i18next-browser-languagedetector";
+import { Toaster } from './utils/toaster';
+import { ToastGravity, ToastPosition } from './component/toast/toast';
 
 i18next
 	.use(LanguageDetector)
@@ -48,7 +53,31 @@ i18next
 					"devices.save.changes": "Save",
 					"devices.reset": "Reset",
 					"devices.settings": "Device settings",
+
+					"player.view.chat": "Chat",
+
+					"course.feature.message.description": "Send a message to lecturer",
+					"course.feature.message.placeholder": "Enter your Message",
+					"course.feature.message.send": "Send",
+					"course.feature.message.send.error": "Failed to send message",
+					"course.feature.message.sent": "Your message has been successfully sent",
+
+					"course.feature.quiz": "Quiz",
+					"course.feature.close": "Close",
+					"course.feature.quiz.send": "Send",
+					"course.feature.quiz.send.error": "Failed to send answer",
+					"course.feature.quiz.count.error": "Only one answer per quiz is allowed",
+					"course.feature.quiz.input.invalid": "Input not allowed",
+					"course.feature.quiz.sent": "Your answer has been successfully sent",
 				}
 			}
 		}
 	});
+
+Toaster.init({
+	duration: 3000,
+	close: false,
+	gravity: ToastGravity.Top,
+	position: ToastPosition.Center,
+	stopOnFocus: true,
+});

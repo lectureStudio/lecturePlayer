@@ -20,6 +20,9 @@ export const playerControlsStyles = css`
 		content: '';
 		z-index: -1;
 	}
+	:host .invisible {
+		display: none;
+	}
 	:host path {
 		stroke: #007db5;
 	}
@@ -27,6 +30,7 @@ export const playerControlsStyles = css`
 		stroke-width: 0.1;
 	}
 	:host button {
+		display: flex;
 		padding: 0;
 		border: 0;
 		background: transparent;
@@ -38,6 +42,8 @@ export const playerControlsStyles = css`
 		min-height: 40px;
 		height: 40px;
 		font-size: 1.25em;
+
+		align-items: center;
 	}
 	:host button:hover {
 		color: rgba(0, 125, 181, 1);
@@ -69,18 +75,14 @@ export const playerControlsStyles = css`
 		stroke: #F9FAFB;
 	}
 	:host button svg {
-		width: 23px;
-		height: 23px;
+		display: block;
+		width: 18px;
+		height: 18px;
 		vertical-align: text-bottom;
+		margin: 0 auto;
 	}
 	:host #settingsButton path {
 		stroke: #212529;
-	}
-	:host #playMediaButton {
-		background-color: #FECACA;
-	}
-	:host #playMediaButton:hover {
-		background-color: #FEE2E2;
 	}
 	:host #showQuizButton {
 		color: #15803D;
@@ -243,9 +245,23 @@ export const playerControlsStyles = css`
 		display: initial;
 	}
 
-
-	#volumeIndicator .svg-icon {
+	:host(:not([hasChat])) #chat-button {
 		display: none;
+	}
+	:host([chatVisible]) #chat-button {
+		color: #007db5;
+	}
+
+
+	#volumeIndicator > svg {
+		display: none;
+	}
+	:host([volumeState="0"]) #volumeIndicator svg:nth-child(1),
+	:host([volumeState="1"]) #volumeIndicator svg:nth-child(2),
+	:host([volumeState="2"]) #volumeIndicator svg:nth-child(3),
+	:host([volumeState="3"]) #volumeIndicator svg:nth-child(4),
+	:host([volumeState="4"]) #volumeIndicator svg:nth-child(5) {
+		display: inherit;
 	}
 
 	

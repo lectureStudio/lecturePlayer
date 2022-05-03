@@ -59,8 +59,8 @@ export class SlideView extends LitElement {
 
 	private resize() {
 		const slideRatio = 4 / 3;
-		let width = this.clientWidth;
-		let height = this.clientHeight;
+		let width = this.clientWidth - 8;
+		let height = this.clientHeight - 8;
 		const viewRatio = width / height;
 
 		if (viewRatio > slideRatio) {

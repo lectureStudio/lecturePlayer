@@ -1,7 +1,7 @@
 import { LitElement } from 'lit';
 import i18next, { t } from 'i18next';
 
-import bootstrapStyle from '../bootstrap.min.css';
+import bootstrapStyle from 'bootstrap/dist/css/bootstrap.min.css';
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 

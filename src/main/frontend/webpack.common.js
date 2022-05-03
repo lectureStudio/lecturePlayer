@@ -40,15 +40,10 @@ module.exports = {
 				},
 			},
 			{
-				test: /\.(woff|woff2|eot|ttf|otf)$/i,
-				type: 'asset/inline',
-			},
-			// Process the global stylesheet
-			{
 				test: /\.css$/,
 				loader: 'lit-css-loader',
 				options: {
-					specifier: 'lit-element' // defaults to `lit`
+					specifier: 'lit' // defaults to `lit`
 				}
 			},
 			{

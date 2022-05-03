@@ -1,12 +1,9 @@
 import { ReactiveController } from 'lit';
-import { State } from '../../utils/state';
 import { LecturePlayer } from './player';
 
 export class PlayerController implements ReactiveController {
 
 	private readonly host: LecturePlayer;
-
-	public state: State = State.CONNECTING;
 
 
 	constructor(host: LecturePlayer) {
@@ -28,8 +25,9 @@ export class PlayerController implements ReactiveController {
 			}
 		});
 
-		this.state = State.CONNECTED;
-		this.host.requestUpdate();
+		this.host.addEventListener("player-connection-state", (e: CustomEvent) => {
+			this.host.state = e.detail;
+		}, false);
 	}
 
 	hostDisconnected() {
