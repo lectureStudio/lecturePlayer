@@ -36,6 +36,9 @@ export class Toast extends I18nLitElement {
 	show: boolean;
 
 	@property({ reflect: true })
+	closeable: boolean;
+
+	@property({ reflect: true })
 	position: ToastPosition;
 
 	@property({ reflect: true })
@@ -53,11 +56,20 @@ export class Toast extends I18nLitElement {
 		this.message = message;
 	}
 
+	close() {
+		const event = new CustomEvent("toast-close", {
+			bubbles: true,
+			composed: true,
+		});
+		this.dispatchEvent(event);
+	}
+
 	render() {
 		return html`
 			<div>
 				${this.message}
 			</div>
+			<button type="button" class="close-button" aria-label="Close" @click="${this.close}"></button>
 		`;
 	}
 }

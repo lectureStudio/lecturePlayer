@@ -13,30 +13,28 @@ interface offset {
 };
 
 interface ToasterOptions {
-
 	duration: number;
 	selector: string | HTMLElement | ShadowRoot;
 	gravity: ToastGravity;
 	position: ToastPosition;
-	close: boolean;
+	closeable: boolean;
 	stopOnFocus: boolean;
 	oldestFirst: boolean;
 	onClosed: Function;
 	onClick: Function;
 	offset: { x: number, y: number };
-
 }
 
 export abstract class Toaster {
 
 	private static readonly defaults: ToasterOptions = {
-		oldestFirst: true,
 		duration: 3000,
 		selector: undefined,
-		close: false,
 		gravity: ToastGravity.Top,
 		position: ToastPosition.Center,
+		closeable: false,
 		stopOnFocus: true,
+		oldestFirst: true,
 		onClosed: function () { },
 		onClick: function () { },
 		offset: { x: 0, y: 0 },
@@ -118,11 +116,12 @@ export abstract class Toaster {
 
 		const toast = new Toast(message);
 		toast.show = true;
+		toast.closeable = this.options.closeable;
 		toast.position = this.options.position;
 		toast.gravity = this.options.gravity;
 		toast.type = type;
 
-		if (this.options.close === true) {
+		if (this.options.closeable) {
 			// Triggering the removal of toast from DOM on close click
 			toast.addEventListener("toast-close", (event) => {
 					event.stopPropagation();

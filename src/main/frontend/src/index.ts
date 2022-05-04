@@ -76,7 +76,7 @@ i18next
 
 Toaster.init({
 	duration: 3000,
-	close: false,
+	closeable: true,
 	gravity: ToastGravity.Top,
 	position: ToastPosition.Center,
 	stopOnFocus: true,

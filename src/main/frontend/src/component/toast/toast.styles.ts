@@ -15,14 +15,33 @@ export const toastStyles = css`
 		color: #374151;
 		padding: 0.5em 1em;
 		display: flex;
+		align-items: center;
 		box-shadow: 0 3px 6px -1px rgba(0, 0, 0, 0.12), 0 10px 36px -4px rgba(77, 96, 232, 0.3);
 		position: fixed;
 		opacity: 0;
 		transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
 		cursor: pointer;
+		font-size: 0.875rem;
 		min-width: 150px;
 		max-width: calc(50% - 20px);
 		z-index: 2147483647;
+	}
+
+	:host .close-button {
+		background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+		border: 0;
+		border-radius: .25rem;
+		color: #000;
+		cursor: pointer;
+		box-sizing: content-box;
+		width: 1em;
+		height: 1em;
+		padding: 0.25em 0.25em;
+		margin-left: 0.75rem;
+		opacity: 0.5;
+	}
+	:host([closeable]) .close-button {
+		display: none;
 	}
 
 	:host([show]) {

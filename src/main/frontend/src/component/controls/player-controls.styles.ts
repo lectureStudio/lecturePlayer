@@ -31,6 +31,7 @@ export const playerControlsStyles = css`
 	}
 	:host button {
 		display: flex;
+		align-items: center;
 		padding: 0;
 		border: 0;
 		background: transparent;
@@ -42,8 +43,6 @@ export const playerControlsStyles = css`
 		min-height: 40px;
 		height: 40px;
 		font-size: 1.25em;
-
-		align-items: center;
 	}
 	:host button:hover {
 		color: rgba(0, 125, 181, 1);
