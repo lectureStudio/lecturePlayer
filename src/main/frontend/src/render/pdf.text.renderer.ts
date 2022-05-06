@@ -37,7 +37,7 @@ class PdfTextRenderer {
 			console.error(reason);
 		});
 
-		const linkService = new pdfViever.SimpleLinkService();
+		const linkService = new pdfViever.PDFLinkService();
 		// Open links in new tab.
 		linkService.externalLinkTarget = 2;
 
