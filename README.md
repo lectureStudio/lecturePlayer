@@ -1,17 +1,27 @@
-## lecturePlayer
+# AngularPlayer
 
-Browser-based streaming player that is used to render real-time presentations streamed with lectureStudio tools.  
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.3.3.
 
-### Build Notes
+## Development server
 
-Building with Maven:
-```
-mvn package
-```
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
-Building with npm:
+## Code scaffolding
 
-1. Navigate to the directory `src/main/frontend`
-2. Run `npm run build:prod` or `npm run build:dev` for a production or development build
+Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
-The target directory for build files is: `src/main/resources/web-player-js`
+## Build
+
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+
+## Running unit tests
+
+Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+
+## Running end-to-end tests
+
+Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+
+## Further help
+
+To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
