@@ -1,1 +1,14 @@
-<p>player works!</p>
+<div class="container">
+
+    <div id="videoFeedContainer">
+        <video autoplay playsinline *ngFor="let videoStream of getVideoStreams()" [srcObject]="videoStream"></video>
+    </div>
+
+    <button (click)="janusService.registerUsernameToJoinAsPublisher()">Register username</button>
+    <button (click)="janusService.toggleMute()">{{janusService.isMuted ? "Unmute" : "Mute"}} Microphone</button>
+
+</div>
+
+<div class="not-rendered">
+    <audio autoplay *ngFor="let audioStream of getAudioStreams()" [srcObject]="audioStream"></audio>
+</div>
