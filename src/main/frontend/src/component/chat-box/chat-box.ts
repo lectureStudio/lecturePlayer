@@ -2,7 +2,7 @@ import { html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { chatBoxStyles } from './chat-box.styles';
-import { Toaster } from '../../utils/toaster';
+import { Toaster } from '../../component/toast/toaster';
 
 @customElement('chat-box')
 export class ChatBox extends I18nLitElement {

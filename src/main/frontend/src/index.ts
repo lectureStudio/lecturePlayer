@@ -13,7 +13,7 @@ import './component/toast/toast';
 
 import i18next from 'i18next';
 import LanguageDetector from "i18next-browser-languagedetector";
-import { Toaster } from './utils/toaster';
+import { Toaster } from './component/toast/toaster';
 import { ToastGravity, ToastPosition } from './component/toast/toast';
 
 i18next
@@ -75,9 +75,9 @@ i18next
 	});
 
 Toaster.init({
-	duration: 3000,
-	closeable: true,
+	duration: 10000,
 	gravity: ToastGravity.Top,
 	position: ToastPosition.Center,
-	stopOnFocus: true,
+	closeable: false,
+	stopOnFocus: true
 });

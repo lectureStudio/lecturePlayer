@@ -1,16 +1,4 @@
-/**
- * Took parts of code from:
- *    Toastify js 1.11.2
- *    https://github.com/apvarun/toastify-js
- *    license: MIT licensed
- *    Copyright (C) 2018 Varun A P
- */
-
-import { Toast, ToastGravity, ToastPosition, ToastType } from "../component/toast/toast";
-
-interface offset {
-	[pos: string]: number;
-};
+import { Toast, ToastContainer, ToastGravity, ToastPosition, ToastType } from "./toast";
 
 interface ToasterOptions {
 	duration: number;
@@ -42,24 +30,31 @@ export abstract class Toaster {
 
 	private static options: Partial<ToasterOptions> = {};
 
-	private static rootElement: HTMLElement;
+	private static container: ToastContainer;
 
 
 	public static init(options: Partial<ToasterOptions>) {
-		this.options = Object.assign(this.defaults, options);
+		let rootElement: HTMLElement;
 
+		this.options = Object.assign(this.defaults, options);
 		this.options.stopOnFocus = options.stopOnFocus === undefined ? true : options.stopOnFocus;
 
 		// Getting the root element to with the toast needs to be added
 		if (typeof this.options.selector === "string") {
-			this.rootElement = document.getElementById(this.options.selector);
+			rootElement = document.getElementById(this.options.selector);
 		}
 		else if (this.options.selector instanceof HTMLElement || this.options.selector instanceof ShadowRoot) {
-			this.rootElement = <HTMLElement> this.options.selector;
+			rootElement = <HTMLElement> this.options.selector;
 		}
 		else {
-			this.rootElement = document.body;
+			rootElement = document.body;
 		}
+
+		this.container = new ToastContainer();
+		this.container.position = this.options.position;
+		this.container.gravity = this.options.gravity;
+
+		rootElement.appendChild(this.container);
 	}
 
 	public static show(message: string): void {
@@ -84,20 +79,17 @@ export abstract class Toaster {
 
 	public static showToast(message: string, type: ToastType): void {
 		// Validating if root element is present in DOM
-		if (!this.rootElement) {
-			throw "Root element is not defined";
+		if (!this.container) {
+			throw "Toast container is not defined";
 		}
 
 		// Creating the DOM object for the toast
 		const toast = this.buildToast(message, type);
 
-		// Adding the DOM element
-		this.rootElement.insertBefore(toast, this.rootElement.firstChild);
+		toast.classList.add("newItem");
 
-		setTimeout(() => {
-			// Repositioning the toasts in case multiple toasts are present
-			this.reposition();
-		}, 10);
+		// Adding the DOM element
+		this.container.insertBefore(toast, this.container.firstChild);
 
 		if (this.options.duration > 0) {
 			toast.timeOutValue = window.setTimeout(() => {
@@ -107,6 +99,11 @@ export abstract class Toaster {
 				this.options.duration
 			);
 		}
+
+		setTimeout(() => {
+			// toast.classList.add("newItem");
+			toast.show = true;
+		}, 10);
 	}
 
 	private static buildToast(message: string, type: ToastType): Toast {
@@ -114,12 +111,10 @@ export abstract class Toaster {
 			throw "Toaster is not initialized";
 		}
 
-		const toast = new Toast(message);
-		toast.show = true;
-		toast.closeable = this.options.closeable;
-		toast.position = this.options.position;
-		toast.gravity = this.options.gravity;
+		const toast = document.createElement("player-toast") as Toast;
+		toast.message = message;
 		toast.type = type;
+		toast.closeable = this.options.closeable;
 
 		if (this.options.closeable) {
 			// Triggering the removal of toast from DOM on close click
@@ -158,17 +153,6 @@ export abstract class Toaster {
 			);
 		}
 
-		// Adding offset
-		if (typeof this.options.offset === "object") {
-			const x = this.getAxisOffsetAValue("x", this.options);
-			const y = this.getAxisOffsetAValue("y", this.options);
-
-			const xOffset = this.options.position == ToastPosition.Left ? x : `-${x}`;
-			const yOffset = this.options.gravity == ToastGravity.Top ? y : `-${y}`;
-
-			toast.style.transform = `translate(${xOffset},${yOffset})`;
-		}
-
 		return toast;
 	}
 
@@ -185,85 +169,8 @@ export abstract class Toaster {
 
 				// Calling the closed callback function
 				this.options.onClosed.call(toastElement);
-
-				// Repositioning the toasts again
-				this.reposition();
 			},
 			400
 		);
-	}
-
-	private static reposition(): void {
-		// Top margins with gravity
-		let topLeftOffsetSize: offset = {
-			top: 15,
-			bottom: 15,
-		};
-		let topRightOffsetSize: offset = {
-			top: 15,
-			bottom: 15,
-		};
-		let offsetSize: offset = {
-			top: 15,
-			bottom: 15,
-		};
-
-		// Get all toast messages that have been added to the container (selector)
-		let allToasts = <Toast[]><any> this.rootElement.querySelectorAll("player-toast");
-
-		let classUsed: string;
-
-		// Modifying the position of each toast element
-		for (let i = 0; i < allToasts.length; i++) {
-			// Getting the applied gravity
-			if (allToasts[i].gravity === ToastGravity.Top) {
-				classUsed = "top";
-			}
-			else {
-				classUsed = "bottom";
-			}
-
-			const height = allToasts[i].offsetHeight;
-
-			// Spacing between toasts
-			const offset = 15;
-
-			let width = window.innerWidth > 0 ? window.innerWidth : screen.width;
-
-			// Show toast in center if screen with less than or equal to 360px
-			if (width <= 360) {
-				// Setting the position
-				allToasts[i].style.setProperty(classUsed, `${offsetSize[classUsed]}px`);
-
-				offsetSize[classUsed] += height + offset;
-			}
-			else {
-				if (allToasts[i].position === ToastPosition.Left) {
-					// Setting the position
-					allToasts[i].style.setProperty(classUsed, `${topLeftOffsetSize[classUsed]}px`);
-
-					topLeftOffsetSize[classUsed] += height + offset;
-				}
-				else {
-					// Setting the position
-					allToasts[i].style.setProperty(classUsed, `${topRightOffsetSize[classUsed]}px`);
-
-					topRightOffsetSize[classUsed] += height + offset;
-				}
-			}
-		}
-	}
-
-	private static getAxisOffsetAValue(axis: string, options: any): string {
-		if (options.offset[axis]) {
-			if (isNaN(options.offset[axis])) {
-				return options.offset[axis];
-			}
-			else {
-				return `${options.offset[axis]}px`;
-			}
-		}
-
-		return '0px';
 	}
 }
