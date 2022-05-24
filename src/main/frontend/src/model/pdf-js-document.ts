@@ -1,6 +1,6 @@
 import { Page } from "./page";
 import { SlideDocument } from "./document";
-import { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist/types/display/api';
+import { PDFDocumentProxy, PDFPageProxy, TextItem } from 'pdfjs-dist/types/src/display/api';
 import { Rectangle } from "../geometry/rectangle";
 import { PdfRenderer } from "../render/pdf.renderer";
 import { PdfTextRenderer } from "../render/pdf.text.renderer";
@@ -29,7 +29,7 @@ class PdfJsDocument extends SlideDocument {
 		const page = await this.document.getPage(pageNumber + 1);
 		const content = await page.getTextContent();
 
-		return content.items.map(function (s) { return s.str; }).join(' ');
+		return content.items.map(function (s: TextItem) { return s.str; }).join(' ');
 	}
 
 	async renderPage(pageNumber: number, context: CanvasRenderingContext2D, viewRect: Rectangle, dirtyRegion: Rectangle): Promise<CanvasImageSource> {

@@ -17,10 +17,6 @@ class StreamActionPlayer extends ActionPlayer {
 		super(executor);
 
 		this.syncState = syncState;
-
-		document.addEventListener("visibilitychange", function () {
-			console.log("visibility", document.visibilityState);
-		});
 	}
 
 	addAction(action: Action): void {

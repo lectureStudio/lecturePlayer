@@ -1,5 +1,5 @@
 import { Rectangle } from "../geometry/rectangle";
-import { PDFPageProxy } from "pdfjs-dist/types/display/api";
+import { PDFPageProxy } from "pdfjs-dist/types/src/display/api";
 
 class PdfRenderer {
 

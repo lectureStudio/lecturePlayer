@@ -53,6 +53,6 @@
 	"dependencies": {
 		"@types/node": "^10.12.18",
 		"janus-gateway": "git://github.com/meetecho/janus-gateway.git/tree/0.x",
-		"pdfjs-dist": "^2.6.347"
+		"pdfjs-dist": "^2.14.305"
 	}
 }

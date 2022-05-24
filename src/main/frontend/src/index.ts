@@ -4,6 +4,13 @@ export * from './extension';
 export * from './component';
 export * from './view';
 
+const pdfjs = require('pdfjs-dist');
+const PdfjsWorker = require("worker-loader?esModule=false&filename=[name].js!pdfjs-dist/build/pdf.worker.js");
+
+if (typeof window !== "undefined" && "Worker" in window) {
+	pdfjs.GlobalWorkerOptions.workerPort = new PdfjsWorker();
+}
+
 import { CourseState } from './model/course-state';
 import { CourseStateService } from './service/course.service';
 import { SlideDocument } from './model/document';
@@ -182,18 +189,20 @@ class LecturePlayer {
 		this.playbackService.initialize(playerView, courseState, documents, this.startTime);
 
 		this.janusService.setPlayerView(playerView);
-		this.janusService.setOnData((data: ArrayBuffer) => {
-			if (data instanceof Blob) {
-				// Firefox...
-				data.arrayBuffer().then(buffer => {
-					this.processData(buffer);
-				});
-			}
-			else {
-				this.processData(data);
-			}
-		});
+		this.janusService.setOnData(this.onData.bind(this));
 		this.janusService.start();
+	}
+
+	private onData(data: ArrayBuffer) {
+		if (data instanceof Blob) {
+			// Firefox...
+			data.arrayBuffer().then(buffer => {
+				this.processData(buffer);
+			});
+		}
+		else {
+			this.processData(data);
+		}
 	}
 
 	private processData(data: ArrayBuffer) {
@@ -238,6 +247,17 @@ class LecturePlayer {
 					})
 					.catch(error => {
 						console.error(error);
+
+						// Try again.
+						this.courseStateService.getStateDocument(this.roomId, stateDoc)
+							.then((doc: SlideDocument) => {
+								this.playbackService.addDocument(doc);
+
+								this.flushActionBuffer(doc.getDocumentId());
+							})
+							.catch(error => {
+								console.error(error);
+							});
 					});
 			}
 		}
