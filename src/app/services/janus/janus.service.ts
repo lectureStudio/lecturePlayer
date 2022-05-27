@@ -36,6 +36,7 @@ export class JanusService {
     private myUsername?: string;
 
     public isMuted: boolean = false;
+    public isVideoMuted: boolean = false;
 
     private isCurrentlyCreatingASubscription = false;
 
@@ -93,6 +94,9 @@ export class JanusService {
                     success: (pluginHandle: any) => {
                         this.publisherJanusHandle = pluginHandle;
                         Janus.log("Plugin attached!" + this.publisherJanusHandle.getPlugin() + ", id=" + this.publisherJanusHandle.getId() + ")");
+
+                        // NOTE: probably a debug thing to leave this here. TODO remove
+                        this.registerUsernameToJoinAsPublisher();
                     },
                     iceState: (state: any) => {
                         console.log('ICE state changed to ' + state);
@@ -241,6 +245,16 @@ export class JanusService {
         else
             this.publisherJanusHandle.muteAudio();
         this.isMuted = this.publisherJanusHandle.isAudioMuted();
+    }
+
+    public toggleCamera() {
+        this.isVideoMuted = this.publisherJanusHandle.isVideoMuted();
+        Janus.log((this.isMuted ? "Unmuting" : "Muting") + " local video stream...");
+        if (this.isVideoMuted)
+            this.publisherJanusHandle.unmuteVideo();
+        else
+            this.publisherJanusHandle.muteVideo();
+        this.isVideoMuted = this.publisherJanusHandle.isVideoMuted();
     }
 
     private unpublishOwnFeed() {

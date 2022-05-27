@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {JanusService} from "../../services/janus/janus.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-player',
@@ -8,7 +9,7 @@ import {JanusService} from "../../services/janus/janus.service";
 })
 export class PlayerComponent implements OnInit {
 
-  constructor(public janusService: JanusService) { }
+  constructor(public janusService: JanusService, private router: Router) { }
 
   ngOnInit(): void {
     this.janusService.start();
@@ -24,5 +25,9 @@ export class PlayerComponent implements OnInit {
 
   getVideoStreams() {
     return Object.values(this.janusService.videoStreamsToOutput).map((e: any) => e);
+  }
+
+  leave() {
+    this.router.navigate(['/']);
   }
 }

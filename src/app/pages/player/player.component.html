@@ -1,11 +1,48 @@
 <div class="container">
 
-    <div id="videoFeedContainer">
+    <div class="videoFeedContainer">
         <video autoplay playsinline *ngFor="let videoStream of getVideoStreams()" [srcObject]="videoStream"></video>
     </div>
 
-    <button (click)="janusService.registerUsernameToJoinAsPublisher()">Register username</button>
-    <button (click)="janusService.toggleMute()">{{janusService.isMuted ? "Unmute" : "Mute"}} Microphone</button>
+    <div class="footerbar">
+
+        <div class="buttongroup">
+            <div class="button" (click)="janusService.toggleMute()">
+                <mat-icon [class.red]="janusService.isMuted">{{janusService.isMuted ? 'mic_off' : 'mic'}}</mat-icon>
+                <p>{{janusService.isMuted ? 'Unmute' : 'Mute'}}</p>
+            </div>
+            <div class="button" (click)="janusService.toggleCamera()">
+                <mat-icon [class.red]="janusService.isVideoMuted">{{janusService.isVideoMuted ? 'videocam_off' : 'videocam'}}</mat-icon>
+                <p>Video {{janusService.isVideoMuted ? 'on' : 'off'}}</p>
+            </div>
+        </div>
+
+        <div class="buttongroup">
+            <div class="button">
+                <mat-icon>videocam_off</mat-icon>
+                <p>Video off</p>
+            </div>
+            <div class="button">
+                <mat-icon>videocam_off</mat-icon>
+                <p>Video off</p>
+            </div>
+            <div class="button">
+                <mat-icon>videocam_off</mat-icon>
+                <p>Video off</p>
+            </div>
+        </div>
+
+        <div class="buttongroup">
+            <div class="button">
+                <mat-icon>videocam_off</mat-icon>
+                <p>Video off</p>
+            </div>
+            <div class="button" (click)="leave()">
+                <mat-icon class="red">exit_to_app</mat-icon>
+            <p>Leave</p>
+        </div>
+        </div>
+    </div>
 
 </div>
 
