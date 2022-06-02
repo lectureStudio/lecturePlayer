@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {JanusService} from "../../services/janus/janus.service";
 import {Router} from "@angular/router";
 
@@ -7,7 +7,7 @@ import {Router} from "@angular/router";
   templateUrl: './player.component.html',
   styleUrls: ['./player.component.scss']
 })
-export class PlayerComponent implements OnInit {
+export class PlayerComponent implements OnInit, OnDestroy {
 
   constructor(public janusService: JanusService, private router: Router) { }
 
@@ -15,19 +15,20 @@ export class PlayerComponent implements OnInit {
     this.janusService.start();
   }
 
-  amountOfStreams() {
-    return Object.entries(this.janusService.slots).length;
+  ngOnDestroy() {
+    this.janusService.end();
   }
 
-  getAudioStreams() {
-    return Object.values(this.janusService.audioStreamsToOutput).map((e: any) => e);
+  get audioStreams() {
+    return Object.values(this.janusService.remoteTracks).filter(e => e.stream.getAudioTracks().length > 0);
   }
 
-  getVideoStreams() {
-    return Object.values(this.janusService.videoStreamsToOutput).map((e: any) => e);
+  get videoStreams() {
+    return Object.values(this.janusService.remoteTracks).filter(e => e.stream.getVideoTracks().length > 0);
   }
 
   leave() {
+    this.janusService.end();
     this.router.navigate(['/']);
   }
 }

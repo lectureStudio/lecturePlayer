@@ -1,6 +1,8 @@
-import {Injectable} from '@angular/core';
+import {Injectable, NgZone} from '@angular/core';
 // @ts-ignore
-import {Janus, JanusJS} from "janus-gateway";
+import {DestroyOptions, Janus, JanusJS} from "janus-gateway";
+
+import * as hark from 'hark';
 
 @Injectable({
     providedIn: 'root'
@@ -11,14 +13,8 @@ export class JanusService {
 
     private janus?: Janus;
 
-    private publisherLocalStream?: MediaStream;
-
-    private publisherHandle?: Janus.PluginHandle;
-
     private publisherJanusHandle?: Janus.PluginHandle;
     private subscriberJanusHandle?: Janus.PluginHandle = null;
-
-    private publisherId?: Number;
 
     private feedStreams: any = {};
 
@@ -31,8 +27,6 @@ export class JanusService {
 
     private opaqueId?: string;
 
-    private deviceConstraints: any;
-
     private myUsername?: string;
 
     public isMuted: boolean = false;
@@ -42,28 +36,42 @@ export class JanusService {
 
     private subscriptions: any = {};
     private feeds: any = {};
-    private remoteTracks: any = {};
+    public remoteTracks: {[key: string]: {stream: MediaStream, feedId: string}} = {};
     private simulcastStarted: any = {};
     private mids: any = {};
     public slots: any = {};
     private subStreams: any = {};
-    private bitrateTimer: any = {};
 
-    public audioStreamsToOutput: any = {};
-    public videoStreamsToOutput: any = {};
+    public talkingFeeds: {[key: string]: boolean} = {};
 
     private doSimulcast = false;
 
     private subscriberMode = false;
 
-    constructor() {
+    constructor(private ngZone: NgZone) {
         this.myRoomId = 1;
 
         this.opaqueId = "course-" + Janus.randomString(12);
         this.myUsername = Janus.randomString(12);
+
+        // @ts-ignore
+        window.janusService = this;
     }
 
     start() {
+        this.isCurrentlyCreatingASubscription = false;
+        this.subscriptions = {};
+        this.feeds = {};
+        this.remoteTracks = {};
+        this.simulcastStarted = {};
+        this.mids = {};
+        this.slots = {};
+        this.subStreams = {};
+
+        this.subscriberJanusHandle = null;
+        this.publisherJanusHandle = null;
+        this.janus = null;
+
         // Initialize the library (all console debuggers enabled).
         Janus.init({
             debug: "all",
@@ -80,6 +88,19 @@ export class JanusService {
                 this.createSession();
             }
         });
+    }
+
+    public end() {
+        this.unpublishOwnFeed();
+
+        for (const [id, value] of Object.entries(this.feedStreams)) {
+            this.unsubscribeFrom(id);
+        }
+
+
+        this.publisherJanusHandle.hangup();
+        this.subscriberJanusHandle.hangup();
+        this.janus.destroy();
     }
 
     private createSession() {
@@ -310,11 +331,11 @@ export class JanusService {
             this.handlePublisherEvent(msg);
         } else if (msg["leaving"]) {
             const leavingPublisher = msg["leaving"];
-            Janus.log("A publisher left: " + leavingPublisher);
+            Janus.log("A publisher left: " + leavingPublisher, msg);
             this.unsubscribeFrom(leavingPublisher);
         } else if (msg["unpublished"]) {
             const publisherLeft = msg["unpublished"];
-            Janus.log("Publisher left: " + publisherLeft);
+            Janus.log("Publisher left: " + publisherLeft, msg);
             if (publisherLeft === 'ok') {
                 // Apparently, we left if this is the cast? (Local instance)
                 // thispluginhandle.hangup(); return;
@@ -386,6 +407,8 @@ export class JanusService {
                     }
                 });
             }
+
+            return;
         }
 
         this.isCurrentlyCreatingASubscription = true;
@@ -487,7 +510,7 @@ export class JanusService {
                     const stream = this.remoteTracks[mid];
                     if (stream) {
                         try {
-                            const tracks = stream.getTracks();
+                            const tracks = stream.stream.getTracks();
                             for (const trackIdx in tracks) {
                                 const mst = tracks[trackIdx];
                                 if (mst) {
@@ -504,8 +527,9 @@ export class JanusService {
                         }
                     }
 
-                    delete this.remoteTracks[mid];
-                    delete this.slots[mid];
+                    this.ngZone.run(() => {
+                        delete this.remoteTracks[mid];
+                    });
                     delete this.mids[this.slots];
                     return;
                 }
@@ -518,10 +542,32 @@ export class JanusService {
                     // New audio track, create a stream out of it and use a hidden <audio> element to play it
                     const newStream = new MediaStream();
                     newStream.addTrack(track.clone());
-                    this.remoteTracks[mid] = newStream;
-                    Janus.log("Created remote audio stream: ", newStream);
+                    this.ngZone.run(() => {
+                        this.remoteTracks[mid] = {
+                            stream: newStream,
+                            feedId: feed.id
+                        };
+                    });
 
-                    this.audioStreamsToOutput[mid] = newStream;
+                    const speechEvents = hark(newStream, {});
+
+                    const that = this;
+
+                    speechEvents.on('speaking', function() {
+                        that.ngZone.run(() => {
+                            that.talkingFeeds[feed.id] = true;
+                        });
+                        console.log('speaking: ', feed.id, that.talkingFeeds);
+                    });
+
+                    speechEvents.on('stopped_speaking', function() {
+                        that.ngZone.run(() => {
+                            that.talkingFeeds[feed.id] = false;
+                        });
+                        console.log('stopped_speaking: ', feed.id);
+                    });
+
+                    Janus.log("Created remote audio stream: ", newStream);
 
                     // They are calling:
                     // ($('#videoremote' + slot).append('<audio class="hide" id="remotevideo' + slot + '-' + mid + '" autoplay playsinline/>');
@@ -535,11 +581,14 @@ export class JanusService {
                     feed.remoteVideos++;
                     const newStream = new MediaStream();
                     newStream.addTrack(track.clone());
-                    this.remoteTracks[mid] = newStream;
-                    Janus.log("Created remote video stream: ", newStream);
-                     // Append video stream! (they are calling jquery)
-
-                    this.videoStreamsToOutput[mid] = newStream;
+                    this.ngZone.run(() => {
+                        this.remoteTracks[mid] = {
+                            stream: newStream,
+                            feedId: feed.id
+                        };
+                    });
+                    Janus.log("Created remote video stream: ", newStream, "for feed: ", feed);
+                    // Append video stream! (they are calling jquery)
 
                     // Bitrate timer stuff?
                         // TODO Does this just display the bitrate of the streams?

@@ -1,7 +1,9 @@
-<div class="container">
+<div class="container" xmlns="http://www.w3.org/1999/html">
 
     <div class="videoFeedContainer">
-        <video autoplay playsinline *ngFor="let videoStream of getVideoStreams()" [srcObject]="videoStream"></video>
+        <div class="videoContainer" *ngFor="let videoStream of videoStreams">
+            <video [class.isTalking]="janusService.talkingFeeds[videoStream.feedId]" autoplay playsinline [srcObject]="videoStream.stream"></video>
+        </div>
     </div>
 
     <div class="footerbar">
@@ -47,5 +49,5 @@
 </div>
 
 <div class="not-rendered">
-    <audio autoplay *ngFor="let audioStream of getAudioStreams()" [srcObject]="audioStream"></audio>
+    <audio autoplay *ngFor="let audioStream of audioStreams" [srcObject]="audioStream.stream"></audio>
 </div>

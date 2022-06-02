@@ -9,28 +9,40 @@ body {
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
+  max-height: 100vh;
+  height: 100vh;
 }
 
 .videoFeedContainer {
   background: #222222;
-  min-height: 90vh;
-  max-height: 90vh;
-  height: 90vh;
+  flex: 1;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%/3, max(64px, 100%/5)), 1fr));
+  grid-auto-columns: min-content;
+  align-items: center;
+  max-height: 90vh;
+}
+
+.videoContainer {
+  display: flex;
+  justify-content: center;
+  //aspect-ratio: 16/9;
+  aspect-ratio: 4/3;
 }
 
 video {
-  width: 100%;
-  height: 100%;
   object-fit: contain;
+  border-radius: 0.75em;
+  overflow: hidden;
+  max-height: 90vh;
+  border: 2px solid transparent;
+}
+
+.isTalking {
+  border-color: lawngreen;
 }
 
 .footerbar {
-  position: absolute;
-  bottom: 0;
-  height: 10vh;
-  width: 98vw;
   background: #151515;
   display: grid;
   grid-auto-flow: column;
