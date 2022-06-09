@@ -6,12 +6,16 @@ import { AppComponent } from './app.component';
 import { PlayerComponent } from './pages/player/player.component';
 import { HomeComponent } from './pages/home/home.component';
 import {MatIconModule} from '@angular/material/icon';
+import { GalleryViewComponent } from './components/gallery-view/gallery-view.component';
+import { SpeakerViewComponent } from './components/speaker-view/speaker-view.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     PlayerComponent,
-    HomeComponent
+    HomeComponent,
+    GalleryViewComponent,
+    SpeakerViewComponent
   ],
   imports: [
     BrowserModule,

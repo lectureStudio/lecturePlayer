@@ -9,7 +9,7 @@ import * as hark from 'hark';
 })
 export class JanusService {
 
-    private readonly serverUrl = 'http://localhost:8088/janus';
+    private readonly serverUrl = 'http://' + window.location.hostname + ':10088/janus';
 
     private janus?: Janus;
 

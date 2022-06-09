@@ -9,6 +9,8 @@ import {Router} from "@angular/router";
 })
 export class PlayerComponent implements OnInit, OnDestroy {
 
+  viewMode = 0;
+
   constructor(public janusService: JanusService, private router: Router) { }
 
   ngOnInit(): void {
@@ -25,6 +27,11 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   get videoStreams() {
     return Object.values(this.janusService.remoteTracks).filter(e => e.stream.getVideoTracks().length > 0);
+  }
+
+  switchViewMode() {
+    // DEBUG implementation
+    this.viewMode = this.viewMode === 0 ? 1 : 0;
   }
 
   leave() {

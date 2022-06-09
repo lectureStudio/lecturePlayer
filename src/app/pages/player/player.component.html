@@ -1,10 +1,8 @@
 <div class="container" xmlns="http://www.w3.org/1999/html">
 
-    <div class="videoFeedContainer">
-        <div class="videoContainer" *ngFor="let videoStream of videoStreams">
-            <video [class.isTalking]="janusService.talkingFeeds[videoStream.feedId]" autoplay playsinline [srcObject]="videoStream.stream"></video>
-        </div>
-    </div>
+    <app-gallery-view *ngIf="viewMode === 0" [cameraStreams]="videoStreams.concat(videoStreams).concat(videoStreams).concat(videoStreams)"></app-gallery-view>
+
+    <app-speaker-view *ngIf="viewMode === 1" [cameraStreams]="videoStreams"></app-speaker-view>
 
     <div class="footerbar">
 
@@ -21,23 +19,23 @@
 
         <div class="buttongroup">
             <div class="button">
-                <mat-icon>videocam_off</mat-icon>
-                <p>Video off</p>
+                <mat-icon>screen_share</mat-icon>
+                <p>Screenshare</p>
             </div>
             <div class="button">
-                <mat-icon>videocam_off</mat-icon>
-                <p>Video off</p>
+                <mat-icon>edit</mat-icon>
+                <p>Whiteboard</p>
             </div>
-            <div class="button">
-                <mat-icon>videocam_off</mat-icon>
-                <p>Video off</p>
+            <div class="button" (click)="switchViewMode()">
+                <mat-icon>image</mat-icon>
+                <p>View mode</p>
             </div>
         </div>
 
         <div class="buttongroup">
             <div class="button">
-                <mat-icon>videocam_off</mat-icon>
-                <p>Video off</p>
+                <mat-icon>settings</mat-icon>
+                <p>Settings</p>
             </div>
             <div class="button" (click)="leave()">
                 <mat-icon class="red">exit_to_app</mat-icon>

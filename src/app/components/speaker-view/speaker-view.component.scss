@@ -1,0 +1,76 @@
+:host {
+  display: flex;
+  flex: 1;
+}
+
+.container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.topBar {
+  display: flex;
+  max-height: 10vh;
+  margin-bottom: 0.75em;
+}
+
+.attendants {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.attendantStreams {
+  flex: 1;
+}
+
+.buttonContainer {
+  display: flex;
+  //align-items: center;
+}
+
+mat-icon {
+  color: white;
+}
+
+.button {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5em;
+  max-width: 10vw;
+  width: 100%;
+}
+
+.button:hover {
+  background-color: #555555;
+}
+
+.attendantStreams {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  max-height: 100%;
+}
+
+.speakerContainer {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.attendantStreamContainer {
+  display: flex;
+  overflow: hidden;
+  max-height: 100%;
+  aspect-ratio: 4/3;
+}
+
+video {
+  background: transparent;
+  border-radius: 10px;
+  overflow: hidden;
+}

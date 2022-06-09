@@ -1,0 +1,23 @@
+<!-- Based on https://github.com/Alicunde/Videoconference-Dish-CSS-JS (CC4) !-->
+<!-- https://github.com/Alicunde/Videoconference-Dish-CSS-JS/blob/main/LICENSE.md !-->
+
+<div #renderSpace class="renderSpace">
+    <div #conferenceView class="conferenceView">
+        <div *ngIf="_cameraStreams.length > maximumAmountOfCamsPerPage" class="buttonContainer">
+            <div class="button" (click)="changePage(-1)">
+                <mat-icon>arrow_left</mat-icon>
+            </div>
+        </div>
+        <div #dish class="dish">
+            <div [class.isTalking]="janusService.talkingFeeds[cameraStream.feedId]" [class.animatedDiv]="!cameraStream.firstRenderFinished" *ngFor="let cameraStream of pageinatedStreams">
+                <video [class.animatedVideo]="!cameraStream.firstRenderFinished" (loadedmetadata)="cameraStream.loadingFinished = true" [class.loading]="!cameraStream.loadingFinished" autoplay playsinline [srcObject]="cameraStream.stream"></video>
+            </div>
+        </div>
+        <div *ngIf="_cameraStreams.length > maximumAmountOfCamsPerPage" class="buttonContainer">
+            <div class="button" (click)="changePage(1)">
+                <mat-icon>arrow_right</mat-icon>
+            </div>
+        </div>
+
+    </div>
+</div>

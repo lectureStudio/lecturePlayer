@@ -1,0 +1,27 @@
+<div class="container">
+    <div class="topBar">
+        <div class="me">
+
+        </div>
+        <div class="attendants">
+            <div class="buttonContainer">
+                <div class="button" (click)="changePage(-1)">
+                    <mat-icon>arrow_left</mat-icon>
+                </div>
+            </div>
+            <div class="attendantStreams">
+                <div class="attendantStreamContainer" *ngFor="let nonTalkingStream of getAllNonTalkingStreamsForCurrentPage()">
+                    <video autoplay playsinline [srcObject]="nonTalkingStream.stream"></video>
+                </div>
+            </div>
+            <div class="buttonContainer">
+                <div class="button" (click)="changePage(1)">
+                    <mat-icon>arrow_right</mat-icon>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="speakerContainer">
+        <video autoplay playsinline [srcObject]="getTalkingStream()?.stream"></video>
+    </div>
+</div>
