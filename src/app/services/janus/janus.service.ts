@@ -9,7 +9,9 @@ import * as hark from 'hark';
 })
 export class JanusService {
 
-    private readonly serverUrl = 'http://' + window.location.hostname + ':10088/janus';
+    private readonly serverUrl = location.protocol === 'https'
+        ? ('https://' + window.location.hostname + ':10089/janus')
+        : ('http://' + window.location.hostname + ':10088/janus');
 
     private janus?: Janus;
 
@@ -36,13 +38,13 @@ export class JanusService {
 
     private subscriptions: any = {};
     private feeds: any = {};
-    public remoteTracks: {[key: string]: {stream: MediaStream, feedId: string}} = {};
+    public remoteTracks: { [key: string]: { stream: MediaStream, feedId: string } } = {};
     private simulcastStarted: any = {};
     private mids: any = {};
     public slots: any = {};
     private subStreams: any = {};
 
-    public talkingFeeds: {[key: string]: boolean} = {};
+    public talkingFeeds: { [key: string]: boolean } = {};
 
     private doSimulcast = false;
 
@@ -494,7 +496,7 @@ export class JanusService {
             onlocaltrack: (track: any, on: any) => {
                 // Subscriber only receives data
             },
-            onremotetrack: (track: any, mid: any, on: any) =>  {
+            onremotetrack: (track: any, mid: any, on: any) => {
                 const sub = this.subStreams[mid];
                 const feed = this.feedStreams[sub.feed_id];
                 Janus.debug("This track is coming from feed " + sub.feed_id + ":", feed);
@@ -517,7 +519,8 @@ export class JanusService {
                                     mst.stop();
                                 }
                             }
-                        } catch (e) {}
+                        } catch (e) {
+                        }
                     }
                     // Remove from UI!!!! (They are calling a jquery remove here TODO)
                     if (track.kind === "video" && feed) {
@@ -553,14 +556,14 @@ export class JanusService {
 
                     const that = this;
 
-                    speechEvents.on('speaking', function() {
+                    speechEvents.on('speaking', function () {
                         that.ngZone.run(() => {
                             that.talkingFeeds[feed.id] = true;
                         });
                         console.log('speaking: ', feed.id, that.talkingFeeds);
                     });
 
-                    speechEvents.on('stopped_speaking', function() {
+                    speechEvents.on('stopped_speaking', function () {
                         that.ngZone.run(() => {
                             that.talkingFeeds[feed.id] = false;
                         });
@@ -591,7 +594,7 @@ export class JanusService {
                     // Append video stream! (they are calling jquery)
 
                     // Bitrate timer stuff?
-                        // TODO Does this just display the bitrate of the streams?
+                    // TODO Does this just display the bitrate of the streams?
                 }
             },
             oncleanup: () => {
@@ -618,7 +621,7 @@ export class JanusService {
         };
 
         if (this.subscriberJanusHandle !== null) {
-            this.subscriberJanusHandle.send({ message: unsubscribe });
+            this.subscriberJanusHandle.send({message: unsubscribe});
         }
 
         delete this.subscriptions[id];
