@@ -1,0 +1,7 @@
+
+cors: {
+  "enabled": true,
+  "config": {
+      "domains": ["*"]
+  }
+}

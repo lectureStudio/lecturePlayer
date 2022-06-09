@@ -1,0 +1,8 @@
+room-1: {
+	description = "Demo Room"
+	secret = ""
+	publishers = 12
+	bitrate = 128000
+	fir_freq = 10
+	record = false
+}
