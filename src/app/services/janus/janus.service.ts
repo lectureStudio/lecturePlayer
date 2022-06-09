@@ -9,9 +9,9 @@ import * as hark from 'hark';
 })
 export class JanusService {
 
-    private readonly serverUrl = window.location.protocol === 'https'
-        ? ('https://' + window.location.hostname + ':10089/janus')
-        : ('http://' + window.location.hostname + ':10088/janus');
+    private readonly serverUrl = window.location.protocol !== 'https'
+        ? ('http://' + window.location.hostname + ':10088/janus')
+        : ('https://' + window.location.hostname + ':10089/janus');
 
     private janus?: Janus;
 
