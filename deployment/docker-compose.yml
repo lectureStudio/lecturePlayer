@@ -25,5 +25,11 @@ services:
       context: ../
       dockerfile: deployment/Dockerfile
     image: angularlecutreplayer:tag
+    volumes:
+      - "./config/nginx.conf:/etc/nginx/nginx.conf"
+      - "./config/mime.types:/etc/nginx/conf/mime.types"
+      - "./nginx-selfsigned.crt:/etc/ssl/certs/nginx-selfsigned.crt"
+      - "./nginx-selfsigned.key:/etc/ssl/private/nginx-selfsigned.key"
     ports:
+      - "11112:443"
       - "11111:80"
