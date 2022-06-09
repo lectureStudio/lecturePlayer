@@ -12,7 +12,5 @@ certificates: {
 }
 
 cors: {
-  config: {
-      domains: ["*"]
-  }
+  enforce_cors = false
 }
