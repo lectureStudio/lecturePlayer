@@ -17,8 +17,10 @@ services:
       - "9089:7089"
     volumes:
       - "./config/janus.jcfg:/usr/local/etc/janus/janus.jcfg"
-      - "./config/janus.transport.http.jcfg:/usr/local/etc/janus/janus.transport.http.cfg"
+      - "./config/janus.transport.http.jcfg:/usr/local/etc/janus/janus.transport.http.jcfg"
       - "./config/janus.plugin.videoroom.jcfg:/usr/local/etc/janus/janus.plugin.videoroom.jcfg"
+      - "./cert.pem:/usr/local/etc/janus/cert.pem"
+      - "./januskey.pem:/usr/local/etc/janus/januskey.pem"
     restart: always
   angularserver:
     build:

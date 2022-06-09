@@ -1,7 +1,18 @@
+general: {
+        http = true # Whether to enable the plain HTTP interface
+        port = 8088 # Web server HTTP port
+        https = true # Whether to enable HTTPS (default=false)
+        secure_port = 8089 # Web server HTTPS port, if enabled
+}
+
+certificates: {
+        cert_pem = "/usr/local/etc/janus/cert.pem"
+        cert_key = "/usr/local/etc/janus/januskey.pem"
+        #cert_pwd = "pass" #secretpassphrase
+}
 
 cors: {
-  "enabled": true,
-  "config": {
-      "domains": ["*"]
+  config: {
+      domains: ["*"]
   }
 }
