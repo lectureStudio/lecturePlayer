@@ -8,10 +8,16 @@
 
         <div class="buttongroup">
             <div class="button" (click)="janusService.toggleMute()">
+                <div (click)="showAvailableMicrophones($event)" class="subbutton">
+                    <mat-icon>keyboard_arrow_up</mat-icon>
+                </div>
                 <mat-icon [class.red]="janusService.isMuted">{{janusService.isMuted ? 'mic_off' : 'mic'}}</mat-icon>
                 <p>{{janusService.isMuted ? 'Unmute' : 'Mute'}}</p>
             </div>
             <div class="button" (click)="janusService.toggleCamera()">
+                <div (click)="showAvailableCameras($event)" class="subbutton">
+                    <mat-icon>keyboard_arrow_up</mat-icon>
+                </div>
                 <mat-icon [class.red]="janusService.isVideoMuted">{{janusService.isVideoMuted ? 'videocam_off' : 'videocam'}}</mat-icon>
                 <p>Video {{janusService.isVideoMuted ? 'on' : 'off'}}</p>
             </div>
@@ -44,6 +50,20 @@
         </div>
     </div>
 
+</div>
+
+<div [style.display]="this.isSelectingMicrophone ? '' : 'none'" #microphoneSelection class="hardwareList">
+    <div class="hardwareListItem" *ngFor="let device of janusService.audioDevices | keyvalue"
+        (click)="janusService.selectAudioDevice(device.key);">
+        {{device.value}}
+    </div>
+</div>
+
+<div [style.display]="this.isSelectingCamera ? '' : 'none'" #cameraSelection class="hardwareList">
+    <div class="hardwareListItem" *ngFor="let device of janusService.videoDevices | keyvalue"
+        (click)="janusService.selectVideoDevice(device.key);">
+        {{device.value}}
+    </div>
 </div>
 
 <div class="not-rendered">

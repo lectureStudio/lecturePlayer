@@ -1,8 +1,8 @@
 general: {
-        http = true # Whether to enable the plain HTTP interface
-        port = 8088 # Web server HTTP port
+        http = false # Whether to enable the plain HTTP interface
+        port = 10088 # Web server HTTP port
         https = true # Whether to enable HTTPS (default=false)
-        secure_port = 8089 # Web server HTTPS port, if enabled
+        secure_port = 10089 # Web server HTTPS port, if enabled
 }
 
 certificates: {
@@ -12,5 +12,5 @@ certificates: {
 }
 
 cors: {
-  enforce_cors = false
+  #enforce_cors = false
 }

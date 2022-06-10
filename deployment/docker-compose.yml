@@ -7,14 +7,6 @@ services:
     image: 'canyan/janus-gateway:master'
     container_name: janus-multistream-server
     command: ["/usr/local/bin/janus", "-F", "/usr/local/etc/janus"]
-    ports:
-      - "10188:8188"
-      - "10088:8088"
-      - "10089:8089"
-      - "10889:8889"
-      - "10000:8000"
-      - "9088:7088"
-      - "9089:7089"
     volumes:
       - "./config/janus.jcfg:/usr/local/etc/janus/janus.jcfg"
       - "./config/janus.transport.http.jcfg:/usr/local/etc/janus/janus.transport.http.jcfg"
@@ -22,6 +14,7 @@ services:
       - "./cert.pem:/usr/local/etc/janus/cert.pem"
       - "./januskey.pem:/usr/local/etc/janus/januskey.pem"
     restart: always
+    network_mode: "host"
   angularserver:
     build:
       context: ../

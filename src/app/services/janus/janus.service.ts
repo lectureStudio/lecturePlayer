@@ -9,7 +9,11 @@ import * as hark from 'hark';
 })
 export class JanusService {
 
-    private readonly serverUrl = 'https://' + window.location.hostname + ':10089/janus';
+    private readonly serverUrl = (window.location.hostname === 'localhost' ? 'http://' : 'https://')
+        + window.location.hostname
+        + (window.location.hostname === 'localhost' ? ':8088' : '10089')
+        + '/janus';
+    // private readonly serverUrl = 'https://' + window.location.hostname + ':10089/janus';
 
     private janus?: Janus;
 
@@ -41,6 +45,9 @@ export class JanusService {
     private mids: any = {};
     public slots: any = {};
     private subStreams: any = {};
+
+    public audioDevices: {[key: string]: string} = {};
+    public videoDevices: {[key: string]: string} = {};
 
     public talkingFeeds: { [key: string]: boolean } = {};
 
@@ -118,6 +125,8 @@ export class JanusService {
 
                         // NOTE: probably a debug thing to leave this here. TODO remove
                         this.registerUsernameToJoinAsPublisher();
+
+                        Janus.listDevices(this.initDeviceList);
                     },
                     iceState: (state: any) => {
                         console.log('ICE state changed to ' + state);
@@ -235,9 +244,42 @@ export class JanusService {
         this.publisherJanusHandle.send({message: register});
     }
 
-    private publishOwnFeed(useAudio: boolean) {
+    private publishOwnFeed(useAudio: boolean, audioDeviceIdOverride?: string, videoDeviceIdOverride?: string) {
+        const mediaObject = {}
+
+        if (audioDeviceIdOverride) {
+            // @ts-ignore
+            if (!mediaObject.audio) {
+                // @ts-ignore
+                mediaObject.audio = {};
+            }
+            // @ts-ignore
+            mediaObject.audio = {
+                deviceId: {
+                    exact: audioDeviceIdOverride
+                }
+            };
+            // @ts-ignore
+            mediaObject.replaceAudio = true;
+        }
+        if (videoDeviceIdOverride) {
+            // @ts-ignore
+            if (!mediaObject.video) {
+                // @ts-ignore
+                mediaObject.video = {};
+            }
+            //@ts-ignore
+            mediaObject.video = {
+                deviceId: {
+                    exact: videoDeviceIdOverride
+                }
+            }
+            // @ts-ignore
+            mediaObject.replaceVideo = true;
+        }
+
         this.publisherJanusHandle.createOffer({
-            media: {audioRecv: false, videoRecv: false, audioSend: useAudio, videoSend: true},
+            media: {...mediaObject, audioRecv: false, videoRecv: false, audioSend: useAudio, videoSend: true},
             simulcast: this.doSimulcast,
             success: (jsep: any) => {
                 Janus.debug("Got a publisher SDP!", jsep);
@@ -276,6 +318,37 @@ export class JanusService {
         else
             this.publisherJanusHandle.muteVideo();
         this.isVideoMuted = this.publisherJanusHandle.isVideoMuted();
+    }
+
+    private initDeviceList = (devices: any) => {
+        this.audioDevices = {};
+        this.videoDevices = {};
+
+        for (const device of devices) {
+            let label = device.label;
+
+
+            if (!label || label === "") {
+                label = device.deviceId;
+            }
+
+            console.log('Device found: ', label, device.kind);
+
+            if (device.kind === "audioinput") {
+                this.audioDevices[device.deviceId] = label;
+                console.log('audio devices', this.audioDevices);
+            } else if (device.kind === "videoinput") {
+                this.videoDevices[device.deviceId] = label;
+            }
+        }
+    }
+
+    public selectAudioDevice(key: string) {
+        this.publishOwnFeed(true, key);
+    }
+
+    public selectVideoDevice(key: string) {
+        this.publishOwnFeed(true, undefined, key);
     }
 
     private unpublishOwnFeed() {
