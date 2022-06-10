@@ -11,7 +11,7 @@ export class JanusService {
 
     private readonly serverUrl = (window.location.hostname === 'localhost' ? 'http://' : 'https://')
         + window.location.hostname
-        + (window.location.hostname === 'localhost' ? ':8088' : '10089')
+        + (window.location.hostname === 'localhost' ? ':8088' : ':10089')
         + '/janus';
     // private readonly serverUrl = 'https://' + window.location.hostname + ':10089/janus';
 
