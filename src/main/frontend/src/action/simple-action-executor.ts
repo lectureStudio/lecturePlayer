@@ -51,6 +51,10 @@ class SimpleActionExecutor implements ActionExecutor {
 		this.toolContext.page = page;
 	}
 
+	removePageNumber(pageNumber: number): void {
+		
+	}
+
 	setTool(tool: Tool): void {
 		if (!tool) {
 			throw new Error("Tool must not be null");

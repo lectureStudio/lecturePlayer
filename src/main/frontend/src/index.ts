@@ -220,37 +220,29 @@ class LecturePlayer {
 			}
 		}
 		else if (action instanceof StreamDocumentCreatedAction) {
-			if (action.documentType === 1) {
-				const slideDoc = new WhiteboardDocument();
-				slideDoc.setDocumentId(action.documentId);
+			this.streamActionBuffer = {
+				bufferedActions: [],
+				docId: BigInt(action.documentId)
+			};
 
-				this.playbackService.addDocument(slideDoc);
-			}
-			else {
-				this.streamActionBuffer = {
-					bufferedActions: [],
-					docId: BigInt(action.documentId)
-				};
-				
-				const stateDoc: CourseStateDocument = {
-					activePage: null,
-					documentFile: action.documentFile,
-					documentId: action.documentId,
-					documentName: action.documentTitle,
-					pages: null,
-					type: "pdf"
-				};
+			const stateDoc: CourseStateDocument = {
+				activePage: null,
+				documentFile: action.documentFile,
+				documentId: action.documentId,
+				documentName: action.documentTitle,
+				pages: null,
+				type: "pdf"
+			};
 
-				this.courseStateService.getStateDocument(this.roomId, stateDoc)
-					.then((doc: SlideDocument) => {
-						this.playbackService.addDocument(doc);
+			this.courseStateService.getStateDocument(this.roomId, stateDoc)
+				.then((doc: SlideDocument) => {
+					this.playbackService.addDocument(doc);
 
-						this.flushActionBuffer(doc.getDocumentId());
-					})
-					.catch(error => {
-						console.error(error);
-					});
-			}
+					this.flushActionBuffer(doc.getDocumentId());
+				})
+				.catch(error => {
+					console.error(error);
+				});
 		}
 		else if (action instanceof StreamDocumentClosedAction) {
 			this.playbackService.removeDocument(action.documentId);
