@@ -31,6 +31,8 @@ import { WhiteboardDocument } from './model/whiteboard.document';
 import { CourseStateDocument } from './model/course-state-document';
 import { StreamDocumentClosedAction } from './action/stream.document.closed.action';
 import { StreamAction } from './action/stream.action';
+import { StreamPageDeletedAction } from './action/stream.page.deleted.action';
+import { PageDeleteAction } from './action/page-delete.action';
 
 class LecturePlayer {
 
@@ -247,17 +249,6 @@ class LecturePlayer {
 					})
 					.catch(error => {
 						console.error(error);
-
-						// Try again.
-						this.courseStateService.getStateDocument(this.roomId, stateDoc)
-							.then((doc: SlideDocument) => {
-								this.playbackService.addDocument(doc);
-
-								this.flushActionBuffer(doc.getDocumentId());
-							})
-							.catch(error => {
-								console.error(error);
-							});
 					});
 			}
 		}
@@ -267,6 +258,14 @@ class LecturePlayer {
 		else if (action instanceof StreamPageSelectedAction) {
 			if (!this.bufferAction(action, action.documentId)) {
 				const pageAction = new PageAction(action.pageNumber);
+				pageAction.timestamp = 0;
+
+				this.playbackService.addAction(pageAction);
+			}
+		}
+		else if (action instanceof StreamPageDeletedAction) {
+			if (!this.bufferAction(action, action.documentId)) {
+				const pageAction = new PageDeleteAction(action.pageNumber, action.documentId);
 				pageAction.timestamp = 0;
 
 				this.playbackService.addAction(pageAction);

@@ -16,15 +16,15 @@ class WhiteboardDocument extends SlideDocument {
 		this.loadPages()
 	}
 
-	async getPageText(pageNumber: number): Promise<string> {
+	override async getPageText(pageNumber: number): Promise<string> {
 		return Promise.resolve("");
 	}
 
-	renderPage(pageNumber: number, context: CanvasRenderingContext2D, viewRect: Rectangle, dirtyRegion: Rectangle): Promise<CanvasImageSource> {
+	override renderPage(pageNumber: number, context: CanvasRenderingContext2D, viewRect: Rectangle, dirtyRegion: Rectangle): Promise<CanvasImageSource> {
 		return this.renderer.render(context, viewRect, dirtyRegion);
 	}
 
-	renderPageText(pageNumber: number, root: HTMLElement, size: Dimension, viewRect: Rectangle): void {
+	override renderPageText(pageNumber: number, root: HTMLElement, size: Dimension, viewRect: Rectangle): void {
 		// No-op
 	}
 

@@ -19,8 +19,6 @@ class StreamActionExecutor implements ActionExecutor {
 
 	private previousTool: Tool;
 
-	private pageNumber: number;
-
 	private pageIndexObserver: Observer<number>;
 
 
@@ -48,14 +46,16 @@ class StreamActionExecutor implements ActionExecutor {
 	setPageNumber(pageNumber: number) {
 		const page = this.document.getPage(pageNumber);
 
-		this.pageNumber = pageNumber;
 		this.toolContext.page = page;
-
 		this.renderController.setPage(page);
 
 		if (this.pageIndexObserver) {
 			this.pageIndexObserver(pageNumber);
 		}
+	}
+
+	removePageNumber(pageNumber: number): void {
+		this.document.deletePage(pageNumber);
 	}
 
 	setTool(tool: Tool): void {

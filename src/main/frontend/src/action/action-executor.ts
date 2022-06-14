@@ -16,6 +16,8 @@ interface ActionExecutor {
 
 	setPageNumber(pageNumber: number): void;
 
+	removePageNumber(pageNumber: number): void;
+
 	setTool(tool: Tool): void;
 
 	selectAndExecuteTool(tool: AtomicTool): void;
