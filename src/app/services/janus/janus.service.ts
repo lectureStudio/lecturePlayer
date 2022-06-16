@@ -3,6 +3,7 @@ import {Injectable, NgZone} from '@angular/core';
 import {DestroyOptions, Janus, JanusJS} from "janus-gateway";
 
 import * as hark from 'hark';
+import {Subject} from "rxjs";
 
 @Injectable({
     providedIn: 'root'
@@ -50,6 +51,7 @@ export class JanusService {
     public videoDevices: {[key: string]: string} = {};
 
     public talkingFeeds: { [key: string]: boolean } = {};
+    public talkingFeedsSubject: Subject<{[key: string]: boolean}> = new Subject<{[key: string]: boolean}>();
 
     private doSimulcast = false;
 
@@ -630,6 +632,7 @@ export class JanusService {
                     speechEvents.on('speaking', function () {
                         that.ngZone.run(() => {
                             that.talkingFeeds[feed.id] = true;
+                            that.talkingFeedsSubject.next(that.talkingFeeds);
                         });
                         console.log('speaking: ', feed.id, that.talkingFeeds);
                     });
@@ -637,6 +640,7 @@ export class JanusService {
                     speechEvents.on('stopped_speaking', function () {
                         that.ngZone.run(() => {
                             that.talkingFeeds[feed.id] = false;
+                            that.talkingFeedsSubject.next(that.talkingFeeds);
                         });
                         console.log('stopped_speaking: ', feed.id);
                     });

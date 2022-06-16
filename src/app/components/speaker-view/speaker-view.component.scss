@@ -54,6 +54,7 @@ mat-icon {
   justify-content: center;
   align-items: center;
   max-height: 100%;
+  max-width: 95%;
 }
 
 .speakerContainer {
@@ -67,6 +68,11 @@ mat-icon {
   overflow: hidden;
   max-height: 100%;
   aspect-ratio: 4/3;
+  padding-right: 1em;
+}
+
+.attendantStreamContainer:first-of-type :last-of-type {
+  padding: 0;
 }
 
 video {

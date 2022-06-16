@@ -9,9 +9,9 @@
                     <mat-icon>arrow_left</mat-icon>
                 </div>
             </div>
-            <div class="attendantStreams">
-                <div class="attendantStreamContainer" *ngFor="let nonTalkingStream of getAllNonTalkingStreamsForCurrentPage()">
-                    <video autoplay playsinline [srcObject]="nonTalkingStream.stream"></video>
+            <div class="attendantStreams" *ngIf="_cameraStreams.length > 1">
+                <div class="attendantStreamContainer" *ngFor="let nonTalkingStream of nonTalkingFeedStreams">
+                    <video autoplay playsinline [srcObject]="nonTalkingStream"></video>
                 </div>
             </div>
             <div class="buttonContainer">
@@ -22,6 +22,6 @@
         </div>
     </div>
     <div class="speakerContainer">
-        <video autoplay playsinline [srcObject]="getTalkingStream()?.stream"></video>
+        <video autoplay playsinline [srcObject]="talkingFeedStream"></video>
     </div>
 </div>

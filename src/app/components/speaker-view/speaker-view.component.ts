@@ -8,7 +8,10 @@ import {JanusService} from "../../services/janus/janus.service";
 })
 export class SpeakerViewComponent implements OnInit {
 
-  _cameraStreams: {stream: MediaStream, feedId: string, loadingFinished?: boolean; firstRenderFinished?: boolean}[];
+  public _cameraStreams: {stream: MediaStream, feedId: string, loadingFinished?: boolean; firstRenderFinished?: boolean}[];
+
+  public talkingFeedStream?: MediaStream;
+  public nonTalkingFeedStreams?: MediaStream[];
 
   private currentPage = 0;
   private maximumAmountOfCamsPerPage = 4;
@@ -22,6 +25,29 @@ export class SpeakerViewComponent implements OnInit {
   constructor(public janusService: JanusService) { }
 
   ngOnInit(): void {
+    this.janusService.talkingFeedsSubject.subscribe(talkingFeeds => {
+      const tmpId = Object.keys(talkingFeeds).filter(e => talkingFeeds[e])[0];
+
+      if (this._cameraStreams.length === 1) {
+        this.talkingFeedId = this._cameraStreams[0].feedId;
+      }
+
+      if (tmpId && tmpId != '' && this.talkingFeedId !== tmpId) {
+        this.talkingFeedId = tmpId;
+        console.log('(Speaker View) Active speaker changed: ', this.talkingFeedId);
+
+        this.talkingFeedStream = this.talkingFeed?.stream;
+        this.nonTalkingFeedStreams = this.nonTalkingFeeds.map(e => e.stream);
+      }
+    })
+  }
+
+  get talkingFeed() {
+    return this._cameraStreams.find(e => e.feedId == this.talkingFeedId);
+  }
+
+  get nonTalkingFeeds() {
+    return this._cameraStreams.filter(e => e.feedId != this.talkingFeedId);
   }
 
   changePage(modifier: number) {
@@ -31,19 +57,4 @@ export class SpeakerViewComponent implements OnInit {
       this.currentPage = tmp;
     }
   }
-
-  getTalkingStream() {
-    this.talkingFeedId = Object.keys(this.janusService.talkingFeeds).filter(e => !this._cameraStreams.find(cs => cs.feedId === e))[0] || '';
-
-    if (this._cameraStreams.length === 1) {
-      return this._cameraStreams[0];
-    }
-
-    return this._cameraStreams.find(e => e.feedId == this.talkingFeedId);
-  }
-
-  getAllNonTalkingStreamsForCurrentPage() {
-    return this._cameraStreams.filter(e => e.feedId != this.talkingFeedId);
-  }
-
 }
