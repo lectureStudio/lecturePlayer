@@ -4,6 +4,7 @@ import { RenderSurface } from "../../render/render-surface";
 import { TextLayerSurface } from "../../render/text-layer-surface";
 import { ViewElement } from "../view-element";
 import { WebViewElement } from "../web-view-element";
+import { RenderController } from "../../render/render-controller";
 
 @ViewElement({
 	selector: "slide-view",
@@ -20,6 +21,8 @@ class WebSlideView extends WebViewElement implements SlideView {
 
 	private textLayerSurface: TextLayerSurface;
 
+	private renderController: RenderController;
+
 
 	constructor() {
 		super();
@@ -31,14 +34,18 @@ class WebSlideView extends WebViewElement implements SlideView {
 		const volatileCanvas = this.querySelector<HTMLCanvasElement>('.volatile-canvas');
 		const textLayer = this.querySelector<HTMLElement>('.text-layer');
 
-		this.slideRenderSurface = new SlideRenderSurface(slideCanvas);
-		this.actionRenderSurface = new RenderSurface(actionCanvas);
-		this.volatileRenderSurface = new RenderSurface(volatileCanvas);
-		this.textLayerSurface = new TextLayerSurface(textLayer);
+		this.slideRenderSurface = new SlideRenderSurface(this, slideCanvas);
+		this.actionRenderSurface = new RenderSurface(this, actionCanvas);
+		this.volatileRenderSurface = new RenderSurface(this, volatileCanvas);
+		this.textLayerSurface = new TextLayerSurface(this, textLayer);
 
 		new ResizeObserver(this.resize.bind(this)).observe(this);
 
 		this.resize();
+	}
+
+	setRenderController(renderController: RenderController): void {
+		this.renderController = renderController;
 	}
 
 	getActionRenderSurface(): RenderSurface {
@@ -62,26 +69,34 @@ class WebSlideView extends WebViewElement implements SlideView {
 	}
 
 	private resize() {
-		const slideRatio = 4 / 3;
-		let width = this.clientWidth;
-		let height = this.clientHeight;
-		const viewRatio = width / height;
-
-		if (viewRatio > slideRatio) {
-			width = height * slideRatio;
-		}
-		else {
-			height = width / slideRatio;
-		}
-
-		if (width === 0 || height === 0) {
+		if (!this.renderController) {
 			return;
 		}
 
-		this.slideRenderSurface.setSize(width, height);
-		this.actionRenderSurface.setSize(width, height);
-		this.volatileRenderSurface.setSize(width, height);
-		this.textLayerSurface.setSize(width, height);
+		const page = this.renderController.getPage();
+		page.getPageBounds().then(bounds => {
+			let width = this.clientWidth;
+			let height = this.clientHeight;
+
+			const slideRatio = bounds.width / bounds.height;
+			const viewRatio = width / height;
+
+			if (viewRatio > slideRatio) {
+				width = height * slideRatio;
+			}
+			else {
+				height = width / slideRatio;
+			}
+
+			if (width === 0 || height === 0) {
+				return;
+			}
+
+			this.slideRenderSurface.setSize(width, height);
+			this.actionRenderSurface.setSize(width, height);
+			this.volatileRenderSurface.setSize(width, height);
+			this.textLayerSurface.setSize(width, height);
+		});
 	}
 }
 

@@ -16,6 +16,12 @@ class WhiteboardDocument extends SlideDocument {
 		this.loadPages()
 	}
 
+	override getPageBounds(pageNumber: number): Promise<Rectangle> {
+		return new Promise<Rectangle>(resolve => {
+			resolve(new Rectangle(0, 0, 640, 480));
+		});
+	}
+
 	override async getPageText(pageNumber: number): Promise<string> {
 		return Promise.resolve("");
 	}

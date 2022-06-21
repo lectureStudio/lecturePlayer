@@ -3,8 +3,8 @@ import { Observer } from "../../utils/observable";
 import { WebSlideView } from "../slide-view/web-slide.view";
 import { ViewElement } from "../view-element";
 import { WebViewElement } from "../web-view-element";
-import { WebPlayerControls } from "../../component/player-controls/player-controls";
 import { PlaybackModel } from "../../model/playback-model";
+import { WebPlayerControls } from "../../component";
 
 @ViewElement({
 	selector: "player-view",

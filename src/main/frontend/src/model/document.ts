@@ -9,6 +9,8 @@ abstract class SlideDocument {
 	private documentId: bigint;
 
 
+	abstract getPageBounds(pageNumber: number): Promise<Rectangle>;
+
 	abstract getPageText(pageNumber: number): Promise<string>;
 
 	abstract renderPage(pageNumber: number, context: CanvasRenderingContext2D, viewRect: Rectangle, dirtyRegion: Rectangle): Promise<CanvasImageSource>;

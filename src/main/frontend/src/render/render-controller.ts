@@ -70,6 +70,10 @@ class RenderController {
 		});
 	}
 
+	getPage(): Page {
+		return this.page;
+	}
+
 	setPage(page: Page): void {
 		if (this.page) {
 			// Disable rendering for previous page.
@@ -78,11 +82,14 @@ class RenderController {
 
 		this.page = page;
 
-		if (!this.seek) {
-			this.enableRendering();
-		}
+		this.updateSurfaceSize(page)
+			.then(() => {
+				if (!this.seek) {
+					this.enableRendering();
+				}
 
-		this.renderAllLayers(page);
+				this.renderAllLayers(page);
+			});
 	}
 
 	setSeek(seek: boolean): void {
@@ -140,6 +147,15 @@ class RenderController {
 			this.refreshAnnotationLayers();
 			this.enableRendering();
 		}
+	}
+
+	private updateSurfaceSize(page: Page): Promise<void> {
+		return page.getPageBounds().then(bounds => {
+			this.slideRenderSurface.setPageSize(bounds);
+			this.actionRenderSurface.setPageSize(bounds);
+			this.volatileRenderSurface.setPageSize(bounds);
+			this.textLayerSurface.setPageSize(bounds);
+		});
 	}
 
 	private enableRendering(): void {

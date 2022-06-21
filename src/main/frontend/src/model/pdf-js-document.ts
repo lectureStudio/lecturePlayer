@@ -25,27 +25,34 @@ class PdfJsDocument extends SlideDocument {
 		this.loadPages(document)
 	}
 
-	async getPageText(pageNumber: number): Promise<string> {
+	override async getPageBounds(pageNumber: number): Promise<Rectangle> {
+		const page = await this.getPdfPage(pageNumber);
+		const bounds = page.view;
+
+		return new Rectangle(bounds[0], bounds[1], bounds[2], bounds[3]);
+	}
+
+	override async getPageText(pageNumber: number): Promise<string> {
 		const page = await this.document.getPage(pageNumber + 1);
 		const content = await page.getTextContent();
 
 		return content.items.map(function (s: TextItem) { return s.str; }).join(' ');
 	}
 
-	async renderPage(pageNumber: number, context: CanvasRenderingContext2D, viewRect: Rectangle, dirtyRegion: Rectangle): Promise<CanvasImageSource> {
+	override async renderPage(pageNumber: number, context: CanvasRenderingContext2D, viewRect: Rectangle, dirtyRegion: Rectangle): Promise<CanvasImageSource> {
 		const pageProxy: PDFPageProxy = await this.getPdfPage(pageNumber);
 
 		return this.renderer.render(pageProxy, context, viewRect, dirtyRegion);
 	}
 
-	async renderPageText(pageNumber: number, root: HTMLElement, size: Dimension, viewRect: Rectangle): Promise<void> {
+	override async renderPageText(pageNumber: number, root: HTMLElement, size: Dimension, viewRect: Rectangle): Promise<void> {
 		const pageProxy: PDFPageProxy = await this.getPdfPage(pageNumber);
 
 		this.textRenderer.render(pageProxy, root, size, viewRect);
 	}
 
-	private getPdfPage(pageNumber: number): Promise<PDFPageProxy> {
-		return this.document.getPage(pageNumber + 1);
+	private async getPdfPage(pageNumber: number): Promise<PDFPageProxy> {
+		return await this.document.getPage(pageNumber + 1);
 	}
 
 	private loadPages(document: PDFDocumentProxy): void {

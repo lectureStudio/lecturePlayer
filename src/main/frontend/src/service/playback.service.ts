@@ -63,6 +63,8 @@ export class PlaybackService {
 		renderController.setVolatileRenderSurface(slideView.getVolatileRenderSurface());
 		renderController.setTextLayerSurface(slideView.getTextLayerSurface());
 
+		slideView.setRenderController(renderController);
+
 		const executor = new StreamActionExecutor(renderController);
 		executor.setDocument(activeDoc);
 		executor.setPageNumber(activeStateDoc.activePage.pageNumber);
