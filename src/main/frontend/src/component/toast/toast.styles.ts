@@ -29,11 +29,6 @@ export const toastContainerStyles = css`
 	:host([gravity="1"]) {
 		bottom: 0;
 	}
-
-
-
-
-
 `;
 
 export const toastStyles = css`
@@ -54,9 +49,7 @@ export const toastStyles = css`
 		align-items: center;
 		box-shadow: 0 3px 6px -1px rgba(0, 0, 0, 0.12), 0 10px 36px -4px rgba(77, 96, 232, 0.3);
 		position: relative;
-		opacity: 0;
-		height: 0;
-		max-height: 0;
+		opacity: 1;
 		cursor: pointer;
 		font-size: 0.875rem;
 		width: fit-content;
@@ -87,11 +80,8 @@ export const toastStyles = css`
 	}
 
 	:host * {
-		height: 0;
-		max-height: 0;
 		overflow: hidden;
 	}
-
 
 	:host([type="1"]) {
 		--toast-color: var(--toast-color-success);

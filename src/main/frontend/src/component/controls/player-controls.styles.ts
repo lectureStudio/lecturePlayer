@@ -64,15 +64,6 @@ export const playerControlsStyles = css`
 		color: #F9FAFB;
 		stroke: #F9FAFB;
 	}
-	:host #raiseHandButton button.active {
-		background-color: rgba(25, 135, 84, 1);
-	}
-	:host #raiseHandButton button.active:hover {
-		background-color: rgba(255, 193, 7, 1);
-	}
-	:host #raiseHandButton button.active path {
-		stroke: #F9FAFB;
-	}
 	:host button svg {
 		display: block;
 		width: 18px;
@@ -251,6 +242,12 @@ export const playerControlsStyles = css`
 		color: #007db5;
 	}
 
+	:host([handUp]) #hand-button {
+		background-color: rgba(25, 135, 84, 1);
+	}
+	:host([handUp]) #hand-button path {
+		stroke: #F9FAFB;
+	}
 
 	#volumeIndicator > svg {
 		display: none;

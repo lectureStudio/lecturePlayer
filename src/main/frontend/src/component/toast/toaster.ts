@@ -86,8 +86,6 @@ export abstract class Toaster {
 		// Creating the DOM object for the toast
 		const toast = this.buildToast(message, type);
 
-		toast.classList.add("newItem");
-
 		// Adding the DOM element
 		this.container.insertBefore(toast, this.container.firstChild);
 

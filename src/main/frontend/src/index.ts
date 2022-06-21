@@ -10,6 +10,7 @@ import './component/player-offline/player-offline';
 import './component/chat-box/chat-box';
 import './component/message-form/message-form';
 import './component/toast/toast';
+import "web-dialog/index";
 
 import i18next from 'i18next';
 import LanguageDetector from "i18next-browser-languagedetector";
@@ -75,7 +76,7 @@ i18next
 	});
 
 Toaster.init({
-	duration: 10000,
+	duration: 5000,
 	gravity: ToastGravity.Top,
 	position: ToastPosition.Center,
 	closeable: false,

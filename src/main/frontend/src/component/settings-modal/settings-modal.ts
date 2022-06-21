@@ -1,21 +1,13 @@
 import { html } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { customElement, property, query } from 'lit/decorators.js';
-import { I18nLitElement, t } from '../i18n-mixin';
-import { settingsModalStyles } from './settings-modal.styles';
+import { t } from '../i18n-mixin';
 import { DeviceInfo, Devices, DeviceSettings } from '../../utils/devices';
-import "web-dialog/index";
+import { Modal } from '../modal/modal';
+import { Utils } from '../../utils/utils';
 
 @customElement("settings-modal")
-export class SettingsModal extends I18nLitElement {
-
-	static styles = [
-		I18nLitElement.styles,
-		settingsModalStyles
-	];
-
-	@property({ type: Boolean, reflect: true })
-	show: boolean = true;
+export class SettingsModal extends Modal {
 
 	@property()
 	audioInputDevices: MediaDeviceInfo[] = [];
@@ -39,16 +31,6 @@ export class SettingsModal extends I18nLitElement {
 	meterCanvas: HTMLCanvasElement;
 
 
-	open() {
-		document.body.appendChild(this);
-	}
-
-	close() {
-		document.body.removeChild(this);
-
-		this.show = false;
-	}
-
 	save() {
 		const deviceForm: HTMLFormElement = this.renderRoot?.querySelector('#deviceSelectForm') ?? null;
 		const data = new FormData(deviceForm);
@@ -56,32 +38,24 @@ export class SettingsModal extends I18nLitElement {
 
 		Devices.saveDeviceChoice(devices);
 
-		const event = new CustomEvent("device-settings-saved", {
-			bubbles: true,
-			composed: true,
-		});
-		this.dispatchEvent(event);
-
+		this.dispatchEvent(Utils.createEvent("device-settings-saved"));
 		this.close();
 	}
 
-	closed() {
+	cancel() {
+		this.dispatchEvent(Utils.createEvent("device-settings-canceled"));
+		this.close();
+	}
+
+	override closed() {
 		Devices.stopMediaTracks(<MediaStream> this.video.srcObject);
 
 		this.video.srcObject = null;
 
-		const event = new CustomEvent("device-settings-closed", {
-			bubbles: true,
-			composed: true,
-		});
-		this.dispatchEvent(event);
+		super.closed();
 	}
 
-	closing(event: Event) {
-		event.preventDefault();
-	}
-
-	opened() {
+	override opened() {
 		Devices.enumerateDevices(true, true)
 			.then((result: DeviceInfo) => {
 				this.updateModel(result, false);
@@ -111,9 +85,11 @@ export class SettingsModal extends I18nLitElement {
 						});
 				}
 			});
+
+		super.opened();
 	}
 
-	updateModel(result: DeviceInfo, cameraBlocked: boolean) {
+	private updateModel(result: DeviceInfo, cameraBlocked: boolean) {
 		const devices = result.devices;
 
 		this.audioInputDevices = devices.filter(device => device.kind === "audioinput");
@@ -133,7 +109,7 @@ export class SettingsModal extends I18nLitElement {
 		Devices.getAudioLevel(audioTrack, this.meterCanvas);
 	}
 
-	onMicrophoneChange(event: Event) {
+	private onMicrophoneChange(event: Event) {
 		Devices.stopAudioTracks(this.video.srcObject as MediaStream);
 
 		const audioSource = (<HTMLInputElement> event.target).value;
@@ -158,13 +134,13 @@ export class SettingsModal extends I18nLitElement {
 			});
 	}
 
-	onSpeakerChange(event: Event) {
+	private onSpeakerChange(event: Event) {
 		const audioSink = (<HTMLInputElement> event.target).value;
 
 		Devices.setAudioSink(this.video, audioSink);
 	}
 
-	onCameraChange(event: Event) {
+	private onCameraChange(event: Event) {
 		Devices.stopVideoTracks(this.video.srcObject as MediaStream);
 
 		const videoSource = (<HTMLInputElement> event.target).value;
@@ -259,7 +235,7 @@ export class SettingsModal extends I18nLitElement {
 					</form>
 				</article>
 				<footer>
-					<button type="button" @click="${this.close}" class="btn btn-outline-secondary btn-sm">${t("settings.cancel")}</button>
+					<button type="button" @click="${this.cancel}" class="btn btn-outline-secondary btn-sm">${t("settings.cancel")}</button>
 					<button type="button" @click="${this.save}" class="btn btn-outline-primary btn-sm">${t("settings.save")}</button>
 				</footer>
 			</web-dialog>

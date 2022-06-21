@@ -28,7 +28,7 @@ export class Devices {
 		return localStorage.getItem("video.input");
 	}
 
-	static enumerateDevices(useVideo: boolean, useSettings: boolean): Promise<void | DeviceInfo> {
+	static enumerateDevices(useVideo: boolean, useSettings: boolean): Promise<DeviceInfo> {
 		let constraints: any;
 	
 		if (useSettings) {
@@ -60,23 +60,28 @@ export class Devices {
 				}
 			};
 		}
-	
-		return navigator.mediaDevices.getUserMedia(constraints)
-			.then(stream => {
-				return navigator.mediaDevices.enumerateDevices()
-					.then(devices => {
-						const result = {
-							devices: devices,
-							stream: stream,
-							constraints: constraints
-						};
-	
-						return result;
-					})
-					.catch(error => {
-						console.error(error);
-					});
-			});
+
+		return new Promise((resolve, reject) => {
+			navigator.mediaDevices.getUserMedia(constraints)
+				.then(stream => {
+					return navigator.mediaDevices.enumerateDevices()
+						.then(devices => {
+							const result = {
+								devices: devices,
+								stream: stream,
+								constraints: constraints
+							};
+
+							resolve(result);
+						})
+						.catch(error => {
+							reject(error);
+						});
+				})
+				.catch(error => {
+					reject(error);
+				});
+		});
 	}
 	
 	static clearDeviceChoice() {

@@ -1,6 +1,6 @@
 import { css } from 'lit';
 
-export const settingsModalStyles = css`
+export const modalStyles = css`
 	:host {
 		--dialog-backdrop-bg: rgba(0, 0, 0, 0.5);
 		--dialog-border-radius: 0.25em;

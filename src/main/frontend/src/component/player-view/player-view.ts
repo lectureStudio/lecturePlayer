@@ -4,7 +4,6 @@ import { MediaPlayer } from '../../media/media-player';
 import { CourseState } from '../../model/course-state';
 import { PlayerControls } from '../controls/player-controls';
 import { I18nLitElement, t } from '../i18n-mixin';
-import { SettingsModal } from '../settings-modal/settings-modal';
 import { SlideView } from '../slide-view/slide-view';
 import { PlayerViewController } from './player-view.controller';
 import { playerViewStyles } from './player-view.styles';
@@ -43,10 +42,6 @@ export class PlayerView extends I18nLitElement {
 		}, false);
 		this.controls.addEventListener("player-chat-visibility", (e: CustomEvent) => {
 			this.chatVisible = !this.chatVisible;
-		}, false);
-		this.controls.addEventListener("player-settings", (e: CustomEvent) => {
-			const settingsModal = new SettingsModal();
-			settingsModal.open();
 		}, false);
 	}
 

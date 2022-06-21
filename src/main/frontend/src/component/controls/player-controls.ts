@@ -1,5 +1,6 @@
 import { html, PropertyValues } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
+import { Utils } from '../../utils/utils';
 import { I18nLitElement } from '../i18n-mixin';
 import { playerControlsStyles } from './player-controls.styles';
 
@@ -45,11 +46,17 @@ export class PlayerControls extends I18nLitElement {
 	@property({ type: Boolean, reflect: true })
 	fullscreen: boolean = false;
 
+	@property({ type: Boolean, reflect: true })
+	handUp: boolean = false;
+
 
 	firstUpdated(_changedProperties: PropertyValues): void {
 		// Observe fullscreen change by, e.g. escape-key.
 		document.addEventListener("fullscreenchange", () => {
 			this.fullscreen = document.fullscreenElement !== null;
+		});
+		document.addEventListener("speech-canceled", (e: CustomEvent) => {
+			this.handUp = false;
 		});
 
 		this.setVolume(this.volume);
@@ -74,14 +81,9 @@ export class PlayerControls extends I18nLitElement {
 			this.volumeState = 4;
 		}
 
-		const event = new CustomEvent("player-volume", {
-			detail: {
-				volume: this.volume
-			},
-			bubbles: true,
-			composed: true,
-		});
-		this.dispatchEvent(event);
+		this.dispatchEvent(Utils.createEvent("player-volume", {
+			volume: this.volume
+		}));
 	}
 
 	private onMuteAudio(): void {
@@ -95,33 +97,28 @@ export class PlayerControls extends I18nLitElement {
 		}		
 	}
 
+	private onHand(): void {
+		this.handUp = !this.handUp;
+
+		this.dispatchEvent(Utils.createEvent("player-hand-action", {
+			handUp: this.handUp
+		}));
+	}
+
 	private onChatVisibility(): void {
-		const event = new CustomEvent("player-chat-visibility", {
-			bubbles: true,
-			composed: true,
-		});
-		this.dispatchEvent(event);
+		this.dispatchEvent(Utils.createEvent("player-chat-visibility"));
 	}
 
 	private onFullscreen(): void {
 		this.fullscreen = !this.fullscreen;
 
-		const event = new CustomEvent("fullscreen", {
-			detail: {
-				fullscreen: this.fullscreen
-			},
-			bubbles: true,
-			composed: true,
-		});
-		this.dispatchEvent(event);
+		this.dispatchEvent(Utils.createEvent("fullscreen", {
+			fullscreen: this.fullscreen
+		}));
 	}
 
 	private onSettings(): void {
-		const event = new CustomEvent("player-settings", {
-			bubbles: true,
-			composed: true,
-		});
-		this.dispatchEvent(event);
+		this.dispatchEvent(Utils.createEvent("player-settings"));
 	}
 
 	private onVolume(e: InputEvent): void {
@@ -168,7 +165,7 @@ export class PlayerControls extends I18nLitElement {
 				<span id="duration">${this.getFormattedDuration()}</span>
 			</div>
 			<div class="col nav-center">
-				<button id="raise-hand-button">
+				<button @click="${this.onHand}" id="hand-button">
 					<svg viewBox="0 0 512 512">
 						<path d="M80 320V144a32 32 0 0132-32h0a32 32 0 0132 32v112M144 256V80a32 32 0 0132-32h0a32 32 0 0132 32v160M272 241V96a32 32 0 0132-32h0a32 32 0 0132 32v224M208 240V48a32 32 0 0132-32h0a32 32 0 0132 32v192" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/>
 						<path d="M80 320c0 117.4 64 176 152 176s123.71-39.6 144-88l52.71-144c6.66-18.05 3.64-34.79-11.87-43.6h0c-15.52-8.82-35.91-4.28-44.31 11.68L336 320" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/>
