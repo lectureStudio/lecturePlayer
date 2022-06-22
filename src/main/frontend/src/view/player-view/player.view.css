@@ -36,6 +36,7 @@ player-view .feed-container video {
 }
 player-view .chat-container > * {
 	min-width: 15em;
+	max-width: 15em;
 }
 player-view .invisible {
 	display: none;

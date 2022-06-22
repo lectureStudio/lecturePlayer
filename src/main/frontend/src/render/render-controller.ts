@@ -89,6 +89,9 @@ class RenderController {
 				}
 
 				this.renderAllLayers(page);
+			})
+			.catch(error => {
+				console.error(error);
 			});
 	}
 
@@ -239,6 +242,13 @@ class RenderController {
 	}
 
 	private renderAllLayers(page: Page): void {
+		const size = this.slideRenderSurface.getSize();
+
+		if (!size) {
+			// Do not even try to render.
+			return;
+		}
+
 		const promise = this.renderSlideLayer(page);
 		promise.then((imageSource: CanvasImageSource) => {
 			if (imageSource) {
