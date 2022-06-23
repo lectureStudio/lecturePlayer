@@ -4,9 +4,10 @@ import './component/player/player';
 import './component/slide-view/slide-view';
 import './component/player-view/player-view';
 import './component/controls/player-controls';
-import './component/settings-modal/settings-modal'
-import './component/player-loading/player-loading';
-import './component/player-offline/player-offline';
+import './component/settings-modal/settings.modal'
+import './component/speech-accepted-modal/speech-accepted.modal'
+import './component/loading/player-loading';
+import './component/offline/player-offline';
 import './component/chat-box/chat-box';
 import './component/message-form/message-form';
 import './component/toast/toast';
@@ -36,6 +37,7 @@ i18next
 
 					"devices.cancel": "Cancel",
 					"devices.close": "Close",
+					"devices.querying": "Querying..",
 					"devices.next": "Next",
 					"devices.none": "None",
 					"devices.init.once": "You only have to make this setting once.",
@@ -70,6 +72,15 @@ i18next
 					"course.feature.quiz.count.error": "Only one answer per quiz is allowed",
 					"course.feature.quiz.input.invalid": "Input not allowed",
 					"course.feature.quiz.sent": "Your answer has been successfully sent",
+
+					"course.speech.request.accepted": "Speech request accepted",
+					"course.speech.request.accepted.description": "Start your speech now or cancel it if you have changed your mind.",
+					"course.speech.request.rejected": "Speech request rejected",
+					"course.speech.request.cancel": "Cancel",
+					"course.speech.request.start": "Start",
+					"course.speech.request.speak": "You can speak now",
+					"course.speech.request.ended": "Speech ended",
+					"course.speech.request.without.camera": "Speech is performed without camera.",
 				}
 			}
 		}

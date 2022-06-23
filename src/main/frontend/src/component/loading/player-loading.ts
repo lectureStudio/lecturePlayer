@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import { customElement } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { playerLoadingStyles } from './player-loading.styles';
 
@@ -10,12 +10,16 @@ export class PlayerLoading extends I18nLitElement {
 		playerLoadingStyles,
 	];
 
+	@property()
+	text: string;
+
+
 	render() {
 		return html`
 			<div class="lds-ellipsis">
 				<div></div><div></div><div></div><div></div>
 			</div>
-			<span>${t("course.loading")}</span>
+			<span>${this.text}</span>
 		`;
 	}
 }

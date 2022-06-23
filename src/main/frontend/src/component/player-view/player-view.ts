@@ -45,6 +45,10 @@ export class PlayerView extends I18nLitElement {
 		}, false);
 	}
 
+	getController(): PlayerViewController {
+		return this.controller;
+	}
+
 	getSlideView(): SlideView {
 		return this.renderRoot.querySelector("slide-view");
 	}

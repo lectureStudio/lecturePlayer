@@ -3,8 +3,8 @@ export class SpeechService {
 	private readonly apiPath = "/course/speech";
 
 
-	requestSpeech(courseId: number): Promise<string> {
-		return new Promise<string>((resolve, reject) => {
+	requestSpeech(courseId: number): Promise<bigint> {
+		return new Promise<bigint>((resolve, reject) => {
 			fetch(this.apiPath + "/" + courseId, {
 				method: "POST"
 			})
@@ -13,7 +13,9 @@ export class SpeechService {
 					throw new Error(response.status.toString());
 				}
 
-				resolve(response.text());
+				response.text().then(text => {
+					resolve(BigInt(text));
+				});
 			})
 			.catch(error => {
 				reject(error);
@@ -21,7 +23,7 @@ export class SpeechService {
 		});
 	}
 
-	cancelSpeech(courseId: number, speechRequestId: string): Promise<void> {
+	cancelSpeech(courseId: number, speechRequestId: bigint): Promise<void> {
 		return new Promise<void>((resolve, reject) => {
 			fetch(this.apiPath + "/" + courseId + "/" + speechRequestId, {
 				method: "DELETE"

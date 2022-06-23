@@ -5,9 +5,15 @@ import { t } from '../i18n-mixin';
 import { DeviceInfo, Devices, DeviceSettings } from '../../utils/devices';
 import { Modal } from '../modal/modal';
 import { Utils } from '../../utils/utils';
+import { settingsModalStyles } from './settings.modal.styles';
 
 @customElement("settings-modal")
 export class SettingsModal extends Modal {
+
+	static styles = [
+		Modal.styles,
+		settingsModalStyles
+	];
 
 	@property()
 	audioInputDevices: MediaDeviceInfo[] = [];
@@ -17,6 +23,9 @@ export class SettingsModal extends Modal {
 
 	@property()
 	videoInputDevices: MediaDeviceInfo[] = [];
+
+	@property({ type: Boolean, reflect: true })
+	enabled: boolean = false;
 
 	@property()
 	devicesBlocked: boolean;
@@ -30,6 +39,10 @@ export class SettingsModal extends Modal {
 	@query('#meter')
 	meterCanvas: HTMLCanvasElement;
 
+
+	firstUpdated() {
+		this.setEnabled(false);
+	}
 
 	save() {
 		const deviceForm: HTMLFormElement = this.renderRoot?.querySelector('#deviceSelectForm') ?? null;
@@ -89,6 +102,15 @@ export class SettingsModal extends Modal {
 		super.opened();
 	}
 
+	private setEnabled(enabled: boolean) {
+		this.enabled = enabled;
+
+		// Initially, disable all inputs.
+		this.renderRoot.querySelectorAll("button, input, select").forEach((element: HTMLInputElement) => {
+			element.disabled = !enabled;
+		});
+	}
+
 	private updateModel(result: DeviceInfo, cameraBlocked: boolean) {
 		const devices = result.devices;
 
@@ -107,6 +129,8 @@ export class SettingsModal extends Modal {
 		const audioTrack = result.stream.getAudioTracks()[0];
 
 		Devices.getAudioLevel(audioTrack, this.meterCanvas);
+
+		this.setEnabled(true);
 	}
 
 	private onMicrophoneChange(event: Event) {
@@ -235,6 +259,7 @@ export class SettingsModal extends Modal {
 					</form>
 				</article>
 				<footer>
+					<player-loading .text="${t("devices.querying")}"></player-loading>
 					<button type="button" @click="${this.cancel}" class="btn btn-outline-secondary btn-sm">${t("settings.cancel")}</button>
 					<button type="button" @click="${this.save}" class="btn btn-outline-primary btn-sm">${t("settings.save")}</button>
 				</footer>

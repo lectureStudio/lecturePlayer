@@ -1,12 +1,10 @@
 import { Janus, JSEP, PluginHandle } from "janus-gateway";
-import { PlayerView } from "../component/player-view/player-view";
+import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
 
 export class JanusService extends EventTarget {
 
 	private readonly serverUrl: string;
-
-	private playerView: PlayerView;
 
 	private janus: Janus;
 
@@ -44,10 +42,6 @@ export class JanusService extends EventTarget {
 
 		this.opaqueId = "course-" + Janus.randomString(12);
 		this.myusername = Janus.randomString(12);
-	}
-
-	setPlayerView(playerView: PlayerView): void {
-		this.playerView = playerView;
 	}
 
 	setDeviceConstraints(deviceConstraints: any): void {
@@ -336,7 +330,7 @@ export class JanusService extends EventTarget {
 					composed: true,
 					detail: {
 						peerId: publisher.id,
-						connected: isConnected
+						connected: isConnected ? State.CONNECTED : State.DISCONNECTED
 					}
 				});
 				this.dispatchEvent(event);
