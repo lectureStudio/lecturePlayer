@@ -3,7 +3,7 @@
 
 <div #renderSpace class="renderSpace">
     <div #conferenceView class="conferenceView">
-        <div *ngIf="_cameraStreams.length > maximumAmountOfCamsPerPage" class="buttonContainer">
+        <div *ngIf="allowNavigation && _cameraStreams.length > maximumAmountOfCamsPerPage" class="buttonContainer">
             <div class="button" (click)="changePage(-1)">
                 <mat-icon>arrow_left</mat-icon>
             </div>
@@ -13,11 +13,10 @@
                 <video [class.animatedVideo]="!cameraStream.firstRenderFinished" (loadedmetadata)="cameraStream.loadingFinished = true" [class.loading]="!cameraStream.loadingFinished" autoplay playsinline [srcObject]="cameraStream.stream"></video>
             </div>
         </div>
-        <div *ngIf="_cameraStreams.length > maximumAmountOfCamsPerPage" class="buttonContainer">
+        <div *ngIf="allowNavigation && _cameraStreams.length > maximumAmountOfCamsPerPage" class="buttonContainer">
             <div class="button" (click)="changePage(1)">
                 <mat-icon>arrow_right</mat-icon>
             </div>
         </div>
-
     </div>
 </div>

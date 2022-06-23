@@ -3,25 +3,11 @@
         <div class="me">
 
         </div>
-        <div class="attendants">
-            <div class="buttonContainer">
-                <div class="button" (click)="changePage(-1)">
-                    <mat-icon>arrow_left</mat-icon>
-                </div>
-            </div>
-            <div class="attendantStreams" *ngIf="_cameraStreams.length > 1">
-                <div class="attendantStreamContainer" *ngFor="let nonTalkingStream of nonTalkingFeedStreams">
-                    <video autoplay playsinline [srcObject]="nonTalkingStream"></video>
-                </div>
-            </div>
-            <div class="buttonContainer">
-                <div class="button" (click)="changePage(1)">
-                    <mat-icon>arrow_right</mat-icon>
-                </div>
-            </div>
+        <div class="attendants" *ngIf="_cameraStreams.length > 1">
+            <app-gallery-view [allowNavigation]="true" [rawCameraStreams]="nonTalkingFeedStreams"></app-gallery-view>
         </div>
     </div>
     <div class="speakerContainer">
-        <video autoplay playsinline [srcObject]="talkingFeedStream"></video>
+        <app-gallery-view [allowNavigation]="false" [rawCameraStreams]="[talkingFeedStream]"></app-gallery-view>
     </div>
 </div>

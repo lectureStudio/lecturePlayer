@@ -1,4 +1,13 @@
-import {Component, ElementRef, HostListener, Input, OnInit, ViewChild} from '@angular/core';
+import {
+    AfterContentChecked,
+    Component,
+    ElementRef,
+    HostListener,
+    Input,
+    OnChanges,
+    OnInit,
+    ViewChild
+} from '@angular/core';
 import {JanusService} from "../../services/janus/janus.service";
 
 // Based on https://github.com/Alicunde/Videoconference-Dish-CSS-JS (CC4)
@@ -9,21 +18,48 @@ import {JanusService} from "../../services/janus/janus.service";
     templateUrl: './gallery-view.component.html',
     styleUrls: ['./gallery-view.component.scss']
 })
-export class GalleryViewComponent implements OnInit {
+export class GalleryViewComponent implements OnInit, AfterContentChecked {
 
-    get pageinatedStreams() {
-        return this._cameraStreams.sort().slice(this.currentPage * this.maximumAmountOfCamsPerPage, this.currentPage * this.maximumAmountOfCamsPerPage + this.maximumAmountOfCamsPerPage);
-    }
+    pageinatedStreams: { stream: MediaStream, feedId: string, loadingFinished?: boolean; firstRenderFinished?: boolean }[] = [];
 
-    _cameraStreams: {stream: MediaStream, feedId: string, loadingFinished?: boolean; firstRenderFinished?: boolean}[];
+    _cameraStreams: { stream: MediaStream, feedId: string, loadingFinished?: boolean; firstRenderFinished?: boolean }[] = [];
 
-    @Input() set cameraStreams(value: {stream: MediaStream, feedId: string}[]) {
+    @Input() set cameraStreams(value: { stream: MediaStream, feedId: string }[]) {
         this._cameraStreams = value;
+        this.pageinatedStreams = this._cameraStreams.sort().slice(this.currentPage * this.maximumAmountOfCamsPerPage, this.currentPage * this.maximumAmountOfCamsPerPage + this.maximumAmountOfCamsPerPage);
+
         if (this.dish) {
             this.render();
             this.resize();
         }
     }
+
+    @Input() set rawCameraStreams(value: MediaStream[]) {
+        let shouldResize = false;
+        if (value) {
+            if (value.length !== this._cameraStreams.length) {
+                shouldResize = true;
+            }
+            this._cameraStreams = value.map(e => {
+                return {
+                    stream: e,
+                    feedId: e.id,
+                    firstRenderFinished: true,
+                    loadingFinished: true
+                }
+            });
+
+            this.pageinatedStreams = this._cameraStreams.sort().slice(this.currentPage * this.maximumAmountOfCamsPerPage, this.currentPage * this.maximumAmountOfCamsPerPage + this.maximumAmountOfCamsPerPage);
+        }
+
+        if (this.dish && shouldResize) {
+            this.render();
+            this.resize();
+        }
+    }
+
+    @Input()
+    allowNavigation: boolean = true;
 
     @ViewChild("renderSpace")
     renderSpace: ElementRef;
@@ -37,7 +73,7 @@ export class GalleryViewComponent implements OnInit {
     private width = 0;
     private height = 0;
     private ratios = ['4:3', '16:9', '1:1', '1:2'];
-    private aspect = 0;
+    private aspect = 1;
     private margin = 5;
     private cameras = 15;
     private ratio = this.calculateRatio();
@@ -57,6 +93,13 @@ export class GalleryViewComponent implements OnInit {
         this.resize();
     }
 
+    ngAfterContentChecked() {
+        if (this.dish) {
+            this.render();
+            this.resize();
+        }
+    }
+
     @HostListener('window:resize', ['$event'])
     onResize(event: any) {
         this.render();
@@ -69,6 +112,7 @@ export class GalleryViewComponent implements OnInit {
         const tmp = this.currentPage + modifier;
         if (tmp >= 0 && tmp <= (this._cameraStreams.length / this.maximumAmountOfCamsPerPage)) {
             this.currentPage = tmp;
+            this.pageinatedStreams = this._cameraStreams.sort().slice(this.currentPage * this.maximumAmountOfCamsPerPage, this.currentPage * this.maximumAmountOfCamsPerPage + this.maximumAmountOfCamsPerPage);
         }
     }
 
@@ -92,7 +136,7 @@ export class GalleryViewComponent implements OnInit {
         while (i < 5000) {
             const area = this.area(i);
             if (area === false) {
-                max = i -1;
+                max = i - 1;
                 break;
             }
             i++;
