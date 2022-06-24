@@ -21,6 +21,13 @@ export class JanusService {
     private publisherJanusHandle?: Janus.PluginHandle;
     private subscriberJanusHandle?: Janus.PluginHandle = null;
 
+    private screenshareJanusHandle?: Janus.PluginHandle;
+    private screenshareId?: number;
+    private privateScreenshareId?: number;
+    private myScreenshareStream: any;
+
+    private screensharingIsActive: boolean = false;
+
     private feedStreams: any = {};
 
     private myRoomId?: number;
@@ -41,7 +48,7 @@ export class JanusService {
 
     private subscriptions: any = {};
     private feeds: any = {};
-    public remoteTracks: { [key: string]: { stream: MediaStream, feedId: string } } = {};
+    public remoteTracks: { [key: string]: { stream: MediaStream, feedId: string, isScreenshare?: boolean } } = {};
     private simulcastStarted: any = {};
     private mids: any = {};
     public slots: any = {};
@@ -55,6 +62,8 @@ export class JanusService {
 
     public talkingFeeds: { [key: string]: boolean } = {};
     public talkingFeedsSubject: Subject<{ [key: string]: boolean }> = new Subject<{ [key: string]: boolean }>();
+
+    public screenshareStateSubject: Subject<string> = new Subject<string>();
 
     private doSimulcast = false;
 
@@ -82,6 +91,7 @@ export class JanusService {
 
         this.subscriberJanusHandle = null;
         this.publisherJanusHandle = null;
+        this.screenshareJanusHandle = null;
         this.janus = null;
 
         // Initialize the library (all console debuggers enabled).
@@ -112,6 +122,9 @@ export class JanusService {
 
         this.publisherJanusHandle.hangup();
         this.subscriberJanusHandle.hangup();
+        if (this.screenshareJanusHandle) {
+            this.screenshareJanusHandle.hangup();
+        }
         this.janus.destroy();
     }
 
@@ -126,6 +139,7 @@ export class JanusService {
                     opaqueId: this.opaqueId,
                     success: (pluginHandle: any) => {
                         this.publisherJanusHandle = pluginHandle;
+
                         Janus.log("Plugin attached!" + this.publisherJanusHandle.getPlugin() + ", id=" + this.publisherJanusHandle.getId() + ")");
 
                         // NOTE: probably a debug thing to leave this here. TODO remove
@@ -471,6 +485,10 @@ export class JanusService {
             if (!sources) {
                 sources = [];
             }
+
+            if(id === this.screenshareId || id === this.myId) {
+                continue;
+            }
             sources.push(streams);
         }
 
@@ -677,10 +695,19 @@ export class JanusService {
                     feed.remoteVideos++;
                     const newStream = new MediaStream();
                     newStream.addTrack(track.clone());
+
+                    let isScreenshare = false;
+                    if (feed.display.includes("_screen")) {
+                        isScreenshare = true;
+                        this.screensharingIsActive = true;
+                        this.screenshareStateSubject.next("start");
+                        this.talkingFeedsSubject.next(this.talkingFeeds);
+                    }
                     this.ngZone.run(() => {
                         this.remoteTracks[mid] = {
                             stream: newStream,
-                            feedId: feed.id
+                            feedId: feed.id,
+                            isScreenshare: isScreenshare
                         };
                     });
                     Janus.log("Created remote video stream: ", newStream, "for feed: ", feed);
@@ -801,5 +828,166 @@ export class JanusService {
                 this.mids[feed.slot] = mid;
             }
         }
+    }
+
+    public startScreenshare() {
+
+        this.janus.attach({
+            plugin: "janus.plugin.videoroom",
+            opaqueId: this.opaqueId,
+            success: (pluginHandle: any) => {
+                this.screenshareJanusHandle = pluginHandle;
+
+                Janus.log("Plugin attached!" + this.screenshareJanusHandle.getPlugin() + ", id=" + this.screenshareJanusHandle.getId() + ")");
+
+                // NOTE: probably a debug thing to leave this here. TODO remove
+                const register = {
+                    request: "join",
+                    room: this.myRoomId,
+                    ptype: "publisher",
+                    display: this.myUsername + "_screen",
+                }
+
+                this.screenshareJanusHandle.send({message: register});
+
+                //Janus.listDevices(this.initDeviceList);
+            },
+            iceState: (state: any) => {
+                console.log('ICE state changed to ' + state);
+            },
+            webrtcState: (on: any) => {
+                Janus.log("Janus says our WebRTC PeerConnection is " + (on ? "up" : "down") + " now");
+            },
+            onmessage: (msg: any, jsep: any) => {
+                Janus.debug('::: Got a message (publisher) :::');
+                const event = msg["videoroom"];
+                if (event) {
+                    if (event === "joined") {
+                        this.screenshareId = msg["id"];
+                        this.privateScreenshareId = msg["private_id"];
+
+                        Janus.log("Successfully joined room " + msg["room"] + " with ID " + this.screenshareId + " and private ID " + this.privateScreenshareId);
+
+                        // Here, if subscriber_mode === true hide videojoin, else publishOwnFeed
+
+                        this.screenshareJanusHandle.createOffer({
+                            media: {audioRecv: false, videoRecv: false, audioSend: false, videoSend: true, video: "screen"},
+                            simulcast: this.doSimulcast,
+                            success: (jsep: any) => {
+                                Janus.debug("Got a publisher SDP!", jsep);
+                                const publish = {request: "configure", audio: true, video: true};
+
+                                // TODO you can force a codec here, check demo code
+
+                                this.screenshareJanusHandle.send({message: publish, jsep});
+                            },
+                            error: (error: any) => {
+                                Janus.error("WebRTC error: ", error);
+                                // TODO Notify that something went wrong
+                            }
+                        })
+
+                        if (this.subscriberMode) {
+                            // ?
+                        } else {
+
+                        }
+
+                        if (msg["publishers"]) {
+                            //this.handlePublisherEvent(msg);
+                        }
+                    } else if (event === "destroyed") {
+                        this.messageHandle_OnDestroyedEvent(msg);
+                    } else if (event === "event") {
+                        this.messageHandle_OnGeneralEvent(msg);
+                    }
+                }
+
+                if (jsep) {
+                    Janus.debug("Handling SDP as well...", jsep);
+                    this.screenshareJanusHandle.handleRemoteJsep({jsep});
+                    const audio = msg["audio_codec"];
+
+                    if (this.myScreenshareStream && this.myScreenshareStream.getAudioStracks() && this.myScreenshareStream.getAudioTracks().length > 0 && !audio) {
+                        // Our audio has been rejected
+                        Janus.warn("Our audio stream has been rejected, viewers won't hear us.");
+                    }
+                    const video = msg["video_codec"];
+                    if (this.myScreenshareStream && this.myScreenshareStream.getVideoTracks() && this.myScreenshareStream.getVideoTracks().length > 0 && !video) {
+                        Janus.warn("Our video stream has been rejected, viewers won't see us.");
+                    }
+                }
+            },
+            error: (cause: any) => {
+                Janus.error(cause);
+            },
+            destroyed: () => {
+                Janus.log("Janus destroyed");
+            },
+            onlocaltrack: (track: any, on: any) => {
+                Janus.debug("Got a local track event");
+                Janus.debug("Local track " + (on ? "added" : "removed") + ":", track);
+
+                track.addEventListener('ended', () => {
+                    this.stopScreenshare();
+                });
+
+                var trackId = track.id.replace(/[{}]/g, "");
+                if (!on) {
+                    // Track removed, get rid of the stream and the rendering
+                    const removedStream = this.localTracks[trackId];
+                    if (removedStream) {
+                        try {
+                            var tracks = removedStream.getTracks();
+                            for (var i in tracks) {
+                                var mst = tracks[i];
+                                if (mst)
+                                    mst.stop();
+                            }
+                        } catch (e) {
+                        }
+                    }
+                    if (track.kind === "video") {
+
+                    }
+                    delete this.localTracks[trackId];
+                    return;
+                }
+                // If we're here, a new track was added
+                var stream = this.localTracks[trackId];
+                if (stream) {
+                    // We've been here already
+                    return;
+                }
+                // Make sure there's a mute button and stuff
+                if (track.kind === "audio") {
+                    // Local audio is ignored
+                } else {
+                    // New local video track, create a stream out of it
+                    stream = new MediaStream();
+                    stream.addTrack(track.clone());
+                    this.localTracks[trackId] = stream;
+                    Janus.log("Created local stream:", stream);
+                    Janus.log(stream.getTracks());
+                    Janus.log(stream.getVideoTracks());
+                }
+            },
+            onremotetrack: (track: any, mid: any, on: any) => {
+                // Pub stream is sendonly
+            },
+            oncleanup: () => {
+                Janus.log(" ::: Got a cleanup notification: we are unpublished now :::");
+                this.myScreenshareStream = null;
+                if (this.screenshareId) {
+                    delete this.feedStreams[this.screenshareId];
+                }
+            }
+        })
+
+    }
+
+    public stopScreenshare() {
+        const unpublish = {request: "unpublish"};
+        this.screenshareJanusHandle.send({message: unpublish});
     }
 }
