@@ -12,7 +12,7 @@ export class JanusService {
 
     private readonly serverUrl = (window.location.hostname === 'localhost' ? 'http://' : 'https://')
         + window.location.hostname
-        + (window.location.hostname === 'localhost' ? ':8088' : ':10089')
+        + (window.location.hostname === 'localhost' ? ':8088' : ':8099')
         + '/janus';
     // private readonly serverUrl = 'https://' + window.location.hostname + ':10089/janus';
 
@@ -47,11 +47,14 @@ export class JanusService {
     public slots: any = {};
     private subStreams: any = {};
 
-    public audioDevices: {[key: string]: string} = {};
-    public videoDevices: {[key: string]: string} = {};
+    public audioDevices: { [key: string]: string } = {};
+    public videoDevices: { [key: string]: string } = {};
+
+    public currentlyChosenOverrideAudioDeviceId = '';
+    public currentlyChosenOverrideVideoDeviceId = '';
 
     public talkingFeeds: { [key: string]: boolean } = {};
-    public talkingFeedsSubject: Subject<{[key: string]: boolean}> = new Subject<{[key: string]: boolean}>();
+    public talkingFeedsSubject: Subject<{ [key: string]: boolean }> = new Subject<{ [key: string]: boolean }>();
 
     private doSimulcast = false;
 
@@ -204,6 +207,12 @@ export class JanusService {
                         // Make sure there's a mute button and stuff
                         if (track.kind === "audio") {
                             // Local audio is ignored
+                            for (const [key, value] of Object.entries(this.audioDevices)) {
+                                if (value == track.label) {
+                                    this.currentlyChosenOverrideAudioDeviceId = key;
+                                    return;
+                                }
+                            }
                         } else {
                             // New local video track, create a stream out of it
                             stream = new MediaStream();
@@ -212,6 +221,13 @@ export class JanusService {
                             Janus.log("Created local stream:", stream);
                             Janus.log(stream.getTracks());
                             Janus.log(stream.getVideoTracks());
+
+                            for (const [key, value] of Object.entries(this.videoDevices)) {
+                                if (value == track.label) {
+                                    this.currentlyChosenOverrideVideoDeviceId = key;
+                                    return;
+                                }
+                            }
                         }
                     },
                     onremotetrack: (track: any, mid: any, on: any) => {
@@ -334,7 +350,7 @@ export class JanusService {
                 label = device.deviceId;
             }
 
-            console.log('Device found: ', label, device.kind);
+            console.log('Device found: ', label, device);
 
             if (device.kind === "audioinput") {
                 this.audioDevices[device.deviceId] = label;
@@ -346,10 +362,12 @@ export class JanusService {
     }
 
     public selectAudioDevice(key: string) {
+        this.currentlyChosenOverrideAudioDeviceId = key;
         this.publishOwnFeed(true, key);
     }
 
     public selectVideoDevice(key: string) {
+        this.currentlyChosenOverrideVideoDeviceId = key;
         this.publishOwnFeed(true, undefined, key);
     }
 

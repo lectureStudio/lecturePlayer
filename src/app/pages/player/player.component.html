@@ -1,8 +1,10 @@
 <div class="container" xmlns="http://www.w3.org/1999/html">
 
-    <app-gallery-view *ngIf="viewMode === 0" [cameraStreams]="videoStreams"></app-gallery-view>
+    <app-gallery-view *ngIf="chosenViewMode === 'gallery'" [cameraStreams]="videoStreams"></app-gallery-view>
 
-    <app-speaker-view *ngIf="viewMode === 1" [cameraStreams]="videoStreams"></app-speaker-view>
+    <app-speaker-view *ngIf="chosenViewMode === 'speaker'" [cameraStreams]="videoStreams"></app-speaker-view>
+
+    <!-- TODO: Create components for this hierarchy! -->
 
     <div class="footerbar">
 
@@ -32,7 +34,7 @@
                 <mat-icon>edit</mat-icon>
                 <p>Whiteboard</p>
             </div>
-            <div class="button" (click)="switchViewMode()">
+            <div class="button" (click)="showAvailableViewModes($event)">
                 <mat-icon>image</mat-icon>
                 <p>View mode</p>
             </div>
@@ -52,19 +54,32 @@
 
 </div>
 
+<!-- TODO: Make these a resuable component! -->
+
 <div [style.display]="this.isSelectingMicrophone ? '' : 'none'" #microphoneSelection class="hardwareList">
-    <div class="hardwareListItem" *ngFor="let device of janusService.audioDevices | keyvalue"
+    <div class="hardwareListItem" [class.active]="janusService.currentlyChosenOverrideAudioDeviceId === device.key" *ngFor="let device of janusService.audioDevices | keyvalue"
         (click)="janusService.selectAudioDevice(device.key);">
+        <mat-icon *ngIf="janusService.currentlyChosenOverrideAudioDeviceId === device.key">check</mat-icon>
         {{device.value}}
     </div>
 </div>
 
 <div [style.display]="this.isSelectingCamera ? '' : 'none'" #cameraSelection class="hardwareList">
-    <div class="hardwareListItem" *ngFor="let device of janusService.videoDevices | keyvalue"
+    <div class="hardwareListItem" [class.active]="janusService.currentlyChosenOverrideVideoDeviceId === device.key" *ngFor="let device of janusService.videoDevices | keyvalue"
         (click)="janusService.selectVideoDevice(device.key);">
+        <mat-icon *ngIf="janusService.currentlyChosenOverrideVideoDeviceId === device.key">check</mat-icon>
         {{device.value}}
     </div>
 </div>
+
+<div [style.display]="this.isSelectingViewMode ? '' : 'none'" #viewModeSelection class="hardwareList">
+    <div class="hardwareListItem" [class.active]="viewMode.key === this.chosenViewMode" *ngFor="let viewMode of this.availableViewModes | keyvalue"
+        (click)="this.chosenViewMode = viewMode.key">
+        <mat-icon *ngIf="viewMode.key === this.chosenViewMode">check</mat-icon>
+        <p>{{viewMode.value}}</p>
+    </div>
+</div>
+
 
 <div class="not-rendered">
     <audio autoplay *ngFor="let audioStream of audioStreams" [srcObject]="audioStream.stream"></audio>

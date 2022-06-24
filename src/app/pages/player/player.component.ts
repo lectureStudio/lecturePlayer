@@ -11,6 +11,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   public isSelectingMicrophone = false;
   public isSelectingCamera = false;
+  public isSelectingViewMode = false;
 
   @ViewChild('microphoneSelection')
   private microphoneSelection: ElementRef;
@@ -18,7 +19,17 @@ export class PlayerComponent implements OnInit, OnDestroy {
   @ViewChild('cameraSelection')
   private cameraSelection: ElementRef;
 
+  @ViewChild('viewModeSelection')
+  private viewModeSelection: ElementRef;
+
   viewMode = 0;
+
+  public chosenViewMode = 'gallery';
+
+  public availableViewModes = {
+    gallery: 'Gallery view',
+    speaker: 'Speaker view'
+  }
 
   constructor(public janusService: JanusService, private router: Router) { }
 
@@ -26,8 +37,9 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.janusService.start();
 
     document.addEventListener('click', () => {
-      this.isSelectingCamera = false;
+      this.isSelectingCamera = false; // TODO refactor, see below
       this.isSelectingMicrophone = false;
+      this.isSelectingViewMode = false;
     })
   }
 
@@ -41,11 +53,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   get videoStreams() {
     return Object.values(this.janusService.remoteTracks).filter(e => e.stream.getVideoTracks().length > 0);
-  }
-
-  switchViewMode() {
-    // DEBUG implementation
-    this.viewMode = this.viewMode === 0 ? 1 : 0;
   }
 
   leave() {
@@ -88,5 +95,23 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.isSelectingMicrophone = false;
     this.cameraSelection.nativeElement.style.top = osT + 'px';
     this.cameraSelection.nativeElement.style.left = osL + 'px';
+  }
+
+  showAvailableViewModes(event: MouseEvent) {
+    event.stopPropagation();
+
+    // @ts-ignore
+    const rect = event.target.getBoundingClientRect();
+
+    // @ts-ignore
+    const osL = rect.left;
+    // @ts-ignore
+    const osT = rect.top;
+
+    this.isSelectingCamera = false; // TODO Refactor this, make an actual component instead of spamming booleans and methods
+    this.isSelectingMicrophone = false;
+    this.isSelectingViewMode = true;
+    this.viewModeSelection.nativeElement.style.top = osT + 'px';
+    this.viewModeSelection.nativeElement.style.left = osL + 'px';
   }
 }
