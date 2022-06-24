@@ -29,6 +29,14 @@ export class PlayerComponent implements OnInit, OnDestroy {
       this.isSelectingCamera = false;
       this.isSelectingMicrophone = false;
     })
+
+    this.janusService.screenshareStateSubject.subscribe(val => {
+      if (val === "start") {
+        this.viewMode = 1;
+      } else {
+        this.viewMode = 0;
+      }
+    });
   }
 
   ngOnDestroy() {
