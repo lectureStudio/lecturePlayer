@@ -22,8 +22,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
   @ViewChild('viewModeSelection')
   private viewModeSelection: ElementRef;
 
-  viewMode = 0;
-
   public chosenViewMode = 'gallery';
 
   public availableViewModes = {
@@ -44,9 +42,9 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
     this.janusService.screenshareStateSubject.subscribe(val => {
       if (val === "start") {
-        this.viewMode = 1;
+        this.chosenViewMode = 'speaker';
       } else {
-        this.viewMode = 0;
+        this.chosenViewMode = 'gallery';
       }
     });
   }
