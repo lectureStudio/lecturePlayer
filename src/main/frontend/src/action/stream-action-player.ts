@@ -3,7 +3,7 @@ import { ActionExecutor } from "./action-executor";
 import { Action } from "./action";
 import { SlideDocument } from "../model/document";
 
-class StreamActionPlayer extends ActionPlayer {
+export class StreamActionPlayer extends ActionPlayer {
 
 	private actions: Action[];
 
@@ -12,6 +12,31 @@ class StreamActionPlayer extends ActionPlayer {
 
 	constructor(executor: ActionExecutor) {
 		super(executor);
+	}
+
+	start(): void {
+		this.actions = [];
+
+		try {
+			this.run();
+		}
+		catch (e) {
+			console.error(e);
+
+			throw new Error("Execute action failed.");
+		}
+	}
+
+	stop(): void {
+		cancelAnimationFrame(this.requestID);
+	}
+
+	suspend(): void {
+		cancelAnimationFrame(this.requestID);
+	}
+
+	destroy(): void {
+		this.actions.length = 0;
 	}
 
 	addAction(action: Action): void {
@@ -70,39 +95,9 @@ class StreamActionPlayer extends ActionPlayer {
 		}
 	}
 
-	protected initInternal(): void {
-		this.actions = [];
-	}
-
-	protected startInternal(): void {
-		try {
-			this.run();
-		}
-		catch (e) {
-			console.error(e);
-
-			throw new Error("Execute action failed.");
-		}
-	}
-
-	protected stopInternal(): void {
-		cancelAnimationFrame(this.requestID);
-	}
-
-	protected suspendInternal(): void {
-		cancelAnimationFrame(this.requestID);
-	}
-
-	protected destroyInternal(): void {
-		this.actions.length = 0;
-	}
-
 	private run() {
 		this.executeActions();
 
 		this.requestID = requestAnimationFrame(this.run.bind(this));
 	}
-
 }
-
-export { StreamActionPlayer };

@@ -1,4 +1,4 @@
-enum Side {
+export enum Side {
 
 	TOP = "top",
 	RIGHT = "right",
@@ -8,12 +8,10 @@ enum Side {
 
 }
 
-class SideUtil {
+export class SideUtil {
 
 	static valueOf(side: string): Side {
 		return (<any>Side)[side.toUpperCase()];
 	}
 
 }
-
-export { Side, SideUtil };

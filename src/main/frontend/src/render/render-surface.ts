@@ -122,10 +122,6 @@ class RenderSurface {
 		return this.sizeEvent.subscribe(listener);
 	}
 
-	removeSizeListener(listener: Listener<SizeEvent>): void {
-		this.sizeEvent.unsubscribe(listener);
-	}
-
 	protected fireSizeEvent(event: SizeEvent): void {
 		this.sizeEvent.publish(event);
 	}

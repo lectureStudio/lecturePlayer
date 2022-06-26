@@ -12,6 +12,7 @@ module.exports = merge(common, {
 					ecma: 2017,
 					module: true,
 					warnings: true,
+					keep_fnames: true,	// TODO: remove to reduce bundle size.
 					mangle: {
 						properties: {
 							regex: /^__/,
