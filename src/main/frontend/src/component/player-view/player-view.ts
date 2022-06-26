@@ -1,9 +1,9 @@
-import { html, PropertyValues } from 'lit';
+import { html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
-import { MediaPlayer } from '../../media/media-player';
 import { CourseState } from '../../model/course-state';
 import { PlayerControls } from '../controls/player-controls';
 import { I18nLitElement, t } from '../i18n-mixin';
+import { ParticipantView } from '../participant-view/participant-view';
 import { SlideView } from '../slide-view/slide-view';
 import { PlayerViewController } from './player-view.controller';
 import { playerViewStyles } from './player-view.styles';
@@ -17,8 +17,6 @@ export class PlayerView extends I18nLitElement {
 
 	private controller = new PlayerViewController(this);
 
-	private mediaPlayer: MediaPlayer;
-
 	@property()
 	courseId: number;
 
@@ -31,15 +29,11 @@ export class PlayerView extends I18nLitElement {
 	@query("player-controls")
 	controls: PlayerControls;
 
-	@query("#video-feed-container")
+	@query(".video-feeds")
 	videoFeedContainer: HTMLElement;
 
 
-	firstUpdated(_changedProperties: PropertyValues): void {
-		this.controls.addEventListener("player-volume", (e: CustomEvent) => {
-			// this.mediaPlayer.muted = false;
-			// this.mediaPlayer.volume = e.detail.volume;
-		}, false);
+	firstUpdated(): void {
 		this.controls.addEventListener("player-chat-visibility", (e: CustomEvent) => {
 			this.chatVisible = !this.chatVisible;
 		}, false);
@@ -53,66 +47,12 @@ export class PlayerView extends I18nLitElement {
 		return this.renderRoot.querySelector("slide-view");
 	}
 
-	getVideo(id: BigInt, primary: boolean): HTMLVideoElement {
-		let video: HTMLVideoElement = this.renderRoot.querySelector("#video-feed-" + id);
-
-		if (!video) {
-			video = this.createVideoElement(id.toString());
-
-			const div = this.createVideoContainer(id.toString());
-			div.appendChild(video);
-
-			this.videoFeedContainer.appendChild(div);
-
-			if (primary && !this.mediaPlayer) {
-				this.mediaPlayer = new MediaPlayer(video);
-				this.mediaPlayer.muted = false;
-				this.mediaPlayer.addTimeListener(() => {
-					this.controls.duration = (Date.now() - this.courseState.timeStarted);
-				});
-			}
-		}
-
-		return video;
+	addParticipant(view: ParticipantView) {
+		this.videoFeedContainer.appendChild(view);
 	}
 
-	getLocalVideo(): HTMLVideoElement {
-		let video: HTMLVideoElement = this.renderRoot.querySelector("#video-feed-local");
-
-		if (!video) {
-			video = this.createVideoElement("local");
-			video.muted = true;
-
-			const div = this.createVideoContainer("local");
-			div.appendChild(video);
-
-			this.videoFeedContainer.appendChild(div);
-		}
-
-		return video;
-	}
-
-	removeVideo(id: BigInt): void {
-		const videoFeedDiv = this.renderRoot.querySelector("#video-feed-div-" + id);
-
-		this.videoFeedContainer.removeChild(videoFeedDiv);
-	}
-
-	private createVideoElement(id: string): HTMLVideoElement {
-		const video = document.createElement("video");
-		video.id = "video-feed-" + id;
-		video.autoplay = true;
-		video.playsInline = true;
-
-		return video;
-	}
-
-	private createVideoContainer(id: string): HTMLElement {
-		const div = document.createElement("div");
-		div.id = "video-feed-div-" + id;
-		div.classList.add("feed-container", "invisible");
-
-		return div;
+	removeParticipant(view: ParticipantView) {
+		this.videoFeedContainer.removeChild(view);
 	}
 
 	render() {
@@ -126,7 +66,7 @@ export class PlayerView extends I18nLitElement {
 				</div>
 			</div>
 			<div class="right-container">
-				<div class="video-feed-container">
+				<div class="video-feeds">
 				</div>
 				<div class="chat-container">
 					<chat-box .courseId="${this.courseId}" .featureId="${this.courseState?.messageFeature?.featureId}"></chat-box>

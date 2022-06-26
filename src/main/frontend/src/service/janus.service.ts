@@ -1,4 +1,6 @@
 import { Janus, JSEP, PluginHandle } from "janus-gateway";
+import { JanusPublisher } from "./janus-publisher";
+import { JanusSubscriber } from "./janus-subscriber";
 import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
 
@@ -8,13 +10,11 @@ export class JanusService extends EventTarget {
 
 	private janus: Janus;
 
-	private publisherLocalStream: MediaStream;
-
 	private publisherHandle: PluginHandle;
 
 	private publisherId: Number;
 
-	private remoteFeeds: PluginHandle[];
+	private subscribers: JanusSubscriber[];
 
 	private myroom: number;
 
@@ -22,9 +22,7 @@ export class JanusService extends EventTarget {
 
 	private deviceConstraints: any;
 
-	private myusername: string;
-
-	private dataCallback: (data: any) => void;
+	private dataCallback: (data: ArrayBuffer | Blob) => void;
 
 	private errorCallback: (data: any) => void;
 
@@ -36,12 +34,10 @@ export class JanusService extends EventTarget {
 		this.janus = null;
 		this.publisherHandle = null;
 		this.publisherId = null;
-		this.publisherLocalStream = null;
 		this.dataCallback = null;
-		this.remoteFeeds = [];
+		this.subscribers = [];
 
 		this.opaqueId = "course-" + Janus.randomString(12);
-		this.myusername = Janus.randomString(12);
 	}
 
 	setDeviceConstraints(deviceConstraints: any): void {
@@ -56,7 +52,7 @@ export class JanusService extends EventTarget {
 		this.myroom = roomId;
 	}
 
-	setOnData(consumer: (data: any) => void) {
+	setOnData(consumer: (data: ArrayBuffer | Blob) => void) {
 		Utils.checkFunction(consumer);
 
 		this.dataCallback = consumer;
@@ -92,118 +88,13 @@ export class JanusService extends EventTarget {
 		}
 	}
 
-	startSpeech(deviceConstraints: any) {
-		// Create a new plugin handle and attach to it as a publisher.
-		this.janus.attach({
-			plugin: "janus.plugin.videoroom",
-			opaqueId: this.opaqueId,
-			success: (pluginHandle: PluginHandle) => {
-				Janus.log("Plugin attached! (" + pluginHandle.getPlugin() + ", id=" + pluginHandle.getId() + ")");
-
-				this.publisherHandle = pluginHandle;
-
-				this.joinAsPublisher(this.publisherHandle);
-			},
-			error: (cause: any) => {
-				Janus.error("  -- Error attaching plugin...", cause);
-			},
-			consentDialog: (on: boolean) => {
-				// e.g., darken the screen if on=true (getUserMedia incoming), restore it otherwise
-			},
-			iceState: (state: 'connected' | 'failed') => {
-				Janus.log("ICE state changed to " + state);
-			},
-			mediaState: (medium: 'audio' | 'video', receiving: boolean, mid?: number) => {
-				Janus.log("Janus " + (receiving ? "started" : "stopped") + " receiving our " + medium);
-			},
-			webrtcState: (isConnected: boolean) => {
-				Janus.log("Janus says our WebRTC PeerConnection is " + (isConnected ? "up" : "down") + " now");
-
-				const event = new CustomEvent("speech-state", {
-					bubbles: true,
-					composed: true,
-					detail: {
-						peerId: this.publisherId,
-						connected: isConnected
-					}
-				});
-				this.dispatchEvent(event);
-			},
-			onmessage: (message: any, jsep?: JSEP) => {
-				const event = message["videoroom"];
-
-				if (message["error"]) {
-					Janus.error(message["error"]);
-					return;
-				}
-
-				if (event) {
-					if (event === "joined") {
-						this.publisherId = message["id"];
-						this.publishOwnFeed(this.publisherHandle, deviceConstraints);
-					}
-				}
-
-				if (jsep) {
-					this.publisherHandle.handleRemoteJsep({ jsep: jsep });
-
-					// Check if any of the media we wanted to publish has
-					// been rejected (e.g., wrong or unsupported codec)
-					const audio = message["audio_codec"];
-					const video = message["video_codec"];
-
-					if (this.publisherLocalStream && this.publisherLocalStream.getAudioTracks() && this.publisherLocalStream.getAudioTracks().length > 0 && !audio) {
-						// Audio has been rejected
-						console.log("Our audio stream has been rejected, viewers won't hear us");
-					}
-
-					if (this.publisherLocalStream && this.publisherLocalStream.getVideoTracks() && this.publisherLocalStream.getVideoTracks().length > 0 && !video) {
-						// Video has been rejected.
-
-						console.log("Our video stream has been rejected, viewers won't see us");
-
-						// Hide the webcam video
-
-					}
-				}
-			},
-			onlocalstream: (stream: MediaStream) => {
-				this.publisherLocalStream = stream;
-
-				const localVideoFeed = this.playerView.getLocalVideo();
-
-				Janus.attachMediaStream(localVideoFeed, stream);
-
-				localVideoFeed.muted = true;
-				let hasVideo = false;
-
-				const constraints = {
-					width: { min: 640, ideal: 640, max: 1280 },
-					height: { min: 360, ideal: 360 },
-					aspectRatio: { ideal: 1.7777777778 },
-					frameRate: { max: 30 },
-					facingMode: { ideal: "user" }
-				};
-
-				for (const videoTrack of stream.getVideoTracks()) {
-					videoTrack.applyConstraints(constraints);
-
-					if (videoTrack.muted == false) {
-						hasVideo = true;
-						break;
-					}
-				}
-			},
-			onremotestream: (stream: MediaStream) => {
-				// The publisher stream is sendonly, we don't expect anything here.
-			},
-			oncleanup: () => {
-				
-			},
-			detached: () => {
-				
-			}
-		});
+	startSpeech(speechConstraints: any) {
+		const publisher = new JanusPublisher(this.janus, this.myroom, this.opaqueId);
+		publisher.setDeviceConstraints(speechConstraints);
+		publisher.addEventListener("janus-participant-error", this.onPublisherError.bind(this));
+		publisher.addEventListener("janus-participant-state", this.onPublisherState.bind(this));
+		publisher.addEventListener("janus-participant-destroyed", this.onPublisherDestroyed.bind(this));
+		publisher.connect();
 	}
 
 	stopSpeech() {
@@ -283,250 +174,73 @@ export class JanusService extends EventTarget {
 		});
 	}
 
+	private onPublisherError(event: CustomEvent) {
+		console.error(event.detail.error);
+
+		const publisher: JanusPublisher = event.detail.participant;
+	}
+
+	private onPublisherState(event: CustomEvent) {
+		const publisher: JanusPublisher = event.detail.participant;
+		const state: State = event.detail.state;
+
+		if (state === State.DISCONNECTED) {
+			
+		}
+	}
+
+	private onPublisherDestroyed(event: CustomEvent) {
+		const publisher: JanusPublisher = event.detail.participant;
+	}
+
 	private attachToPublisher(publisher: any, isPrimary: boolean) {
-		let remoteFeed: PluginHandle = null;
-
-		this.janus.attach({
-			plugin: "janus.plugin.videoroom",
-			opaqueId: this.opaqueId,
-			success: (pluginHandle: PluginHandle) => {
-				remoteFeed = pluginHandle;
-				remoteFeed.isPrimary = isPrimary;
-				remoteFeed.hasVideo = false;
-
-				const subscribe = {
-					request: "join",
-					room: this.myroom,
-					ptype: "subscriber",
-					feed: publisher.id
-				};
-
-				remoteFeed.send({ message: subscribe });
-			},
-			error: (cause: any) => {
-				Janus.error("  -- Error attaching plugin...", cause);
-
-				if (remoteFeed.isPrimary) {
-					this.stopSpeech();
-				}
-			},
-			iceState: (state: 'connected' | 'failed') => {
-				Janus.log("ICE state changed to " + state);
-			},
-			mediaState: (medium: 'audio' | 'video', receiving: boolean, mid?: number) => {
-				Janus.log("Janus " + (receiving ? "started" : "stopped") + " receiving our " + medium);
-			},
-			webrtcState: (isConnected: boolean) => {
-				Janus.log("Janus says our WebRTC PeerConnection is " + (isConnected ? "up" : "down") + " now");
-
-				if (remoteFeed.isPrimary) {
-					if (!isConnected) {
-						this.stopSpeech();
-					}
-				}
-
-				const event = new CustomEvent("publisher-state", {
-					bubbles: true,
-					composed: true,
-					detail: {
-						peerId: publisher.id,
-						connected: isConnected ? State.CONNECTED : State.DISCONNECTED
-					}
-				});
-				this.dispatchEvent(event);
-			},
-			onmessage: (message: any, jsep?: JSEP) => {
-				const event = message["videoroom"];
-
-				if (message["error"]) {
-					console.error(message["error"]);
-					return;
-				}
-
-				if (event) {
-					if (event === "attached") {
-						// Subscriber created and attached.
-						Janus.log("Successfully attached to feed " + message["id"] + " (" + message["display"] + ") in room " + message["room"]);
-
-						remoteFeed.rfid = message["id"];
-
-						this.remoteFeeds.push(remoteFeed);
-					}
-				}
-
-				if (jsep) {
-					this.createAnswer(remoteFeed, jsep, remoteFeed.isPrimary);
-				}
-			},
-			onremotestream: (stream: MediaStream) => {
-				let hasVideo = false;
-
-				for (const videoTrack of stream.getVideoTracks()) {
-					if (videoTrack.muted == false) {
-						const removeListener = (event: MediaStreamTrackEvent) => {
-							this.onVideoTrackRemoved(remoteFeed, event.track);
-
-							stream.removeEventListener("removetrack", removeListener);
-						};
-
-						stream.addEventListener("removetrack", removeListener);
-
-						hasVideo = true;
-						break;
-					}
-				}
-
-				remoteFeed.hasVideo = hasVideo;
-
-				const video = this.playerView.getVideo(publisher.id, remoteFeed.isPrimary);
-
-				Janus.attachMediaStream(video, stream);
-
-				if (this.deviceConstraints) {
-					this.setAudioSink(video, this.deviceConstraints.audioOutput);
-				}
-
-				this.checkVideoCount();
-			},
-			ondataopen: (label: string, protocol: string) => {
-				Janus.log("The DataChannel is available!" + " - " + label + " - " + protocol);
-			},
-			ondata: (data: any) => {
-				if (remoteFeed.isPrimary) {
-					this.dataCallback(data);
-				}
-			},
-			oncleanup: () => {
-				if (!remoteFeed.isPrimary) {
-					this.playerView.removeVideo(publisher.id);
-				}
-
-				this.remoteFeeds = this.remoteFeeds.filter(item => item !== remoteFeed);
-
-				if (remoteFeed.isPrimary) {
-					this.stopSpeech();
-				}
-
-				this.checkVideoCount();
-
-				if (remoteFeed.isPrimary) {
-					this.janus.destroy();
-				}
-			},
-			detached: () => {
-				Janus.log("detached...");
-			}
-		});
+		const subscriber = new JanusSubscriber(this.janus, publisher.id, this.myroom, this.opaqueId);
+		subscriber.setDeviceConstraints(this.deviceConstraints);
+		subscriber.addEventListener("janus-participant-error", this.onSubscriberError.bind(this));
+		subscriber.addEventListener("janus-participant-state", this.onSubscriberState.bind(this));
+		subscriber.addEventListener("janus-participant-destroyed", this.onSubscriberDestroyed.bind(this));
+		subscriber.addEventListener("janus-participant-data", this.onSubscriberData.bind(this));
+		subscriber.isPrimary = isPrimary;
+		subscriber.connect();
 	}
 
-	private setAudioSink(element: HTMLMediaElement, audioSink: string) {
-		if (!('sinkId' in HTMLMediaElement.prototype)) {
-			return;
+	private onSubscriberError(event: CustomEvent) {
+		console.error(event.detail.error);
+
+		const subscriber: JanusSubscriber = event.detail.participant;
+
+		if (subscriber.isPrimary) {
+			this.stopSpeech();
+		}
+	}
+
+	private onSubscriberState(event: CustomEvent) {
+		const subscriber: JanusSubscriber = event.detail.participant;
+		const state: State = event.detail.state;
+
+		if (subscriber.isPrimary && state === State.DISCONNECTED) {
+			this.stopSpeech();
 		}
 
-		element.setSinkId(audioSink)
-			.catch(error => {
-				console.error(error);
-			});
+		document.dispatchEvent(Utils.createEvent("participant-state", event.detail));
 	}
 
-	private onVideoTrackRemoved(remoteFeed: PluginHandle, track: MediaStreamTrack) {
-		// this.playbackModel.mainVideoAvailable = false;
-		remoteFeed.hasVideo = false;
+	private onSubscriberDestroyed(event: CustomEvent) {
+		const subscriber: JanusSubscriber = event.detail.participant;
 
-		this.checkVideoCount();
-	}
+		this.subscribers = this.subscribers.filter(sub => sub !== subscriber);
 
-	private checkVideoCount() {
-		let hasVideo = false;
-
-		for (const remoteFeed of this.remoteFeeds) {
-			if (remoteFeed.hasVideo === true) {
-				hasVideo = true;
-				break;
-			}
+		if (subscriber.isPrimary) {
+			this.stopSpeech();
+			this.janus.destroy();
 		}
-
-		// this.playbackModel.videoAvailable = hasVideo;
 	}
 
-	private joinAsPublisher(remoteFeed: PluginHandle) {
-		const subscribe = {
-			request: "join",
-			room: this.myroom,
-			ptype: "publisher",
-			display: this.myusername
-		};
+	private onSubscriberData(event: CustomEvent) {
+		const subscriber: JanusSubscriber = event.detail.participant;
 
-		remoteFeed.send({ message: subscribe });
-	}
-
-	private createAnswer(remoteFeed: PluginHandle, jsep: JSEP, wantData: boolean) {
-		remoteFeed.createAnswer({
-			jsep: jsep,
-			media: { audioSend: false, videoSend: false, data: wantData },	// We want recvonly audio/video.
-			success: (jsep: JSEP) => {
-				const body = {
-					request: "start",
-					room: this.myroom
-				};
-
-				remoteFeed.send({ message: body, jsep: jsep });
-			},
-			error: (error: any) => {
-				Janus.error("WebRTC error: ", error);
-			}
-		});
-	}
-
-	private publishOwnFeed(remoteFeed: PluginHandle, deviceConstraints: any) {
-		const useVideo = deviceConstraints.videoDeviceId != null;
-
-		// Publish our stream.
-		remoteFeed.createOffer({
-			// Publishers are sendonly.
-			media: {
-				audioRecv: false,
-				videoRecv: false,
-				audioSend: true,
-				videoSend: useVideo,
-				audio: {
-					deviceId: deviceConstraints.audioDeviceId,
-					echoCancellation: true
-				},
-				video: {
-					deviceId: deviceConstraints.videoDeviceId,
-					width: 1280,
-					height: 720,
-				},
-				failIfNoAudio: true,
-				failIfNoVideo: false,
-			},
-			success: (jsep: JSEP) => {
-				Janus.debug("Got publisher SDP!", jsep);
-
-				var publish = {
-					request: "configure",
-					audio: true,
-					video: useVideo
-				};
-
-				// if(acodec)
-				// 	publish["audiocodec"] = acodec;
-				// if(vcodec)
-				// 	publish["videocodec"] = vcodec;
-
-				remoteFeed.send({ message: publish, jsep: jsep });
-			},
-			error: function (error: any) {
-				Janus.error("WebRTC error:", error);
-				
-				console.error("WebRTC error:", error);
-
-				deviceConstraints.videoDeviceId = null;
-
-				this.publishOwnFeed(remoteFeed, deviceConstraints)
-			}
-		});
+		if (subscriber.isPrimary) {
+			this.dataCallback(event.detail.data);
+		}
 	}
 }

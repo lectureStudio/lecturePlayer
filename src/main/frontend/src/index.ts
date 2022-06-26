@@ -18,6 +18,13 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import { Toaster } from './component/toast/toaster';
 import { ToastGravity, ToastPosition } from './component/toast/toast';
 
+// Load SVG icons.
+function requireAll(r: any) {
+	r.keys().forEach(r);
+}
+
+requireAll(require.context('./icons/', true, /\.svg$/));
+
 i18next
 	.use(LanguageDetector)
 	.init({

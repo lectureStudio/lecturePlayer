@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
 
 module.exports = {
 	entry: {
@@ -16,7 +17,9 @@ module.exports = {
 		// janus.js does not use 'import' to access to the functionality of webrtc-adapter,
 		// instead it expects a global object called 'adapter' for that.
 		// Let's make that object available.
-		new webpack.ProvidePlugin({ adapter: ['webrtc-adapter', 'default'] })
+		new webpack.ProvidePlugin({ adapter: ['webrtc-adapter', 'default'] }),
+
+		new SpriteLoaderPlugin()
 	],
 	output: {
 		path: path.resolve(__dirname, '../resources/web-player-js'),
@@ -44,6 +47,14 @@ module.exports = {
 				loader: 'lit-css-loader',
 				options: {
 					specifier: 'lit' // defaults to `lit`
+				}
+			},
+			{
+				test: /\.svg$/,
+				loader: 'svg-sprite-loader',
+				options: {
+					extract: true,
+					spriteFilename: 'icons.svg',
 				}
 			},
 			{

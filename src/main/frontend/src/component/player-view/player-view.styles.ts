@@ -41,15 +41,12 @@ export const playerViewStyles = css`
 		display: flex;
 		flex-direction: column !important;
 		background-color: white;
+		max-width: 15em;
 	}
 	:host .video-feed-container {
 		display: flex;
 		flex-direction: row !important;
 		order: 1 !important;
-	}
-	:host .feed-container video {
-		border: 2px solid #94A3B8;
-		max-width: 15em;
 	}
 
 	:host .chat-container {

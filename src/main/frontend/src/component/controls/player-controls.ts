@@ -27,7 +27,7 @@ export class PlayerControls extends I18nLitElement {
 	textLayer: HTMLElement;
 
 	@property({ type: Number, reflect: true })
-	volume: number = 100;
+	volume: number = 1;
 
 	mutedVolume: number = null;
 
@@ -68,16 +68,16 @@ export class PlayerControls extends I18nLitElement {
 		if (this.volume === 0) {
 			this.volumeState = 0;
 		}
-		else if (this.volume <= 10) {
+		else if (this.volume <= 0.1) {
 			this.volumeState = 1;
 		}
-		else if (this.volume <= 50) {
+		else if (this.volume <= 0.5) {
 			this.volumeState = 2;
 		}
-		else if (this.volume > 50 && this.volume < 70) {
+		else if (this.volume > 0.5 && this.volume < 0.7) {
 			this.volumeState = 3;
 		}
-		else if (this.volume >= 70) {
+		else if (this.volume >= 0.7) {
 			this.volumeState = 4;
 		}
 
@@ -122,7 +122,7 @@ export class PlayerControls extends I18nLitElement {
 	}
 
 	private onVolume(e: InputEvent): void {
-		this.setVolume(parseInt((e.target as HTMLInputElement).value));
+		this.setVolume(parseFloat((e.target as HTMLInputElement).value));
 	}
 
 	private getFormattedDuration(): string {
@@ -161,7 +161,7 @@ export class PlayerControls extends I18nLitElement {
 						<path d="M10.025 8a4.486 4.486 0 0 1-1.318 3.182L8 10.475A3.489 3.489 0 0 0 9.025 8c0-.966-.392-1.841-1.025-2.475l.707-.707A4.486 4.486 0 0 1 10.025 8zM7 4a.5.5 0 0 0-.812-.39L3.825 5.5H1.5A.5.5 0 0 0 1 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 7 12V4zM4.312 6.39 6 5.04v5.92L4.312 9.61A.5.5 0 0 0 4 9.5H2v-3h2a.5.5 0 0 0 .312-.11z"/>
 					</svg>
 				</button>
-				<input type="range" id="volumeSlider" max="100" value="100" .value="${this.volume}" @input="${this.onVolume}">
+				<input type="range" id="volumeSlider" min="0" max="1" value="1" step="0.01" .value="${this.volume}" @input="${this.onVolume}">
 				<span id="duration">${this.getFormattedDuration()}</span>
 			</div>
 			<div class="col nav-center">

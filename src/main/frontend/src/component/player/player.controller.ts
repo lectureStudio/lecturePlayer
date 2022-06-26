@@ -1,4 +1,3 @@
-import { t } from 'i18next';
 import { ReactiveController } from 'lit';
 import { StreamActionProcessor } from '../../action/stream-action-processor';
 import { CourseState, CourseStateDocuments } from '../../model/course-state';
@@ -11,6 +10,7 @@ import { SpeechService } from '../../service/speech.service';
 import { Devices } from '../../utils/devices';
 import { State } from '../../utils/state';
 import { Utils } from '../../utils/utils';
+import { t } from '../i18n-mixin';
 import { PlayerViewController } from '../player-view/player-view.controller';
 import { SettingsModal } from '../settings-modal/settings.modal';
 import { SpeechAcceptedModal } from '../speech-accepted-modal/speech-accepted.modal';
@@ -66,7 +66,7 @@ export class PlayerController implements ReactiveController {
 		this.janusService.addEventListener("publisher-state", (e: CustomEvent) => {
 			this.setConnectionState(e.detail.connected);
 		}, false);
-		this.janusService.setOnData(this.actionProcessor.processData);
+		this.janusService.setOnData(this.actionProcessor.processData.bind(this.actionProcessor));
 	}
 
 	setPlayerViewController(viewController: PlayerViewController) {
@@ -85,11 +85,11 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private connect() {
-		this.janusService.start();
-
 		this.getCourseState()
 			.then(state => {
 				this.viewController.setCourseDocumentState(state);
+
+				this.janusService.start();
 
 				this.setConnectionState(State.CONNECTED);
 			})
