@@ -1,5 +1,5 @@
 import { Dimension } from "../geometry/dimension";
-import { PDFPageProxy } from "pdfjs-dist/types/display/api";
+import { PDFPageProxy } from "pdfjs-dist/types/src/display/api";
 import { renderTextLayer } from "pdfjs-dist";
 import { Rectangle } from "../geometry/rectangle";
 
@@ -37,7 +37,7 @@ class PdfTextRenderer {
 			console.error(reason);
 		});
 
-		const linkService = new pdfViever.SimpleLinkService();
+		const linkService = new pdfViever.PDFLinkService();
 		// Open links in new tab.
 		linkService.externalLinkTarget = 2;
 

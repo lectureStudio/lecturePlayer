@@ -58,6 +58,20 @@ class RenderController {
 	constructor() {
 		this.pageChangeListener = this.pageChanged.bind(this);
 		this.lastTransform = new Transform();
+
+		document.addEventListener("visibilitychange", () => {
+			if (document.visibilityState === "visible") {
+				setTimeout(() => {
+					window.dispatchEvent(new Event("resize"));
+	
+					this.renderAllLayers(this.page);
+				}, 100);
+			}
+		});
+	}
+
+	getPage(): Page {
+		return this.page;
 	}
 
 	setPage(page: Page): void {
@@ -68,11 +82,17 @@ class RenderController {
 
 		this.page = page;
 
-		if (!this.seek) {
-			this.enableRendering();
-		}
+		this.updateSurfaceSize(page)
+			.then(() => {
+				if (!this.seek) {
+					this.enableRendering();
+				}
 
-		this.renderAllLayers();
+				this.renderAllLayers(page);
+			})
+			.catch(error => {
+				console.error(error);
+			});
 	}
 
 	setSeek(seek: boolean): void {
@@ -91,7 +111,7 @@ class RenderController {
 			}
 			else {
 				// Page transform changed. Update all layers.
-				this.renderAllLayers();
+				this.renderAllLayers(this.page);
 			}
 		}
 	}
@@ -132,6 +152,15 @@ class RenderController {
 		}
 	}
 
+	private updateSurfaceSize(page: Page): Promise<void> {
+		return page.getPageBounds().then(bounds => {
+			this.slideRenderSurface.setPageSize(bounds);
+			this.actionRenderSurface.setPageSize(bounds);
+			this.volatileRenderSurface.setPageSize(bounds);
+			this.textLayerSurface.setPageSize(bounds);
+		});
+	}
+
 	private enableRendering(): void {
 		this.page.addChangeListener(this.pageChangeListener);
 	}
@@ -141,7 +170,7 @@ class RenderController {
 	}
 
 	private slideRenderSurfaceSizeChanged(event: SizeEvent): void {
-		this.renderAllLayers();
+		this.renderAllLayers(this.page);
 	}
 
 	private actionRenderSurfaceSizeChanged(event: SizeEvent): void {
@@ -151,7 +180,7 @@ class RenderController {
 	private pageChanged(event: PageEvent): void {
 		switch (event.changeType) {
 			case PageChangeType.PageTransform:
-				this.renderAllLayers();
+				this.renderAllLayers(this.page);
 				break;
 
 			case PageChangeType.Clear:
@@ -212,8 +241,15 @@ class RenderController {
 		}
 	}
 
-	private renderAllLayers(): void {
-		const promise = this.renderSlideLayer(this.page);
+	private renderAllLayers(page: Page): void {
+		const size = this.slideRenderSurface.getSize();
+
+		if (!size) {
+			// Do not even try to render.
+			return;
+		}
+
+		const promise = this.renderSlideLayer(page);
 		promise.then((imageSource: CanvasImageSource) => {
 			if (imageSource) {
 				const pageTransform = this.getPageTransform();
@@ -224,14 +260,21 @@ class RenderController {
 				this.volatileRenderSurface.setTransform(pageTransform);
 
 				this.actionRenderSurface.renderImageSource(imageSource);
-				this.actionRenderSurface.renderShapes(this.page.getShapes());
+				this.actionRenderSurface.renderShapes(page.getShapes());
 				this.volatileRenderSurface.clear();
-				this.textLayerSurface.render(this.page);
+				this.textLayerSurface.render(page);
 
 				this.lastShape = null;
+
+				if (!Object.is(page, this.page)) {
+					// Keep the view up to date.
+					this.renderAllLayers(this.page);
+				}
 			}
 		})
-		.catch(error => {});
+		.catch(error => {
+			console.error(error)
+		});
 	}
 
 	private renderPermanentLayer(shape: Shape, dirtyRegion: Rectangle): void {

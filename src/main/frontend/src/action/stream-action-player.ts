@@ -15,7 +15,19 @@ class StreamActionPlayer extends ActionPlayer {
 	}
 
 	addAction(action: Action): void {
-		this.actions.push(action);
+		if (document.visibilityState === "hidden") {
+			// Execute action with the current state.
+			// Some browsers, mostly Chromium-based, get the state mixed-up when the player is not visible.
+			try {
+				action.execute(this.executor);
+			}
+			catch (cause) {
+				console.error(cause);
+			}
+		}
+		else {
+			this.actions.push(action);
+		}
 	}
 
 	setDocument(document: SlideDocument): void {

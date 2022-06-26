@@ -8,6 +8,8 @@ import { Transform } from "../geometry/transform";
 
 class RenderSurface {
 
+	protected readonly parent: HTMLElement;
+
 	protected readonly canvas: HTMLCanvasElement;
 
 	protected readonly canvasContext: CanvasRenderingContext2D;
@@ -21,7 +23,8 @@ class RenderSurface {
 	private size: Dimension;
 
 
-	constructor(canvas: HTMLCanvasElement) {
+	constructor(parent: HTMLElement, canvas: HTMLCanvasElement) {
+		this.parent = parent;
 		this.canvas = canvas;
 		this.canvasContext = canvas.getContext("2d");
 		this.renderers = new Map();
@@ -77,7 +80,7 @@ class RenderSurface {
 	}
 
 	setSize(width: number, height: number): void {
-		if (width < 1 || height < 1) {
+		if (width <= 1 || height <= 1) {
 			return;
 		}
 
@@ -88,6 +91,27 @@ class RenderSurface {
 
 		this.resizeCanvas(width, height, dpr);
 		this.fireSizeEvent(new SizeEvent(this.size));
+	}
+
+	setPageSize(bounds: Rectangle): void {
+		let width = this.parent.clientWidth;
+		let height = this.parent.clientHeight;
+
+		const slideRatio = bounds.width / bounds.height;
+		const viewRatio = width / height;
+
+		if (viewRatio > slideRatio) {
+			width = height * slideRatio;
+		}
+		else {
+			height = width / slideRatio;
+		}
+
+		if (width === 0 || height === 0) {
+			return;
+		}
+
+		this.setSize(width, height);
 	}
 
 	setTransform(transform: Transform): void {

@@ -9,7 +9,9 @@ abstract class SlideDocument {
 	private documentId: bigint;
 
 
-	abstract async getPageText(pageNumber: number): Promise<string>;
+	abstract getPageBounds(pageNumber: number): Promise<Rectangle>;
+
+	abstract getPageText(pageNumber: number): Promise<string>;
 
 	abstract renderPage(pageNumber: number, context: CanvasRenderingContext2D, viewRect: Rectangle, dirtyRegion: Rectangle): Promise<CanvasImageSource>;
 
@@ -37,6 +39,10 @@ abstract class SlideDocument {
 			throw new Error(`Page number ${pageNumber} out of bounds.`);
 		}
 		return this.pages[pageNumber];
+	}
+
+	deletePage(pageNumber: number): void {
+		this.pages.splice(pageNumber, 1);
 	}
 }
 

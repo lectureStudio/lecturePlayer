@@ -75,6 +75,14 @@ class Page {
 		}
 	}
 
+	async getPageBounds(): Promise<Rectangle> {
+		return await this.document.getPageBounds(this.pageNumber);
+	}
+
+	getPageNumber(): number {
+		return this.pageNumber;
+	}
+
 	getSlideShape(): SlideShape {
 		return this.slideShape;
 	}

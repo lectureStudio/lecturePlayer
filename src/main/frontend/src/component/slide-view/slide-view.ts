@@ -1,5 +1,6 @@
 import { LitElement, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
+import { RenderController } from '../../render/render-controller';
 import { RenderSurface } from '../../render/render-surface';
 import { SlideRenderSurface, } from '../../render/slide-render-surface';
 import { TextLayerSurface } from '../../render/text-layer-surface';
@@ -20,6 +21,8 @@ export class SlideView extends LitElement {
 
 	private textLayerSurface: TextLayerSurface;
 
+	private renderController: RenderController;
+
 
 	firstUpdated() {
 		const slideCanvas: HTMLCanvasElement = this.renderRoot.querySelector(".slide-canvas");
@@ -27,14 +30,18 @@ export class SlideView extends LitElement {
 		const volatileCanvas: HTMLCanvasElement = this.renderRoot.querySelector(".volatile-canvas");
 		const textLayer: HTMLCanvasElement = this.renderRoot.querySelector(".text-layer");
 
-		this.slideRenderSurface = new SlideRenderSurface(slideCanvas);
-		this.actionRenderSurface = new RenderSurface(actionCanvas);
-		this.volatileRenderSurface = new RenderSurface(volatileCanvas);
-		this.textLayerSurface = new TextLayerSurface(textLayer);
+		this.slideRenderSurface = new SlideRenderSurface(this, slideCanvas);
+		this.actionRenderSurface = new RenderSurface(this, actionCanvas);
+		this.volatileRenderSurface = new RenderSurface(this, volatileCanvas);
+		this.textLayerSurface = new TextLayerSurface(this, textLayer);
 
 		new ResizeObserver(this.resize.bind(this)).observe(this);
 
 		this.resize();
+	}
+
+	setRenderController(renderController: RenderController): void {
+		this.renderController = renderController;
 	}
 
 	getActionRenderSurface(): RenderSurface {
@@ -58,26 +65,34 @@ export class SlideView extends LitElement {
 	}
 
 	private resize() {
-		const slideRatio = 4 / 3;
-		let width = this.clientWidth - 8;
-		let height = this.clientHeight - 8;
-		const viewRatio = width / height;
-
-		if (viewRatio > slideRatio) {
-			width = height * slideRatio;
-		}
-		else {
-			height = width / slideRatio;
-		}
-
-		if (width === 0 || height === 0) {
+		if (!this.renderController) {
 			return;
 		}
 
-		this.slideRenderSurface.setSize(width, height);
-		this.actionRenderSurface.setSize(width, height);
-		this.volatileRenderSurface.setSize(width, height);
-		this.textLayerSurface.setSize(width, height);
+		const page = this.renderController.getPage();
+		page.getPageBounds().then(bounds => {
+			let width = this.clientWidth;
+			let height = this.clientHeight;
+
+			const slideRatio = bounds.width / bounds.height;
+			const viewRatio = width / height;
+
+			if (viewRatio > slideRatio) {
+				width = height * slideRatio;
+			}
+			else {
+				height = width / slideRatio;
+			}
+
+			if (width === 0 || height === 0) {
+				return;
+			}
+
+			this.slideRenderSurface.setSize(width, height);
+			this.actionRenderSurface.setSize(width, height);
+			this.volatileRenderSurface.setSize(width, height);
+			this.textLayerSurface.setSize(width, height);
+		});
 	}
 
 	render() {
