@@ -18,6 +18,13 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import { Toaster } from './component/toast/toaster';
 import { ToastGravity, ToastPosition } from './component/toast/toast';
 
+const pdfjs = require('pdfjs-dist');
+const PdfjsWorker = require("worker-loader?esModule=false&filename=[name].js!pdfjs-dist/build/pdf.worker.js");
+
+if (typeof window !== "undefined" && "Worker" in window) {
+	pdfjs.GlobalWorkerOptions.workerPort = new PdfjsWorker();
+}
+
 // Load SVG icons.
 function requireAll(r: any) {
 	r.keys().forEach(r);

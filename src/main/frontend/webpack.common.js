@@ -5,8 +5,7 @@ const SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
 
 module.exports = {
 	entry: {
-		'main': './src/index.ts',
-		'pdf.worker': 'pdfjs-dist/build/pdf.worker.entry',
+		'main': './src/index.ts'
 	},
 	devServer: {
 		contentBase: './dist'

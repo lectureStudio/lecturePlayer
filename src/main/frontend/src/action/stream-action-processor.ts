@@ -1,7 +1,7 @@
 import { CourseStateDocument } from "../model/course-state-document";
 import { SlideDocument } from "../model/document";
-import { WhiteboardDocument } from "../model/whiteboard.document";
 import { Action } from "./action";
+import { PageDeleteAction } from "./page-delete.action";
 import { PageAction } from "./page.action";
 import { ProgressiveDataView } from "./parser/progressive-data-view";
 import { StreamActionParser } from "./parser/stream.action.parser";
@@ -9,6 +9,7 @@ import { StreamAction } from "./stream.action";
 import { StreamDocumentClosedAction } from "./stream.document.closed.action";
 import { StreamDocumentCreatedAction } from "./stream.document.created.action";
 import { StreamDocumentSelectedAction } from "./stream.document.selected.action";
+import { StreamPageDeletedAction } from "./stream.page.deleted.action";
 import { StreamPageSelectedAction } from "./stream.page.selected.action";
 import { StreamPagePlaybackAction } from "./stream.playback.action";
 import { StreamSpeechPublishedAction } from "./stream.speech.published.action";
@@ -58,36 +59,28 @@ export class StreamActionProcessor {
 			}
 		}
 		else if (action instanceof StreamDocumentCreatedAction) {
-			if (action.documentType === 1) {
-				const slideDoc = new WhiteboardDocument();
-				slideDoc.setDocumentId(action.documentId);
+			this.streamActionBuffer = {
+				bufferedActions: [],
+				docId: BigInt(action.documentId)
+			};
 
-				this.onAddDocument(slideDoc);
-			}
-			else {
-				this.streamActionBuffer = {
-					bufferedActions: [],
-					docId: BigInt(action.documentId)
-				};
+			const stateDoc: CourseStateDocument = {
+				activePage: null,
+				documentFile: action.documentFile,
+				documentId: action.documentId,
+				documentName: action.documentTitle,
+				pages: null,
+				type: "pdf"
+			};
 
-				const stateDoc: CourseStateDocument = {
-					activePage: null,
-					documentFile: action.documentFile,
-					documentId: action.documentId,
-					documentName: action.documentTitle,
-					pages: null,
-					type: "pdf"
-				};
-
-				this.onGetDocument(stateDoc)
-					.then((doc: SlideDocument) => {
-						this.onAddDocument(doc);
-						this.flushActionBuffer(doc.getDocumentId());
-					})
-					.catch(error => {
-						console.error(error);
-					});
-			}
+			this.onGetDocument(stateDoc)
+				.then((doc: SlideDocument) => {
+					this.onAddDocument(doc);
+					this.flushActionBuffer(doc.getDocumentId());
+				})
+				.catch(error => {
+					console.error(error);
+				});
 		}
 		else if (action instanceof StreamDocumentClosedAction) {
 			this.onRemoveDocument(action.documentId);
@@ -95,6 +88,14 @@ export class StreamActionProcessor {
 		else if (action instanceof StreamPageSelectedAction) {
 			if (!this.bufferAction(action, action.documentId)) {
 				const pageAction = new PageAction(action.pageNumber);
+				pageAction.timestamp = 0;
+
+				this.onAddAction(pageAction);
+			}
+		}
+		else if (action instanceof StreamPageDeletedAction) {
+			if (!this.bufferAction(action, action.documentId)) {
+				const pageAction = new PageDeleteAction(action.pageNumber, action.documentId);
 				pageAction.timestamp = 0;
 
 				this.onAddAction(pageAction);
