@@ -1,6 +1,6 @@
 import { FormShape } from "./form.shape";
 
-class ArrowShape extends FormShape {
+export class ArrowShape extends FormShape {
 
 	clone(): ArrowShape {
 		const shape = new ArrowShape(this.handle, this.brush.clone());
@@ -15,6 +15,7 @@ class ArrowShape extends FormShape {
 		return shape;
 	}
 
+	public getShapeType(): string {
+		return "arrow";
+	}
 }
-
-export { ArrowShape };

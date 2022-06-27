@@ -19,6 +19,8 @@ abstract class Shape {
 	private keyEvent: KeyboardEvent;
 
 
+	public abstract getShapeType(): string;
+
 	protected abstract updateBounds(): void;
 
 

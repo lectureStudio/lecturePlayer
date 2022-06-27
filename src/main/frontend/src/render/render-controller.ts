@@ -33,8 +33,9 @@ import { LatexShape } from "../model/shape/latex.shape";
 import { LatexRenderer } from "./latex.renderer";
 import { PenShape } from "../model/shape/pen.shape";
 import { PenRenderer } from "./pen.renderer";
+import { Brush } from "../paint/brush";
 
-class RenderController {
+export class RenderController {
 
 	private readonly pageChangeListener: (event: PageEvent) => void;
 
@@ -118,7 +119,7 @@ class RenderController {
 
 	setSlideRenderSurface(renderSurface: SlideRenderSurface): void {
 		this.slideRenderSurface = renderSurface;
-		this.slideRenderSurface.registerRenderer(SlideShape.name, new SlideRenderer());
+		this.slideRenderSurface.registerRenderer(new SlideShape(null), new SlideRenderer());
 		this.slideRenderSurface.addSizeListener(this.slideRenderSurfaceSizeChanged.bind(this));
 	}
 
@@ -311,19 +312,19 @@ class RenderController {
 	}
 
 	private registerShapeRenderers(renderSurface: RenderSurface): void {
-		renderSurface.registerRenderer(PenShape.name, new PenRenderer());
-		renderSurface.registerRenderer(StrokeShape.name, new HighlighterRenderer());
-		renderSurface.registerRenderer(PointerShape.name, new PointerRenderer());
-		renderSurface.registerRenderer(ArrowShape.name, new ArrowRenderer());
-		renderSurface.registerRenderer(RectangleShape.name, new RectangleRenderer());
-		renderSurface.registerRenderer(LineShape.name, new LineRenderer());
-		renderSurface.registerRenderer(EllipseShape.name, new EllipseRenderer());
-		renderSurface.registerRenderer(SelectShape.name, new SelectRenderer());
-		renderSurface.registerRenderer(TextShape.name, new TextRenderer());
-		renderSurface.registerRenderer(TextHighlightShape.name, new TextHighlightRenderer());
-		renderSurface.registerRenderer(LatexShape.name, new LatexRenderer());
-		renderSurface.registerRenderer(ZoomShape.name, new ZoomRenderer());
+		const brush = new Brush(null, null);
+
+		renderSurface.registerRenderer(new PenShape(null, brush), new PenRenderer());
+		renderSurface.registerRenderer(new StrokeShape(null, brush), new HighlighterRenderer());
+		renderSurface.registerRenderer(new PointerShape(null, brush), new PointerRenderer());
+		renderSurface.registerRenderer(new ArrowShape(null, brush), new ArrowRenderer());
+		renderSurface.registerRenderer(new RectangleShape(null, brush), new RectangleRenderer());
+		renderSurface.registerRenderer(new LineShape(null, brush), new LineRenderer());
+		renderSurface.registerRenderer(new EllipseShape(null, brush), new EllipseRenderer());
+		renderSurface.registerRenderer(new SelectShape(), new SelectRenderer());
+		renderSurface.registerRenderer(new TextShape(null), new TextRenderer());
+		renderSurface.registerRenderer(new TextHighlightShape(null, null), new TextHighlightRenderer());
+		renderSurface.registerRenderer(new LatexShape(null), new LatexRenderer());
+		renderSurface.registerRenderer(new ZoomShape(), new ZoomRenderer());
 	}
 }
-
-export { RenderController };

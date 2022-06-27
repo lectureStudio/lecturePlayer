@@ -1,6 +1,6 @@
 import { Action } from "../action/action";
 
-class RecordedPage {
+export class RecordedPage {
 
 	staticActions: Action[] = [];
 
@@ -11,5 +11,3 @@ class RecordedPage {
 	timestamp: number;
 
 }
-
-export { RecordedPage };

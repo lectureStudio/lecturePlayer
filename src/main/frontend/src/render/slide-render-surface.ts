@@ -12,7 +12,7 @@ class SlideRenderSurface extends RenderSurface {
 			});
 		}
 		
-		const renderer = <SlideRenderer> this.renderers.get(shape.constructor.name);
+		const renderer = <SlideRenderer> this.renderers.get(shape.getShapeType());
 		let promise: Promise<CanvasImageSource> = null;
 
 		if (renderer) {

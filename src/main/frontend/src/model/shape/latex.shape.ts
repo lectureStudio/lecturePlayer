@@ -3,7 +3,7 @@ import { ShapeEvent } from "./shape-event";
 import { Font } from "../../paint/font";
 import { Point } from "../../geometry/point";
 
-class LatexShape extends TypesettingShape {
+export class LatexShape extends TypesettingShape {
 
 	private font: Font;
 
@@ -31,6 +31,8 @@ class LatexShape extends TypesettingShape {
 
 		return shape;
 	}
-}
 
-export { LatexShape };
+	public getShapeType(): string {
+		return "latex";
+	}
+}

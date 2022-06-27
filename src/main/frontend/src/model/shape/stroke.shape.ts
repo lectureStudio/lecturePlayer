@@ -6,7 +6,7 @@ import { Line } from "../../geometry/line";
 import { Rectangle } from "../../geometry/rectangle";
 import { Point } from "../../geometry/point";
 
-class StrokeShape extends Shape {
+export class StrokeShape extends Shape {
 
 	private readonly _brush: Brush;
 
@@ -104,15 +104,6 @@ class StrokeShape extends Shape {
 		return false;
 	}
 
-	protected updateBounds(): void {
-		const x = this.minPoint.x;
-		const y = this.minPoint.y;
-		const width = this.maxPoint.x - this.minPoint.x;
-		const height = this.maxPoint.y - this.minPoint.y;
-
-		this.bounds.set(x, y, width, height);
-	}
-
 	clone(): StrokeShape {
 		const shape = new StrokeShape(this.handle, this.brush.clone());
 		shape.bounds.set(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
@@ -125,6 +116,17 @@ class StrokeShape extends Shape {
 
 		return shape;
 	}
-}
 
-export { StrokeShape };
+	public getShapeType(): string {
+		return "stroke";
+	}
+
+	protected updateBounds(): void {
+		const x = this.minPoint.x;
+		const y = this.minPoint.y;
+		const width = this.maxPoint.x - this.minPoint.x;
+		const height = this.maxPoint.y - this.minPoint.y;
+
+		this.bounds.set(x, y, width, height);
+	}
+}

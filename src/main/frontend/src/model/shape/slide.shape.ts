@@ -3,7 +3,7 @@ import { Shape } from "./shape";
 import { Rectangle } from "../../geometry/rectangle";
 import { ShapeEvent } from "./shape-event";
 
-class SlideShape extends Shape {
+export class SlideShape extends Shape {
 
 	private readonly page: Page;
 
@@ -30,9 +30,11 @@ class SlideShape extends Shape {
 		this.fireShapeEvent(new ShapeEvent(this, this.bounds));
 	}
 
+	public getShapeType(): string {
+		return "slide";
+	}
+
 	protected updateBounds(): void {
 		this.bounds.set(0, 0, 1, 1);
 	}
 }
-
-export { SlideShape };

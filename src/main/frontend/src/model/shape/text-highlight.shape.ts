@@ -4,7 +4,7 @@ import { Point } from "../../geometry/point";
 import { Color } from "../../paint/color";
 import { ShapeEvent } from "./shape-event";
 
-class TextHighlightShape extends Shape {
+export class TextHighlightShape extends Shape {
 
 	private readonly color: Color;
 
@@ -45,9 +45,11 @@ class TextHighlightShape extends Shape {
 		return shape;
 	}
 
+	public getShapeType(): string {
+		return "text-highlight";
+	}
+
 	protected updateBounds(): void {
 		// No-op
 	}
 }
-
-export { TextHighlightShape };

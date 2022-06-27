@@ -47,5 +47,3 @@ export class TypedEvent<T> {
 		return this.subscribe((e) => te.publish(e));
 	}
 }
-
-//export { Listener, Disposable, TypedEvent };

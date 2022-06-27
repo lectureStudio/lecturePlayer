@@ -35,8 +35,8 @@ class RenderSurface {
 		this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	}
 
-	registerRenderer(shapeName: String, render: ShapeRenderer): void {
-		this.renderers.set(shapeName, render);
+	registerRenderer(shape: Shape, render: ShapeRenderer): void {
+		this.renderers.set(shape.getShapeType(), render);
 	}
 
 	renderImageSource(canvas: CanvasImageSource): void {
@@ -58,7 +58,7 @@ class RenderSurface {
 	}
 
 	renderShape(shape: Shape, dirtyRegion: Rectangle): void {
-		const renderer = this.renderers.get(shape.constructor.name);
+		const renderer = this.renderers.get(shape.getShapeType());
 
 		if (renderer) {
 			const s = this.canvas.width * this.transform.getScaleX();
