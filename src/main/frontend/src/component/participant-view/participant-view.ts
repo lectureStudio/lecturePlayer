@@ -62,9 +62,11 @@ export class ParticipantView extends I18nLitElement {
 	}
 
 	private onAudioVolume(e: CustomEvent) {
-		const volume: number = e.detail.volume;
+		if (this.audio) {
+			const volume: number = e.detail.volume;
 
-		this.audio.volume = volume;
+			this.audio.volume = volume;
+		}
 	}
 
 	render() {

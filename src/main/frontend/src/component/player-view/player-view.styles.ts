@@ -20,6 +20,7 @@ export const playerViewStyles = css`
 		flex-direction: row !important;
 		width: 100%;
 		height: 100%;
+		margin: 5px;
 	}
 	:host .controls-container {
 		display: flex;
@@ -43,9 +44,9 @@ export const playerViewStyles = css`
 		background-color: white;
 		max-width: 15em;
 	}
-	:host .video-feed-container {
+	:host .video-feeds {
 		display: flex;
-		flex-direction: row !important;
+		flex-direction: column;
 		order: 1 !important;
 	}
 

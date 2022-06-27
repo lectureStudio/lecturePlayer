@@ -24,7 +24,13 @@ declare module "janus-gateway" {
 		Error = 'error'
 	}
 
-	interface JSEP {}
+	interface JSEP {
+		ee2e?: boolean;
+		sdp?: string;
+		type?: string;
+		rid_order?: "hml" | "lmh";
+		force_relay?: boolean;
+	}
 
 	interface InitOptions {
 		debug?: boolean | 'all' | DebugLevel[];
@@ -45,10 +51,23 @@ declare module "janus-gateway" {
 		error?: (error: any) => void;
 		destroyed?: Function;
 	}
-	
+
 	interface ReconnectOptions {
 		success?: Function;
-		error?: (error: any) => void;
+		error?: (error: string) => void;
+	}
+
+	interface DestroyOptions {
+		cleanupHandles?: boolean;
+		notifyDestroyed?: boolean;
+		unload?: boolean;
+		success?: () => void;
+		error?: (error: string) => void;
+	}
+
+	interface GetInfoOptions {
+		success?: (info: any) => void;
+		error?: (error: string) => void;
 	}
 
 	enum MessageType {
@@ -67,27 +86,31 @@ declare module "janus-gateway" {
 			id?: string;
 			uplink?: number;
 		};
-		error?: Error;
+		error?: string;
+		[key: string]: any;
 	}
 
-	interface PluginOptions {
-		plugin: string;
-		opaqueId?: string;
+	interface PluginCallbacks {
+		dataChannelOptions?: RTCDataChannelInit;
 		success?: (handle: PluginHandle) => void;
-		error?: (error: any) => void;
+		error?: (error: string) => void;
 		consentDialog?: (on: boolean) => void;
 		webrtcState?: (isConnected: boolean) => void;
-		iceState?: (state: 'connected' | 'failed') => void;
+		iceState?: (state: 'connected' | 'failed' | 'disconnected' | 'closed') => void;
 		mediaState?: (medium: 'audio' | 'video', receiving: boolean, mid?: number) => void;
-		slowLink?: (state: { uplink: boolean }) => void;
+		slowLink?: (uplink: boolean, lost: number, mid: string) => void;
 		onmessage?: (message: Message, jsep?: JSEP) => void;
-		onlocalstream?: (stream: MediaStream) => void;
-		onremotestream?: (stream: MediaStream) => void;
-		onremotetrack?: (track: MediaStreamTrack, mid: string, active: boolean) => void;
+		onlocaltrack?: (track: MediaStreamTrack, on: boolean) => void;
+		onremotetrack?: (track: MediaStreamTrack, mid: string, on: boolean) => void;
 		ondataopen?: Function;
 		ondata?: Function;
 		oncleanup?: Function;
-		detached?: Function;
+		ondetached?: Function;
+	}
+
+	interface PluginOptions extends PluginCallbacks {
+		plugin: string;
+		opaqueId?: string;
 	}
 
 	interface OfferParams {
@@ -99,7 +122,11 @@ declare module "janus-gateway" {
 			audio?: boolean | { deviceId: string };
 			video?:
 				| boolean
-				| { deviceId: string }
+				| {
+					deviceId: string,
+					width?: number,
+					height?: number,
+				  }
 				| 'lowres'
 				| 'lowres-16:9'
 				| 'stdres'
@@ -123,36 +150,64 @@ declare module "janus-gateway" {
 			[otherProps: string]: any;
 		};
 		jsep?: JSEP;
-		success?: Function;
-		error?: (error: any) => void;
+		success?: (data?: any) => void;
+		error?: (error: string) => void;
 	}
 
+	interface WebRTCInfo {
+		bitrate: {
+			bsbefore: string | null;
+			bsnow: string | null;
+			timer: string | null;
+			tsbefore: string | null;
+			tsnow: string | null;
+			value: string | null;
+		};
+		dataChannel: Array<RTCDataChannel>;
+		dataChannelOptions: RTCDataChannelInit;
+
+		dtmfSender: string | null;
+		iceDone: boolean;
+		mediaConstraints: any;
+		mySdp: {
+			sdp: string;
+			type: string;
+		};
+		myStream: MediaStream;
+		pc: RTCPeerConnection;
+		receiverTransforms: {
+			audio: TransformStream;
+			video: TransformStream;
+		};
+		remoteSdp: string;
+		remoteStream: MediaStream;
+		senderTransforms: {
+			audio: TransformStream;
+			video: TransformStream;
+		};
+		started: boolean;
+		streamExternal: boolean;
+		trickle: boolean;
+		volume: {
+			value: number;
+			timer: number;
+		};
+	}
+	interface DetachOptions {
+		success?: () => void;
+		error?: (error: string) => void;
+		noRequest?: boolean;
+	}
 	interface PluginHandle {
 		plugin: string;
 		id: string;
 		token?: string;
-		detached : boolean;
-		webrtcStuff: {
-			started: boolean,
-			myStream: MediaStream,
-			streamExternal: boolean,
-			remoteStream: MediaStream,
-			mySdp: any,
-			mediaConstraints: any,
-			pc: RTCPeerConnection,
-			dataChannel: Array<RTCDataChannel>,
-			dtmfSender: any,
-			trickle: boolean,
-			iceDone: boolean,
-			volume: {
-				value: number,
-				timer: number
-			}
-		};
+		detached: boolean;
+		webrtcStuff: WebRTCInfo;
 		getId(): string;
 		getPlugin(): string;
 		send(message: PluginMessage): void;
-		createOffer(params: any): void;
+		createOffer(params: OfferParams): void;
 		createAnswer(params: any): void;
 		handleRemoteJsep(params: { jsep: JSEP }): void;
 		dtmf(params: any): void;
@@ -165,7 +220,7 @@ declare module "janus-gateway" {
 		unmuteVideo(): void;
 		getBitrate(): string;
 		hangup(sendRequest?: boolean): void;
-		detach(): void;
+		detach(params?: DetachOptions): void;
 	}
 
 	class Janus {
@@ -183,13 +238,16 @@ declare module "janus-gateway" {
 		static attachMediaStream(element: HTMLMediaElement, stream: MediaStream): void;
 		static reattachMediaStream(to: HTMLMediaElement, from: HTMLMediaElement): void;
 
+		static stopAllTracks(stream: MediaStream): void;
+
 		constructor(options: ConstructorOptions);
 
+		attach(options: PluginOptions): void;
 		getServer(): string;
 		isConnected(): boolean;
-		getSessionId(): string;
-		attach(options: PluginOptions): void;
-		reconnect(options: ReconnectOptions): void;
-		destroy(): void;
+		reconnect(callbacks: ReconnectOptions): void;
+		getSessionId(): number;
+		getInfo(callbacks: GetInfoOptions): void;
+		destroy(callbacks: DestroyOptions): void;
 	}
 }

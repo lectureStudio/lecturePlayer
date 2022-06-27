@@ -1,4 +1,5 @@
 import { Janus, JSEP, PluginHandle } from "janus-gateway";
+import { State } from "../utils/state";
 import { JanusParticipant } from "./janus-participant";
 
 export class JanusPublisher extends JanusParticipant {
@@ -9,9 +10,7 @@ export class JanusPublisher extends JanusParticipant {
 
 	private readonly opaqueId: string;
 
-	private publisherId: any;
-
-	private localStream: MediaStream;
+	private publisherId: bigint;
 
 
 	constructor(janus: Janus, roomId: number, opaqueId: string) {
@@ -28,20 +27,25 @@ export class JanusPublisher extends JanusParticipant {
 			opaqueId: this.opaqueId,
 			success: this.onConnected.bind(this),
 			error: this.onError.bind(this),
-			consentDialog: (on: boolean) => {
-				// e.g., darken the screen if on=true (getUserMedia incoming), restore it otherwise
-			},
 			iceState: this.onIceState.bind(this),
 			mediaState: this.onMediaState.bind(this),
 			webrtcState: this.onWebRtcState.bind(this),
+			slowLink: this.onSlowLink.bind(this),
 			onmessage: this.onMessage.bind(this),
-			onlocalstream: this.onLocalStream.bind(this),
-			onremotestream: (stream: MediaStream) => {
-				// The publisher stream is sendonly, we don't expect anything here.
-			},
+			onlocaltrack: this.onLocalTrack.bind(this),
 			oncleanup: this.onCleanUp.bind(this),
-			detached: this.onDetached.bind(this)
+			ondetached: this.onDetached.bind(this)
 		});
+	}
+
+	disconnect() {
+		const unpublish = { request: "unpublish" };
+
+		this.handle.send({ message: unpublish });
+	}
+
+	getPublisherId(): bigint {
+		return this.publisherId;
 	}
 
 	private onConnected(handle: PluginHandle) {
@@ -64,11 +68,22 @@ export class JanusPublisher extends JanusParticipant {
 			Janus.error(message["error"]);
 			return;
 		}
+		if (message["unpublished"]) {
+			var unpublished = message["unpublished"];
+
+			if (unpublished === "ok") {
+				// That's us.
+				this.handle.hangup();
+				return;
+			}
+		}
 
 		if (event) {
 			if (event === "joined") {
 				this.publisherId = message["id"];
+
 				this.createOffer();
+				this.setState(State.CONNECTING);
 			}
 		}
 
@@ -79,57 +94,19 @@ export class JanusPublisher extends JanusParticipant {
 			// been rejected (e.g., wrong or unsupported codec)
 			const audio = message["audio_codec"];
 			const video = message["video_codec"];
-
-			if (this.localStream && this.localStream.getAudioTracks() && this.localStream.getAudioTracks().length > 0 && !audio) {
-				// Audio has been rejected
-				console.log("Our audio stream has been rejected, viewers won't hear us");
-			}
-
-			if (this.localStream && this.localStream.getVideoTracks() && this.localStream.getVideoTracks().length > 0 && !video) {
-				// Video has been rejected.
-
-				console.log("Our video stream has been rejected, viewers won't see us");
-
-				// Hide the webcam video
-
-			}
 		}
 	}
 
-	private onLocalStream(stream: MediaStream) {
-		this.localStream = stream;
+	private onLocalTrack(track: MediaStreamTrack, active: boolean) {
+		// We use the track ID as name of the element, but it may contain invalid characters.
+		var trackId = track.id.replace(/[{}]/g, "");
 
-		let mediaElement = null;
-
-		// if (track.kind === "audio") {
-		// 	mediaElement = document.createElement("audio");
-		// 	mediaElement.autoplay = true;
-
-		// 	this.view.addAudio(mediaElement);
-		// }
-		// else if (track.kind === "video") {
-		// 	mediaElement = document.createElement("video");
-		// 	mediaElement.playsInline = true;
-		// 	mediaElement.autoplay = true;
-
-		// 	this.view.addVideo(mediaElement);
-		// }
-
-		Janus.attachMediaStream(mediaElement, stream);
-
-		// mediaElement.muted = true;
-
-		const constraints = {
-			width: { min: 640, ideal: 640, max: 1280 },
-			height: { min: 360, ideal: 360 },
-			aspectRatio: { ideal: 1.7777777778 },
-			frameRate: { max: 30 },
-			facingMode: { ideal: "user" }
-		};
-
-		for (const videoTrack of stream.getVideoTracks()) {
-			videoTrack.applyConstraints(constraints);
+		if (!active) {
+			this.removeTrack(trackId, track.kind);
+			return;
 		}
+
+		this.addTrack(trackId, track);
 	}
 
 	private createOffer() {
@@ -144,8 +121,7 @@ export class JanusPublisher extends JanusParticipant {
 				audioSend: true,
 				videoSend: useVideo,
 				audio: {
-					deviceId: this.deviceConstraints.audioDeviceId,
-					echoCancellation: true
+					deviceId: this.deviceConstraints.audioDeviceId
 				},
 				video: {
 					deviceId: this.deviceConstraints.videoDeviceId,
@@ -177,5 +153,55 @@ export class JanusPublisher extends JanusParticipant {
 				this.onError(error);
 			}
 		});
+	}
+
+	private addTrack(id: string, track: MediaStreamTrack) {
+		if (this.streams.has(id)) {
+			// Do not add duplicate tracks.
+			return;
+		}
+
+		if (track.kind === "audio") {
+			// Ignore local audio tracks, they'd generate echo anyway.
+			return;
+		}
+		else if (track.kind === "video") {
+			const mediaElement = document.createElement("video");
+			mediaElement.playsInline = true;
+			mediaElement.autoplay = true;
+			mediaElement.muted = true;
+
+			this.view.addVideo(mediaElement);
+
+			const stream = new MediaStream();
+			stream.addTrack(track.clone());
+
+			this.streams.set(id, stream);
+
+			Janus.attachMediaStream(mediaElement, stream);
+		}
+	}
+
+	private removeTrack(id: string, kind: string) {
+		const stream = this.streams.get(id);
+
+		if (!stream) {
+			return;
+		}
+
+		for (const track of stream.getTracks()) {
+			if (track.kind === kind) {
+				track.stop();
+			}
+		}
+
+		this.streams.delete(id);
+
+		if (kind === "audio") {
+			this.view.removeAudio();
+		}
+		else if (kind === "video") {
+			this.view.removeVideo();
+		}
 	}
 }

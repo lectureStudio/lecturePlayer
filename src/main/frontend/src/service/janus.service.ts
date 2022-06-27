@@ -10,9 +10,7 @@ export class JanusService extends EventTarget {
 
 	private janus: Janus;
 
-	private publisherHandle: PluginHandle;
-
-	private publisherId: Number;
+	private publishers: JanusPublisher[];
 
 	private subscribers: JanusSubscriber[];
 
@@ -32,9 +30,8 @@ export class JanusService extends EventTarget {
 
 		this.serverUrl = serverUrl;
 		this.janus = null;
-		this.publisherHandle = null;
-		this.publisherId = null;
 		this.dataCallback = null;
+		this.publishers = [];
 		this.subscribers = [];
 
 		this.opaqueId = "course-" + Janus.randomString(12);
@@ -64,7 +61,7 @@ export class JanusService extends EventTarget {
 		this.errorCallback = consumer;
 	}
 
-	start() {
+	connect() {
 		// Initialize the library (all console debuggers enabled).
 		Janus.init({
 			// debug: "all",
@@ -81,11 +78,12 @@ export class JanusService extends EventTarget {
 	}
 
 	addPeer(peerId: BigInt) {
-		const publisherId = Number(peerId);
-
-		if (this.publisherId !== publisherId) {
-			this.attachToPublisher({ id: publisherId }, false);
+		if (this.publishers.some(pub => pub.getPublisherId() === peerId)) {
+			// Do not subscribe to our own publisher.
+			return;
 		}
+
+		this.attachToPublisher({ id: peerId }, false);
 	}
 
 	startSpeech(speechConstraints: any) {
@@ -98,13 +96,9 @@ export class JanusService extends EventTarget {
 	}
 
 	stopSpeech() {
-		this.publisherId = null;
-
-		if (this.publisherHandle) {
-			var unpublish = { request: "unpublish" };
-
-			this.publisherHandle.send({ message: unpublish });
-		}
+		this.publishers.forEach(publisher => {
+			publisher.disconnect();
+		});
 	}
 
 	private createSession() {
@@ -141,7 +135,7 @@ export class JanusService extends EventTarget {
 			error: (cause: any) => {
 				console.error("  -- Error attaching plugin...", cause);
 			},
-			detached: () => {
+			ondetached: () => {
 				console.log("detached main...");
 			}
 		});
@@ -184,13 +178,20 @@ export class JanusService extends EventTarget {
 		const publisher: JanusPublisher = event.detail.participant;
 		const state: State = event.detail.state;
 
-		if (state === State.DISCONNECTED) {
-			
+		if (state === State.CONNECTED) {
+			this.publishers.push(publisher);
 		}
+		else if (state === State.DISCONNECTED) {
+			console.log("publisher disconnected");
+		}
+
+		document.dispatchEvent(Utils.createEvent("participant-state", event.detail));
 	}
 
 	private onPublisherDestroyed(event: CustomEvent) {
 		const publisher: JanusPublisher = event.detail.participant;
+
+		this.publishers = this.publishers.filter(pub => pub !== publisher);
 	}
 
 	private attachToPublisher(publisher: any, isPrimary: boolean) {
@@ -218,6 +219,9 @@ export class JanusService extends EventTarget {
 		const subscriber: JanusSubscriber = event.detail.participant;
 		const state: State = event.detail.state;
 
+		if (state === State.CONNECTED) {
+			this.subscribers.push(subscriber);
+		}
 		if (subscriber.isPrimary && state === State.DISCONNECTED) {
 			this.stopSpeech();
 		}
@@ -232,7 +236,10 @@ export class JanusService extends EventTarget {
 
 		if (subscriber.isPrimary) {
 			this.stopSpeech();
-			this.janus.destroy();
+			this.janus.destroy({
+				cleanupHandles: true,
+				unload: false,
+			});
 		}
 	}
 

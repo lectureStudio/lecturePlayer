@@ -89,7 +89,7 @@ export class PlayerController implements ReactiveController {
 			.then(state => {
 				this.viewController.setCourseDocumentState(state);
 
-				this.janusService.start();
+				this.janusService.connect();
 
 				this.setConnectionState(State.CONNECTED);
 			})
@@ -169,6 +169,8 @@ export class PlayerController implements ReactiveController {
 			this.initSpeech();
 		}
 		else {
+			this.janusService.stopSpeech();
+
 			this.cancelSpeech();
 		}
 	}

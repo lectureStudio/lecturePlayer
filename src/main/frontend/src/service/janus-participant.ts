@@ -1,5 +1,6 @@
 import { Janus, PluginHandle } from "janus-gateway";
 import { ParticipantView } from "../component/participant-view/participant-view";
+import { Devices } from "../utils/devices";
 import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
 
@@ -13,12 +14,15 @@ export abstract class JanusParticipant extends EventTarget {
 
 	protected view: ParticipantView;
 
+	protected streams: Map<string, MediaStream>;
+
 
 	constructor() {
 		super();
 
 		this.state = State.CONNECTING;
 		this.view = new ParticipantView();
+		this.streams = new Map();
 	}
 
 	setDeviceConstraints(deviceConstraints: any): void {
@@ -51,7 +55,14 @@ export abstract class JanusParticipant extends EventTarget {
 		this.setState(isConnected ? State.CONNECTED : State.DISCONNECTED);
 	}
 
+	protected onSlowLink(uplink: boolean, lost: number, mid: string) {
+		Janus.warn("Janus reports problems " + (uplink ? "sending" : "receiving") + " " + mid + " packets");
+	}
+
 	protected onCleanUp() {
+		this.streams.forEach(stream => Devices.stopMediaTracks(stream));
+		this.streams.clear();
+
 		this.dispatchEvent(Utils.createEvent("janus-participant-destroyed", {
 			participant: this
 		}));

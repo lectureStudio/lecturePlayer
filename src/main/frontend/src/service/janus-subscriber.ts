@@ -13,8 +13,6 @@ export class JanusSubscriber extends JanusParticipant {
 
 	private readonly opaqueId: string;
 
-	private streams: Map<string, MediaStream>;
-
 	isPrimary = false;
 
 
@@ -25,7 +23,6 @@ export class JanusSubscriber extends JanusParticipant {
 		this.publisherId = publisherId;
 		this.roomId = roomId;
 		this.opaqueId = opaqueId;
-		this.streams = new Map();
 	}
 
 	connect() {
@@ -37,12 +34,13 @@ export class JanusSubscriber extends JanusParticipant {
 			iceState: this.onIceState.bind(this),
 			mediaState: this.onMediaState.bind(this),
 			webrtcState: this.onWebRtcState.bind(this),
+			slowLink: this.onSlowLink.bind(this),
 			onmessage: this.onMessage.bind(this),
 			onremotetrack: this.onRemoteTrack.bind(this),
 			ondataopen: this.onDataOpen.bind(this),
 			ondata: this.onData.bind(this),
 			oncleanup: this.onCleanUp.bind(this),
-			detached: this.onDetached.bind(this)
+			ondetached: this.onDetached.bind(this)
 		});
 	}
 
