@@ -23,6 +23,9 @@ export abstract class JanusParticipant extends EventTarget {
 		this.state = State.CONNECTING;
 		this.view = new ParticipantView();
 		this.streams = new Map();
+
+		this.view.addEventListener("participant-mic-mute", this.onMuteAudio.bind(this));
+		this.view.addEventListener("participant-cam-mute", this.onMuteVideo.bind(this));
 	}
 
 	setDeviceConstraints(deviceConstraints: any): void {
@@ -38,6 +41,24 @@ export abstract class JanusParticipant extends EventTarget {
 			.catch(error => {
 				console.error(error);
 			});
+	}
+
+	protected onMuteAudio() {
+		if (this.view.micMute) {
+			this.handle.muteAudio();
+		}
+		else {
+			this.handle.unmuteAudio();
+		}
+	}
+
+	protected onMuteVideo() {
+		if (this.view.camMute) {
+			this.handle.muteVideo();
+		}
+		else {
+			this.handle.unmuteVideo();
+		}
 	}
 
 	protected onError(cause: any) {

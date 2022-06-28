@@ -19,6 +19,7 @@ export class JanusPublisher extends JanusParticipant {
 		this.janus = janus;
 		this.roomId = roomId;
 		this.opaqueId = opaqueId;
+		this.view.isLocal = true;
 	}
 
 	connect() {
