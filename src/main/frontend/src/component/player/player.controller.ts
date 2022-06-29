@@ -12,6 +12,7 @@ import { State } from '../../utils/state';
 import { Utils } from '../../utils/utils';
 import { t } from '../i18n-mixin';
 import { PlayerViewController } from '../player-view/player-view.controller';
+import { RecordedModal } from '../recorded-modal/recorded.modal';
 import { SettingsModal } from '../settings-modal/settings.modal';
 import { SpeechAcceptedModal } from '../speech-accepted-modal/speech-accepted.modal';
 import { Toaster } from '../toast/toaster';
@@ -33,6 +34,8 @@ export class PlayerController implements ReactiveController {
 
 	private viewController: PlayerViewController;
 
+	private recordedModal: RecordedModal;
+
 	private speechRequestId: bigint;
 
 	private devicesSelected: boolean;
@@ -47,25 +50,19 @@ export class PlayerController implements ReactiveController {
 		this.courseStateService = new CourseStateService("https://" + window.location.host);
 		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus");
 		this.actionProcessor = new StreamActionProcessor();
+		this.recordedModal = new RecordedModal();
 	}
 
 	hostConnected() {
 		this.host.addEventListener("fullscreen", this.onFullscreen.bind(this));
-		this.host.addEventListener("player-settings", () => {
-			this.onSettings();
-		}, false);
+		this.host.addEventListener("player-settings", this.onSettings.bind(this), false);
 		this.host.addEventListener("player-hand-action", this.onHandAction.bind(this), false);
 
+		this.eventService.addEventListener("recording-state", this.onRecordingState.bind(this));
+		this.eventService.addEventListener("stream-state", this.onStreamState.bind(this));
 		this.eventService.addEventListener("speech-state", this.onSpeechState.bind(this));
 
 		this.janusService.setRoomId(this.host.courseId);
-		this.janusService.addEventListener("speech-state", (e: CustomEvent) => {
-			// TODO
-			console.log("speech-state", e.detail);
-		}, false);
-		this.janusService.addEventListener("publisher-state", (e: CustomEvent) => {
-			this.setConnectionState(e.detail.connected);
-		}, false);
 		this.janusService.setOnData(this.actionProcessor.processData.bind(this.actionProcessor));
 	}
 
@@ -92,6 +89,10 @@ export class PlayerController implements ReactiveController {
 				this.janusService.connect();
 
 				this.setConnectionState(State.CONNECTED);
+
+				if (state.courseState.recorded) {
+					this.recordedModal.open();
+				}
 			})
 			.catch(error => {
 				console.error(error);
@@ -172,6 +173,49 @@ export class PlayerController implements ReactiveController {
 			this.janusService.stopSpeech();
 
 			this.cancelSpeech();
+		}
+	}
+
+	private onRecordingState(event: CustomEvent) {
+		const courseId = event.detail.courseId;
+		const started = event.detail.started;
+
+		if (this.host.courseId !== courseId) {
+			return;
+		}
+
+		if (started) {
+			this.recordedModal.open();
+		}
+		else {
+			this.recordedModal.close();
+		}
+	}
+
+	private onStreamState(event: CustomEvent) {
+		const courseId = event.detail.courseId;
+		const started = event.detail.started;
+
+		if (this.host.courseId !== courseId) {
+			return;
+		}
+
+		const mediaProfile = localStorage.getItem("media.profile");
+
+		if (mediaProfile === "classroom") {
+			// this.showFeatures(true);
+			return;
+		}
+
+		if (started) {
+			this.connect();
+		}
+		else {
+			// if (this.quizModal) {
+			// 	this.quizModal.hide();
+			// }
+
+			this.setConnectionState(State.DISCONNECTED);
 		}
 	}
 

@@ -22,15 +22,11 @@ export class JanusService extends EventTarget {
 
 	private dataCallback: (data: ArrayBuffer | Blob) => void;
 
-	private errorCallback: (data: any) => void;
-
 
 	constructor(serverUrl: string) {
 		super();
 
 		this.serverUrl = serverUrl;
-		this.janus = null;
-		this.dataCallback = null;
 		this.publishers = [];
 		this.subscribers = [];
 
@@ -53,12 +49,6 @@ export class JanusService extends EventTarget {
 		Utils.checkFunction(consumer);
 
 		this.dataCallback = consumer;
-	}
-
-	setOnError(consumer: (data: any) => void) {
-		Utils.checkFunction(consumer);
-
-		this.errorCallback = consumer;
 	}
 
 	connect() {
@@ -108,11 +98,7 @@ export class JanusService extends EventTarget {
 				this.attach();
 			},
 			error: (cause: any) => {
-				Janus.error(cause);
-
-				if (this.errorCallback) {
-					this.errorCallback(cause);
-				}
+				console.error(cause);
 			},
 			destroyed: () => {
 				Janus.log("Janus destroyed");
@@ -129,14 +115,8 @@ export class JanusService extends EventTarget {
 
 				this.getParticipants(pluginHandle);
 			},
-			onmessage: (message: any, jsep?: JSEP) => {
-				console.log("init handler", message);
-			},
 			error: (cause: any) => {
 				console.error("  -- Error attaching plugin...", cause);
-			},
-			ondetached: () => {
-				console.log("detached main...");
 			}
 		});
 	}
@@ -237,8 +217,9 @@ export class JanusService extends EventTarget {
 		if (subscriber.isPrimary) {
 			this.stopSpeech();
 			this.janus.destroy({
-				cleanupHandles: true,
-				unload: false,
+				cleanupHandles: false,
+				unload: true,
+				notifyDestroyed: false
 			});
 		}
 	}

@@ -25,13 +25,6 @@ if (typeof window !== "undefined" && "Worker" in window) {
 	pdfjs.GlobalWorkerOptions.workerPort = new PdfjsWorker();
 }
 
-// Load SVG icons.
-function requireAll(r: any) {
-	r.keys().forEach(r);
-}
-
-requireAll(require.context('./icons/', true, /\.svg$/));
-
 i18next
 	.use(LanguageDetector)
 	.init({
@@ -95,6 +88,10 @@ i18next
 					"course.speech.request.speak": "You can speak now",
 					"course.speech.request.ended": "Speech ended",
 					"course.speech.request.without.camera": "Speech is performed without camera.",
+
+					"course.recorded.modal.title": "This course is being recorded",
+					"course.recorded.modal.message": "The recording can be published later. As a digital event, this affects your contributions during active requests to speak.",
+					"course.recorded.modal.accept": "Got it",
 				}
 			}
 		}

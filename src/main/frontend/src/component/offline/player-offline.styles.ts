@@ -10,6 +10,11 @@ export const playerOfflineStyles = css`
 	}
 	:host > strong {
 		color: #6c757d;
-		padding-top: 0.5rem 0 !important;
+		padding-top: 0.5rem;
+	}
+	:host > svg {
+		color: #0d6efd;
+		width: 2.5rem;
+		height: 2.5rem;
 	}
 `;

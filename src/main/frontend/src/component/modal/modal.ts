@@ -15,11 +15,17 @@ export abstract class Modal extends I18nLitElement {
 
 
 	open() {
-		document.body.appendChild(this);
+		if (!document.body.contains(this)) {
+			document.body.appendChild(this);
+		}
+
+		this.show = true;
 	}
 
 	close() {
-		document.body.removeChild(this);
+		if (document.body.contains(this)) {
+			document.body.removeChild(this);
+		}
 
 		this.show = false;
 	}
