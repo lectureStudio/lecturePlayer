@@ -39,7 +39,6 @@ export class SpeakerViewComponent implements OnInit {
             const screenshareStream = this._cameraStreams.find((e => e.isScreenshare === true));
 
             if (screenshareStream) {
-                console.log("=========================HELLO")
               console.log(screenshareStream.feedId);
               this.talkingFeedId = screenshareStream.feedId;
               this.talkingFeedStream = screenshareStream.stream;

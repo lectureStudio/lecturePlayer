@@ -24,6 +24,9 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   public chosenViewMode = 'gallery';
 
+  private prevViewMode = 'gallery';
+  private screenShareActive = false;
+
   public availableViewModes = {
     gallery: 'Gallery view',
     speaker: 'Speaker view'
@@ -42,9 +45,16 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
     this.janusService.screenshareStateSubject.subscribe(val => {
       if (val === "start") {
-        this.chosenViewMode = 'speaker';
+        if (!this.screenShareActive) {
+          this.prevViewMode = this.chosenViewMode;
+          this.chosenViewMode = 'speaker';
+          this.screenShareActive = true;
+        }
       } else {
-        this.chosenViewMode = 'gallery';
+        if (this.screenShareActive) {
+          this.chosenViewMode = this.prevViewMode;
+          this.screenShareActive = false;
+        }
       }
     });
   }
