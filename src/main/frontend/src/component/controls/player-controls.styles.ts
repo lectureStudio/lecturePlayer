@@ -10,7 +10,6 @@ export const playerControlsStyles = css`
 		display: flex;
 		flex-direction: row;
 		background-color: rgba(233, 236, 239, 0.8);
-		border-radius: 0.333em;
 		padding: 0;
 		margin: 0;
 		align-items: center;

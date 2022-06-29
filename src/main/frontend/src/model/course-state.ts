@@ -3,7 +3,7 @@ import { SlideDocument } from "./document";
 
 export interface CourseFeature {
 
-	readonly featureId: string
+	featureId: string
 
 }
 
@@ -12,9 +12,31 @@ export interface MessageFeature extends CourseFeature {
 
 }
 
-export interface QuizFeature {
+export enum QuizType {
 
-	
+	Multiple = "MULTIPLE",
+	Single = "SINGLE",
+	Numeric = "NUMERIC"
+
+}
+
+export interface QuizFeature extends CourseFeature {
+
+	readonly type: QuizType;
+
+	readonly question: string;
+
+	readonly options: string[];
+
+}
+
+export interface QuizState {
+
+	readonly courseId: number;
+
+	readonly started: boolean;
+
+	readonly feature: QuizFeature;
 
 }
 
@@ -32,9 +54,9 @@ export interface CourseState {
 
 	readonly description: string;
 
-	readonly messageFeature: MessageFeature;
+	messageFeature: MessageFeature;
 
-	readonly quizFeature: QuizFeature;
+	quizFeature: QuizFeature;
 
 	readonly protected: boolean;
 

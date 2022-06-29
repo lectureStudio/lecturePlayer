@@ -10,6 +10,7 @@ import './component/loading/player-loading';
 import './component/offline/player-offline';
 import './component/chat-box/chat-box';
 import './component/message-form/message-form';
+import './component/quiz-form/quiz-form';
 import './component/toast/toast';
 import "web-dialog/index";
 

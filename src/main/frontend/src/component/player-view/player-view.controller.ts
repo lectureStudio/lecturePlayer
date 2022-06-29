@@ -1,5 +1,5 @@
 import { ReactiveController } from "lit";
-import { CourseStateDocuments } from "../../model/course-state";
+import { CourseState, CourseStateDocuments, QuizState } from "../../model/course-state";
 import { PlaybackService } from "../../service/playback.service";
 import { State } from "../../utils/state";
 import { ParticipantView } from "../participant-view/participant-view";
@@ -20,11 +20,17 @@ export class PlayerViewController implements ReactiveController {
 	}
 
 	hostConnected() {
+		document.addEventListener("messenger-state", this.onMessengerState.bind(this));
 		document.addEventListener("participant-state", this.onParticipantState.bind(this));
+		document.addEventListener("quiz-state", this.onQuizState.bind(this));
 	}
 
 	getPlaybackService() {
 		return this.playbackService;
+	}
+
+	getCourseState(): CourseState {
+		return this.host.courseState;
 	}
 
 	setCourseDocumentState(state: CourseStateDocuments) {
@@ -36,6 +42,32 @@ export class PlayerViewController implements ReactiveController {
 		}, 500);
 
 		this.playbackService.initialize(this.host, state.courseState, state.documents);
+	}
+
+	private onMessengerState(event: CustomEvent) {
+		const started = event.detail.started;
+		const featureId = event.detail.featureId;
+
+		if (!this.host.courseState.messageFeature) {
+			this.host.courseState.messageFeature = {
+				featureId: null
+			};
+		}
+
+		this.host.courseState.messageFeature.featureId = featureId;
+		this.host.controls.hasChat = started;
+		this.host.chatVisible = started;
+	}
+
+	private onQuizState(event: CustomEvent) {
+		const state: QuizState = event.detail;
+
+		const started = state.started;
+
+		this.host.courseState.quizFeature = state.feature;
+		// this.host.courseState.quizFeature.featureId = featureId;
+		// this.host.controls.hasChat = started;
+		// this.host.chatVisible = started;
 	}
 
 	private onParticipantState(event: CustomEvent) {

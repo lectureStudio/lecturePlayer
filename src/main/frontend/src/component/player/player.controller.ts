@@ -1,6 +1,6 @@
 import { ReactiveController } from 'lit';
 import { StreamActionProcessor } from '../../action/stream-action-processor';
-import { CourseState, CourseStateDocuments } from '../../model/course-state';
+import { CourseState, CourseStateDocuments, QuizState } from '../../model/course-state';
 import { CourseStateDocument } from '../../model/course-state-document';
 import { SlideDocument } from '../../model/document';
 import { CourseStateService } from '../../service/course.service';
@@ -12,6 +12,7 @@ import { State } from '../../utils/state';
 import { Utils } from '../../utils/utils';
 import { t } from '../i18n-mixin';
 import { PlayerViewController } from '../player-view/player-view.controller';
+import { QuizModal } from '../quiz-modal/quiz.modal';
 import { RecordedModal } from '../recorded-modal/recorded.modal';
 import { SettingsModal } from '../settings-modal/settings.modal';
 import { SpeechAcceptedModal } from '../speech-accepted-modal/speech-accepted.modal';
@@ -36,6 +37,8 @@ export class PlayerController implements ReactiveController {
 
 	private recordedModal: RecordedModal;
 
+	private quizModal: QuizModal;
+
 	private speechRequestId: bigint;
 
 	private devicesSelected: boolean;
@@ -57,7 +60,10 @@ export class PlayerController implements ReactiveController {
 		this.host.addEventListener("fullscreen", this.onFullscreen.bind(this));
 		this.host.addEventListener("player-settings", this.onSettings.bind(this), false);
 		this.host.addEventListener("player-hand-action", this.onHandAction.bind(this), false);
+		this.host.addEventListener("player-quiz-action", this.onQuizAction.bind(this), false);
 
+		this.eventService.addEventListener("messenger-state", this.onMessengerState.bind(this));
+		this.eventService.addEventListener("quiz-state", this.onQuizState.bind(this));
 		this.eventService.addEventListener("recording-state", this.onRecordingState.bind(this));
 		this.eventService.addEventListener("stream-state", this.onStreamState.bind(this));
 		this.eventService.addEventListener("speech-state", this.onSpeechState.bind(this));
@@ -176,6 +182,48 @@ export class PlayerController implements ReactiveController {
 		}
 	}
 
+	private onQuizAction() {
+		this.quizModal = new QuizModal();
+		this.quizModal.courseId = this.host.courseId;
+		this.quizModal.feature = this.viewController.getCourseState().quizFeature;
+		this.quizModal.open();
+	}
+
+	private onMessengerState(event: CustomEvent) {
+		const courseId = event.detail.courseId;
+		const started = event.detail.started;
+
+		if (this.host.courseId !== courseId) {
+			return;
+		}
+
+		if (started) {
+
+		}
+		else {
+
+		}
+
+		this.host.dispatchEvent(Utils.createEvent("messenger-state", event.detail));
+	}
+
+	private onQuizState(event: CustomEvent) {
+		const state: QuizState = event.detail;
+
+		if (this.host.courseId !== state.courseId) {
+			return;
+		}
+
+		if (state.started) {
+
+		}
+		else {
+
+		}
+
+		this.host.dispatchEvent(Utils.createEvent("quiz-state", state));
+	}
+
 	private onRecordingState(event: CustomEvent) {
 		const courseId = event.detail.courseId;
 		const started = event.detail.started;
@@ -211,9 +259,11 @@ export class PlayerController implements ReactiveController {
 			this.connect();
 		}
 		else {
-			// if (this.quizModal) {
-			// 	this.quizModal.hide();
-			// }
+			this.recordedModal.close();
+
+			if (this.quizModal) {
+				this.quizModal.close();
+			}
 
 			this.setConnectionState(State.DISCONNECTED);
 		}

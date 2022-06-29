@@ -18,37 +18,37 @@ export class EventService extends EventTarget {
 		eventSource.addEventListener("stream-state", (event) => {
 			console.log("Stream state", event.data);
 
-			const message = JSON.parse(event.data);
+			const state = JSON.parse(event.data);
 
-			this.dispatchEvent(Utils.createEvent("stream-state", message));
+			this.dispatchEvent(Utils.createEvent("stream-state", state));
 		});
 		eventSource.addEventListener("recording-state", (event) => {
 			console.log("Recording state", event.data);
 
-			const message = JSON.parse(event.data);
+			const state = JSON.parse(event.data);
 
-			this.dispatchEvent(Utils.createEvent("recording-state", message));
+			this.dispatchEvent(Utils.createEvent("recording-state", state));
 		});
 		eventSource.addEventListener("speech-state", (event) => {
 			console.log("Speech state", event.data);
 
-			const message = JSON.parse(event.data);
+			const state = JSON.parse(event.data);
 
-			this.dispatchEvent(Utils.createEvent("speech-state", message));
+			this.dispatchEvent(Utils.createEvent("speech-state", state));
 		});
 		eventSource.addEventListener("messenger-state", (event) => {
 			console.log("Messenger state", event.data);
 
-			const message = JSON.parse(event.data);
+			const state = JSON.parse(event.data);
 
-			this.dispatchEvent(Utils.createEvent("messenger-state", message));
+			this.dispatchEvent(Utils.createEvent("messenger-state", state));
 		});
 		eventSource.addEventListener("quiz-state", (event) => {
 			console.log("Quiz state", event.data);
 
-			const message = JSON.parse(event.data);
+			const state = JSON.parse(event.data);
 
-			this.dispatchEvent(Utils.createEvent("quiz-state", message));
+			this.dispatchEvent(Utils.createEvent("quiz-state", state));
 		});
 
 		window.addEventListener("beforeunload", () => {
