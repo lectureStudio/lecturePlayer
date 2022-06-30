@@ -26,9 +26,9 @@
         </div>
 
         <div class="buttongroup">
-            <div class="button" (click)="janusService.startScreenshare()">
-                <mat-icon>screen_share</mat-icon>
-                <p>Screenshare</p>
+            <div class="button" (click)="!janusService.screensharingIsActive && janusService.toggleScreenshare()">
+                <mat-icon [class.red]="janusService.myScreenshareIsActive">{{janusService.myScreenshareIsActive ? 'stop_screen_share' : 'screen_share'}}</mat-icon>
+                <p>{{janusService.myScreenshareIsActive ? 'Stop' : 'Start'}} Screenshare</p>
             </div>
             <div class="button">
                 <mat-icon>edit</mat-icon>

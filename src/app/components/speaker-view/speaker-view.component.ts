@@ -16,7 +16,11 @@ export class SpeakerViewComponent implements OnInit {
     public talkingFeedId: string = '';
 
     @Input() set cameraStreams(value: { stream: MediaStream, feedId: string, userName: string, isScreenshare?: boolean }[]) {
+        const currentCameraStreamsAmount = this._cameraStreams?.length || -1;
         this._cameraStreams = value;
+        if (currentCameraStreamsAmount !== value.length) {
+            this.refreshViews(this.janusService.talkingFeeds);
+        }
     }
 
     constructor(public janusService: JanusService) {
@@ -30,38 +34,49 @@ export class SpeakerViewComponent implements OnInit {
             this.talkingFeedId = this._cameraStreams[0].feedId;
             this.talkingFeedStream = this._cameraStreams[0];
 
-            this.nonTalkingFeedStreams = this.nonTalkingFeeds.map(e => e);
+            this.nonTalkingFeedStreams = this.nonTalkingFeeds;
         }
 
         this.janusService.talkingFeedsSubject.subscribe(talkingFeeds => {
-            const tmpId = Object.keys(talkingFeeds).filter(e => talkingFeeds[e])[0];
+            this.refreshViews(talkingFeeds);
+        });
+    }
 
-            const screenshareStream = this._cameraStreams.find((e => e.isScreenshare === true));
+    refreshViews(talkingFeeds: any) {
+        const tmpId = Object.keys(talkingFeeds).filter(e => talkingFeeds[e])[0];
 
-            if (screenshareStream) {
+        const screenshareStream = this._cameraStreams.find((e => e.isScreenshare === true));
 
-                console.log(screenshareStream.feedId);
-                this.talkingFeedId = screenshareStream.feedId;
-                this.talkingFeedStream = screenshareStream;
-                this.nonTalkingFeedStreams = this.nonTalkingFeeds.map(e => e);
-            } else {
-                if (this._cameraStreams.length === 1) {
-                    this.talkingFeedId = this._cameraStreams[0].feedId;
+        console.log(talkingFeeds);
+
+        if (this.janusService.screensharingIsActive && screenshareStream) {
+            this.talkingFeedId = screenshareStream.feedId;
+            this.talkingFeedStream = screenshareStream;
+            this.nonTalkingFeedStreams = this.nonTalkingFeeds;
+        } else {
+            if (this._cameraStreams.length === 1) {
+                this.talkingFeedId = this._cameraStreams[0].feedId;
+            }
+
+            if (tmpId && tmpId != '' && this.talkingFeedId !== tmpId) {
+                this.talkingFeedId = tmpId;
+                console.log('(Speaker View) Active speaker changed: ', this.talkingFeedId);
+
+                const feedStr = this.talkingFeed;
+                if (feedStr) {
+                    this.talkingFeedStream = feedStr;
                 }
-
-                if (tmpId && tmpId != '' && this.talkingFeedId !== tmpId) {
-                    this.talkingFeedId = tmpId;
-                    console.log('(Speaker View) Active speaker changed: ', this.talkingFeedId);
-
-                    const feedStr = this.talkingFeed;
-                    if (feedStr) {
-                        this.talkingFeedStream = feedStr;
-                    }
-                    this.nonTalkingFeedStreams = this.nonTalkingFeeds.map(e => e);
-                    console.log('Non talking feed streams: ', this.nonTalkingFeedStreams);
+                this.nonTalkingFeedStreams = this.nonTalkingFeeds;
+                console.log('Non talking feed streams: ', this.nonTalkingFeedStreams);
+            } else {
+                const mediaStream = this._cameraStreams.find((e => !e.isScreenshare));
+                if (mediaStream) {
+                    this.talkingFeedId = mediaStream.feedId;
+                    this.talkingFeedStream = mediaStream;
+                    this.nonTalkingFeedStreams = this.nonTalkingFeeds;
                 }
             }
-        });
+        }
     }
 
     get talkingFeed() {
