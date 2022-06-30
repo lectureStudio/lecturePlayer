@@ -762,6 +762,11 @@ export class JanusService {
         }
 
         delete this.subscriptions[id];
+
+        if (feed.display.includes("_screen")) {
+            this.screenshareStateSubject.next("stop");
+            this.talkingFeedsSubject.next(this.talkingFeeds);
+        }
     }
 
     private subscriber_HandleSubscription(sources: any) {
