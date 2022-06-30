@@ -20,11 +20,11 @@ import {JanusService} from "../../services/janus/janus.service";
 })
 export class GalleryViewComponent implements OnInit, AfterContentChecked {
 
-    pageinatedStreams: { stream: MediaStream, feedId: string, userName: string, isMyStream?: boolean, isVideoMuted?: boolean, loadingFinished?: boolean; firstRenderFinished?: boolean }[] = [];
+    pageinatedStreams: { stream: MediaStream, feedId: string, userName: string, isScreenshare?: boolean; isMyStream?: boolean, isVideoMuted?: boolean, loadingFinished?: boolean; firstRenderFinished?: boolean }[] = [];
 
-    _cameraStreams: { stream: MediaStream, feedId: string, userName: string, isMyStream?: boolean, loadingFinished?: boolean; firstRenderFinished?: boolean }[] = [];
+    _cameraStreams: { stream: MediaStream, feedId: string, userName: string, isScreenshare?: boolean, isMyStream?: boolean, loadingFinished?: boolean; firstRenderFinished?: boolean }[] = [];
 
-    @Input() set cameraStreams(value: { stream: MediaStream, feedId: string, userName: string, isMyStream?: boolean }[]) {
+    @Input() set cameraStreams(value: { stream: MediaStream, feedId: string, userName: string, isScreenshare?: boolean, isMyStream?: boolean }[]) {
         let shouldResize = false;
         if (value) {
             if (value.length !== this._cameraStreams.length) {
@@ -160,10 +160,6 @@ export class GalleryViewComponent implements OnInit, AfterContentChecked {
             // calculate dimensions
             element.style.width = width + "px"
             element.style.height = (width * this.ratio) + "px"
-
-            // to show the aspect ratio in demo (optional)
-            element.setAttribute('data-aspect', this.ratios[this.aspect]);
-
         }
     }
 

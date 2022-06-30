@@ -194,3 +194,8 @@ mat-icon {
 .red {
   color: red;
 }
+
+.screenshareNoCrop {
+  object-fit: contain !important;
+  background: #252525;
+}
