@@ -8,16 +8,16 @@ import {JanusService} from "../../services/janus/janus.service";
 })
 export class SpeakerViewComponent implements OnInit {
 
-  public _cameraStreams: {stream: MediaStream, feedId: string, loadingFinished?: boolean; firstRenderFinished?: boolean, isScreenshare?: boolean}[];
+    public _cameraStreams: { stream: MediaStream, feedId: string, userName: string, loadingFinished?: boolean; firstRenderFinished?: boolean, isScreenshare?: boolean }[];
 
-    public talkingFeedStream: MediaStream;
-    public nonTalkingFeedStreams: MediaStream[];
+    public talkingFeedStream: { stream: MediaStream, feedId: string, userName: string };
+    public nonTalkingFeedStreams: { stream: MediaStream, feedId: string, userName: string }[];
 
     public talkingFeedId: string = '';
 
-  @Input() set cameraStreams(value: {stream: MediaStream, feedId: string, isScreenshare?: boolean}[]) {
-    this._cameraStreams = value;
-  }
+    @Input() set cameraStreams(value: { stream: MediaStream, feedId: string, userName: string, isScreenshare?: boolean }[]) {
+        this._cameraStreams = value;
+    }
 
     constructor(public janusService: JanusService) {
     }
@@ -28,9 +28,9 @@ export class SpeakerViewComponent implements OnInit {
     ngAfterContentInit() {
         if (!this.talkingFeedId && !this.talkingFeedStream && this._cameraStreams.length > 0) {
             this.talkingFeedId = this._cameraStreams[0].feedId;
-            this.talkingFeedStream = this._cameraStreams[0].stream;
+            this.talkingFeedStream = this._cameraStreams[0];
 
-            this.nonTalkingFeedStreams = this.nonTalkingFeeds.map(e => e.stream);
+            this.nonTalkingFeedStreams = this.nonTalkingFeeds.map(e => e);
         }
 
         this.janusService.talkingFeedsSubject.subscribe(talkingFeeds => {
@@ -40,28 +40,27 @@ export class SpeakerViewComponent implements OnInit {
 
             if (screenshareStream) {
                 console.log("=========================HELLO")
-              console.log(screenshareStream.feedId);
-              this.talkingFeedId = screenshareStream.feedId;
-              this.talkingFeedStream = screenshareStream.stream;
-              this.nonTalkingFeedStreams = this.nonTalkingFeeds.map(e => e.stream);
+                console.log(screenshareStream.feedId);
+                this.talkingFeedId = screenshareStream.feedId;
+                this.talkingFeedStream = screenshareStream;
+                this.nonTalkingFeedStreams = this.nonTalkingFeeds.map(e => e);
             } else {
-              if (this._cameraStreams.length === 1) {
-                this.talkingFeedId = this._cameraStreams[0].feedId;
-              }
-
-              if (tmpId && tmpId != '' && this.talkingFeedId !== tmpId) {
-                this.talkingFeedId = tmpId;
-                console.log('(Speaker View) Active speaker changed: ', this.talkingFeedId);
-
-                const feedStr = this.talkingFeed?.stream;
-                if (feedStr) {
-                  this.talkingFeedStream = feedStr;
+                if (this._cameraStreams.length === 1) {
+                    this.talkingFeedId = this._cameraStreams[0].feedId;
                 }
-                this.nonTalkingFeedStreams = this.nonTalkingFeeds.map(e => e.stream);
-                console.log('Non talking feed streams: ', this.nonTalkingFeedStreams);
-            }
-          }
 
+                if (tmpId && tmpId != '' && this.talkingFeedId !== tmpId) {
+                    this.talkingFeedId = tmpId;
+                    console.log('(Speaker View) Active speaker changed: ', this.talkingFeedId);
+
+                    const feedStr = this.talkingFeed;
+                    if (feedStr) {
+                        this.talkingFeedStream = feedStr;
+                    }
+                    this.nonTalkingFeedStreams = this.nonTalkingFeeds.map(e => e);
+                    console.log('Non talking feed streams: ', this.nonTalkingFeedStreams);
+                }
+            }
         });
     }
 

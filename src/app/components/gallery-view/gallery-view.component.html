@@ -9,8 +9,26 @@
             </div>
         </div>
         <div #dish class="dish">
-            <div [class.isTalking]="janusService.talkingFeeds[cameraStream.feedId]" [class.animatedDiv]="!cameraStream.firstRenderFinished" *ngFor="let cameraStream of pageinatedStreams">
-                <video [class.animatedVideo]="!cameraStream.firstRenderFinished" (loadedmetadata)="cameraStream.loadingFinished = true" [class.loading]="!cameraStream.loadingFinished" autoplay playsinline [srcObject]="cameraStream.stream"></video>
+            <div (mouseover)="mouseHoverFeedId = cameraStream.feedId" (mouseleave)="mouseHoverFeedId = ''" [class.isTalking]="janusService.talkingFeeds[cameraStream.feedId]"
+                 [class.animatedDiv]="!cameraStream.firstRenderFinished" *ngFor="let cameraStream of pageinatedStreams">
+                <video *ngIf="!cameraStream.isVideoMuted" [class.animatedVideo]="!cameraStream.firstRenderFinished"
+                       (loadedmetadata)="cameraStream.loadingFinished = true"
+                       [class.loading]="!cameraStream.loadingFinished" autoplay playsinline
+                       [srcObject]="cameraStream.stream"></video>
+                <div class="videoUnavailable" *ngIf="cameraStream.isVideoMuted">
+                    <mat-icon>videocam_off</mat-icon>
+                </div>
+                <div class="usernameContainer" [class.tinyViewUsernameContainer]="isTinyView">
+                    {{cameraStream.userName}}
+                </div>
+                <div *ngIf="!cameraStream.isMyStream && mouseHoverFeedId === cameraStream.feedId" class="controlButtons">
+                    <div class="button" (click)="cameraStream.isVideoMuted = !cameraStream.isVideoMuted">
+                        <mat-icon [class.tinyView]="isTinyView" [class.red]="cameraStream.isVideoMuted">{{cameraStream.isVideoMuted ? 'videocam_off' : 'videocam'}}</mat-icon>
+                    </div>
+                    <div class="button" (click)="muteAudioForFeedId(cameraStream.feedId)">
+                        <mat-icon [class.tinyView]="isTinyView" [class.red]="janusService.locallyMutedRemoteAudioFeeds[cameraStream.feedId] === true">{{janusService.locallyMutedRemoteAudioFeeds[cameraStream.feedId] === true ? 'mic_off' : 'mic'}}</mat-icon>
+                    </div>
+                </div>
             </div>
         </div>
         <div *ngIf="allowNavigation && _cameraStreams.length > maximumAmountOfCamsPerPage" class="buttonContainer">

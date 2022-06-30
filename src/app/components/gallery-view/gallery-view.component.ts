@@ -20,37 +20,30 @@ import {JanusService} from "../../services/janus/janus.service";
 })
 export class GalleryViewComponent implements OnInit, AfterContentChecked {
 
-    pageinatedStreams: { stream: MediaStream, feedId: string, loadingFinished?: boolean; firstRenderFinished?: boolean }[] = [];
+    pageinatedStreams: { stream: MediaStream, feedId: string, userName: string, isMyStream?: boolean, isVideoMuted?: boolean, loadingFinished?: boolean; firstRenderFinished?: boolean }[] = [];
 
-    _cameraStreams: { stream: MediaStream, feedId: string, loadingFinished?: boolean; firstRenderFinished?: boolean }[] = [];
+    _cameraStreams: { stream: MediaStream, feedId: string, userName: string, isMyStream?: boolean, loadingFinished?: boolean; firstRenderFinished?: boolean }[] = [];
 
-    @Input() set cameraStreams(value: { stream: MediaStream, feedId: string }[]) {
-        this._cameraStreams = value;
-        this.pageinatedStreams = this._cameraStreams.sort().slice(this.currentPage * this.maximumAmountOfCamsPerPage, this.currentPage * this.maximumAmountOfCamsPerPage + this.maximumAmountOfCamsPerPage);
-
-        if (this.dish) {
-            this.render();
-            this.resize();
-        }
-    }
-
-    @Input() set rawCameraStreams(value: MediaStream[]) {
+    @Input() set cameraStreams(value: { stream: MediaStream, feedId: string, userName: string, isMyStream?: boolean }[]) {
         let shouldResize = false;
         if (value) {
             if (value.length !== this._cameraStreams.length) {
                 shouldResize = true;
             }
-            this._cameraStreams = value.map(e => {
+        }
+
+        if (this.skipAnimations) {
+            value = value.map(e => {
                 return {
-                    stream: e,
-                    feedId: e.id,
+                    ...e,
                     firstRenderFinished: true,
                     loadingFinished: true
                 }
             });
-
-            this.pageinatedStreams = this._cameraStreams.sort().slice(this.currentPage * this.maximumAmountOfCamsPerPage, this.currentPage * this.maximumAmountOfCamsPerPage + this.maximumAmountOfCamsPerPage);
         }
+
+        this._cameraStreams = value;
+        this.pageinatedStreams = this._cameraStreams.sort().slice(this.currentPage * this.maximumAmountOfCamsPerPage, this.currentPage * this.maximumAmountOfCamsPerPage + this.maximumAmountOfCamsPerPage);
 
         if (this.dish && shouldResize) {
             this.render();
@@ -58,8 +51,13 @@ export class GalleryViewComponent implements OnInit, AfterContentChecked {
         }
     }
 
+    @Input() skipAnimations = false;
+
     @Input()
     allowNavigation: boolean = true;
+
+    @Input()
+    isTinyView = false;
 
     @ViewChild("renderSpace")
     renderSpace: ElementRef;
@@ -81,6 +79,8 @@ export class GalleryViewComponent implements OnInit, AfterContentChecked {
     // Pagination
     public maximumAmountOfCamsPerPage = 6;
     private currentPage = 0;
+
+    public mouseHoverFeedId = '';
 
     constructor(public janusService: JanusService) {
     }
@@ -232,5 +232,9 @@ export class GalleryViewComponent implements OnInit, AfterContentChecked {
 
         }
         this.resize();
+    }
+
+    muteAudioForFeedId(feedId: string) {
+        this.janusService.muteRemoteAudioLocallyForFeedId(feedId);
     }
 }

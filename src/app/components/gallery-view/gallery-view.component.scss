@@ -19,11 +19,17 @@
 }
 
 mat-icon {
-  font-size: 50px;
-  width: 50px;
-  height: 50px;
+  font-size: 5vw;
+  width: 5vw;
+  height: 5vw;
   margin: 0;
   color: white;
+}
+
+.tinyView {
+  font-size: 1.5vw !important;
+  width: 1.5vw !important;
+  height: 1.5vw !important;
 }
 
 .button:hover {
@@ -80,7 +86,7 @@ mat-icon {
 }
 
 /* Video (check the nice property object-fit) */
-.dish>div video {
+.dish>div video, .videoUnavailable {
   position: absolute;
   right: 0;
   object-fit: cover;
@@ -96,6 +102,13 @@ mat-icon {
   overflow: hidden;
 }
 
+.videoUnavailable {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #666666;
+}
 
 .isTalking {
   border-color: lawngreen !important;
@@ -107,16 +120,28 @@ mat-icon {
 }
 
 /* Aspect Ratio Number */
-.dish div:after {
+.usernameContainer {
   color: #aaa;
-  font-size: 13px;
+  font-size: 1em;
   font-family: Arial, Helvetica, sans-serif;
   position: absolute;
-  bottom: 20px;
-  left: 23px;
+  left: 1%;
+  bottom: 1%;
   font-weight: 100;
-  content: attr(data-aspect);
   display: block;
+}
+
+.tinyViewUsernameContainer {
+  font-size: 0.75vw !important;
+}
+
+.controlButtons {
+  position: absolute;
+  top: 0.5em;
+  display: flex;
+  flex-direction: row;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 /* Gray Diagonal */
@@ -151,4 +176,21 @@ mat-icon {
     opacity: 1;
     transform: scale(1) translateY(0);
   }
+}
+
+.button {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5em;
+  max-width: 5vw;
+  width: 100%;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+}
+
+.red {
+  color: red;
 }

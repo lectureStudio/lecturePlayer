@@ -82,5 +82,7 @@
 
 
 <div class="not-rendered">
-    <audio autoplay *ngFor="let audioStream of audioStreams" [srcObject]="audioStream.stream"></audio>
+    <ng-container *ngFor="let audioStream of audioStreams">
+        <audio *ngIf="!janusService.locallyMutedRemoteAudioFeeds[audioStream.feedId]" autoplay [srcObject]="audioStream.stream"></audio>
+    </ng-container>
 </div>

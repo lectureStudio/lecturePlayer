@@ -58,7 +58,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   }
 
   get videoStreams() {
-    return Object.values(this.janusService.remoteTracks).filter(e => e.stream.getVideoTracks().length > 0);
+    return Object.values({...this.janusService.remoteTracks, ...this.janusService.localTracks}).filter(e => e.stream.getVideoTracks().length > 0);
   }
 
   leave() {

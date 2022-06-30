@@ -4,10 +4,10 @@
 
         </div>
         <div class="attendants">
-            <app-gallery-view [allowNavigation]="true" [rawCameraStreams]="nonTalkingFeedStreams"></app-gallery-view>
+            <app-gallery-view [isTinyView]="true" [skipAnimations]="true" [allowNavigation]="true" [cameraStreams]="nonTalkingFeedStreams"></app-gallery-view>
         </div>
     </div>
     <div class="speakerContainer">
-        <app-gallery-view [allowNavigation]="false" [rawCameraStreams]="[talkingFeedStream]"></app-gallery-view>
+        <app-gallery-view [skipAnimations]="true" [allowNavigation]="false" [cameraStreams]="[talkingFeedStream]"></app-gallery-view>
     </div>
 </div>

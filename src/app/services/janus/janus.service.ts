@@ -5,6 +5,14 @@ import {DestroyOptions, Janus, JanusJS} from "janus-gateway";
 import * as hark from 'hark';
 import {Subject} from "rxjs";
 
+export interface DisplayableStream {
+    stream: MediaStream;
+    feedId: string;
+    isScreenshare?: boolean;
+    userName: string;
+    isMyStream?: boolean;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -35,7 +43,7 @@ export class JanusService {
     private myPrivateId?: number;
     private myStream: any;
 
-    private localTracks: any = {};
+    public localTracks: { [key: string]: DisplayableStream } = {};
 
     private opaqueId?: string;
 
@@ -48,7 +56,7 @@ export class JanusService {
 
     private subscriptions: any = {};
     private feeds: any = {};
-    public remoteTracks: { [key: string]: { stream: MediaStream, feedId: string, isScreenshare?: boolean } } = {};
+    public remoteTracks: { [key: string]: DisplayableStream } = {};
     private simulcastStarted: any = {};
     private mids: any = {};
     public slots: any = {};
@@ -68,6 +76,8 @@ export class JanusService {
     private doSimulcast = false;
 
     private subscriberMode = false;
+
+    public locallyMutedRemoteAudioFeeds: { [key: string]: boolean } = {};
 
     constructor(private ngZone: NgZone) {
         this.myRoomId = 1;
@@ -197,7 +207,7 @@ export class JanusService {
                             const removedStream = this.localTracks[trackId];
                             if (removedStream) {
                                 try {
-                                    var tracks = removedStream.getTracks();
+                                    var tracks = removedStream.stream.getTracks();
                                     for (var i in tracks) {
                                         var mst = tracks[i];
                                         if (mst)
@@ -229,12 +239,17 @@ export class JanusService {
                             }
                         } else {
                             // New local video track, create a stream out of it
-                            stream = new MediaStream();
-                            stream.addTrack(track.clone());
-                            this.localTracks[trackId] = stream;
+                            const newStream = new MediaStream();
+                            newStream.addTrack(track.clone());
+                            this.localTracks[trackId] = {
+                                stream: newStream,
+                                feedId: trackId,
+                                userName: this.myUsername + ' (You)',
+                                isMyStream: true
+                            };
                             Janus.log("Created local stream:", stream);
-                            Janus.log(stream.getTracks());
-                            Janus.log(stream.getVideoTracks());
+                            Janus.log(newStream.getTracks());
+                            Janus.log(newStream.getVideoTracks());
 
                             for (const [key, value] of Object.entries(this.videoDevices)) {
                                 if (value == track.label) {
@@ -486,7 +501,7 @@ export class JanusService {
                 sources = [];
             }
 
-            if(id === this.screenshareId || id === this.myId) {
+            if (id === this.screenshareId || id === this.myId) {
                 continue;
             }
             sources.push(streams);
@@ -657,7 +672,8 @@ export class JanusService {
                     this.ngZone.run(() => {
                         this.remoteTracks[mid] = {
                             stream: newStream,
-                            feedId: feed.id
+                            feedId: feed.id,
+                            userName: feed.display
                         };
                     });
 
@@ -707,7 +723,8 @@ export class JanusService {
                         this.remoteTracks[mid] = {
                             stream: newStream,
                             feedId: feed.id,
-                            isScreenshare: isScreenshare
+                            isScreenshare: isScreenshare,
+                            userName: feed.display
                         };
                     });
                     Janus.log("Created remote video stream: ", newStream, "for feed: ", feed);
@@ -871,7 +888,13 @@ export class JanusService {
                         // Here, if subscriber_mode === true hide videojoin, else publishOwnFeed
 
                         this.screenshareJanusHandle.createOffer({
-                            media: {audioRecv: false, videoRecv: false, audioSend: false, videoSend: true, video: "screen"},
+                            media: {
+                                audioRecv: false,
+                                videoRecv: false,
+                                audioSend: false,
+                                videoSend: true,
+                                video: "screen"
+                            },
                             simulcast: this.doSimulcast,
                             success: (jsep: any) => {
                                 Janus.debug("Got a publisher SDP!", jsep);
@@ -938,7 +961,7 @@ export class JanusService {
                     const removedStream = this.localTracks[trackId];
                     if (removedStream) {
                         try {
-                            var tracks = removedStream.getTracks();
+                            var tracks = removedStream.stream.getTracks();
                             for (var i in tracks) {
                                 var mst = tracks[i];
                                 if (mst)
@@ -964,12 +987,18 @@ export class JanusService {
                     // Local audio is ignored
                 } else {
                     // New local video track, create a stream out of it
-                    stream = new MediaStream();
-                    stream.addTrack(track.clone());
-                    this.localTracks[trackId] = stream;
+                    const newStream = new MediaStream();
+                    newStream.addTrack(track.clone());
+                    this.localTracks[trackId] = {
+                        stream: newStream,
+                        feedId: trackId,
+                        isScreenshare: true,
+                        userName: 'My Screenshare',
+                        isMyStream: true
+                    };
                     Janus.log("Created local stream:", stream);
-                    Janus.log(stream.getTracks());
-                    Janus.log(stream.getVideoTracks());
+                    Janus.log(newStream.getTracks());
+                    Janus.log(newStream.getVideoTracks());
                 }
             },
             onremotetrack: (track: any, mid: any, on: any) => {
@@ -989,5 +1018,13 @@ export class JanusService {
     public stopScreenshare() {
         const unpublish = {request: "unpublish"};
         this.screenshareJanusHandle.send({message: unpublish});
+    }
+
+    public muteRemoteAudioLocallyForFeedId(feedId: string) {
+        let mute = true;
+        if (this.locallyMutedRemoteAudioFeeds[feedId]) {
+            mute = false;
+        }
+        this.locallyMutedRemoteAudioFeeds[feedId] = mute;
     }
 }
