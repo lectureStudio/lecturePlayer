@@ -1,42 +1,22 @@
+import { MessageFeature, QuizFeature } from "./course-feature";
 import { CourseStateDocument } from "./course-state-document";
 import { SlideDocument } from "./document";
 
-export interface CourseFeature {
-
-	featureId: string
-
-}
-
-export interface MessageFeature extends CourseFeature {
-
-
-}
-
-export enum QuizType {
-
-	Multiple = "MULTIPLE",
-	Single = "SINGLE",
-	Numeric = "NUMERIC"
-
-}
-
-export interface QuizFeature extends CourseFeature {
-
-	readonly type: QuizType;
-
-	readonly question: string;
-
-	readonly options: string[];
-
-}
-
-export interface QuizState {
+export interface CourseFeatureState<Feature> {
 
 	readonly courseId: number;
 
 	readonly started: boolean;
 
-	readonly feature: QuizFeature;
+	readonly feature: Feature;
+
+}
+
+export interface MessengerState extends CourseFeatureState<MessageFeature> {
+
+}
+
+export interface QuizState extends CourseFeatureState<QuizFeature> {
 
 }
 

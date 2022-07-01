@@ -106,6 +106,7 @@ export const playerControlsStyles = css`
 	}
 
 	:host #volumeSlider {
+		display: none;
 		margin: 10px 2.5%;
 		width: 150px;
 	}
@@ -241,6 +242,10 @@ export const playerControlsStyles = css`
 		color: #007db5;
 	}
 
+	:host(:not([hasQuiz])) #quiz-button {
+		display: none;
+	}
+
 	:host([handUp]) #hand-button {
 		background-color: rgba(25, 135, 84, 1);
 	}
@@ -283,6 +288,12 @@ export const playerControlsStyles = css`
 		100% {
 			-moz-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
 			box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+		}
+	}
+
+	@media (min-width: 576px) {
+		:host #volumeSlider {
+			display: block;
 		}
 	}
 `;

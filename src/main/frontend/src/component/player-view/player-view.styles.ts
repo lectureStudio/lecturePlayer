@@ -3,7 +3,7 @@ import { css } from 'lit';
 export const playerViewStyles = css`
 	:host {
 		display: flex;
-		flex-direction: row;
+		flex-direction: column;
 		background-color: rgb(248, 249, 250);
 		width: 100%;
 		height: 100%;
@@ -47,10 +47,9 @@ export const playerViewStyles = css`
 	}
 	:host .video-feeds {
 		display: flex;
-		flex-direction: column;
+		flex-direction: row;
 		order: 1;
 	}
-
 	:host .chat-container {
 		display: none;
 		flex-direction: row;
@@ -63,23 +62,19 @@ export const playerViewStyles = css`
 
 
 	@media (min-width: 576px) {
+		:host {
+			flex-direction: row;
+		}
 		:host .center-container {
 			order: 0;
 		}
-		:host .chat-container {
-			display: block;
-			order: 6;
-		}
-	}
-	@media (min-width: 768px) {
-		.flex-md-column {
+		:host .video-feeds {
+			order: 2;
 			flex-direction: column;
 		}
-		.order-md-0 {
-			order: 0;
-		}
-		.order-md-2 {
-			order: 2;
+		:host .chat-container {
+			order: 6;
+			display: block;
 		}
 	}
 `;

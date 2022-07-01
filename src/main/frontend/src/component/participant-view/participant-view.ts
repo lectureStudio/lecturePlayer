@@ -1,4 +1,4 @@
-import { html, svg } from "lit";
+import { html } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import { Utils } from "../../utils/utils";
 import { I18nLitElement } from "../i18n-mixin";
@@ -12,7 +12,7 @@ export class ParticipantView extends I18nLitElement {
 	];
 
 	@property()
-	name: string = "Alex Andres";
+	name: string;
 
 	@property({ type: Boolean, reflect: true })
 	micMute: boolean = false;
@@ -32,11 +32,15 @@ export class ParticipantView extends I18nLitElement {
 	@query("audio")
 	audio: HTMLAudioElement;
 
+	@query("video")
+	video: HTMLVideoElement;
+
 
 	constructor() {
 		super();
 
 		document.addEventListener("player-volume", this.onAudioVolume.bind(this));
+		document.addEventListener("player-start-media", this.onStartMediaPlayback.bind(this));
 	}
 
 	addAudio(audio: HTMLAudioElement) {
@@ -50,6 +54,13 @@ export class ParticipantView extends I18nLitElement {
 	addVideo(video: HTMLVideoElement) {
 		this.container.appendChild(video);
 		this.hasVideo = true;
+
+		video.play()
+			.catch(error => {
+				if (error.name == "NotAllowedError") {
+					this.dispatchEvent(Utils.createEvent("participant-video-play-error"));
+				}
+			});
 	}
 
 	removeVideo() {
@@ -62,6 +73,12 @@ export class ParticipantView extends I18nLitElement {
 
 		if (element) {
 			this.container.removeChild(element);
+		}
+	}
+
+	private onStartMediaPlayback(e: CustomEvent) {
+		if (this.video) {
+			this.video.play();
 		}
 	}
 

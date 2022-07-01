@@ -1,8 +1,8 @@
 import { html, TemplateResult } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { customElement, property } from 'lit/decorators.js';
-import { QuizFeature, QuizType } from '../../model/course-state';
-import { I18nLitElement, t } from '../i18n-mixin';
+import { I18nLitElement } from '../i18n-mixin';
+import { QuizFeature, QuizType } from '../../model/course-feature';
 import { quizFormStyles } from './quiz-form.styles';
 
 @customElement('quiz-form')
@@ -12,9 +12,6 @@ export class QuizForm extends I18nLitElement {
 		I18nLitElement.styles,
 		quizFormStyles,
 	];
-
-	@property()
-	courseId: number;
 
 	@property()
 	feature: QuizFeature;
@@ -55,11 +52,11 @@ export class QuizForm extends I18nLitElement {
 		});
 
 		return html`
-			<form id="course-quiz-form" action="/course/quiz/post/${this.courseId}" method="post">
-				<input type="hidden" name="serviceId" value="${this.feature.featureId}" />
+			<form id="quiz-form">
+				<input type="hidden" name="serviceId" value="${this.feature?.featureId}" />
 
 				<div class="mb-1">
-					${unsafeHTML(this.feature.question)}
+					${unsafeHTML(this.feature?.question)}
 				</div>
 				<div class="py-2">
 					${itemTemplates}

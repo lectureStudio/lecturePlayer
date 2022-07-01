@@ -1,6 +1,6 @@
 import { ReactiveController } from 'lit';
 import { StreamActionProcessor } from '../../action/stream-action-processor';
-import { CourseState, CourseStateDocuments, QuizState } from '../../model/course-state';
+import { CourseState, CourseStateDocuments, MessengerState, QuizState } from '../../model/course-state';
 import { CourseStateDocument } from '../../model/course-state-document';
 import { SlideDocument } from '../../model/document';
 import { CourseStateService } from '../../service/course.service';
@@ -10,7 +10,10 @@ import { SpeechService } from '../../service/speech.service';
 import { Devices } from '../../utils/devices';
 import { State } from '../../utils/state';
 import { Utils } from '../../utils/utils';
+import { ChatModal } from '../chat-modal/chat.modal';
+import { EntryModal } from '../entry-modal/entry.modal';
 import { t } from '../i18n-mixin';
+import { Modal } from '../modal/modal';
 import { PlayerViewController } from '../player-view/player-view.controller';
 import { QuizModal } from '../quiz-modal/quiz.modal';
 import { RecordedModal } from '../recorded-modal/recorded.modal';
@@ -33,15 +36,15 @@ export class PlayerController implements ReactiveController {
 
 	private readonly actionProcessor: StreamActionProcessor;
 
+	private readonly maxWidth576Query: MediaQueryList;
+
 	private viewController: PlayerViewController;
-
-	private recordedModal: RecordedModal;
-
-	private quizModal: QuizModal;
 
 	private speechRequestId: bigint;
 
 	private devicesSelected: boolean;
+
+	private modals: Map<string, Modal>;
 
 
 	constructor(host: LecturePlayer) {
@@ -53,7 +56,11 @@ export class PlayerController implements ReactiveController {
 		this.courseStateService = new CourseStateService("https://" + window.location.host);
 		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus");
 		this.actionProcessor = new StreamActionProcessor();
-		this.recordedModal = new RecordedModal();
+		this.modals = new Map();
+
+		this.registerModal(RecordedModal.name, new RecordedModal(), false);
+
+		this.maxWidth576Query = window.matchMedia("(max-width: 576px)");
 	}
 
 	hostConnected() {
@@ -61,6 +68,8 @@ export class PlayerController implements ReactiveController {
 		this.host.addEventListener("player-settings", this.onSettings.bind(this), false);
 		this.host.addEventListener("player-hand-action", this.onHandAction.bind(this), false);
 		this.host.addEventListener("player-quiz-action", this.onQuizAction.bind(this), false);
+		this.host.addEventListener("player-chat-visibility", this.onChatVisibility.bind(this), false);
+		this.host.addEventListener("participant-video-play-error", this.onMediaPlayError.bind(this), false);
 
 		this.eventService.addEventListener("messenger-state", this.onMessengerState.bind(this));
 		this.eventService.addEventListener("quiz-state", this.onQuizState.bind(this));
@@ -97,7 +106,7 @@ export class PlayerController implements ReactiveController {
 				this.setConnectionState(State.CONNECTED);
 
 				if (state.courseState.recorded) {
-					this.recordedModal.open();
+					this.openModal(RecordedModal.name);
 				}
 			})
 			.catch(error => {
@@ -167,6 +176,8 @@ export class PlayerController implements ReactiveController {
 	private onSettings() {
 		const settingsModal = new SettingsModal();
 		settingsModal.open();
+
+		this.registerModal(SettingsModal.name, settingsModal);
 	}
 
 	private onHandAction(event: CustomEvent) {
@@ -183,28 +194,37 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onQuizAction() {
-		this.quizModal = new QuizModal();
-		this.quizModal.courseId = this.host.courseId;
-		this.quizModal.feature = this.viewController.getCourseState().quizFeature;
-		this.quizModal.open();
+		const quizModal = new QuizModal();
+		quizModal.courseId = this.host.courseId;
+		quizModal.feature = this.viewController.getCourseState().quizFeature;
+		quizModal.open();
+
+		this.registerModal(QuizModal.name, quizModal);
+	}
+
+	private onChatVisibility() {
+		if (this.maxWidth576Query.matches) {
+			const chatModal = new ChatModal();
+			chatModal.courseId = this.host.courseId;
+			chatModal.feature = this.viewController.getCourseState().messageFeature;
+			chatModal.open();
+
+			this.registerModal(ChatModal.name, chatModal);
+		}
 	}
 
 	private onMessengerState(event: CustomEvent) {
-		const courseId = event.detail.courseId;
-		const started = event.detail.started;
+		const state: MessengerState = event.detail;
 
-		if (this.host.courseId !== courseId) {
+		if (this.host.courseId !== state.courseId) {
 			return;
 		}
 
-		if (started) {
-
-		}
-		else {
-
+		if (!state.started) {
+			this.closeAndDeleteModal(ChatModal.name);
 		}
 
-		this.host.dispatchEvent(Utils.createEvent("messenger-state", event.detail));
+		this.host.dispatchEvent(Utils.createEvent("messenger-state", state));
 	}
 
 	private onQuizState(event: CustomEvent) {
@@ -214,11 +234,8 @@ export class PlayerController implements ReactiveController {
 			return;
 		}
 
-		if (state.started) {
-
-		}
-		else {
-
+		if (!state.started) {
+			this.closeAndDeleteModal(QuizModal.name);
 		}
 
 		this.host.dispatchEvent(Utils.createEvent("quiz-state", state));
@@ -233,10 +250,10 @@ export class PlayerController implements ReactiveController {
 		}
 
 		if (started) {
-			this.recordedModal.open();
+			this.openModal(RecordedModal.name);
 		}
 		else {
-			this.recordedModal.close();
+			this.closeModal(RecordedModal.name);
 		}
 	}
 
@@ -259,12 +276,7 @@ export class PlayerController implements ReactiveController {
 			this.connect();
 		}
 		else {
-			this.recordedModal.close();
-
-			if (this.quizModal) {
-				this.quizModal.close();
-			}
-
+			this.closeAllModals();
 			this.setConnectionState(State.DISCONNECTED);
 		}
 	}
@@ -360,6 +372,8 @@ export class PlayerController implements ReactiveController {
 				Devices.stopMediaTracks(stream);
 			});
 			speechModal.open();
+
+			this.registerModal(SpeechAcceptedModal.name, speechModal);
 		}
 		else {
 			// Speech has been aborted by the remote peer.
@@ -377,5 +391,60 @@ export class PlayerController implements ReactiveController {
 			this.sendSpeechRequest();
 		});
 		settingsModal.open();
+
+		this.registerModal(SettingsModal.name, settingsModal);
+	}
+
+	private onMediaPlayError() {
+		const entryModal = new EntryModal();
+		entryModal.addEventListener("modal-closed", () => {
+			this.host.dispatchEvent(Utils.createEvent("player-start-media"));
+		});
+		entryModal.open();
+
+		this.registerModal(EntryModal.name, entryModal);
+	}
+
+	private registerModal(name: string, modal: Modal, autoRemove: boolean = true) {
+		if (autoRemove) {
+			modal.addEventListener("modal-closed", () => {
+				this.closeAndDeleteModal(name);
+			});
+		}
+
+		this.modals.set(name, modal);
+	}
+
+	private openModal(name: string) {
+		const modal = this.modals.get(name);
+
+		if (modal) {
+			modal.open();
+		}
+	}
+
+	private closeModal(name: string) {
+		const modal = this.modals.get(name);
+
+		if (modal) {
+			modal.close();
+		}
+	}
+
+	private closeAndDeleteModal(name: string) {
+		const modal = this.modals.get(name);
+
+		if (modal) {
+			modal.close();
+
+			this.modals.delete(name);
+		}
+	}
+
+	private closeAllModals() {
+		this.modals.forEach((modal: Modal) => {
+			modal.close();
+		});
+		this.modals.clear();
 	}
 }

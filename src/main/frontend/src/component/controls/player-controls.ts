@@ -1,5 +1,6 @@
 import { html, PropertyValues } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
+import { CourseState } from '../../model/course-state';
 import { Utils } from '../../utils/utils';
 import { I18nLitElement } from '../i18n-mixin';
 import { playerControlsStyles } from './player-controls.styles';
@@ -10,6 +11,14 @@ export class PlayerControls extends I18nLitElement {
 	static styles = [
 		playerControlsStyles,
 	];
+
+	@state({
+		hasChanged(value: CourseState, oldValue: CourseState): boolean {
+			// React on nested property changes.
+			return true;
+		}
+	})
+	courseState: CourseState;
 
 	@query('.slide-canvas')
 	slideCanvas: HTMLCanvasElement;
@@ -38,6 +47,9 @@ export class PlayerControls extends I18nLitElement {
 	duration: number;
 
 	@property({ type: Boolean, reflect: true })
+	hasQuiz: boolean = false;
+
+	@property({ type: Boolean, reflect: true })
 	hasChat: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
@@ -50,7 +62,14 @@ export class PlayerControls extends I18nLitElement {
 	handUp: boolean = false;
 
 
-	firstUpdated(_changedProperties: PropertyValues): void {
+	protected updated(properties: PropertyValues): void {
+		if (properties.has("courseState")) {
+			this.hasChat = this.courseState?.messageFeature != null;
+			this.hasQuiz = this.courseState?.quizFeature != null;
+		}
+	}
+
+	protected firstUpdated(): void {
 		// Observe fullscreen change by, e.g. escape-key.
 		document.addEventListener("fullscreenchange", () => {
 			this.fullscreen = document.fullscreenElement !== null;

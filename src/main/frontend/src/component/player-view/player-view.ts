@@ -33,12 +33,6 @@ export class PlayerView extends I18nLitElement {
 	videoFeedContainer: HTMLElement;
 
 
-	firstUpdated(): void {
-		this.controls.addEventListener("player-chat-visibility", (e: CustomEvent) => {
-			this.chatVisible = !this.chatVisible;
-		}, false);
-	}
-
 	getController(): PlayerViewController {
 		return this.controller;
 	}
@@ -55,21 +49,21 @@ export class PlayerView extends I18nLitElement {
 		this.videoFeedContainer.removeChild(view);
 	}
 
-	render() {
+	protected render() {
 		return html`
 			<div class="center-container">
 				<div class="slide-container">
 					<slide-view></slide-view>
 				</div>
 				<div class="controls-container">
-					<player-controls .hasChat="${this.courseState?.messageFeature !== null}" .chatVisible="${this.chatVisible}"></player-controls>
+					<player-controls .courseState="${this.courseState}" .chatVisible="${this.chatVisible}"></player-controls>
 				</div>
 			</div>
 			<div class="right-container">
 				<div class="video-feeds">
 				</div>
 				<div class="chat-container">
-					<chat-box .courseId="${this.courseId}" .featureId="${this.courseState?.messageFeature?.featureId}"></chat-box>
+					<chat-box .courseId="${this.courseId}" .feature="${this.courseState?.messageFeature}"></chat-box>
 				</div>
 			</div>
 		`;

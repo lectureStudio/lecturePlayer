@@ -65,8 +65,9 @@ i18next
 					"devices.reset": "Reset",
 					"devices.settings": "Device settings",
 
-					"player.view.chat": "Chat",
+					"course.feature.close": "Close",
 
+					"course.feature.message.chat": "Chat",
 					"course.feature.message.description": "Send a message to lecturer",
 					"course.feature.message.placeholder": "Enter your Message",
 					"course.feature.message.send": "Send",
@@ -74,7 +75,6 @@ i18next
 					"course.feature.message.sent": "Your message has been successfully sent",
 
 					"course.feature.quiz": "Quiz",
-					"course.feature.close": "Close",
 					"course.feature.quiz.send": "Send",
 					"course.feature.quiz.send.error": "Failed to send answer",
 					"course.feature.quiz.count.error": "Only one answer per quiz is allowed",
@@ -93,6 +93,10 @@ i18next
 					"course.recorded.modal.title": "This course is being recorded",
 					"course.recorded.modal.message": "The recording can be published later. As a digital event, this affects your contributions during active requests to speak.",
 					"course.recorded.modal.accept": "Got it",
+
+					"entry.modal.title": "Start media playback",
+					"entry.modal.description": "To play audio and video, click Start.",
+					"entry.modal.start": "Start",
 				}
 			}
 		}

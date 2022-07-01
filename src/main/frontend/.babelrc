@@ -6,7 +6,12 @@
 		[
 			"@babel/env",
 			{
-				"debug": true
+				"debug": true,
+				"targets": {
+					"esmodules": true
+				},
+				"modules": false,
+				"useBuiltIns": false
 			}
 		],
 		"@babel/typescript"
@@ -22,7 +27,6 @@
 		[
 			"@babel/proposal-class-properties",
 			{
-
 			}
 		],
 		"@babel/proposal-object-rest-spread",
