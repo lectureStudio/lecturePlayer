@@ -9,8 +9,8 @@ import './component/offline/player-offline';
 import './component/chat-box/chat-box';
 import './component/message-form/message-form';
 import './component/quiz-form/quiz-form';
+import './component/modal/modal';
 import './component/toast/toast';
-import "web-dialog/index";
 
 import i18next from 'i18next';
 import LanguageDetector from "i18next-browser-languagedetector";

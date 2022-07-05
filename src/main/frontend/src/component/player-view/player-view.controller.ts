@@ -2,6 +2,7 @@ import { ReactiveController } from "lit";
 import { CourseState, CourseStateDocuments, MessengerState, QuizState } from "../../model/course-state";
 import { PlaybackService } from "../../service/playback.service";
 import { State } from "../../utils/state";
+import { Utils } from "../../utils/utils";
 import { ParticipantView } from "../participant-view/participant-view";
 import { PlayerView } from "./player-view";
 
@@ -10,6 +11,8 @@ export class PlayerViewController implements ReactiveController {
 	private readonly host: PlayerView;
 
 	private readonly playbackService: PlaybackService;
+
+	private clockIntervalId: number;
 
 
 	constructor(host: PlayerView) {
@@ -36,21 +39,32 @@ export class PlayerViewController implements ReactiveController {
 	}
 
 	setCourseDocumentState(state: CourseStateDocuments) {
-		this.host.courseState = state.courseState;
-		this.host.chatVisible = state.courseState.messageFeature != null;
+		this.host.courseState = Utils.mergeDeep(this.host.courseState || {}, state.courseState);
+		this.host.chatVisible = this.host.courseState.messageFeature != null;
 
-		setInterval(() => {
+		this.clockIntervalId = window.setInterval(() => {
 			this.host.controls.duration = (Date.now() - this.host.courseState.timeStarted);
 		}, 500);
 
-		this.playbackService.initialize(this.host, state.courseState, state.documents);
+		this.playbackService.initialize(this.host, this.host.courseState, state.documents);
+	}
+
+	setDisconnected() {
+		clearInterval(this.clockIntervalId);
+
+		this.host.courseState = null;
 	}
 
 	private onMessengerState(event: CustomEvent) {
 		const state: MessengerState = event.detail;
 		const started = state.started;
 
-		this.host.courseState.messageFeature = started ? state.feature : null;
+		this.host.courseState = {
+			...this.host.courseState,
+			...{
+				messageFeature: started ? state.feature : null
+			}
+		};
 		this.host.chatVisible = started;
 		this.host.requestUpdate();
 	}
@@ -59,7 +73,12 @@ export class PlayerViewController implements ReactiveController {
 		const state: QuizState = event.detail;
 		const started = state.started;
 
-		this.host.courseState.quizFeature = started ? state.feature : null;
+		this.host.courseState = {
+			...this.host.courseState,
+			...{
+				quizFeature: started ? state.feature : null
+			}
+		};
 		this.host.requestUpdate();
 	}
 

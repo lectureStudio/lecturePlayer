@@ -46,8 +46,6 @@ export class JanusService extends EventTarget {
 	}
 
 	setOnData(consumer: (data: ArrayBuffer | Blob) => void) {
-		Utils.checkFunction(consumer);
-
 		this.dataCallback = consumer;
 	}
 

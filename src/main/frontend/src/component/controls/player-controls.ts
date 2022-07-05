@@ -64,8 +64,8 @@ export class PlayerControls extends I18nLitElement {
 
 	protected updated(properties: PropertyValues): void {
 		if (properties.has("courseState")) {
-			this.hasChat = this.courseState?.messageFeature != null;
-			this.hasQuiz = this.courseState?.quizFeature != null;
+			this.hasChat = this.courseState?.messageFeature != null && this.courseState.messageFeature.featureId != null;
+			this.hasQuiz = this.courseState?.quizFeature != null && this.courseState.quizFeature.featureId != null;
 		}
 	}
 

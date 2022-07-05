@@ -154,6 +154,10 @@ export class PlayerController implements ReactiveController {
 
 	private setConnectionState(state: State) {
 		this.host.state = state;
+
+		if (state === State.DISCONNECTED) {
+			this.viewController.setDisconnected();
+		}
 	}
 
 	private onPeerConnected(peerId: bigint) {
