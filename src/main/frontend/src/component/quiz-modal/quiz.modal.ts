@@ -17,17 +17,18 @@ export class QuizModal extends Modal {
 
 
 	post() {
-		const quizForm: HTMLFormElement = this.renderRoot.querySelector("#quiz-form")
+		const quizForm: HTMLFormElement = this.renderRoot.querySelector("quiz-form")
 			.shadowRoot.querySelector("form");
 
 		const submitButton: HTMLButtonElement = this.renderRoot.querySelector("#quiz-submit");
 		submitButton.disabled = true;
 
 		const data = new FormData(quizForm);
-		const value = JSON.stringify(Object.fromEntries(data.entries()));
+		const value = Object.fromEntries(data.entries());
+		value.options = data.getAll("options");
 
 		const service = new QuizService();
-		service.postAnswer(this.courseId, value)
+		service.postAnswer(this.courseId, JSON.stringify(value))
 			.then(response => {
 				if (response.statusCode === 0) {
 					Toaster.showSuccess(`${t(response.statusMessage)}`);

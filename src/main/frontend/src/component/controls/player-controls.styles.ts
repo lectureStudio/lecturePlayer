@@ -73,7 +73,7 @@ export const playerControlsStyles = css`
 	:host #settingsButton path {
 		stroke: #212529;
 	}
-	:host #showQuizButton {
+	:host #quiz-button {
 		color: #15803D;
 	}
 	:host .pulse {
@@ -242,6 +242,11 @@ export const playerControlsStyles = css`
 		color: #007db5;
 	}
 
+	:host([hasQuiz]) #quiz-button {
+		--animation-color: #15803D;
+		animation: button-pulse 2s 5;
+		z-index: 10;
+	}
 	:host(:not([hasQuiz])) #quiz-button {
 		display: none;
 	}

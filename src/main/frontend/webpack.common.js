@@ -1,7 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-const SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
 
 module.exports = {
 	entry: {
@@ -17,8 +16,6 @@ module.exports = {
 		// instead it expects a global object called 'adapter' for that.
 		// Let's make that object available.
 		new webpack.ProvidePlugin({ adapter: ['webrtc-adapter', 'default'] }),
-
-		new SpriteLoaderPlugin()
 	],
 	output: {
 		path: path.resolve(__dirname, '../resources/web-player-js'),
@@ -66,14 +63,6 @@ module.exports = {
 				],
 			},
 			{
-				test: /\.svg$/,
-				loader: 'svg-sprite-loader',
-				options: {
-					extract: true,
-					spriteFilename: 'icons.svg',
-				}
-			},
-			{
 				test: /\.worker\.ts$/,
 				use: {
 					loader: 'worker-loader',
@@ -86,6 +75,13 @@ module.exports = {
 				use: [
 					'babel-loader',
 				]
+			},
+			{
+				test: /locales/,
+				loader: '@alienfast/i18next-loader',
+				options: {
+					basenameAsNamespace: true
+				}
 			}
 		]
 	}

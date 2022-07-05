@@ -22,18 +22,21 @@ export class LecturePlayer extends I18nLitElement {
 	@property({ type: Number })
 	courseId: number;
 
+	@property({ type: String })
+	description: string;
 
-	firstUpdated(): void {
+
+	protected firstUpdated(): void {
 		const playerView: PlayerView = this.renderRoot.querySelector("player-view");
 
 		this.controller.setPlayerViewController(playerView.getController());
 	}
 
-	render() {
+	protected render() {
 		return html`
 			<player-loading .text="${t("course.loading")}"></player-loading>
 			<player-view .courseId="${this.courseId}"></player-view>
-			<player-offline></player-offline>
+			<player-offline .description="${this.description}"></player-offline>
 		`;
 	}
 }
