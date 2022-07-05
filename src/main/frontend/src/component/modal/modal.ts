@@ -14,18 +14,20 @@ export abstract class Modal extends I18nLitElement {
 	@property({ type: Boolean, reflect: true })
 	show: boolean = true;
 
+	container: HTMLElement | ShadowRoot = document.body;
+
 
 	open() {
-		if (!document.body.contains(this)) {
-			document.body.appendChild(this);
+		if (!this.container.contains(this)) {
+			this.container.appendChild(this);
 		}
 
 		this.show = true;
 	}
 
 	close() {
-		if (document.body.contains(this)) {
-			document.body.removeChild(this);
+		if (this.container.contains(this)) {
+			this.container.removeChild(this);
 		}
 
 		this.show = false;

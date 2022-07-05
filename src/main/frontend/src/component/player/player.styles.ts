@@ -5,7 +5,9 @@ export const playerStyles = css`
 		width: 100%;
 		height: 100%;
 	}
-	:host > * {
+	:host > player-loading,
+	:host > player-view,
+	:host > player-offline {
 		display: none;
 	}
 	:host([state="0"]) player-loading,

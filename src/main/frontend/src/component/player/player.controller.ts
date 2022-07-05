@@ -58,7 +58,7 @@ export class PlayerController implements ReactiveController {
 		this.actionProcessor = new StreamActionProcessor();
 		this.modals = new Map();
 
-		this.registerModal(RecordedModal.name, new RecordedModal(), false);
+		this.registerModal(RecordedModal.name, new RecordedModal(), false, false);
 
 		this.maxWidth576Query = window.matchMedia("(max-width: 576px)");
 	}
@@ -179,7 +179,6 @@ export class PlayerController implements ReactiveController {
 
 	private onSettings() {
 		const settingsModal = new SettingsModal();
-		settingsModal.open();
 
 		this.registerModal(SettingsModal.name, settingsModal);
 	}
@@ -201,7 +200,6 @@ export class PlayerController implements ReactiveController {
 		const quizModal = new QuizModal();
 		quizModal.courseId = this.host.courseId;
 		quizModal.feature = this.viewController.getCourseState().quizFeature;
-		quizModal.open();
 
 		this.registerModal(QuizModal.name, quizModal);
 	}
@@ -211,7 +209,6 @@ export class PlayerController implements ReactiveController {
 			const chatModal = new ChatModal();
 			chatModal.courseId = this.host.courseId;
 			chatModal.feature = this.viewController.getCourseState().messageFeature;
-			chatModal.open();
 
 			this.registerModal(ChatModal.name, chatModal);
 		}
@@ -375,7 +372,6 @@ export class PlayerController implements ReactiveController {
 			speechModal.addEventListener("modal-closing", () => {
 				Devices.stopMediaTracks(stream);
 			});
-			speechModal.open();
 
 			this.registerModal(SpeechAcceptedModal.name, speechModal);
 		}
@@ -394,7 +390,6 @@ export class PlayerController implements ReactiveController {
 			this.devicesSelected = true;
 			this.sendSpeechRequest();
 		});
-		settingsModal.open();
 
 		this.registerModal(SettingsModal.name, settingsModal);
 	}
@@ -404,19 +399,24 @@ export class PlayerController implements ReactiveController {
 		entryModal.addEventListener("modal-closed", () => {
 			this.host.dispatchEvent(Utils.createEvent("player-start-media"));
 		});
-		entryModal.open();
 
 		this.registerModal(EntryModal.name, entryModal);
 	}
 
-	private registerModal(name: string, modal: Modal, autoRemove: boolean = true) {
+	private registerModal(name: string, modal: Modal, autoRemove: boolean = true, open: boolean = true) {
 		if (autoRemove) {
 			modal.addEventListener("modal-closed", () => {
 				this.closeAndDeleteModal(name);
 			});
 		}
 
+		modal.container = this.host.renderRoot;
+
 		this.modals.set(name, modal);
+
+		if (open) {
+			modal.open();
+		}
 	}
 
 	private openModal(name: string) {

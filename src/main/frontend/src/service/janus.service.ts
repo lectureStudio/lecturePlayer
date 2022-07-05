@@ -1,4 +1,4 @@
-import { Janus, JSEP, PluginHandle } from "janus-gateway";
+import { Janus, PluginHandle } from "janus-gateway";
 import { JanusPublisher } from "./janus-publisher";
 import { JanusSubscriber } from "./janus-subscriber";
 import { State } from "../utils/state";
@@ -14,7 +14,7 @@ export class JanusService extends EventTarget {
 
 	private subscribers: JanusSubscriber[];
 
-	private myroom: number;
+	private roomId: number;
 
 	private opaqueId: string;
 
@@ -30,7 +30,7 @@ export class JanusService extends EventTarget {
 		this.publishers = [];
 		this.subscribers = [];
 
-		this.opaqueId = "course-" + Janus.randomString(12);
+		this.opaqueId = "user-" + Janus.randomString(42);
 	}
 
 	setDeviceConstraints(deviceConstraints: any): void {
@@ -42,7 +42,7 @@ export class JanusService extends EventTarget {
 	}
 
 	setRoomId(roomId: number) {
-		this.myroom = roomId;
+		this.roomId = roomId;
 	}
 
 	setOnData(consumer: (data: ArrayBuffer | Blob) => void) {
@@ -75,7 +75,7 @@ export class JanusService extends EventTarget {
 	}
 
 	startSpeech(speechConstraints: any) {
-		const publisher = new JanusPublisher(this.janus, this.myroom, this.opaqueId);
+		const publisher = new JanusPublisher(this.janus, this.roomId, this.opaqueId);
 		publisher.setDeviceConstraints(speechConstraints);
 		publisher.addEventListener("janus-participant-error", this.onPublisherError.bind(this));
 		publisher.addEventListener("janus-participant-state", this.onPublisherState.bind(this));
@@ -122,7 +122,7 @@ export class JanusService extends EventTarget {
 	private getParticipants(pluginHandle: PluginHandle) {
 		const list = {
 			request: "listparticipants",
-			room: this.myroom,
+			room: this.roomId,
 		};
 
 		pluginHandle.send({
@@ -173,7 +173,7 @@ export class JanusService extends EventTarget {
 	}
 
 	private attachToPublisher(publisher: any, isPrimary: boolean) {
-		const subscriber = new JanusSubscriber(this.janus, publisher.id, this.myroom, this.opaqueId);
+		const subscriber = new JanusSubscriber(this.janus, publisher.id, this.roomId, this.opaqueId);
 		subscriber.setDeviceConstraints(this.deviceConstraints);
 		subscriber.addEventListener("janus-participant-error", this.onSubscriberError.bind(this));
 		subscriber.addEventListener("janus-participant-state", this.onSubscriberState.bind(this));

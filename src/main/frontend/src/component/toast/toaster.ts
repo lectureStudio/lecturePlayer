@@ -34,27 +34,38 @@ export abstract class Toaster {
 
 
 	public static init(options: Partial<ToasterOptions>) {
-		let rootElement: HTMLElement;
-
 		this.options = Object.assign(this.defaults, options);
 		this.options.stopOnFocus = options.stopOnFocus === undefined ? true : options.stopOnFocus;
 
-		// Getting the root element to with the toast needs to be added
-		if (typeof this.options.selector === "string") {
-			rootElement = document.getElementById(this.options.selector);
-		}
-		else if (this.options.selector instanceof HTMLElement || this.options.selector instanceof ShadowRoot) {
-			rootElement = <HTMLElement> this.options.selector;
+		const initRootElement = () => {
+			let rootElement: HTMLElement;
+
+			// Getting the root element to with the toast needs to be added
+			if (typeof this.options.selector === "string") {
+				rootElement = document.getElementById(this.options.selector);
+			}
+			else if (this.options.selector instanceof HTMLElement || this.options.selector instanceof ShadowRoot) {
+				rootElement = <HTMLElement>this.options.selector;
+			}
+			else {
+				rootElement = document.body;
+			}
+
+			this.container = new ToastContainer();
+			this.container.position = this.options.position;
+			this.container.gravity = this.options.gravity;
+
+			rootElement.appendChild(this.container);
+		};
+
+		if (document.readyState === "complete") {
+			initRootElement();
 		}
 		else {
-			rootElement = document.body;
+			document.addEventListener('DOMContentLoaded', () => {
+				initRootElement();
+			});
 		}
-
-		this.container = new ToastContainer();
-		this.container.position = this.options.position;
-		this.container.gravity = this.options.gravity;
-
-		rootElement.appendChild(this.container);
 	}
 
 	public static show(message: string): void {
