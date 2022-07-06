@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import { customElement, property, query } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { I18nLitElement } from '../i18n-mixin';
 import { toastStyles, toastContainerStyles } from './toast.styles';
 
@@ -40,7 +40,7 @@ export class ToastContainer extends I18nLitElement {
 		super();
 	}
 
-	render() {
+	protected render() {
 		return html`
 			<slot></slot>
 		`;
@@ -83,7 +83,7 @@ export class Toast extends I18nLitElement {
 		this.dispatchEvent(event);
 	}
 
-	render() {
+	protected render() {
 		return html`
 			<div>
 				${this.message}

@@ -16,16 +16,12 @@ import i18next from 'i18next';
 import LanguageDetector from "i18next-browser-languagedetector";
 import * as resources from './locales';
 
-import { Toaster } from './component/toast/toaster';
-import { ToastGravity, ToastPosition } from './component/toast/toast';
-
 
 class App {
 
 	constructor() {
 		this.initPDF();
 		this.initI18n();
-		this.initToaster();
 	}
 
 	initPDF() {
@@ -49,16 +45,6 @@ class App {
 				ns: "main",
 				resources: resources
 			});
-	}
-
-	initToaster() {
-		Toaster.init({
-			duration: 5000,
-			gravity: ToastGravity.Top,
-			position: ToastPosition.Center,
-			closeable: false,
-			stopOnFocus: true
-		});
 	}
 }
 

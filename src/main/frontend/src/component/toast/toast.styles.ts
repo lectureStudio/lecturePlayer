@@ -2,9 +2,11 @@ import { css } from 'lit';
 
 export const toastContainerStyles = css`
 	:host {
-		position: fixed;
+		display: flex;
+		flex-direction: column;
+		position: absolute;
 		padding: 1rem;
-		z-index: 9999;
+		z-index: 1000;
 		width: max-content;
 		max-width: 100%;
 	}
@@ -49,12 +51,11 @@ export const toastStyles = css`
 		align-items: center;
 		box-shadow: 0 3px 6px -1px rgba(0, 0, 0, 0.12), 0 10px 36px -4px rgba(77, 96, 232, 0.3);
 		position: relative;
-		opacity: 1;
 		cursor: pointer;
 		font-size: 0.875rem;
 		width: fit-content;
 		min-width: 150px;
-		z-index: 2147483647;
+		z-index: 1010;
 	}
 
 	:host .close-button {

@@ -110,7 +110,6 @@ export abstract class Toaster {
 		}
 
 		setTimeout(() => {
-			// toast.classList.add("newItem");
 			toast.show = true;
 		}, 10);
 	}

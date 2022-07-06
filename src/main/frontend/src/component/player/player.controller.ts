@@ -19,6 +19,7 @@ import { QuizModal } from '../quiz-modal/quiz.modal';
 import { RecordedModal } from '../recorded-modal/recorded.modal';
 import { SettingsModal } from '../settings-modal/settings.modal';
 import { SpeechAcceptedModal } from '../speech-accepted-modal/speech-accepted.modal';
+import { ToastGravity, ToastPosition } from '../toast/toast';
 import { Toaster } from '../toast/toaster';
 import { LecturePlayer } from './player';
 
@@ -79,6 +80,8 @@ export class PlayerController implements ReactiveController {
 
 		this.janusService.setRoomId(this.host.courseId);
 		this.janusService.setOnData(this.actionProcessor.processData.bind(this.actionProcessor));
+
+		this.initToaster();
 	}
 
 	setPlayerViewController(viewController: PlayerViewController) {
@@ -94,6 +97,17 @@ export class PlayerController implements ReactiveController {
 		this.actionProcessor.onPeerConnected = this.onPeerConnected.bind(this);
 
 		this.connect();
+	}
+
+	private initToaster() {
+		Toaster.init({
+			duration: 5000,
+			gravity: ToastGravity.Top,
+			position: ToastPosition.Center,
+			closeable: false,
+			stopOnFocus: true,
+			selector: this.host.renderRoot
+		});
 	}
 
 	private connect() {
@@ -299,12 +313,14 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private initSpeech() {
-		if (this.devicesSelected) {
-			this.sendSpeechRequest();
-		}
-		else {
-			this.showSpeechSettingsModal();
-		}
+		Toaster.showInfo("Hello World...");
+
+		// if (this.devicesSelected) {
+		// 	this.sendSpeechRequest();
+		// }
+		// else {
+		// 	this.showSpeechSettingsModal();
+		// }
 	}
 
 	private speechAccepted() {
