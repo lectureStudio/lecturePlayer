@@ -35,6 +35,8 @@ export class ParticipantView extends I18nLitElement {
 	@query("video")
 	video: HTMLVideoElement;
 
+	volume: number;
+
 
 	constructor() {
 		super();
@@ -45,6 +47,9 @@ export class ParticipantView extends I18nLitElement {
 
 	addAudio(audio: HTMLAudioElement) {
 		this.container.appendChild(audio);
+
+		// Set current volume.
+		this.audio.volume = this.volume;
 	}
 
 	removeAudio() {
@@ -68,6 +73,10 @@ export class ParticipantView extends I18nLitElement {
 		this.hasVideo = false;
 	}
 
+	setVolume(volume: number) {
+		this.volume = volume;
+	}
+
 	private removeMedia(type: string) {
 		const element = this.container.querySelector(type);
 
@@ -86,6 +95,7 @@ export class ParticipantView extends I18nLitElement {
 		if (this.audio) {
 			const volume: number = e.detail.volume;
 
+			this.volume = volume;
 			this.audio.volume = volume;
 		}
 	}

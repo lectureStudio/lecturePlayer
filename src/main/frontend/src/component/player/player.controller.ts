@@ -59,12 +59,12 @@ export class PlayerController implements ReactiveController {
 		this.actionProcessor = new StreamActionProcessor();
 		this.modals = new Map();
 
-		this.registerModal(RecordedModal.name, new RecordedModal(), false, false);
-
 		this.maxWidth576Query = window.matchMedia("(max-width: 576px)");
 	}
 
 	hostConnected() {
+		this.registerModal(RecordedModal.name, new RecordedModal(), false, false);
+
 		this.host.addEventListener("fullscreen", this.onFullscreen.bind(this));
 		this.host.addEventListener("player-settings", this.onSettings.bind(this), false);
 		this.host.addEventListener("player-hand-action", this.onHandAction.bind(this), false);
@@ -313,14 +313,12 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private initSpeech() {
-		Toaster.showInfo("Hello World...");
-
-		// if (this.devicesSelected) {
-		// 	this.sendSpeechRequest();
-		// }
-		// else {
-		// 	this.showSpeechSettingsModal();
-		// }
+		if (this.devicesSelected) {
+			this.sendSpeechRequest();
+		}
+		else {
+			this.showSpeechSettingsModal();
+		}
 	}
 
 	private speechAccepted() {

@@ -42,6 +42,8 @@ export class PlayerView extends I18nLitElement {
 	}
 
 	addParticipant(view: ParticipantView) {
+		view.setVolume(this.controls.volume);
+
 		this.videoFeedContainer.appendChild(view);
 	}
 
