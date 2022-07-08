@@ -16,40 +16,29 @@ export class ChatModal extends Modal {
 	feature: MessageFeature;
 
 
-	post() {
+	protected post(event: Event) {
 		const messageForm: HTMLFormElement = this.renderRoot.querySelector("message-form")
 			.shadowRoot.querySelector("form");
 
-		const submitButton: HTMLButtonElement = this.renderRoot.querySelector("#message-submit");
+		const submitButton = <HTMLButtonElement> event.target;
 		submitButton.disabled = true;
 
-		const data = new FormData(messageForm);
-		const value = JSON.stringify(Object.fromEntries(data.entries()));
-
 		const service = new MessageService();
-		service.postMessage(this.courseId, value)
-			.then(response => {
-				if (response.statusCode === 0) {
-					Toaster.showSuccess(`${t(response.statusMessage)}`);
-				}
-				else {
-					Toaster.showError(`${t(response.statusMessage)}`);
-				}
-			})
-			.catch(error => {
-				console.error(error);
-
-				Toaster.showError(`${t("course.feature.message.send.error")}`);
-			})
+		service.postMessageFromForm(this.courseId, messageForm)
 			.finally(() => {
 				messageForm.reset();
 				submitButton.disabled = false;
 
 				this.close();
+			})
+			.catch(error => {
+				console.error(error);
+
+				Toaster.showError(`${t("course.feature.message.send.error")}`);
 			});
 	}
 
-	render() {
+	protected render() {
 		return html`
 			<web-dialog @open="${this.opened}" ?open="${this.show}" @close="${this.closed}" @closing="${this.closing}">
 				<header>

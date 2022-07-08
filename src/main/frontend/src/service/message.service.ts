@@ -1,4 +1,6 @@
-import { CourseFeatureResponse } from "../model/course-feature";
+import { t } from "i18next";
+import { Toaster } from "../component/toast/toaster";
+import { ChatMessage, CourseFeatureResponse } from "../model/course-feature";
 
 export class MessageService {
 
@@ -22,5 +24,25 @@ export class MessageService {
 				reject(error);
 			});
 		});
+	}
+
+	postMessageFromForm(courseId: number, form: HTMLFormElement): Promise<CourseFeatureResponse> {
+		const data = new FormData(form);
+		const message: ChatMessage = {
+			serviceId: data.get("serviceId").toString(),
+			text: data.get("text").toString()
+		};
+
+		return this.postMessage(courseId, JSON.stringify(message))
+			.then(response => {
+				if (response.statusCode === 0) {
+					Toaster.showSuccess(`${t(response.statusMessage)}`);
+				}
+				else {
+					Toaster.showError(`${t(response.statusMessage)}`);
+				}
+
+				return response;
+			});
 	}
 }

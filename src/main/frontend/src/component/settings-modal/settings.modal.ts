@@ -2,10 +2,11 @@ import { html } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { customElement, property, query } from 'lit/decorators.js';
 import { t } from '../i18n-mixin';
-import { DeviceInfo, Devices, DeviceSettings } from '../../utils/devices';
+import { DeviceInfo, Devices } from '../../utils/devices';
 import { Modal } from '../modal/modal';
 import { Utils } from '../../utils/utils';
 import { settingsModalStyles } from './settings.modal.styles';
+import { DeviceSettings, Settings } from '../../utils/settings';
 
 @customElement("settings-modal")
 export class SettingsModal extends Modal {
@@ -47,9 +48,9 @@ export class SettingsModal extends Modal {
 	save() {
 		const deviceForm: HTMLFormElement = this.renderRoot?.querySelector('#deviceSelectForm') ?? null;
 		const data = new FormData(deviceForm);
-		const devices = <DeviceSettings><unknown> Object.fromEntries(data.entries());
+		const devices = <DeviceSettings> <unknown> Object.fromEntries(data.entries());
 
-		Devices.saveDeviceChoice(devices);
+		Settings.saveDeviceChoice(devices);
 
 		this.dispatchEvent(Utils.createEvent("device-settings-saved"));
 		this.close();
@@ -122,7 +123,7 @@ export class SettingsModal extends Modal {
 		this.video.srcObject = result.stream;
 		this.video.muted = true;
 
-		if (!this.videoInputDevices.find(devInfo => { return devInfo.deviceId === Devices.getCameraId() })) {
+		if (!this.videoInputDevices.find(devInfo => { return devInfo.deviceId === Settings.getCameraId() })) {
 			Devices.stopVideoTracks(this.video.srcObject as MediaStream);
 		}
 
@@ -231,7 +232,7 @@ export class SettingsModal extends Modal {
 									<select @change="${this.onCameraChange}" name="videoInput" id="cameraSelect" class="form-select form-select-sm" aria-label=".form-select-sm camera">
 										<option value="none">${t("devices.none")}</option>
 										${this.videoInputDevices.map((device) =>
-											html`<option value="${device.deviceId}" ?selected="${Devices.getCameraId() === device.deviceId}">${Devices.removeHwId(device.label)}</option>`
+											html`<option value="${device.deviceId}" ?selected="${Settings.getCameraId() === device.deviceId}">${Devices.removeHwId(device.label)}</option>`
 										)}
 									</select>
 								</div>
@@ -239,7 +240,7 @@ export class SettingsModal extends Modal {
 									<label for="microphoneSelect" class="form-label">${t("devices.audio.input")}</label>
 									<select @change="${this.onMicrophoneChange}" name="audioInput" id="microphoneSelect" class="form-select form-select-sm" aria-label=".form-select-sm microphone">
 										${this.audioInputDevices.map((device) =>
-											html`<option value="${device.deviceId}" ?selected="${Devices.getMicrophoneId() === device.deviceId}">${Devices.removeHwId(device.label)}</option>`
+											html`<option value="${device.deviceId}" ?selected="${Settings.getMicrophoneId() === device.deviceId}">${Devices.removeHwId(device.label)}</option>`
 										)}
 									</select>
 								</div>
@@ -247,7 +248,7 @@ export class SettingsModal extends Modal {
 									<label for="speakerSelect" class="form-label">${t("devices.audio.output")}</label>
 									<select @change="${this.onSpeakerChange}" name="audioOutput" id="speakerSelect" class="form-select form-select-sm" aria-label=".form-select-sm speaker">
 										${this.audioOutputDevices.map((device) =>
-											html`<option value="${device.deviceId}" ?selected="${Devices.getSpeakerId() === device.deviceId}">${Devices.removeHwId(device.label)}</option>`
+											html`<option value="${device.deviceId}" ?selected="${Settings.getSpeakerId() === device.deviceId}">${Devices.removeHwId(device.label)}</option>`
 										)}
 									</select>
 								</div>

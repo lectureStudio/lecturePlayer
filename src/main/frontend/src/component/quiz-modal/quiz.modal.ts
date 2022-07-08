@@ -4,6 +4,7 @@ import { customElement, property } from "lit/decorators.js";
 import { t } from '../i18n-mixin';
 import { QuizFeature } from "../../model/course-feature";
 import { QuizService } from "../../service/quiz.service";
+import { Toaster } from "../toast/toaster";
 
 @customElement("quiz-modal")
 export class QuizModal extends Modal {
@@ -32,6 +33,8 @@ export class QuizModal extends Modal {
 			})
 			.catch(error => {
 				console.error(error);
+
+				Toaster.showError(`${t("course.feature.quiz.send.error")}`);
 			});
 	}
 

@@ -1,6 +1,6 @@
 import { ReactiveController } from 'lit';
 import { StreamActionProcessor } from '../../action/stream-action-processor';
-import { CourseState, CourseStateDocuments, MessengerState, QuizState } from '../../model/course-state';
+import { CourseState, MessengerState, QuizState } from '../../model/course-state';
 import { CourseStateDocument } from '../../model/course-state-document';
 import { SlideDocument } from '../../model/document';
 import { CourseStateService } from '../../service/course.service';
@@ -8,6 +8,7 @@ import { EventService } from '../../service/event.service';
 import { JanusService } from '../../service/janus.service';
 import { SpeechService } from '../../service/speech.service';
 import { Devices } from '../../utils/devices';
+import { MediaProfile, Settings } from '../../utils/settings';
 import { State } from '../../utils/state';
 import { Utils } from '../../utils/utils';
 import { ChatModal } from '../chat-modal/chat.modal';
@@ -65,7 +66,7 @@ export class PlayerController implements ReactiveController {
 	hostConnected() {
 		this.registerModal(RecordedModal.name, new RecordedModal(), false, false);
 
-		this.host.addEventListener("fullscreen", this.onFullscreen.bind(this));
+		this.host.addEventListener("player-fullscreen", this.onFullscreen.bind(this));
 		this.host.addEventListener("player-settings", this.onSettings.bind(this), false);
 		this.host.addEventListener("player-hand-action", this.onHandAction.bind(this), false);
 		this.host.addEventListener("player-quiz-action", this.onQuizAction.bind(this), false);
@@ -120,20 +121,30 @@ export class PlayerController implements ReactiveController {
 
 	private connect() {
 		this.getCourseState()
-			.then(state => {
-				this.host.courseState = state.courseState;
+			.then(courseState => {
+				console.log("Course state", courseState);
 
-				this.updateCourseState();
+				this.host.courseState = courseState;
 
-				if (state.courseState.activeDocument) {
-					this.viewController.setCourseDocumentState(state);
-
-					this.janusService.connect();
-
-					if (state.courseState.recorded) {
-						this.openModal(RecordedModal.name);
-					}
+				if (this.isClassroomProfile()) {
+					this.updateCourseState();
+					return;
 				}
+
+				this.getDocuments(courseState.documentMap)
+					.then(documents => {
+						if (courseState.activeDocument) {
+							this.viewController.setCourseDocumentState(courseState, documents);
+
+							this.janusService.connect();
+
+							if (courseState.recorded) {
+								this.openModal(RecordedModal.name);
+							}
+
+							this.updateCourseState();
+						}
+					});
 			})
 			.catch(error => {
 				console.error(error);
@@ -146,36 +157,29 @@ export class PlayerController implements ReactiveController {
 		return this.courseStateService.getStateDocument(this.host.courseId, stateDoc);
 	}
 
-	private getCourseState(): Promise<CourseStateDocuments> {
-		return new Promise<CourseStateDocuments>((resolve, reject) => {
-			this.courseStateService.getCourseState(this.host.courseId)
-				.then((courseState: CourseState) => {
-					console.log("Course state", courseState);
+	private getDocuments(documentMap: Map<bigint, CourseStateDocument>): Promise<SlideDocument[]> {
+		return new Promise<SlideDocument[]>((resolve, reject) => {
+			// Load all initially opened documents.
+			const promises = [];
 
-					// Load all initially opened documents.
-					const promises = [];
+			for (const value of Object.values(documentMap || {})) {
+				const promise = this.getDocument(value);
 
-					for (const value of Object.values(courseState.documentMap || {})) {
-						const promise = this.getDocument(value);
+				promises.push(promise);
+			}
 
-						promises.push(promise);
-					}
-
-					Promise.all(promises)
-						.then(documents => {
-							resolve({
-								courseState: courseState,
-								documents: documents
-							});
-						})
-						.catch(error => {
-							reject(error);
-						});
+			Promise.all(promises)
+				.then(documents => {
+					resolve(documents);
 				})
 				.catch(error => {
 					reject(error);
 				});
 		});
+	}
+
+	private getCourseState(): Promise<CourseState> {
+		return this.courseStateService.getCourseState(this.host.courseId);
 	}
 
 	private onPeerConnected(peerId: bigint) {
@@ -299,11 +303,7 @@ export class PlayerController implements ReactiveController {
 		if (this.host.courseId !== courseId) {
 			return;
 		}
-
-		const mediaProfile = localStorage.getItem("media.profile");
-
-		if (mediaProfile === "classroom") {
-			// this.showFeatures(true);
+		if (this.isClassroomProfile()) {
 			return;
 		}
 
@@ -339,10 +339,11 @@ export class PlayerController implements ReactiveController {
 			return;
 		}
 
+		const isClassroom = this.isClassroomProfile();
 		const hasFeatures = this.host.courseState.messageFeature != null || this.host.courseState.quizFeature != null;
 		const hasStream = this.host.courseState.activeDocument != null;
 
-		if (hasStream) {
+		if (hasStream && !isClassroom) {
 			this.setConnectionState(State.CONNECTED);
 		}
 		else if (hasFeatures) {
@@ -351,6 +352,10 @@ export class PlayerController implements ReactiveController {
 		else {
 			this.setConnectionState(State.DISCONNECTED);
 		}
+	}
+
+	private isClassroomProfile() {
+		return Settings.getMediaProfile() === MediaProfile.Classroom;
 	}
 
 	private initSpeech() {
@@ -364,8 +369,8 @@ export class PlayerController implements ReactiveController {
 
 	private speechAccepted() {
 		const speechConstraints = {
-			audioDeviceId: Devices.getMicrophoneId(),
-			videoDeviceId: Devices.getCameraId()
+			audioDeviceId: Settings.getMicrophoneId(),
+			videoDeviceId: Settings.getCameraId()
 		};
 
 		const constraints = {

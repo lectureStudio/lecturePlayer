@@ -1,5 +1,6 @@
 import { ReactiveController } from "lit";
-import { CourseState, CourseStateDocuments, MessengerState, QuizState } from "../../model/course-state";
+import { CourseState, MessengerState, QuizState } from "../../model/course-state";
+import { SlideDocument } from "../../model/document";
 import { PlaybackService } from "../../service/playback.service";
 import { State } from "../../utils/state";
 import { Utils } from "../../utils/utils";
@@ -38,15 +39,20 @@ export class PlayerViewController implements ReactiveController {
 		return this.host.courseState;
 	}
 
-	setCourseDocumentState(state: CourseStateDocuments) {
-		this.host.courseState = Utils.mergeDeep(this.host.courseState || {}, state.courseState);
+	setCourseDocumentState(courseState: CourseState, documents: SlideDocument[]) {
+		this.host.courseState = Utils.mergeDeep(this.host.courseState || {}, courseState);
 		this.host.chatVisible = this.host.courseState.messageFeature != null;
 
 		this.clockIntervalId = window.setInterval(() => {
-			this.host.controls.duration = (Date.now() - this.host.courseState.timeStarted);
+			try {
+				this.host.controls.duration = (Date.now() - this.host.courseState.timeStarted);
+			}
+			catch (error) {
+				clearInterval(this.clockIntervalId);
+			}
 		}, 500);
 
-		this.playbackService.initialize(this.host, this.host.courseState, state.documents);
+		this.playbackService.initialize(this.host, this.host.courseState, documents);
 	}
 
 	setDisconnected() {

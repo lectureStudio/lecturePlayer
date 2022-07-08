@@ -16,6 +16,14 @@ export interface MessageFeature extends CourseFeature {
 
 }
 
+export interface ChatMessage {
+
+	serviceId: string;
+
+	text: string;
+
+}
+
 export enum QuizType {
 
 	Multiple = "MULTIPLE",

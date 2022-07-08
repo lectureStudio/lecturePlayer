@@ -1,6 +1,5 @@
 import { MessageFeature, QuizFeature } from "./course-feature";
 import { CourseStateDocument } from "./course-state-document";
-import { SlideDocument } from "./document";
 
 export interface CourseFeatureState<Feature> {
 
@@ -43,13 +42,5 @@ export interface CourseState {
 	readonly protected: boolean;
 
 	readonly recorded: boolean;
-
-}
-
-export interface CourseStateDocuments {
-
-	readonly courseState: CourseState;
-
-	readonly documents: SlideDocument[];
 
 }

@@ -1,3 +1,5 @@
+import { Settings } from "./settings";
+
 export interface DeviceInfo {
 
 	devices: MediaDeviceInfo[];
@@ -6,34 +8,14 @@ export interface DeviceInfo {
 
 }
 
-export interface DeviceSettings {
-
-	audioInput: string;
-	audioOutput: string;
-	videoInput: string;
-
-}
-
 export class Devices {
-
-	static getMicrophoneId(): string {
-		return localStorage.getItem("audio.input");
-	}
-
-	static getSpeakerId(): string {
-		return localStorage.getItem("audio.output");
-	}
-
-	static getCameraId(): string {
-		return localStorage.getItem("video.input");
-	}
 
 	static enumerateDevices(useVideo: boolean, useSettings: boolean): Promise<DeviceInfo> {
 		let constraints: any;
 	
 		if (useSettings) {
-			const audioSource = Devices.getMicrophoneId();
-			const videoSource = Devices.getCameraId();
+			const audioSource = Settings.getMicrophoneId();
+			const videoSource = Settings.getCameraId();
 
 			constraints = {
 				audio: {
@@ -83,40 +65,7 @@ export class Devices {
 				});
 		});
 	}
-	
-	static clearDeviceChoice() {
-		localStorage.removeItem("audio.input");
-		localStorage.removeItem("audio.output");
-		localStorage.removeItem("video.input");
-	}
-	
-	static saveDeviceChoice(devices: DeviceSettings) {
-		if (devices.audioInput) {
-			if (devices.audioInput === "none") {
-				localStorage.removeItem("audio.input");
-			}
-			else {
-				localStorage.setItem("audio.input", devices.audioInput);
-			}
-		}
-		if (devices.audioOutput) {
-			if (devices.audioOutput === "none") {
-				localStorage.removeItem("audio.output");
-			}
-			else {
-				localStorage.setItem("audio.output", devices.audioOutput);
-			}
-		}
-		if (devices.videoInput) {
-			if (devices.videoInput === "none") {
-				localStorage.removeItem("video.input");
-			}
-			else {
-				localStorage.setItem("video.input", devices.videoInput);
-			}
-		}
-	}
-	
+
 	static getAudioLevel(audioTrack: MediaStreamTrack, canvas: HTMLCanvasElement) {
 		const meterContext = canvas.getContext("2d");
 	
@@ -186,12 +135,6 @@ export class Devices {
 		// Due to browsers' autoplay policy.
 		await audioContext.resume();
 	
-		// const stream = new MediaStream([track]);
-		// const mediaStreamSource = audioContext.createMediaStreamSource(stream);
-		// const meter = createAudioMeter(audioContext);
-	
-		// mediaStreamSource.connect(meter);
-	
 		const analyser = audioContext.createAnalyser();
 		analyser.minDecibels = -127;
 		analyser.maxDecibels = 0;
@@ -210,8 +153,6 @@ export class Devices {
 		}
 	
 		requestAnimationFrame(function checkLevel() {
-			// onLevelChanged(meter.volume);
-	
 			analyser.getByteFrequencyData(samples);
 	
 			const level = rootMeanSquare(samples) / 255;
@@ -267,16 +208,10 @@ export class Devices {
 		if (!('sinkId' in HTMLMediaElement.prototype)) {
 			return;
 		}
-	
+
 		mediaElement.setSinkId(sinkId)
 			.catch(error => {
 				console.error(error);
 			});
-	}
-	
-	static removeAllChildNodes(parent: Node) {
-		while (parent.firstChild) {
-			parent.removeChild(parent.firstChild);
-		}
 	}
 }

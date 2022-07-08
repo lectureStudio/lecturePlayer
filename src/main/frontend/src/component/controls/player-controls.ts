@@ -135,7 +135,7 @@ export class PlayerControls extends I18nLitElement {
 	private onFullscreen(): void {
 		this.fullscreen = !this.fullscreen;
 
-		this.dispatchEvent(Utils.createEvent("fullscreen", {
+		this.dispatchEvent(Utils.createEvent("player-fullscreen", {
 			fullscreen: this.fullscreen
 		}));
 	}
