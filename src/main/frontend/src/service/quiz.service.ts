@@ -1,4 +1,6 @@
-import { CourseFeatureResponse } from "../model/course-feature";
+import { t } from "i18next";
+import { Toaster } from "../component/toast/toaster";
+import { CourseFeatureResponse, QuizAnswer } from "../model/course-feature";
 
 export class QuizService {
 
@@ -22,5 +24,25 @@ export class QuizService {
 				reject(error);
 			});
 		});
+	}
+
+	postAnswerFromForm(courseId: number, form: HTMLFormElement): Promise<CourseFeatureResponse> {
+		const data = new FormData(form);
+		const answer: QuizAnswer = {
+			serviceId: data.get("serviceId").toString(),
+			options: data.getAll("options") as string[]
+		};
+
+		return this.postAnswer(courseId, JSON.stringify(answer))
+			.then(response => {
+				if (response.statusCode === 0) {
+					Toaster.showSuccess(`${t(response.statusMessage)}`);
+				}
+				else {
+					Toaster.showError(`${t(response.statusMessage)}`);
+				}
+
+				return response;
+			});
 	}
 }

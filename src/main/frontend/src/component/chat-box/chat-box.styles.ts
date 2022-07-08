@@ -5,7 +5,13 @@ export const chatBoxStyles = css`
 		display: flex;
 		flex-direction: column;
 	}
-	.chat-header {
+	header {
+		font-weight: 600;
+		margin-top: 0px;
+		margin-bottom: 0.5rem;
+		line-height: 1.2;
+	}
+	.chat-info {
 		background-color: var(--bs-gray-200);
 		font-size: 0.875em;
 		padding: 0.25rem;

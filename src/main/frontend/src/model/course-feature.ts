@@ -24,6 +24,14 @@ export enum QuizType {
 
 }
 
+export interface QuizAnswer {
+
+	serviceId: string;
+
+	options: string[];
+
+}
+
 export interface QuizFeature extends CourseFeature {
 
 	readonly type: QuizType;

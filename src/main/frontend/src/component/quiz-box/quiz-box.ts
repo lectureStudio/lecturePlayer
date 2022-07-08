@@ -1,12 +1,17 @@
-import { html } from "lit";
-import { Modal } from "../modal/modal";
-import { customElement, property } from "lit/decorators.js";
-import { t } from '../i18n-mixin';
-import { QuizFeature } from "../../model/course-feature";
-import { QuizService } from "../../service/quiz.service";
+import { html } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import { QuizFeature } from '../../model/course-feature';
+import { QuizService } from '../../service/quiz.service';
+import { I18nLitElement, t } from '../i18n-mixin';
+import { quizBoxStyles } from './quiz-box.styles';
 
-@customElement("quiz-modal")
-export class QuizModal extends Modal {
+@customElement('quiz-box')
+export class QuizBox extends I18nLitElement {
+
+	static styles = [
+		I18nLitElement.styles,
+		quizBoxStyles
+	];
 
 	@property()
 	courseId: number;
@@ -27,8 +32,6 @@ export class QuizModal extends Modal {
 			.finally(() => {
 				quizForm.reset();
 				submitButton.disabled = false;
-
-				this.close();
 			})
 			.catch(error => {
 				console.error(error);
@@ -37,22 +40,19 @@ export class QuizModal extends Modal {
 
 	protected render() {
 		return html`
-			<web-dialog @open="${this.opened}" ?open="${this.show}" @close="${this.closed}" @closing="${this.closing}">
+			<article>
 				<header>
-					<span>${t("course.feature.quiz")}</span>
+					${t("course.feature.quiz")}
 				</header>
-				<article>
+				<section>
 					<quiz-form .feature="${this.feature}"></quiz-form>
-				</article>
+				</section>
 				<footer>
-					<button type="button" @click="${this.close}" class="btn btn-outline-secondary btn-sm">
-						${t("course.feature.close")}
-					</button>
 					<button type="button" @click="${this.post}" class="btn btn-outline-primary btn-sm" id="quiz-submit" form="quiz-form">
 						${t("course.feature.quiz.send")}
 					</button>
 				</footer>
-			</web-dialog>
+			</article>
 		`;
 	}
 }

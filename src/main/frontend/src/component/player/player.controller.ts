@@ -99,6 +99,14 @@ export class PlayerController implements ReactiveController {
 		this.connect();
 	}
 
+	private setConnectionState(state: State) {
+		this.host.state = state;
+
+		if (state === State.DISCONNECTED) {
+			this.viewController.setDisconnected();
+		}
+	}
+
 	private initToaster() {
 		Toaster.init({
 			duration: 5000,
@@ -113,14 +121,18 @@ export class PlayerController implements ReactiveController {
 	private connect() {
 		this.getCourseState()
 			.then(state => {
-				this.viewController.setCourseDocumentState(state);
+				this.host.courseState = state.courseState;
 
-				this.janusService.connect();
+				this.updateCourseState();
 
-				this.setConnectionState(State.CONNECTED);
+				if (state.courseState.activeDocument) {
+					this.viewController.setCourseDocumentState(state);
 
-				if (state.courseState.recorded) {
-					this.openModal(RecordedModal.name);
+					this.janusService.connect();
+
+					if (state.courseState.recorded) {
+						this.openModal(RecordedModal.name);
+					}
 				}
 			})
 			.catch(error => {
@@ -143,7 +155,7 @@ export class PlayerController implements ReactiveController {
 					// Load all initially opened documents.
 					const promises = [];
 
-					for (const value of Object.values(courseState.documentMap)) {
+					for (const value of Object.values(courseState.documentMap || {})) {
 						const promise = this.getDocument(value);
 
 						promises.push(promise);
@@ -164,14 +176,6 @@ export class PlayerController implements ReactiveController {
 					reject(error);
 				});
 		});
-	}
-
-	private setConnectionState(state: State) {
-		this.host.state = state;
-
-		if (state === State.DISCONNECTED) {
-			this.viewController.setDisconnected();
-		}
 	}
 
 	private onPeerConnected(peerId: bigint) {
@@ -239,7 +243,15 @@ export class PlayerController implements ReactiveController {
 			this.closeAndDeleteModal(ChatModal.name);
 		}
 
+		this.host.courseState = {
+			...this.host.courseState,
+			...{
+				messageFeature: state.started ? state.feature : null
+			}
+		};
 		this.host.dispatchEvent(Utils.createEvent("messenger-state", state));
+
+		this.updateCourseState();
 	}
 
 	private onQuizState(event: CustomEvent) {
@@ -253,7 +265,15 @@ export class PlayerController implements ReactiveController {
 			this.closeAndDeleteModal(QuizModal.name);
 		}
 
+		this.host.courseState = {
+			...this.host.courseState,
+			...{
+				quizFeature: state.started ? state.feature : null
+			}
+		};
 		this.host.dispatchEvent(Utils.createEvent("quiz-state", state));
+
+		this.updateCourseState();
 	}
 
 	private onRecordingState(event: CustomEvent) {
@@ -292,7 +312,9 @@ export class PlayerController implements ReactiveController {
 		}
 		else {
 			this.closeAllModals();
-			this.setConnectionState(State.DISCONNECTED);
+
+			this.host.courseState.activeDocument = null;
+			this.updateCourseState();
 		}
 	}
 
@@ -309,6 +331,25 @@ export class PlayerController implements ReactiveController {
 
 				Toaster.showInfo(`${t("course.speech.request.rejected")}`);
 			}
+		}
+	}
+
+	private updateCourseState() {
+		if (!this.host.courseState) {
+			return;
+		}
+
+		const hasFeatures = this.host.courseState.messageFeature != null || this.host.courseState.quizFeature != null;
+		const hasStream = this.host.courseState.activeDocument != null;
+
+		if (hasStream) {
+			this.setConnectionState(State.CONNECTED);
+		}
+		else if (hasFeatures) {
+			this.setConnectionState(State.CONNECTED_FEATURES);
+		}
+		else {
+			this.setConnectionState(State.DISCONNECTED);
 		}
 	}
 

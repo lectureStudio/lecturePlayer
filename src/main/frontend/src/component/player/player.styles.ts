@@ -7,12 +7,14 @@ export const playerStyles = css`
 	}
 	:host > player-loading,
 	:host > player-view,
+	:host > player-feature-view,
 	:host > player-offline {
 		display: none;
 	}
 	:host([state="0"]) player-loading,
 	:host([state="1"]) player-view,
-	:host([state="2"]) player-offline {
+	:host([state="2"]) player-feature-view,
+	:host([state="3"]) player-offline {
 		display: flex;
 	}
 `;

@@ -19,7 +19,7 @@ export class PlaybackService {
 		});
 
 		// Select active document.
-		const activeStateDoc = courseState.avtiveDocument;
+		const activeStateDoc = courseState.activeDocument;
 		let activeDoc: SlideDocument = null;
 
 		for (const doc of documents) {

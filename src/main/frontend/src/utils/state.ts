@@ -2,6 +2,7 @@ export enum State {
 
 	CONNECTING,
 	CONNECTED,
+	CONNECTED_FEATURES,
 	DISCONNECTED
 
 }

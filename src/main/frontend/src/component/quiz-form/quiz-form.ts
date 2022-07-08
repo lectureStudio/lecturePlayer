@@ -20,7 +20,7 @@ export class QuizForm extends I18nLitElement {
 	render() {
 		const itemTemplates = new Array<TemplateResult>();
 
-		this.feature.options.forEach((option: string, index: number) => {
+		this.feature?.options.forEach((option: string, index: number) => {
 			switch (this.feature.type) {
 				case QuizType.Multiple:
 					itemTemplates.push(html`

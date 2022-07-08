@@ -22,9 +22,11 @@ export interface QuizState extends CourseFeatureState<QuizFeature> {
 
 export interface CourseState {
 
-	readonly documentMap: Map<bigint, CourseStateDocument>;
+	readonly courseId: number;
 
-	readonly avtiveDocument: CourseStateDocument;
+	documentMap: Map<bigint, CourseStateDocument>;
+
+	activeDocument: CourseStateDocument;
 
 	readonly timeStarted: number;
 	

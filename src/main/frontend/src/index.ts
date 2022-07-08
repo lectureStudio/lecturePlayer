@@ -6,8 +6,10 @@ import './component/player-view/player-view';
 import './component/controls/player-controls';
 import './component/loading/player-loading';
 import './component/offline/player-offline';
+import './component/feature-view/feature-view';
 import './component/chat-box/chat-box';
 import './component/message-form/message-form';
+import './component/quiz-box/quiz-box';
 import './component/quiz-form/quiz-form';
 import './component/modal/modal';
 import './component/toast/toast';
@@ -17,7 +19,7 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import * as resources from './locales';
 
 
-class App {
+class lectPlayer {
 
 	constructor() {
 		this.initPDF();
@@ -48,4 +50,4 @@ class App {
 	}
 }
 
-new App();
+new lectPlayer();

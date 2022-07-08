@@ -53,7 +53,7 @@ export class ChatModal extends Modal {
 		return html`
 			<web-dialog @open="${this.opened}" ?open="${this.show}" @close="${this.closed}" @closing="${this.closing}">
 				<header>
-					<span>${t("course.feature.message.chat")}</span>
+					<span>${t("course.feature.message")}</span>
 				</header>
 				<article>
 					<message-form .feature="${this.feature}"></message-form>

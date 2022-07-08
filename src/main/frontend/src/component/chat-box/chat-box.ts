@@ -54,7 +54,10 @@ export class ChatBox extends I18nLitElement {
 
 	render() {
 		return html`
-			<small class="chat-header">
+			<header>
+				${t("course.feature.message")}
+			</header>
+			<small class="chat-info">
 				<label for="messageTextarea">${t("course.feature.message.description")}</label>
 			</small>
 			<div class="chat-controls">
