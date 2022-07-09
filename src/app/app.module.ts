@@ -8,6 +8,7 @@ import { HomeComponent } from './pages/home/home.component';
 import {MatIconModule} from '@angular/material/icon';
 import { GalleryViewComponent } from './components/gallery-view/gallery-view.component';
 import { SpeakerViewComponent } from './components/speaker-view/speaker-view.component';
+import { DocumentViewComponent } from './components/document-view/document-view.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { SpeakerViewComponent } from './components/speaker-view/speaker-view.com
     PlayerComponent,
     HomeComponent,
     GalleryViewComponent,
-    SpeakerViewComponent
+    SpeakerViewComponent,
+    DocumentViewComponent
   ],
   imports: [
     BrowserModule,
