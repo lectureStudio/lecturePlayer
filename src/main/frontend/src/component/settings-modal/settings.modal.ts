@@ -28,6 +28,9 @@ export class SettingsModal extends Modal {
 	@property({ type: Boolean, reflect: true })
 	enabled: boolean = false;
 
+	@property({ type: Boolean, reflect: true })
+	error: boolean = false;
+
 	@property()
 	devicesBlocked: boolean;
 
@@ -88,6 +91,7 @@ export class SettingsModal extends Modal {
 				}
 				else if (error.name == "NotAllowedError" || error.name == "PermissionDeniedError") {
 					this.devicesBlocked = true;
+					this.setError();
 				}
 				else {
 					Devices.enumerateDevices(false, false)
@@ -109,6 +113,15 @@ export class SettingsModal extends Modal {
 		// Initially, disable all inputs.
 		this.renderRoot.querySelectorAll("button, input, select").forEach((element: HTMLInputElement) => {
 			element.disabled = !enabled;
+		});
+	}
+
+	private setError() {
+		this.error = true;
+
+		// Enable only buttons in the footer.
+		this.renderRoot.querySelectorAll("footer button").forEach((element: HTMLInputElement) => {
+			element.disabled = false;
 		});
 	}
 
@@ -214,13 +227,13 @@ export class SettingsModal extends Modal {
 				<header>
 					<span>${t("settings.title")}</span>
 				</header>
+				<div class="row alert alert-warning m-2 ${classMap({ "d-none": !this.devicesBlocked })}" role="alert">
+					<span>${t("devices.permission")}</span>
+				</div>
+				<div class="row alert alert-warning m-2 ${classMap({ "d-none": !this.videoInputBlocked })}" role="alert">
+					<span>${t("devices.camera.blocked")}</span>
+				</div>
 				<article>
-					<div class="row alert alert-warning m-2 ${classMap({ "d-none": !this.devicesBlocked })}" role="alert">
-						<span>${t("devices.permission")}</span>
-					</div>
-					<div class="row alert alert-warning m-2 ${classMap({ "d-none": !this.videoInputBlocked })}" role="alert">
-						<span>${t("devices.camera.blocked")}</span>
-					</div>
 					<form id="deviceSelectForm">
 						<div class="row">
 							<div class="col-md-4">
@@ -262,7 +275,7 @@ export class SettingsModal extends Modal {
 				<footer>
 					<player-loading .text="${t("devices.querying")}"></player-loading>
 					<button type="button" @click="${this.cancel}" class="btn btn-outline-secondary btn-sm">${t("settings.cancel")}</button>
-					<button type="button" @click="${this.save}" class="btn btn-outline-primary btn-sm">${t("settings.save")}</button>
+					<button type="button" @click="${this.save}" class="btn btn-outline-primary btn-sm" id="save-button">${t("settings.save")}</button>
 				</footer>
 			</web-dialog>
 		`;

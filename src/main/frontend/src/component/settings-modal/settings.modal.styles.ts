@@ -5,7 +5,11 @@ export const settingsModalStyles = css`
 		pointer-events: none;
 		opacity: 0.4;
 	}
-	:host([enabled]) player-loading {
+	:host([enabled]) player-loading,
+	:host([error]) player-loading {
+		display: none;
+	}
+	:host([error]) #save-button {
 		display: none;
 	}
 	:host player-loading {

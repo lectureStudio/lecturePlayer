@@ -6,7 +6,6 @@ export const playerOfflineStyles = css`
 		flex-direction: column;
 		align-items: center;
 		height: inherit;
-		background-color: #F8F9FA;
 	}
 	:host > div {
 		display: flex;

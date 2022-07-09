@@ -7,7 +7,6 @@ export const playerLoadingStyles = css`
 		align-items: center;
 		height: inherit;
 		justify-content: center;
-		background-color: #F8F9FA;
 	}
 	.lds-ellipsis {
 		display: flex;

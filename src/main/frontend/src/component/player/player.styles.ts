@@ -16,5 +16,6 @@ export const playerStyles = css`
 	:host([state="2"]) player-feature-view,
 	:host([state="3"]) player-offline {
 		display: flex;
+		background-color: #F8F9FA;
 	}
 `;

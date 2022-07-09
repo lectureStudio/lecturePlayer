@@ -76,16 +76,6 @@ export const playerControlsStyles = css`
 	:host #quiz-button {
 		color: #15803D;
 	}
-	:host .pulse {
-		--animation-color: #15803D;
-		animation: button-pulse 2s 5;
-		z-index: 10;
-	}
-	:host .pulse-infinite {
-		--animation-color: #007db5;
-		animation: button-pulse 2s infinite;
-		z-index: 10;
-	}
 
 	:host .col {
 		flex: 1;
@@ -243,9 +233,7 @@ export const playerControlsStyles = css`
 	}
 
 	:host([hasQuiz]) #quiz-button {
-		--animation-color: #15803D;
 		animation: button-pulse 2s 5;
-		z-index: 10;
 	}
 	:host(:not([hasQuiz])) #quiz-button {
 		display: none;
@@ -269,30 +257,17 @@ export const playerControlsStyles = css`
 		display: inherit;
 	}
 
-	
-	@-webkit-keyframes button-pulse {
-		0% {
-			-webkit-box-shadow: 0 0 0 0 var(--animation-color);
-		}
-		70% {
-			-webkit-box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
-		}
-		100% {
-			-webkit-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-		}
-	}
+
 	@keyframes button-pulse {
 		0% {
-			-moz-box-shadow: 0 0 0 0 var(--animation-color);
-			box-shadow: 0 0 0 0 var(--animation-color);
+			background: rgba(21, 128, 61, 0);
 		}
-		70% {
-			-moz-box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
-			box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+		50% {
+			background: rgba(21, 128, 61, 0.2);
+			color: #166534;
 		}
 		100% {
-			-moz-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-			box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+			background: rgba(21, 128, 61, 0.0);
 		}
 	}
 
