@@ -38,7 +38,7 @@ export class JanusService {
 
     private feedStreams: any = {};
 
-    private myRoomId?: number;
+    public myRoomId?: number;
     private myId?: number;
     private myPrivateId?: number;
     private myStream: any;
@@ -78,6 +78,8 @@ export class JanusService {
     private subscriberMode = false;
 
     public locallyMutedRemoteAudioFeeds: { [key: string]: boolean } = {};
+
+    private dataCallback: (data: any) => void;
 
     constructor(private ngZone: NgZone) {
         this.myRoomId = 1;
@@ -1031,5 +1033,10 @@ export class JanusService {
             mute = false;
         }
         this.locallyMutedRemoteAudioFeeds[feedId] = mute;
+    }
+
+
+    public setOnData(consumer: (data: any) => void) {
+        this.dataCallback = consumer;
     }
 }

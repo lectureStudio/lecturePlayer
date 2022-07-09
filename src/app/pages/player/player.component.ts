@@ -1,6 +1,21 @@
 import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {JanusService} from "../../services/janus/janus.service";
 import {Router} from "@angular/router";
+import {StreamPageSelectedAction} from "../../action/stream.page.selected.action";
+import {PageAction} from "../../action/page.action";
+import {StreamDocumentSelectedAction} from "../../action/stream.document.selected.action";
+import {StreamAction} from "../../action/stream.action";
+import {StreamSpeechPublishedAction} from "../../action/stream.speech.published.action";
+import {StreamPagePlaybackAction} from "../../action/stream.playback.action";
+import {StreamDocumentClosedAction} from "../../action/stream.document.closed.action";
+import {WhiteboardDocument} from "../../model/whiteboard.document";
+import {StreamDocumentCreatedAction} from "../../action/stream.document.created.action";
+import {StreamActionParser} from "../../action/parser/stream.action.parser";
+import {ProgressiveDataView} from "../../action/parser/progressive-data-view";
+import {CourseStateDocument} from "../../model/course-state-document";
+import {SlideDocument} from "../../model/document";
+import {CourseStateService} from "../../services/course.service";
+import {PlaybackService} from "../../services/playback.service";
 
 @Component({
   selector: 'app-player',
@@ -32,10 +47,28 @@ export class PlayerComponent implements OnInit, OnDestroy {
     speaker: 'Speaker view'
   }
 
-  constructor(public janusService: JanusService, private router: Router) { }
+  private streamActionBuffer: {
+    docId: bigint;
+    bufferedActions: StreamAction[];
+  } | null;
+
+  constructor(public janusService: JanusService, private router: Router,
+              private courseStateService: CourseStateService, private playbackService: PlaybackService) { }
 
   ngOnInit(): void {
     this.janusService.start();
+
+    this.janusService.setOnData((data: ArrayBuffer) => {
+      if (data instanceof Blob) {
+        // Firefox...
+        data.arrayBuffer().then(buffer => {
+          this.processData(buffer);
+        });
+      }
+      else {
+        this.processData(data);
+      }
+    });
 
     document.addEventListener('click', () => {
       this.isSelectingCamera = false; // TODO refactor, see below
@@ -129,5 +162,102 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.isSelectingViewMode = true;
     this.viewModeSelection.nativeElement.style.top = osT + 'px';
     this.viewModeSelection.nativeElement.style.left = osL + 'px';
+  }
+
+  private processData(data: ArrayBuffer) {
+    if (!this.janusService.myRoomId) {
+      return;
+    }
+
+    const dataView = new ProgressiveDataView(data);
+    const length = dataView.getInt32();
+    const type = dataView.getInt8();
+
+    const action = StreamActionParser.parse(dataView, type, length);
+
+    if (action instanceof StreamDocumentSelectedAction) {
+      if (!this.bufferAction(action, action.documentId)) {
+        this.playbackService.selectDocument(action.documentId);
+      }
+    }
+    else if (action instanceof StreamDocumentCreatedAction) {
+      if (action.documentType === 1) {
+        const slideDoc = new WhiteboardDocument();
+        slideDoc.setDocumentId(action.documentId);
+
+        this.playbackService.addDocument(slideDoc);
+      }
+      else {
+        this.streamActionBuffer = {
+          bufferedActions: [],
+          docId: BigInt(action.documentId)
+        };
+
+        const stateDoc: CourseStateDocument = {
+          activePage: null,
+          documentFile: action.documentFile,
+          documentId: action.documentId,
+          documentName: action.documentTitle,
+          pages: null,
+          type: "pdf"
+        };
+
+        this.courseStateService.getStateDocument(this.janusService.myRoomId, stateDoc)
+            .then((doc: SlideDocument) => {
+              this.playbackService.addDocument(doc);
+
+              this.flushActionBuffer(doc.getDocumentId());
+            })
+            .catch(error => {
+              console.error(error);
+            });
+      }
+    }
+    else if (action instanceof StreamDocumentClosedAction) {
+      this.playbackService.removeDocument(action.documentId);
+    }
+    else if (action instanceof StreamPageSelectedAction) {
+      if (!this.bufferAction(action, action.documentId)) {
+        const pageAction = new PageAction(action.pageNumber);
+        pageAction.timestamp = 0;
+
+        this.playbackService.addAction(pageAction);
+      }
+    }
+    else if (action instanceof StreamPagePlaybackAction) {
+      if (!this.bufferAction(action, action.documentId)) {
+        this.playbackService.addAction(action.action);
+      }
+    }
+  }
+
+  private bufferAction(action: StreamAction, docId: bigint): boolean {
+    if (this.streamActionBuffer && this.streamActionBuffer.docId === BigInt(docId)) {
+      this.streamActionBuffer.bufferedActions.push(action);
+      return true;
+    }
+
+    return false;
+  }
+
+  private flushActionBuffer(docId: bigint): void {
+    if (this.streamActionBuffer && this.streamActionBuffer.docId === BigInt(docId)) {
+      this.streamActionBuffer.bufferedActions.forEach(action => {
+        if (action instanceof StreamDocumentSelectedAction) {
+          this.playbackService.selectDocument(action.documentId);
+        }
+        else if (action instanceof StreamPageSelectedAction) {
+          const pageAction = new PageAction(action.pageNumber);
+          pageAction.timestamp = 0;
+
+          this.playbackService.addAction(pageAction);
+        }
+        else if (action instanceof StreamPagePlaybackAction) {
+          this.playbackService.addAction(action.action);
+        }
+      });
+    }
+
+    this.streamActionBuffer = null;
   }
 }
