@@ -23,6 +23,7 @@
     "clean-webpack-plugin": "^4.0.0",
     "hark": "^1.2.3",
     "janus-gateway": "git+https://github.com/meetecho/janus-gateway.git",
+    "pdfjs-dist": "^2.6.347",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
     "webpack": "^5.72.1",
