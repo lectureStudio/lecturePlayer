@@ -34,7 +34,8 @@ export class JanusService {
     private privateScreenshareId?: number;
     private myScreenshareStream: any;
 
-    private screensharingIsActive: boolean = false;
+    public screensharingIsActive: boolean = false;
+    public myScreenshareIsActive: boolean = false;
 
     private feedStreams: any = {};
 
@@ -726,7 +727,7 @@ export class JanusService {
                             stream: newStream,
                             feedId: feed.id,
                             isScreenshare: isScreenshare,
-                            userName: feed.display
+                            userName: feed.display.replace("_screen", "'s Screen")
                         };
                     });
                     Janus.log("Created remote video stream: ", newStream, "for feed: ", feed);
@@ -766,6 +767,7 @@ export class JanusService {
         delete this.subscriptions[id];
 
         if (feed.display.includes("_screen")) {
+            this.screensharingIsActive = false;
             this.screenshareStateSubject.next("stop");
             this.talkingFeedsSubject.next(this.talkingFeeds);
         }
@@ -854,8 +856,45 @@ export class JanusService {
         }
     }
 
-    public startScreenshare() {
+    private startScreenshare() {
 
+        if (!this.screenshareJanusHandle) {
+            this.attachScreenshareHandle();
+        } else {
+            this.screenshareJanusHandle.createOffer({
+                media: {audioRecv: false, videoRecv: false, audioSend: false, videoSend: true, video: "screen"},
+                simulcast: this.doSimulcast,
+                success: (jsep: any) => {
+                    Janus.debug("Got a publisher SDP!", jsep);
+                    const publish = {request: "configure", audio: true, video: true};
+
+                    // TODO you can force a codec here, check demo code
+
+                    this.screenshareJanusHandle.send({message: publish, jsep});
+
+                    this.myScreenshareIsActive = true;
+                },
+                error: (error: any) => {
+                    Janus.error("WebRTC error: ", error);
+                    // TODO Notify that something went wrong
+                }
+            })
+        }
+
+    }
+
+    private stopScreenshare() {
+        if (this.myScreenshareIsActive) {
+            const unpublish = {request: "unpublish"};
+            this.screenshareJanusHandle.send({message: unpublish});
+
+            this.screenshareJanusHandle.hangup();
+
+            this.myScreenshareIsActive = false;
+        }
+    }
+
+    private attachScreenshareHandle() {
         this.janus.attach({
             plugin: "janus.plugin.videoroom",
             opaqueId: this.opaqueId,
@@ -894,28 +933,7 @@ export class JanusService {
 
                         // Here, if subscriber_mode === true hide videojoin, else publishOwnFeed
 
-                        this.screenshareJanusHandle.createOffer({
-                            media: {
-                                audioRecv: false,
-                                videoRecv: false,
-                                audioSend: false,
-                                videoSend: true,
-                                video: "screen"
-                            },
-                            simulcast: this.doSimulcast,
-                            success: (jsep: any) => {
-                                Janus.debug("Got a publisher SDP!", jsep);
-                                const publish = {request: "configure", audio: true, video: true};
-
-                                // TODO you can force a codec here, check demo code
-
-                                this.screenshareJanusHandle.send({message: publish, jsep});
-                            },
-                            error: (error: any) => {
-                                Janus.error("WebRTC error: ", error);
-                                // TODO Notify that something went wrong
-                            }
-                        })
+                        this.startScreenshare();
 
                         if (this.subscriberMode) {
                             // ?
@@ -959,6 +977,7 @@ export class JanusService {
                 Janus.debug("Local track " + (on ? "added" : "removed") + ":", track);
 
                 track.addEventListener('ended', () => {
+                    console.log("================================== ANAL")
                     this.stopScreenshare();
                 });
 
@@ -1019,13 +1038,28 @@ export class JanusService {
                 }
             }
         })
-
     }
 
-    public stopScreenshare() {
-        const unpublish = {request: "unpublish"};
-        this.screenshareJanusHandle.send({message: unpublish});
-    }
+    public toggleScreenshare()
+        {
+            if (!this.myScreenshareIsActive) {
+                this.startScreenshare();
+            } else if (this.myScreenshareIsActive) {
+                for (const [key, value] of Object.entries(this.localTracks)) {
+                    if (value.isScreenshare) {
+                        for(var i of value.stream.getTracks()) {
+                            if (i) {
+                                i.stop();
+                            }
+                        }
+                        delete this.localTracks[key];
+                    }
+                }
+                this.stopScreenshare();
+            } else {
+                console.error("Something went horribly wrong with screenshare!");
+            }
+        }
 
     public muteRemoteAudioLocallyForFeedId(feedId: string) {
         let mute = true;
