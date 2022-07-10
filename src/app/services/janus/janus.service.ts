@@ -329,7 +329,7 @@ export class JanusService {
         }
 
         this.publisherJanusHandle.createOffer({
-            media: {...mediaObject, audioRecv: false, videoRecv: false, audioSend: useAudio, videoSend: true},
+            media: {...mediaObject, audioRecv: false, videoRecv: false, audioSend: useAudio, videoSend: true, data: true},
             simulcast: this.doSimulcast,
             success: (jsep: any) => {
                 Janus.debug("Got a publisher SDP!", jsep);
@@ -607,7 +607,7 @@ export class JanusService {
                             jsep: jsep,
                             // Add data:true here if you want to subscribe to datachannels as well
                             // (obviously only works if the publisher offered them in the first place)
-                            media: {audioSend: false, videoSend: false},	// We want recvonly audio/video
+                            media: {audioSend: false, videoSend: false, data: true},	// We want recvonly audio/video
                             success: function (jsep: any) {
                                 Janus.debug("Got SDP!");
                                 Janus.debug(jsep);
@@ -862,7 +862,7 @@ export class JanusService {
             this.attachScreenshareHandle();
         } else {
             this.screenshareJanusHandle.createOffer({
-                media: {audioRecv: false, videoRecv: false, audioSend: false, videoSend: true, video: "screen"},
+                media: {audioRecv: false, videoRecv: false, audioSend: false, videoSend: true, video: "screen", screenshareFrameRate: 25},
                 simulcast: this.doSimulcast,
                 success: (jsep: any) => {
                     Janus.debug("Got a publisher SDP!", jsep);
