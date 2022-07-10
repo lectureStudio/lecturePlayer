@@ -7,7 +7,7 @@ class SlideRenderSurface extends RenderSurface {
 
 	renderSlideShape(shape: SlideShape, dirtyRegion: Rectangle): Promise<CanvasImageSource> {
 		const renderer = <SlideRenderer> this.renderers.get(shape.constructor.name);
-		let promise: Promise<CanvasImageSource> = null;
+		let promise: Promise<CanvasImageSource>;
 
 		if (renderer) {
 			const pageRect = shape.bounds;
@@ -15,15 +15,17 @@ class SlideRenderSurface extends RenderSurface {
 			const sx = this.canvas.width / pageRect.width;
 			//const sy = this.canvas.height / pageRect.height;
 
-			this.canvasContext.save();
-			this.canvasContext.scale(sx, sx);
+			if (this.canvasContext) {
+				this.canvasContext.save();
+				this.canvasContext.scale(sx, sx);
 
-			promise = renderer.render(this.canvasContext, shape, dirtyRegion);
+				promise = renderer.render(this.canvasContext, shape, dirtyRegion);
 
-			this.canvasContext.restore();
+				this.canvasContext.restore();
+			}
 		}
 
-		return promise;
+		return promise!;
 	}
 }
 

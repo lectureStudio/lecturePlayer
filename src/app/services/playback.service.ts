@@ -43,7 +43,7 @@ export class PlaybackService {
 
 		// Select active document.
 		const activeStateDoc = courseState.avtiveDocument;
-		let activeDoc: SlideDocument;
+		let activeDoc: SlideDocument | null = null;
 
 		for (const doc of documents) {
 			if (doc.getDocumentId() == activeStateDoc.documentId) {
@@ -53,19 +53,21 @@ export class PlaybackService {
 		}
 
 		const renderController = new RenderController();
-		renderController.setActionRenderSurface(slideView.getActionRenderSurface());
-		renderController.setSlideRenderSurface(slideView.getSlideRenderSurface());
-		renderController.setVolatileRenderSurface(slideView.getVolatileRenderSurface());
-		renderController.setTextLayerSurface(slideView.getTextLayerSurface());
+		// enderController.setActionRenderSurface(slideView.getActionRenderSurface());
+		// renderController.setSlideRenderSurface(slideView.getSlideRenderSurface());
+		// renderController.setVolatileRenderSurface(slideView.getVolatileRenderSurface());
+		// renderController.setTextLayerSurface(slideView.getTextLayerSurface());
 
 		const executor = new StreamActionExecutor(renderController);
-		executor.setDocument(activeDoc);
+		if (activeDoc) {
+			executor.setDocument(activeDoc);
+		}
 		if (activeStateDoc.activePage) {
 			executor.setPageNumber(activeStateDoc.activePage.pageNumber);
 		}
 
-		this.actionPlayer = new StreamActionPlayer(executor, new SyncState(mediaPlayer));
-		this.actionPlayer.start();
+		// this.actionPlayer = new StreamActionPlayer(executor, new SyncState(mediaPlayer));
+		// this.actionPlayer.start();
 	}
 
 	addAction(action: Action): void {

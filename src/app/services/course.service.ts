@@ -8,7 +8,7 @@ import { RecordedPage } from "../model/recorded-page";
 import { WhiteboardDocument } from "../model/whiteboard.document";
 import { HttpRequest } from "../utils/http-request";
 import { DocumentService } from "./document.service";
-import {Injectable} from "@angular/core";
+import {Injectable, Input} from "@angular/core";
 
 @Injectable({
 	providedIn: 'root'
@@ -17,11 +17,12 @@ export class CourseStateService {
 
 	private readonly apiPath = "/course/state";
 
-	private readonly host: string;
+	// private readonly host: string;
 
+	@Input() host: string;
 
-	constructor(host: string) {
-		this.host = host;
+	constructor() {
+		//this.host = host;
 	}
 
 	getCourseState(courseId: number): Promise<CourseState> {

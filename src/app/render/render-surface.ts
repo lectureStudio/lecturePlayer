@@ -10,7 +10,7 @@ class RenderSurface {
 
 	protected readonly canvas: HTMLCanvasElement;
 
-	protected readonly canvasContext: CanvasRenderingContext2D;
+	protected readonly canvasContext: CanvasRenderingContext2D | null;
 
 	protected readonly renderers: Map<String, ShapeRenderer>;
 
@@ -29,7 +29,9 @@ class RenderSurface {
 	}
 
 	clear(): void {
-		this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		if (this.canvasContext) {
+			this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		}
 	}
 
 	registerRenderer(shapeName: String, render: ShapeRenderer): void {
@@ -37,7 +39,9 @@ class RenderSurface {
 	}
 
 	renderImageSource(canvas: CanvasImageSource): void {
-		this.canvasContext.drawImage(canvas, 0, 0);
+		if (this.canvasContext) {
+			this.canvasContext.drawImage(canvas, 0, 0);
+		}
 	}
 
 	renderSurface(surface: RenderSurface): void {
@@ -45,7 +49,9 @@ class RenderSurface {
 			return;
 		}
 
-		this.canvasContext.drawImage(surface.canvas, 0, 0);
+		if (this.canvasContext) {
+			this.canvasContext.drawImage(surface.canvas, 0, 0);
+		}
 	}
 
 	renderShapes(shapes: Shape[]): void {
@@ -54,7 +60,7 @@ class RenderSurface {
 		}
 	}
 
-	renderShape(shape: Shape, dirtyRegion: Rectangle): void {
+	renderShape(shape: Shape, dirtyRegion: Rectangle | null): void {
 		const renderer = this.renderers.get(shape.constructor.name);
 
 		if (renderer) {
@@ -62,13 +68,17 @@ class RenderSurface {
 			const tx = this.transform.getTranslateX();
 			const ty = this.transform.getTranslateY();
 
-			this.canvasContext.save();
-			this.canvasContext.scale(s, s);
-			this.canvasContext.translate(-tx, -ty);
+			if (this.canvasContext) {
+				this.canvasContext.save();
+				this.canvasContext.scale(s, s);
+				this.canvasContext.translate(-tx, -ty);
 
-			renderer.render(this.canvasContext, shape, dirtyRegion);
+				if (dirtyRegion) {
+					renderer.render(this.canvasContext, shape, dirtyRegion);
+				}
 
-			this.canvasContext.restore();
+				this.canvasContext.restore();
+			}
 		}
 	}
 

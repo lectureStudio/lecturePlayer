@@ -48,7 +48,7 @@ class RenderController {
 
 	private page: Page;
 
-	private lastShape: Shape;
+	private lastShape: Shape | null;
 
 	private lastTransform: Transform;
 
