@@ -10,19 +10,16 @@ import { HttpRequest } from "../utils/http-request";
 import { DocumentService } from "./document.service";
 import {Injectable, Input} from "@angular/core";
 
-@Injectable({
-	providedIn: 'root'
-})
 export class CourseStateService {
 
 	private readonly apiPath = "/course/state";
 
 	// private readonly host: string;
 
-	@Input() host: string;
+	host: string;
 
-	constructor() {
-		//this.host = host;
+	constructor(host: string) {
+		this.host = host;
 	}
 
 	getCourseState(courseId: number): Promise<CourseState> {

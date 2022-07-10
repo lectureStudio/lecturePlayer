@@ -52,8 +52,14 @@ export class PlayerComponent implements OnInit, OnDestroy {
     bufferedActions: StreamAction[];
   } | null;
 
+  private courseStateService: CourseStateService;
+  private playbackService: PlaybackService
+
   constructor(public janusService: JanusService, private router: Router,
-              private courseStateService: CourseStateService, private playbackService: PlaybackService) { }
+              ) {
+    this.courseStateService = new CourseStateService("fastrootserver.de");
+    // this.playbackService = new PlaybackService();
+  }
 
   ngOnInit(): void {
     this.janusService.start();

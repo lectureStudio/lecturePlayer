@@ -9,9 +9,6 @@ import { RenderController } from "../render/render-controller";
 import { SyncState } from "../utils/sync-state";
 import {Injectable} from "@angular/core";
 
-@Injectable({
-	providedIn: 'root'
-})
 export class PlaybackService {
 
 	private readonly playbackModel: PlaybackModel;

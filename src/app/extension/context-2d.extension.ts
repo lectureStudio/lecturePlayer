@@ -6,6 +6,8 @@ declare global {
 
 		getTransformExt(): Transform;
 
+		_transform_ext: any;
+		_transform_ext_stack: any;
 	}
 
 }
@@ -16,7 +18,7 @@ const _getTransform = CanvasRenderingContext2D.prototype.getTransform;
 CanvasRenderingContext2D.prototype.getTransformExt = function () {
 	if (_getTransform) {
 		// This is the DOMMatrix.
-		const m = _getTransform.apply(this, Array.from(arguments));
+		const m = _getTransform.apply(this, Array.from(arguments) as []);
 
 		if (!this._transform_ext) {
 			this._transform_ext = new Transform();
@@ -42,7 +44,7 @@ if (!_getTransform) {
 
 	CanvasRenderingContext2D.prototype.resetTransform = function () {
 		if (_resetTransform) {
-			_resetTransform.apply(this, Array.from(arguments));
+			_resetTransform.apply(this, Array.from(arguments) as []);
 		}
 
 		if (!this._transform_ext) {
@@ -54,6 +56,7 @@ if (!_getTransform) {
 
 	CanvasRenderingContext2D.prototype.rotate = function (angle: number) {
 		if (_rotate) {
+			// @ts-ignore
 			_rotate.apply(this, Array.from(arguments));
 		}
 
@@ -66,6 +69,7 @@ if (!_getTransform) {
 
 	CanvasRenderingContext2D.prototype.scale = function (x: number, y: number) {
 		if (_scale) {
+			// @ts-ignore
 			_scale.apply(this, Array.from(arguments));
 		}
 
@@ -78,6 +82,7 @@ if (!_getTransform) {
 
 	CanvasRenderingContext2D.prototype.setTransform = function (a?: number | DOMMatrix2DInit, b?: number, c?: number, d?: number, e?: number, f?: number) {
 		if (_setTransform) {
+			// @ts-ignore
 			_setTransform.apply(this, Array.from(arguments));
 		}
 
@@ -104,6 +109,7 @@ if (!_getTransform) {
 
 	CanvasRenderingContext2D.prototype.transform = function (a: number, b: number, c: number, d: number, e: number, f: number) {
 		if (_transform) {
+			// @ts-ignore
 			_transform.apply(this, Array.from(arguments));
 		}
 
@@ -116,6 +122,7 @@ if (!_getTransform) {
 
 	CanvasRenderingContext2D.prototype.translate = function (x: number, y: number) {
 		if (_translate) {
+			// @ts-ignore
 			_translate.apply(this, Array.from(arguments));
 		}
 
@@ -128,6 +135,7 @@ if (!_getTransform) {
 
 	CanvasRenderingContext2D.prototype.save = function () {
 		if (_save) {
+			// @ts-ignore
 			_save.apply(this, Array.from(arguments));
 		}
 
@@ -143,6 +151,7 @@ if (!_getTransform) {
 
 	CanvasRenderingContext2D.prototype.restore = function () {
 		if (_restore) {
+			// @ts-ignore
 			_restore.apply(this, Array.from(arguments));
 		}
 

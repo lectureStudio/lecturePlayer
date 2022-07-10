@@ -3,9 +3,6 @@ import { PdfJsDocument } from '../model/pdf-js-document';
 import { SlideDocument } from '../model/document';
 import {Injectable} from "@angular/core";
 
-@Injectable({
-	providedIn: 'root'
-})
 export class DocumentService {
 
 	loadDocument(source: Uint8Array): Promise<SlideDocument> {

@@ -4,6 +4,8 @@ import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
 
+import "./app/extension/context-2d.extension";
+
 if (environment.production) {
   enableProdMode();
 }

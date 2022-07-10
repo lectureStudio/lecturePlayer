@@ -36,6 +36,7 @@ class PdfJsDocument extends SlideDocument {
 	async renderPage(pageNumber: number, context: CanvasRenderingContext2D, viewRect: Rectangle, dirtyRegion: Rectangle): Promise<CanvasImageSource> {
 		const pageProxy: PDFPageProxy = await this.getPdfPage(pageNumber);
 
+		// @ts-ignore
 		return this.renderer.render(pageProxy, context, viewRect, dirtyRegion);
 	}
 
