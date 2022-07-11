@@ -13,7 +13,6 @@ export interface Disposable {
 export class TypedEvent<T> {
 
 	private listeners: Listener<T>[] = [];
-	private listenersOncer: Listener<T>[] = [];
 
 
 	subscribe(listener: Listener<T>): Disposable {
@@ -24,10 +23,6 @@ export class TypedEvent<T> {
 		};
 	}
 
-	subscribeOnce(listener: Listener<T>): void {
-		this.listenersOncer.push(listener);
-	}
-
 	unsubscribe(listener: Listener<T>): void {
 		const callbackIndex = this.listeners.indexOf(listener);
 
@@ -36,14 +31,11 @@ export class TypedEvent<T> {
 		}
 	}
 
-	publish(event: T): void {
-		this.listeners.forEach((listener) => listener(event));
-
-		this.listenersOncer.forEach((listener) => listener(event));
-		this.listenersOncer = [];
+	unsubscribeAll(): void {
+		this.listeners.splice(0);
 	}
 
-	pipe(te: TypedEvent<T>): Disposable {
-		return this.subscribe((e) => te.publish(e));
+	publish(event: T): void {
+		this.listeners.forEach((listener) => listener(event));
 	}
 }

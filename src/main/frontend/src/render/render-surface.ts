@@ -6,7 +6,7 @@ import { SizeEvent } from "../event/size-event";
 import { TypedEvent, Listener, Disposable } from "../utils/event-listener";
 import { Transform } from "../geometry/transform";
 
-class RenderSurface {
+export class RenderSurface {
 
 	protected readonly parent: HTMLElement;
 
@@ -20,7 +20,7 @@ class RenderSurface {
 
 	private readonly transform: Transform;
 
-	private size: Dimension;
+	private size: Dimension = new Dimension(0, 0);
 
 
 	constructor(parent: HTMLElement, canvas: HTMLCanvasElement) {
@@ -86,8 +86,13 @@ class RenderSurface {
 
 		// HiDPI handling
 		const dpr = window.devicePixelRatio || 1;
+		const newSize = new Dimension(width * dpr, height * dpr);
 
-		this.size = new Dimension(width * dpr, height * dpr);
+		if (newSize.equals(this.size)) {
+			return;
+		}
+
+		this.size = newSize;
 
 		this.resizeCanvas(width, height, dpr);
 		this.fireSizeEvent(new SizeEvent(this.size));
@@ -122,6 +127,10 @@ class RenderSurface {
 		return this.sizeEvent.subscribe(listener);
 	}
 
+	removeSizeListeners(): void {
+		this.sizeEvent.unsubscribeAll();
+	}
+
 	protected fireSizeEvent(event: SizeEvent): void {
 		this.sizeEvent.publish(event);
 	}
@@ -138,5 +147,3 @@ class RenderSurface {
 		this.canvas.style.height = height + "px";
 	}
 }
-
-export { RenderSurface };

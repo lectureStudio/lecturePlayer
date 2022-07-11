@@ -3,10 +3,13 @@ import { JanusPublisher } from "./janus-publisher";
 import { JanusSubscriber } from "./janus-subscriber";
 import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
+import { StreamActionProcessor } from "../action/stream-action-processor";
 
 export class JanusService extends EventTarget {
 
 	private readonly serverUrl: string;
+
+	private readonly actionProcessor: StreamActionProcessor;
 
 	private janus: Janus;
 
@@ -20,13 +23,12 @@ export class JanusService extends EventTarget {
 
 	private deviceConstraints: any;
 
-	private dataCallback: (data: ArrayBuffer | Blob) => void;
 
-
-	constructor(serverUrl: string) {
+	constructor(serverUrl: string, actionProcessor: StreamActionProcessor) {
 		super();
 
 		this.serverUrl = serverUrl;
+		this.actionProcessor = actionProcessor;
 		this.publishers = [];
 		this.subscribers = [];
 
@@ -43,10 +45,6 @@ export class JanusService extends EventTarget {
 
 	setRoomId(roomId: number) {
 		this.roomId = roomId;
-	}
-
-	setOnData(consumer: (data: ArrayBuffer | Blob) => void) {
-		this.dataCallback = consumer;
 	}
 
 	connect() {
@@ -226,7 +224,7 @@ export class JanusService extends EventTarget {
 		const subscriber: JanusSubscriber = event.detail.participant;
 
 		if (subscriber.isPrimary) {
-			this.dataCallback(event.detail.data);
+			this.actionProcessor.processData(event.detail.data);
 		}
 	}
 }

@@ -8,12 +8,16 @@ import { RenderController } from "../render/render-controller";
 
 export class PlaybackService {
 
-	private readonly documents: Map<bigint, SlideDocument> = new Map();
+	private documents: Map<bigint, SlideDocument>;
 
 	private actionPlayer: StreamActionPlayer;
 
+	private renderController: RenderController;
+
 
 	initialize(playerView: PlayerView, courseState: CourseState, documents: SlideDocument[]) {
+		this.documents = new Map();
+
 		documents.forEach((doc: SlideDocument) => {
 			this.addDocument(doc);
 		});
@@ -29,22 +33,23 @@ export class PlaybackService {
 			}
 		}
 
-		const slideView = playerView.getSlideView();
+		this.renderController = new RenderController(playerView.getSlideView());
 
-		const renderController = new RenderController();
-		renderController.setActionRenderSurface(slideView.getActionRenderSurface());
-		renderController.setSlideRenderSurface(slideView.getSlideRenderSurface());
-		renderController.setVolatileRenderSurface(slideView.getVolatileRenderSurface());
-		renderController.setTextLayerSurface(slideView.getTextLayerSurface());
-
-		slideView.setRenderController(renderController);
-
-		const executor = new StreamActionExecutor(renderController);
+		const executor = new StreamActionExecutor(this.renderController);
 		executor.setDocument(activeDoc);
 		executor.setPageNumber(activeStateDoc.activePage.pageNumber);
 
 		this.actionPlayer = new StreamActionPlayer(executor);
 		this.actionPlayer.start();
+	}
+
+	dispose() {
+		if (this.actionPlayer) {
+			this.actionPlayer.stop();
+		}
+		if (this.renderController) {
+			this.renderController.dispose();
+		}
 	}
 
 	addAction(action: Action): void {

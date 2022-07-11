@@ -33,7 +33,7 @@ class Dimension {
 			return false;
 		}
 
-		return this.width === other.height && this.height === other.height;
+		return Math.fround(this.width) === Math.fround(other.width) && Math.fround(this.height) === Math.fround(other.height);
 	}
 
 	/**

@@ -1,6 +1,6 @@
 import { CourseStateDocument } from "../model/course-state-document";
 import { SlideDocument } from "../model/document";
-import { Action } from "./action";
+import { PlaybackService } from "../service/playback.service";
 import { PageDeleteAction } from "./page-delete.action";
 import { PageAction } from "./page.action";
 import { ProgressiveDataView } from "./parser/progressive-data-view";
@@ -21,18 +21,16 @@ export class StreamActionProcessor {
 		bufferedActions: StreamAction[];
 	};
 
-	onAddAction: (action: Action) => void;
-
-	onAddDocument: (doc: SlideDocument) => void;
-
-	onSelectDocument: (docId: bigint) => void;
-
-	onRemoveDocument: (docId: bigint) => void;
+	private readonly playbackService: PlaybackService;
 
 	onGetDocument: (stateDoc: CourseStateDocument) => Promise<SlideDocument>;
 
 	onPeerConnected: (peerId: bigint) => void;
 
+
+	constructor(playbackService: PlaybackService) {
+		this.playbackService = playbackService;
+	}
 
 	processData(data: ArrayBuffer | Blob) {
 		if (data instanceof Blob) {
@@ -55,7 +53,7 @@ export class StreamActionProcessor {
 
 		if (action instanceof StreamDocumentSelectedAction) {
 			if (!this.bufferAction(action, action.documentId)) {
-				this.onSelectDocument(action.documentId);
+				this.playbackService.selectDocument(action.documentId);
 			}
 		}
 		else if (action instanceof StreamDocumentCreatedAction) {
@@ -75,7 +73,7 @@ export class StreamActionProcessor {
 
 			this.onGetDocument(stateDoc)
 				.then((doc: SlideDocument) => {
-					this.onAddDocument(doc);
+					this.playbackService.addDocument(doc);
 					this.flushActionBuffer(doc.getDocumentId());
 				})
 				.catch(error => {
@@ -83,14 +81,14 @@ export class StreamActionProcessor {
 				});
 		}
 		else if (action instanceof StreamDocumentClosedAction) {
-			this.onRemoveDocument(action.documentId);
+			this.playbackService.removeDocument(action.documentId);
 		}
 		else if (action instanceof StreamPageSelectedAction) {
 			if (!this.bufferAction(action, action.documentId)) {
 				const pageAction = new PageAction(action.pageNumber);
 				pageAction.timestamp = 0;
 
-				this.onAddAction(pageAction);
+				this.playbackService.addAction(pageAction);
 			}
 		}
 		else if (action instanceof StreamPageDeletedAction) {
@@ -98,12 +96,12 @@ export class StreamActionProcessor {
 				const pageAction = new PageDeleteAction(action.pageNumber, action.documentId);
 				pageAction.timestamp = 0;
 
-				this.onAddAction(pageAction);
+				this.playbackService.addAction(pageAction);
 			}
 		}
 		else if (action instanceof StreamPagePlaybackAction) {
 			if (!this.bufferAction(action, action.documentId)) {
-				this.onAddAction(action.action);
+				this.playbackService.addAction(action.action);
 			}
 		}
 		else if (action instanceof StreamSpeechPublishedAction) {
@@ -124,16 +122,16 @@ export class StreamActionProcessor {
 		if (this.streamActionBuffer && this.streamActionBuffer.docId === BigInt(docId)) {
 			this.streamActionBuffer.bufferedActions.forEach(action => {
 				if (action instanceof StreamDocumentSelectedAction) {
-					this.onSelectDocument(action.documentId);
+					this.playbackService.selectDocument(action.documentId);
 				}
 				else if (action instanceof StreamPageSelectedAction) {
 					const pageAction = new PageAction(action.pageNumber);
 					pageAction.timestamp = 0;
 
-					this.onAddAction(pageAction);
+					this.playbackService.addAction(pageAction);
 				}
 				else if (action instanceof StreamPagePlaybackAction) {
-					this.onAddAction(action.action);
+					this.playbackService.addAction(action.action);
 				}
 			});
 		}

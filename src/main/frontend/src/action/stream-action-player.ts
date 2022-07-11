@@ -29,14 +29,12 @@ export class StreamActionPlayer extends ActionPlayer {
 
 	stop(): void {
 		cancelAnimationFrame(this.requestID);
+
+		this.actions.length = 0;
 	}
 
 	suspend(): void {
 		cancelAnimationFrame(this.requestID);
-	}
-
-	destroy(): void {
-		this.actions.length = 0;
 	}
 
 	addAction(action: Action): void {

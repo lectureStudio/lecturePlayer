@@ -60,10 +60,6 @@ export class SlideView extends LitElement {
 		return this.textLayerSurface;
 	}
 
-	repaint(): void {
-		this.resize();
-	}
-
 	private resize() {
 		if (!this.renderController) {
 			return;

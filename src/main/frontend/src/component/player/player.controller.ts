@@ -6,6 +6,7 @@ import { SlideDocument } from '../../model/document';
 import { CourseStateService } from '../../service/course.service';
 import { EventService } from '../../service/event.service';
 import { JanusService } from '../../service/janus.service';
+import { PlaybackService } from '../../service/playback.service';
 import { SpeechService } from '../../service/speech.service';
 import { Devices } from '../../utils/devices';
 import { MediaProfile, Settings } from '../../utils/settings';
@@ -28,17 +29,19 @@ export class PlayerController implements ReactiveController {
 
 	private readonly host: LecturePlayer;
 
+	private readonly maxWidth576Query: MediaQueryList;
+
 	private readonly eventService: EventService;
 
 	private readonly speechService: SpeechService;
 
-	private readonly janusService: JanusService;
-
 	private readonly courseStateService: CourseStateService;
 
-	private readonly actionProcessor: StreamActionProcessor;
+	private janusService: JanusService;
 
-	private readonly maxWidth576Query: MediaQueryList;
+	private playbackService: PlaybackService;
+
+	private actionProcessor: StreamActionProcessor;
 
 	private viewController: PlayerViewController;
 
@@ -55,9 +58,12 @@ export class PlayerController implements ReactiveController {
 
 		this.eventService = new EventService();
 		this.speechService = new SpeechService();
+		// this.playbackService = new PlaybackService();
+		// this.actionProcessor = new StreamActionProcessor(this.playbackService);
+		// this.actionProcessor.onGetDocument = this.getDocument.bind(this);
+		// this.actionProcessor.onPeerConnected = this.onPeerConnected.bind(this);
 		this.courseStateService = new CourseStateService("https://" + window.location.host);
-		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus");
-		this.actionProcessor = new StreamActionProcessor();
+		// this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus", this.actionProcessor);
 		this.modals = new Map();
 
 		this.maxWidth576Query = window.matchMedia("(max-width: 576px)");
@@ -79,8 +85,7 @@ export class PlayerController implements ReactiveController {
 		this.eventService.addEventListener("stream-state", this.onStreamState.bind(this));
 		this.eventService.addEventListener("speech-state", this.onSpeechState.bind(this));
 
-		this.janusService.setRoomId(this.host.courseId);
-		this.janusService.setOnData(this.actionProcessor.processData.bind(this.actionProcessor));
+		// this.janusService.setRoomId(this.host.courseId);
 
 		this.initToaster();
 	}
@@ -88,23 +93,19 @@ export class PlayerController implements ReactiveController {
 	setPlayerViewController(viewController: PlayerViewController) {
 		this.viewController = viewController;
 
-		const playbackService = viewController.getPlaybackService();
-
-		this.actionProcessor.onAddAction = playbackService.addAction.bind(playbackService);
-		this.actionProcessor.onAddDocument = playbackService.addDocument.bind(playbackService);
-		this.actionProcessor.onSelectDocument = playbackService.selectDocument.bind(playbackService);
-		this.actionProcessor.onRemoveDocument = playbackService.removeDocument.bind(playbackService);
-		this.actionProcessor.onGetDocument = this.getDocument.bind(this);
-		this.actionProcessor.onPeerConnected = this.onPeerConnected.bind(this);
-
 		this.connect();
 	}
 
 	private setConnectionState(state: State) {
 		this.host.state = state;
 
-		if (state === State.DISCONNECTED) {
-			this.viewController.setDisconnected();
+		switch (state) {
+			case State.CONNECTED_FEATURES:
+			case State.DISCONNECTED:
+				this.setFullscreen(false);
+				this.playbackService.dispose();
+				this.viewController.setDisconnected();
+				break;
 		}
 	}
 
@@ -120,21 +121,35 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private connect() {
+		this.playbackService = new PlaybackService();
+
+		this.actionProcessor = new StreamActionProcessor(this.playbackService);
+		this.actionProcessor.onGetDocument = this.getDocument.bind(this);
+		this.actionProcessor.onPeerConnected = this.onPeerConnected.bind(this);
+
+		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus", this.actionProcessor);
+		this.janusService.setRoomId(this.host.courseId);
+
 		this.getCourseState()
 			.then(courseState => {
 				console.log("Course state", courseState);
 
 				this.host.courseState = courseState;
 
-				if (this.isClassroomProfile()) {
+				if (courseState.activeDocument == null) {
+					// Update early, if not streaming.
 					this.updateCourseState();
+				}
+				if (this.isClassroomProfile()) {
 					return;
 				}
 
 				this.getDocuments(courseState.documentMap)
 					.then(documents => {
 						if (courseState.activeDocument) {
-							this.viewController.setCourseDocumentState(courseState, documents);
+							this.playbackService.initialize(this.viewController.host, this.host.courseState, documents);
+
+							this.viewController.setCourseState(courseState);
 
 							this.janusService.connect();
 
@@ -186,17 +201,23 @@ export class PlayerController implements ReactiveController {
 		this.janusService.addPeer(peerId);
 	}
 
-	private onFullscreen(event: CustomEvent) {
-		if (event.detail.fullscreen === true) {
-			if (this.host.requestFullscreen) {
+	private setFullscreen(enable: boolean) {
+		const isFullscreen = document.fullscreenElement !== null;
+
+		if (enable) {
+			if (this.host.requestFullscreen && !isFullscreen) {
 				this.host.requestFullscreen();
 			}
 		}
 		else {
-			if (document.exitFullscreen) {
+			if (document.exitFullscreen && isFullscreen) {
 				document.exitFullscreen();
 			}
 		}
+	}
+
+	private onFullscreen(event: CustomEvent) {
+		this.setFullscreen(event.detail.fullscreen === true);
 	}
 
 	private onSettings() {
@@ -221,7 +242,7 @@ export class PlayerController implements ReactiveController {
 	private onQuizAction() {
 		const quizModal = new QuizModal();
 		quizModal.courseId = this.host.courseId;
-		quizModal.feature = this.viewController.getCourseState().quizFeature;
+		quizModal.feature = this.host.courseState.quizFeature;
 
 		this.registerModal(QuizModal.name, quizModal);
 	}
@@ -230,7 +251,7 @@ export class PlayerController implements ReactiveController {
 		if (this.maxWidth576Query.matches) {
 			const chatModal = new ChatModal();
 			chatModal.courseId = this.host.courseId;
-			chatModal.feature = this.viewController.getCourseState().messageFeature;
+			chatModal.feature = this.host.courseState.messageFeature;
 
 			this.registerModal(ChatModal.name, chatModal);
 		}

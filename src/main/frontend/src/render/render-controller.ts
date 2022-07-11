@@ -34,6 +34,7 @@ import { LatexRenderer } from "./latex.renderer";
 import { PenShape } from "../model/shape/pen.shape";
 import { PenRenderer } from "./pen.renderer";
 import { Brush } from "../paint/brush";
+import { SlideView } from "../component/slide-view/slide-view";
 
 export class RenderController {
 
@@ -56,7 +57,7 @@ export class RenderController {
 	private seek: boolean = false;
 
 
-	constructor() {
+	constructor(slideView: SlideView) {
 		this.pageChangeListener = this.pageChanged.bind(this);
 		this.lastTransform = new Transform();
 
@@ -69,6 +70,13 @@ export class RenderController {
 				}, 100);
 			}
 		});
+
+		this.setActionRenderSurface(slideView.getActionRenderSurface());
+		this.setSlideRenderSurface(slideView.getSlideRenderSurface());
+		this.setVolatileRenderSurface(slideView.getVolatileRenderSurface());
+		this.setTextLayerSurface(slideView.getTextLayerSurface());
+
+		slideView.setRenderController(this);
 	}
 
 	getPage(): Page {
@@ -117,29 +125,6 @@ export class RenderController {
 		}
 	}
 
-	setSlideRenderSurface(renderSurface: SlideRenderSurface): void {
-		this.slideRenderSurface = renderSurface;
-		this.slideRenderSurface.registerRenderer(new SlideShape(null), new SlideRenderer());
-		this.slideRenderSurface.addSizeListener(this.slideRenderSurfaceSizeChanged.bind(this));
-	}
-
-	setActionRenderSurface(renderSurface: RenderSurface): void {
-		this.actionRenderSurface = renderSurface;
-		this.actionRenderSurface.addSizeListener(this.actionRenderSurfaceSizeChanged.bind(this));
-
-		this.registerShapeRenderers(renderSurface);
-	}
-
-	setVolatileRenderSurface(renderSurface: RenderSurface): void {
-		this.volatileRenderSurface = renderSurface;
-
-		this.registerShapeRenderers(renderSurface);
-	}
-
-	setTextLayerSurface(textLayerSurface: TextLayerSurface): void {
-		this.textLayerSurface = textLayerSurface;
-	}
-
 	beginBulkRender(): void {
 		if (!this.seek) {
 			this.disableRendering();
@@ -151,6 +136,34 @@ export class RenderController {
 			this.refreshAnnotationLayers();
 			this.enableRendering();
 		}
+	}
+
+	dispose() {
+		this.slideRenderSurface.removeSizeListeners();
+		this.actionRenderSurface.removeSizeListeners();
+	}
+
+	private setSlideRenderSurface(renderSurface: SlideRenderSurface): void {
+		this.slideRenderSurface = renderSurface;
+		this.slideRenderSurface.registerRenderer(new SlideShape(null), new SlideRenderer());
+		this.slideRenderSurface.addSizeListener(this.slideRenderSurfaceSizeChanged.bind(this));
+	}
+
+	private setActionRenderSurface(renderSurface: RenderSurface): void {
+		this.actionRenderSurface = renderSurface;
+		this.actionRenderSurface.addSizeListener(this.actionRenderSurfaceSizeChanged.bind(this));
+
+		this.registerShapeRenderers(renderSurface);
+	}
+
+	private setVolatileRenderSurface(renderSurface: RenderSurface): void {
+		this.volatileRenderSurface = renderSurface;
+
+		this.registerShapeRenderers(renderSurface);
+	}
+
+	private setTextLayerSurface(textLayerSurface: TextLayerSurface): void {
+		this.textLayerSurface = textLayerSurface;
 	}
 
 	private updateSurfaceSize(page: Page): Promise<void> {

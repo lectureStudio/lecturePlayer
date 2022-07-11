@@ -1,7 +1,5 @@
 import { ReactiveController } from "lit";
 import { CourseState, MessengerState, QuizState } from "../../model/course-state";
-import { SlideDocument } from "../../model/document";
-import { PlaybackService } from "../../service/playback.service";
 import { State } from "../../utils/state";
 import { Utils } from "../../utils/utils";
 import { ParticipantView } from "../participant-view/participant-view";
@@ -9,9 +7,7 @@ import { PlayerView } from "./player-view";
 
 export class PlayerViewController implements ReactiveController {
 
-	private readonly host: PlayerView;
-
-	private readonly playbackService: PlaybackService;
+	readonly host: PlayerView;
 
 	private clockIntervalId: number;
 
@@ -19,8 +15,6 @@ export class PlayerViewController implements ReactiveController {
 	constructor(host: PlayerView) {
 		this.host = host;
 		this.host.addController(this);
-
-		this.playbackService = new PlaybackService();
 	}
 
 	hostConnected() {
@@ -31,15 +25,7 @@ export class PlayerViewController implements ReactiveController {
 		this.host.addEventListener("player-chat-visibility", this.onChatVisibility.bind(this), false);
 	}
 
-	getPlaybackService() {
-		return this.playbackService;
-	}
-
-	getCourseState(): CourseState {
-		return this.host.courseState;
-	}
-
-	setCourseDocumentState(courseState: CourseState, documents: SlideDocument[]) {
+	setCourseState(courseState: CourseState) {
 		this.host.courseState = Utils.mergeDeep(this.host.courseState || {}, courseState);
 		this.host.chatVisible = this.host.courseState.messageFeature != null;
 
@@ -51,14 +37,14 @@ export class PlayerViewController implements ReactiveController {
 				clearInterval(this.clockIntervalId);
 			}
 		}, 500);
-
-		this.playbackService.initialize(this.host, this.host.courseState, documents);
 	}
 
 	setDisconnected() {
 		clearInterval(this.clockIntervalId);
 
 		this.host.courseState = null;
+		this.host.controls.handUp = false;
+		this.host.controls.fullscreen = false;
 	}
 
 	private onMessengerState(event: CustomEvent) {
