@@ -385,8 +385,14 @@ export class PlayerController implements ReactiveController {
 		};
 
 		const constraints = {
+			audio: {
+				deviceId: speechConstraints.audioDeviceId ? { exact: speechConstraints.audioDeviceId } : undefined
+			},
 			video: {
-				deviceId: speechConstraints.videoDeviceId ? { exact: speechConstraints.videoDeviceId } : undefined
+				deviceId: speechConstraints.videoDeviceId ? { exact: speechConstraints.videoDeviceId } : undefined,
+				width: 1280,
+				height: 720,
+				facingMode: "user"
 			}
 		};
 
@@ -433,15 +439,13 @@ export class PlayerController implements ReactiveController {
 	private showSpeechAcceptedModal(stream: MediaStream, speechConstraints: any, camBlocked: boolean) {
 		if (this.speechRequestId) {
 			const speechModal = new SpeechAcceptedModal();
+			speechModal.stream = stream;
 			speechModal.videoInputBlocked = camBlocked;
 			speechModal.addEventListener("speech-accepted-canceled", () => {
 				this.cancelSpeech();
 			});
 			speechModal.addEventListener("speech-accepted-start", () => {
 				this.janusService.startSpeech(speechConstraints);
-			});
-			speechModal.addEventListener("modal-closing", () => {
-				Devices.stopMediaTracks(stream);
 			});
 
 			this.registerModal(SpeechAcceptedModal.name, speechModal);
