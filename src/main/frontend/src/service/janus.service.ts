@@ -63,13 +63,13 @@ export class JanusService extends EventTarget {
 		});
 	}
 
-	addPeer(peerId: BigInt) {
+	addPeer(peerId: bigint) {
 		if (this.publishers.some(pub => pub.getPublisherId() === peerId)) {
 			// Do not subscribe to our own publisher.
 			return;
 		}
 
-		this.attachToPublisher({ id: peerId }, false);
+		this.attachToPublisher({ id: Number(peerId) }, false);
 	}
 
 	startSpeech(speechConstraints: any) {

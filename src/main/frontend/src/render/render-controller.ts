@@ -40,6 +40,8 @@ export class RenderController {
 
 	private readonly pageChangeListener: (event: PageEvent) => void;
 
+	private readonly visibilityChangeListener: () => void;
+
 	private slideRenderSurface: SlideRenderSurface;
 
 	private actionRenderSurface: RenderSurface;
@@ -59,17 +61,10 @@ export class RenderController {
 
 	constructor(slideView: SlideView) {
 		this.pageChangeListener = this.pageChanged.bind(this);
+		this.visibilityChangeListener = this.visibilityChanged.bind(this);
 		this.lastTransform = new Transform();
 
-		document.addEventListener("visibilitychange", () => {
-			if (document.visibilityState === "visible") {
-				setTimeout(() => {
-					window.dispatchEvent(new Event("resize"));
-	
-					this.renderAllLayers(this.page);
-				}, 100);
-			}
-		});
+		document.addEventListener("visibilitychange", this.visibilityChangeListener);
 
 		this.setActionRenderSurface(slideView.getActionRenderSurface());
 		this.setSlideRenderSurface(slideView.getSlideRenderSurface());
@@ -141,6 +136,12 @@ export class RenderController {
 	dispose() {
 		this.slideRenderSurface.removeSizeListeners();
 		this.actionRenderSurface.removeSizeListeners();
+
+		document.removeEventListener("visibilitychange", this.visibilityChangeListener);
+
+		if (this.page) {
+			this.page.removeChangeListener(this.pageChangeListener);
+		}
 	}
 
 	private setSlideRenderSurface(renderSurface: SlideRenderSurface): void {
@@ -219,6 +220,16 @@ export class RenderController {
 			case PageChangeType.ShapeModified:
 				this.renderVolatileLayer(event.shape, event.dirtyRegion);
 				break;
+		}
+	}
+
+	private visibilityChanged(): void {
+		if (document.visibilityState === "visible") {
+			setTimeout(() => {
+				window.dispatchEvent(new Event("resize"));
+
+				this.renderAllLayers(this.page);
+			}, 100);
 		}
 	}
 

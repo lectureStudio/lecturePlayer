@@ -37,11 +37,11 @@ export class PlayerController implements ReactiveController {
 
 	private readonly courseStateService: CourseStateService;
 
-	private janusService: JanusService;
+	private readonly janusService: JanusService;
 
-	private playbackService: PlaybackService;
+	private readonly playbackService: PlaybackService;
 
-	private actionProcessor: StreamActionProcessor;
+	private readonly actionProcessor: StreamActionProcessor;
 
 	private viewController: PlayerViewController;
 
@@ -58,12 +58,12 @@ export class PlayerController implements ReactiveController {
 
 		this.eventService = new EventService();
 		this.speechService = new SpeechService();
-		// this.playbackService = new PlaybackService();
-		// this.actionProcessor = new StreamActionProcessor(this.playbackService);
-		// this.actionProcessor.onGetDocument = this.getDocument.bind(this);
-		// this.actionProcessor.onPeerConnected = this.onPeerConnected.bind(this);
+		this.playbackService = new PlaybackService();
+		this.actionProcessor = new StreamActionProcessor(this.playbackService);
+		this.actionProcessor.onGetDocument = this.getDocument.bind(this);
+		this.actionProcessor.onPeerConnected = this.onPeerConnected.bind(this);
 		this.courseStateService = new CourseStateService("https://" + window.location.host);
-		// this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus", this.actionProcessor);
+		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus", this.actionProcessor);
 		this.modals = new Map();
 
 		this.maxWidth576Query = window.matchMedia("(max-width: 576px)");
@@ -84,8 +84,6 @@ export class PlayerController implements ReactiveController {
 		this.eventService.addEventListener("recording-state", this.onRecordingState.bind(this));
 		this.eventService.addEventListener("stream-state", this.onStreamState.bind(this));
 		this.eventService.addEventListener("speech-state", this.onSpeechState.bind(this));
-
-		// this.janusService.setRoomId(this.host.courseId);
 
 		this.initToaster();
 	}
@@ -121,15 +119,6 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private connect() {
-		this.playbackService = new PlaybackService();
-
-		this.actionProcessor = new StreamActionProcessor(this.playbackService);
-		this.actionProcessor.onGetDocument = this.getDocument.bind(this);
-		this.actionProcessor.onPeerConnected = this.onPeerConnected.bind(this);
-
-		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus", this.actionProcessor);
-		this.janusService.setRoomId(this.host.courseId);
-
 		this.getCourseState()
 			.then(courseState => {
 				console.log("Course state", courseState);
@@ -151,6 +140,7 @@ export class PlayerController implements ReactiveController {
 
 							this.viewController.setCourseState(courseState);
 
+							this.janusService.setRoomId(this.host.courseId);
 							this.janusService.connect();
 
 							if (courseState.recorded) {
@@ -343,7 +333,7 @@ export class PlayerController implements ReactiveController {
 		const accepted = event.detail.accepted;
 		const requestId = event.detail.requestId;
 
-		if (BigInt(requestId) - this.speechRequestId < 1000) {
+		if (this.speechRequestId && (BigInt(requestId) - this.speechRequestId) < 1000) {
 			if (accepted) {
 				this.speechAccepted();
 			}
