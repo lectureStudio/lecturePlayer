@@ -977,7 +977,6 @@ export class JanusService {
                 Janus.debug("Local track " + (on ? "added" : "removed") + ":", track);
 
                 track.addEventListener('ended', () => {
-                    console.log("================================== ANAL")
                     this.stopScreenshare();
                 });
 

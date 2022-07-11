@@ -1,13 +1,12 @@
 import { Action } from "../action/action";
 import { StreamActionExecutor } from "../action/action.executor";
 import { StreamActionPlayer } from "../action/stream-action-player";
-import { MediaPlayer } from "../media/media-player";
 import { CourseState } from "../model/course-state";
 import { SlideDocument } from "../model/document";
 import { PlaybackModel } from "../model/playback-model";
 import { RenderController } from "../render/render-controller";
 import { SyncState } from "../utils/sync-state";
-import {Injectable} from "@angular/core";
+import {DocumentViewComponent} from "../components/document-view/document-view.component";
 
 export class PlaybackService {
 
@@ -23,14 +22,12 @@ export class PlaybackService {
 		this.documents = new Map();
 	}
 
-	initialize(courseState: CourseState, documents: SlideDocument[], startTime: BigInt) {
+	initialize(slideView: DocumentViewComponent, courseState: CourseState, documents: SlideDocument[], startTime: BigInt) {
 		documents.forEach((doc: SlideDocument) => {
 			this.addDocument(doc);
 		});
 
 		const startTimeMs = Number(startTime);
-
-		// const slideView = playerView.getSlideView();
 
 		// const mediaPlayer = new MediaPlayer(playerView.getMediaElement());
 		// mediaPlayer.muted = this.playbackModel.getMuted();
@@ -50,10 +47,10 @@ export class PlaybackService {
 		}
 
 		const renderController = new RenderController();
-		// enderController.setActionRenderSurface(slideView.getActionRenderSurface());
-		// renderController.setSlideRenderSurface(slideView.getSlideRenderSurface());
-		// renderController.setVolatileRenderSurface(slideView.getVolatileRenderSurface());
-		// renderController.setTextLayerSurface(slideView.getTextLayerSurface());
+		renderController.setActionRenderSurface(slideView.getActionRenderSurface());
+		renderController.setSlideRenderSurface(slideView.getSlideRenderSurface());
+		renderController.setVolatileRenderSurface(slideView.getVolatileRenderSurface());
+		renderController.setTextLayerSurface(slideView.getTextLayerSurface());
 
 		const executor = new StreamActionExecutor(renderController);
 		if (activeDoc) {
@@ -63,8 +60,8 @@ export class PlaybackService {
 			executor.setPageNumber(activeStateDoc.activePage.pageNumber);
 		}
 
-		// this.actionPlayer = new StreamActionPlayer(executor, new SyncState(mediaPlayer));
-		// this.actionPlayer.start();
+		this.actionPlayer = new StreamActionPlayer(executor, new SyncState());
+		this.actionPlayer.start();
 	}
 
 	addAction(action: Action): void {

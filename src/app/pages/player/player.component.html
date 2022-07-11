@@ -1,8 +1,10 @@
 <div class="container" xmlns="http://www.w3.org/1999/html">
 
-    <app-gallery-view *ngIf="chosenViewMode === 'gallery'" [cameraStreams]="videoStreams"></app-gallery-view>
+<!--    <app-gallery-view *ngIf="chosenViewMode === 'gallery'" [cameraStreams]="videoStreams"></app-gallery-view>-->
 
-    <app-speaker-view *ngIf="chosenViewMode === 'speaker'" [cameraStreams]="videoStreams"></app-speaker-view>
+<!--    <app-speaker-view *ngIf="chosenViewMode === 'speaker'" [cameraStreams]="videoStreams"></app-speaker-view>-->
+
+    <app-document-view #slideView></app-document-view>
 
     <!-- TODO: Create components for this hierarchy! -->
 

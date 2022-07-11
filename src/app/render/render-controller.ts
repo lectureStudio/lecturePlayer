@@ -229,9 +229,13 @@ class RenderController {
 				this.textLayerSurface.render(this.page);
 
 				this.lastShape = null;
+
+				console.log('RendererController Rendered image source: ', imageSource);
 			}
 		})
-		.catch(error => {});
+		.catch(error => {
+			console.log('RendererController error: ', error);
+		});
 	}
 
 	private renderPermanentLayer(shape: Shape, dirtyRegion: Rectangle): void {

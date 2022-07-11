@@ -37,19 +37,21 @@ export class CourseStateService {
 	
 						const byteBuffer = new Uint8Array(dataBuffer);
 						const docService = new DocumentService();
-	
+
 						return docService.loadDocument(byteBuffer);
 					})
 					.then((slideDoc: SlideDocument) => {
 						slideDoc.setDocumentId(stateDoc.documentId);
 
-						this.preloadSlideDocument(courseId, stateDoc, slideDoc)
-							.then(() => {
-								resolve(slideDoc);
-							})
-							.catch((error: any) => {
-								reject(error);
-							});
+						resolve(slideDoc);
+
+						// this.preloadSlideDocument(courseId, stateDoc, slideDoc)
+						// 	.then(() => {
+						// 		resolve(slideDoc);
+						// 	})
+						// 	.catch((error: any) => {
+						// 		reject(error);
+						// 	});
 					})
 					.catch((error: any) => {
 						reject(error);
@@ -61,13 +63,13 @@ export class CourseStateService {
 			const slideDoc = new WhiteboardDocument();
 			slideDoc.setDocumentId(stateDoc.documentId);
 
-			this.preloadSlideDocument(courseId, stateDoc, slideDoc)
-				.then(() => {
-					resolve(slideDoc);
-				})
-				.catch((error: any) => {
-					reject(error);
-				});
+			// this.preloadSlideDocument(courseId, stateDoc, slideDoc)
+			// 	.then(() => {
+			// 		resolve(slideDoc);
+			// 	})
+			// 	.catch((error: any) => {
+			// 		reject(error);
+			// 	});
 		});
 	}
 
