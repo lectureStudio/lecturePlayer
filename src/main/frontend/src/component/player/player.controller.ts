@@ -31,8 +31,6 @@ export class PlayerController implements ReactiveController {
 
 	private readonly maxWidth576Query: MediaQueryList;
 
-	private readonly eventService: EventService;
-
 	private readonly speechService: SpeechService;
 
 	private readonly courseStateService: CourseStateService;
@@ -41,7 +39,7 @@ export class PlayerController implements ReactiveController {
 
 	private readonly playbackService: PlaybackService;
 
-	private readonly actionProcessor: StreamActionProcessor;
+	private eventService: EventService;
 
 	private viewController: PlayerViewController;
 
@@ -56,21 +54,22 @@ export class PlayerController implements ReactiveController {
 		this.host = host;
 		this.host.addController(this);
 
-		this.eventService = new EventService();
 		this.speechService = new SpeechService();
 		this.playbackService = new PlaybackService();
-		this.actionProcessor = new StreamActionProcessor(this.playbackService);
-		this.actionProcessor.onGetDocument = this.getDocument.bind(this);
-		this.actionProcessor.onPeerConnected = this.onPeerConnected.bind(this);
+
+		const actionProcessor = new StreamActionProcessor(this.playbackService);
+		actionProcessor.onGetDocument = this.getDocument.bind(this);
+		actionProcessor.onPeerConnected = this.onPeerConnected.bind(this);
+
 		this.courseStateService = new CourseStateService("https://" + window.location.host);
-		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus", this.actionProcessor);
+		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus", actionProcessor);
 		this.modals = new Map();
 
 		this.maxWidth576Query = window.matchMedia("(max-width: 576px)");
 	}
 
 	hostConnected() {
-		this.registerModal(RecordedModal.name, new RecordedModal(), false, false);
+		this.eventService = new EventService(this.host.courseId);
 
 		this.host.addEventListener("player-fullscreen", this.onFullscreen.bind(this));
 		this.host.addEventListener("player-settings", this.onSettings.bind(this), false);
@@ -130,12 +129,15 @@ export class PlayerController implements ReactiveController {
 					this.updateCourseState();
 				}
 				if (this.isClassroomProfile()) {
+					this.updateCourseState();
 					return;
 				}
 
 				this.getDocuments(courseState.documentMap)
 					.then(documents => {
 						if (courseState.activeDocument) {
+							this.registerModal(RecordedModal.name, new RecordedModal(), false, false);
+
 							this.playbackService.initialize(this.viewController.host, this.host.courseState, documents);
 
 							this.viewController.setCourseState(courseState);

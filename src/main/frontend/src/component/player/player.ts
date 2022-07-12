@@ -6,6 +6,7 @@ import { I18nLitElement, t } from '../i18n-mixin';
 import { State } from '../../utils/state';
 import { PlayerView } from '../player-view/player-view';
 import { CourseState } from '../../model/course-state';
+import { MediaProfile, Settings } from '../../utils/settings';
 
 @customElement('lecture-player')
 export class LecturePlayer extends I18nLitElement {
@@ -30,7 +31,19 @@ export class LecturePlayer extends I18nLitElement {
 	description: string;
 
 
-	protected firstUpdated(): void {
+	protected firstUpdated() {
+		const isLive = this.getAttribute("islive") == "true";
+
+		// Early state recognition to avoid view flickering.
+		if (isLive) {
+			if (Settings.getMediaProfile() === MediaProfile.Classroom) {
+				this.state = State.CONNECTED_FEATURES;
+			}
+		}
+		else {
+			this.state = State.DISCONNECTED;
+		}
+
 		const playerView: PlayerView = this.renderRoot.querySelector("player-view");
 
 		this.controller.setPlayerViewController(playerView.getController());
