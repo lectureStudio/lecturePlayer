@@ -1,5 +1,6 @@
 import { Action } from "./action";
 import { StreamPageAction } from "./stream.page.action";
+import {StreamActionType} from "./stream.action-type";
 
 class StreamPagePlaybackAction extends StreamPageAction {
 
@@ -10,6 +11,10 @@ class StreamPagePlaybackAction extends StreamPageAction {
 		super(documentId, pageNumber);
 
 		this.action = action;
+	}
+
+	override getType(): StreamActionType {
+		return StreamActionType.STREAM_PAGE_ACTION;
 	}
 }
 

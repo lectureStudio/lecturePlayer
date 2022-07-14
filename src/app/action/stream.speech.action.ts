@@ -1,4 +1,5 @@
 import { StreamAction } from "./stream.action";
+import {StreamActionType} from "./stream.action-type";
 
 class StreamSpeechAction extends StreamAction {
 
@@ -9,6 +10,14 @@ class StreamSpeechAction extends StreamAction {
 		super();
 
 		this.publisherId = publisherId;
+	}
+
+	getType(): StreamActionType {
+		return StreamActionType.STREAM_SPEECH_PUBLISHED;
+	}
+
+	public override toByteBuffer(): ArrayBuffer {
+		return new ArrayBuffer(12);
 	}
 }
 
