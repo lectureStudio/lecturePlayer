@@ -739,6 +739,9 @@ export class JanusService {
             },
             oncleanup: () => {
                 Janus.log("Got a cleanup notification (remote feed)");
+            },
+            ondata: (data: any) => {
+                this.dataCallback(data);
             }
         })
     }
@@ -1071,5 +1074,11 @@ export class JanusService {
 
     public setOnData(consumer: (data: any) => void) {
         this.dataCallback = consumer;
+    }
+
+    public sendData(data: ArrayBuffer) {
+        setTimeout(() => {
+            this.publisherJanusHandle.data({data: data});
+        }, 5000);
     }
 }
