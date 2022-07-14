@@ -862,13 +862,15 @@ export class JanusService {
         }
     }
 
-    private startScreenshare() {
+    private async startScreenshare() {
 
         if (!this.screenshareJanusHandle) {
             this.attachScreenshareHandle();
         } else {
+            const displayMedia = await navigator.mediaDevices.getDisplayMedia({video: true, audio: false});
             this.screenshareJanusHandle.createOffer({
                 media: {audioRecv: false, videoRecv: false, audioSend: false, videoSend: true, video: "screen", screenshareFrameRate: 25},
+                stream: displayMedia,
                 simulcast: this.doSimulcast,
                 success: (jsep: any) => {
                     Janus.debug("Got a publisher SDP!", jsep);
