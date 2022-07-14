@@ -737,6 +737,14 @@ export class JanusService {
                     // TODO Does this just display the bitrate of the streams?
                 }
             },
+            ondataopen: (label: string, protocol: string) => {
+                Janus.log("The DataChannel is available!" + " - " + label + " - " + protocol);
+            },
+            ondata: (data: any) => {
+                if (this.subscriberJanusHandle.isPrimary) {
+                    this.dataCallback(data);
+                }
+            },
             oncleanup: () => {
                 Janus.log("Got a cleanup notification (remote feed)");
             }

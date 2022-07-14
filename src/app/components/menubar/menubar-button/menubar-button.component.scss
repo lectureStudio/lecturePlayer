@@ -1,0 +1,64 @@
+:host {
+  display: contents;
+}
+
+.button {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5em;
+  max-width: 6.5vw;
+  width: 100%;
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+}
+
+.red {
+  color: red;
+}
+
+.button:hover {
+  background-color: #555555;
+}
+
+mat-icon {
+  font-size: 35px;
+  width: 35px;
+  height: 35px;
+  margin: 0;
+  color: white;
+  text-align: center;
+
+  pointer-events: none;
+}
+
+.button > p {
+  font-weight: bold;
+  font-size: 16px;
+  margin: 0.25em;
+  color: white;
+
+  pointer-events: none;
+}
+
+.subbutton {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: context-menu;
+  border-radius: 0.5em;
+}
+
+.subbutton:hover {
+  background-color: #393939;
+}
+
+.subbutton > mat-icon {
+  font-size: 40px;
+  margin: 0;
+}

@@ -1,6 +1,19 @@
-<div #parent class="slide-view">
-    <canvas #slideCanvas class="slide-canvas"></canvas>
-    <canvas #actionCanvas class="action-canvas" scale="full"></canvas>
-    <canvas #volatileCanvas class="volatile-canvas" scale="full"></canvas>
-    <div #textLayer class="text-layer"></div>
+<div class="container">
+    <div class="topBar" *ngIf="_cameraStreams.length > 1">
+        <div class="me">
+
+        </div>
+        <div class="attendants">
+            <app-gallery-view [isTinyView]="true" [skipAnimations]="true" [allowNavigation]="true" [cameraStreams]="_cameraStreams"></app-gallery-view>
+        </div>
+    </div>
+    <div class="speakerContainer">
+        <div #parent class="slide-view">
+            <canvas #slideCanvas class="slide-canvas"></canvas>
+            <canvas #actionCanvas class="action-canvas" scale="full"></canvas>
+            <canvas #volatileCanvas class="volatile-canvas" scale="full"></canvas>
+            <div #textLayer class="text-layer"></div>
+        </div>
+    </div>
 </div>
+

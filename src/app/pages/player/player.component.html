@@ -4,84 +4,64 @@
 
 <!--    <app-speaker-view *ngIf="chosenViewMode === 'speaker'" [cameraStreams]="videoStreams"></app-speaker-view>-->
 
-    <app-document-view #slideView></app-document-view>
+    <app-document-view [cameraStreams]="videoStreams" #slideView></app-document-view>
 
     <!-- TODO: Create components for this hierarchy! -->
 
-    <div class="footerbar">
+    <app-menubar>
 
-        <div class="buttongroup">
-            <div class="button" (click)="janusService.toggleMute()">
-                <div (click)="showAvailableMicrophones($event)" class="subbutton">
-                    <mat-icon>keyboard_arrow_up</mat-icon>
-                </div>
-                <mat-icon [class.red]="janusService.isMuted">{{janusService.isMuted ? 'mic_off' : 'mic'}}</mat-icon>
-                <p>{{janusService.isMuted ? 'Unmute' : 'Mute'}}</p>
-            </div>
-            <div class="button" (click)="janusService.toggleCamera()">
-                <div (click)="showAvailableCameras($event)" class="subbutton">
-                    <mat-icon>keyboard_arrow_up</mat-icon>
-                </div>
-                <mat-icon [class.red]="janusService.isVideoMuted">{{janusService.isVideoMuted ? 'videocam_off' : 'videocam'}}</mat-icon>
-                <p>Video {{janusService.isVideoMuted ? 'on' : 'off'}}</p>
-            </div>
-        </div>
+        <app-menubar-buttongroup>
+            <app-menubar-button caption="Microphone off" captionHighlightedToggleState="Micrphone on"
+                                matIconName="mic_off"
+                                matIconNameHighlightedToggleState="mic"
+                                [highlightToggleStateActive]="janusService.isMuted"
+                                [subButtonClickAction]="showAvailableMicrophones"
+                                (clicked)="janusService.toggleMute()"></app-menubar-button>
 
-        <div class="buttongroup">
-            <div class="button" (click)="!janusService.screensharingIsActive && janusService.toggleScreenshare()">
-                <mat-icon [class.red]="janusService.myScreenshareIsActive">{{janusService.myScreenshareIsActive ? 'stop_screen_share' : 'screen_share'}}</mat-icon>
-                <p>{{janusService.myScreenshareIsActive ? 'Stop' : 'Start'}} Screenshare</p>
-            </div>
-            <div class="button">
-                <mat-icon>edit</mat-icon>
-                <p>Whiteboard</p>
-            </div>
-            <div class="button" (click)="showAvailableViewModes($event)">
-                <mat-icon>image</mat-icon>
-                <p>View mode</p>
-            </div>
-        </div>
+            <app-menubar-button caption="Camera off"
+                                captionHighlightedToggleState="Camera on"
+                                matIconName="videocam_off"
+                                matIconNameHighlightedToggleState="videocam"
+                                [highlightToggleStateActive]="janusService.isVideoMuted"
+                                [subButtonClickAction]="showAvailableCameras"
+                                (clicked)="janusService.toggleCamera()"></app-menubar-button>
+        </app-menubar-buttongroup>
 
-        <div class="buttongroup">
-            <div class="button">
-                <mat-icon>settings</mat-icon>
-                <p>Settings</p>
-            </div>
-            <div class="button" (click)="leave()">
-                <mat-icon class="red">exit_to_app</mat-icon>
-            <p>Leave</p>
-        </div>
-        </div>
-    </div>
+        <app-menubar-buttongroup>
+            <app-menubar-button caption="Start Screenshare"
+                                captionHighlightedToggleState="Stop Screenshare"
+                                matIconName="screen_share"
+                                matIconNameHighlightedToggleState="stop_screen_share"
+                                [highlightToggleStateActive]="janusService.myScreenshareIsActive"
+                                (clicked)="janusService.toggleScreenshare()"
+            ></app-menubar-button>
+
+            <app-menubar-button caption="Whiteboard"
+                                matIconName="edit"
+            ></app-menubar-button>
+
+            <app-menubar-button caption="View mode"
+                                matIconName="image"
+                                [clickAction]="showAvailableViewModes"
+            ></app-menubar-button>
+        </app-menubar-buttongroup>
+
+        <app-menubar-buttongroup>
+            <app-menubar-button caption="Settings"
+                                matIconName="settings"
+            ></app-menubar-button>
+
+            <app-menubar-button caption="Leave"
+                                matIconName="exit_to_app"
+                                (clicked)="leave()"
+            ></app-menubar-button>
+        </app-menubar-buttongroup>
+
+    </app-menubar>
 
 </div>
 
-<!-- TODO: Make these a resuable component! -->
-
-<div [style.display]="this.isSelectingMicrophone ? '' : 'none'" #microphoneSelection class="hardwareList">
-    <div class="hardwareListItem" [class.active]="janusService.currentlyChosenOverrideAudioDeviceId === device.key" *ngFor="let device of janusService.audioDevices | keyvalue"
-        (click)="janusService.selectAudioDevice(device.key);">
-        <mat-icon *ngIf="janusService.currentlyChosenOverrideAudioDeviceId === device.key">check</mat-icon>
-        {{device.value}}
-    </div>
-</div>
-
-<div [style.display]="this.isSelectingCamera ? '' : 'none'" #cameraSelection class="hardwareList">
-    <div class="hardwareListItem" [class.active]="janusService.currentlyChosenOverrideVideoDeviceId === device.key" *ngFor="let device of janusService.videoDevices | keyvalue"
-        (click)="janusService.selectVideoDevice(device.key);">
-        <mat-icon *ngIf="janusService.currentlyChosenOverrideVideoDeviceId === device.key">check</mat-icon>
-        {{device.value}}
-    </div>
-</div>
-
-<div [style.display]="this.isSelectingViewMode ? '' : 'none'" #viewModeSelection class="hardwareList">
-    <div class="hardwareListItem" [class.active]="viewMode.key === this.chosenViewMode" *ngFor="let viewMode of this.availableViewModes | keyvalue"
-        (click)="this.chosenViewMode = viewMode.key">
-        <mat-icon *ngIf="viewMode.key === this.chosenViewMode">check</mat-icon>
-        <p>{{viewMode.value}}</p>
-    </div>
-</div>
-
+<app-select-overlay></app-select-overlay>
 
 <div class="not-rendered">
     <ng-container *ngFor="let audioStream of audioStreams">

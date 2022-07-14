@@ -1,0 +1,42 @@
+.selectList {
+  background: #151515;
+  border: 1px solid black;
+  border-radius: 1em;
+
+  display: flex;
+  flex-direction: column;
+
+  position: absolute;
+  transform: translate(0%, -100%);
+  min-width: 15vw;
+
+  z-index: 99;
+}
+
+.selectListItem {
+  color: white;
+  height: 4em;
+  display: flex;
+  flex-direction: row;
+  cursor: pointer;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5em 1em;
+  border-radius: 1em;
+}
+
+.selectListItem  > mat-icon {
+  font-size: 25px;
+  height: 25px;
+  width: 25px;
+  margin-bottom: 4px;
+  margin-right: 4px;
+}
+
+.active {
+  background-color: #444444;
+}
+
+.selectListItem:hover {
+  background-color: #555555;
+}

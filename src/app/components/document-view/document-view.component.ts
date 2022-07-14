@@ -1,4 +1,4 @@
-import {AfterContentInit, AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterContentInit, AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import {SlideView} from "../../view/slide.view";
 import {RenderSurface} from "../../render/render-surface";
 import {SlideRenderSurface} from "../../render/slide-render-surface";
@@ -21,6 +21,15 @@ export class DocumentViewComponent implements OnInit, AfterViewInit, SlideView {
   private volatileRenderSurface: RenderSurface;
   private textLayerSurface: TextLayerSurface;
 
+  public _cameraStreams: { stream: MediaStream, feedId: string, userName: string, loadingFinished?: boolean; firstRenderFinished?: boolean, isScreenshare?: boolean }[];
+
+  @Input() set cameraStreams(value: { stream: MediaStream, feedId: string, userName: string, isScreenshare?: boolean }[]) {
+    const currentCameraStreamsAmount = this._cameraStreams?.length || -1;
+    if (currentCameraStreamsAmount !== value.length) {
+      // this.refreshViews(this.janusService.talkingFeeds);
+      this._cameraStreams = value;
+    }
+  }
 
   constructor() { }
 

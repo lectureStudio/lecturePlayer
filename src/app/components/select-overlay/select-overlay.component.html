@@ -1,0 +1,9 @@
+<div [style.top]="selectOverlayService.topPx" [style.left]="selectOverlayService.leftPx"
+     [style.display]="selectOverlayService.isOverlayVisible ? '' : 'none'" class="selectList">
+    <div class="selectListItem" [class.active]="selectOverlayService.activeKey === option.key"
+         *ngFor="let option of selectOverlayService.options"
+         (click)="selectOverlayService.optionSelected(option)">
+        <mat-icon *ngIf="selectOverlayService.activeKey === option.key">check</mat-icon>
+        {{option.value}}
+    </div>
+</div>

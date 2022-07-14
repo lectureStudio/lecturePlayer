@@ -18,6 +18,7 @@ import {CourseStateService} from "../../services/course.service";
 import {PlaybackService} from "../../services/playback.service";
 import {PlaybackModel} from "../../model/playback-model";
 import {DocumentViewComponent} from "../../components/document-view/document-view.component";
+import {SelectOverlayService} from "../../services/select-overlay.service";
 
 @Component({
     selector: 'app-player',
@@ -25,20 +26,6 @@ import {DocumentViewComponent} from "../../components/document-view/document-vie
     styleUrls: ['./player.component.scss']
 })
 export class PlayerComponent implements OnInit, OnDestroy {
-
-    public isSelectingMicrophone = false;
-    public isSelectingCamera = false;
-    public isSelectingViewMode = false;
-
-    @ViewChild('microphoneSelection')
-    private microphoneSelection: ElementRef;
-
-    @ViewChild('cameraSelection')
-    private cameraSelection: ElementRef;
-
-    @ViewChild('viewModeSelection')
-    private viewModeSelection: ElementRef;
-
     @ViewChild('slideView', {read: DocumentViewComponent}) slideView: DocumentViewComponent;
 
     public chosenViewMode = 'gallery';
@@ -62,6 +49,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
     private playbackModel: PlaybackModel;
 
     constructor(public janusService: JanusService, private router: Router,
+                private selectOverlayService: SelectOverlayService
     ) {
         this.courseStateService = new CourseStateService("fastrootserver.de");
         this.playbackModel = new PlaybackModel();
@@ -82,9 +70,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
         });
 
         document.addEventListener('click', () => {
-            this.isSelectingCamera = false; // TODO refactor, see below
-            this.isSelectingMicrophone = false;
-            this.isSelectingViewMode = false;
+            this.selectOverlayService.hideAll();
         })
 
         this.janusService.screenshareStateSubject.subscribe(val => {
@@ -154,59 +140,35 @@ export class PlayerComponent implements OnInit, OnDestroy {
         this.router.navigate(['/']);
     }
 
-    showAvailableMicrophones(event: MouseEvent) {
-        event.stopPropagation();
-
-        console.log(event);
-        console.log(event.target);
-
-        // @ts-ignore
-        const rect = event.target.getBoundingClientRect();
-
-        // @ts-ignore
-        const osL = rect.left;
-        // @ts-ignore
-        const osT = rect.top;
-
-        this.isSelectingMicrophone = true;
-        this.isSelectingCamera = false;
-        this.microphoneSelection.nativeElement.style.top = osT + 'px';
-        this.microphoneSelection.nativeElement.style.left = osL + 'px';
+    showAvailableMicrophones = (event: MouseEvent) => {
+        this.selectOverlayService.trigger(event, Object.keys(this.janusService.audioDevices).map(e => {
+            return {
+                key: e,
+                value: this.janusService.audioDevices[e]
+            }
+        }), (selectedOption) => {
+            this.janusService.selectAudioDevice(selectedOption.key);
+        }, this.janusService.currentlyChosenOverrideAudioDeviceId);
     }
 
-    showAvailableCameras(event: MouseEvent) {
-        event.stopPropagation();
-
-        // @ts-ignore
-        const rect = event.target.getBoundingClientRect();
-
-        // @ts-ignore
-        const osL = rect.left;
-        // @ts-ignore
-        const osT = rect.top;
-
-        this.isSelectingCamera = true;
-        this.isSelectingMicrophone = false;
-        this.cameraSelection.nativeElement.style.top = osT + 'px';
-        this.cameraSelection.nativeElement.style.left = osL + 'px';
+    showAvailableCameras = (event: MouseEvent) => {
+        this.selectOverlayService.trigger(event, Object.keys(this.janusService.videoDevices).map(e => {
+            return {
+                key: e,
+                value: this.janusService.videoDevices[e]
+            }
+        }), (selectedOption) => {
+            this.janusService.selectVideoDevice(selectedOption.key);
+        }, this.janusService.currentlyChosenOverrideVideoDeviceId);
     }
 
-    showAvailableViewModes(event: MouseEvent) {
-        event.stopPropagation();
-
-        // @ts-ignore
-        const rect = event.target.getBoundingClientRect();
-
-        // @ts-ignore
-        const osL = rect.left;
-        // @ts-ignore
-        const osT = rect.top;
-
-        this.isSelectingCamera = false; // TODO Refactor this, make an actual component instead of spamming booleans and methods
-        this.isSelectingMicrophone = false;
-        this.isSelectingViewMode = true;
-        this.viewModeSelection.nativeElement.style.top = osT + 'px';
-        this.viewModeSelection.nativeElement.style.left = osL + 'px';
+    showAvailableViewModes = (event: MouseEvent) => {
+        this.selectOverlayService.trigger(event, [{
+            key: "gallery",
+            value: this.availableViewModes.gallery
+        }, {key: "speaker", value: this.availableViewModes.speaker}], (selectedOption) => {
+            this.chosenViewMode = selectedOption.key;
+        }, this.chosenViewMode);
     }
 
     private processData(data: ArrayBuffer) {
