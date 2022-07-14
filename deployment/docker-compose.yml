@@ -3,18 +3,18 @@ services:
   #
   # janus-gateway
   #
-  janus-gateway:
-    image: 'canyan/janus-gateway:master'
-    container_name: janus-multistream-server
-    command: ["/usr/local/bin/janus", "-F", "/usr/local/etc/janus"]
-    volumes:
-      - "./config/janus.jcfg:/usr/local/etc/janus/janus.jcfg"
-      - "./config/janus.transport.http.jcfg:/usr/local/etc/janus/janus.transport.http.jcfg"
-      - "./config/janus.plugin.videoroom.jcfg:/usr/local/etc/janus/janus.plugin.videoroom.jcfg"
-      - "./cert.pem:/usr/local/etc/janus/cert.pem"
-      - "./januskey.pem:/usr/local/etc/janus/januskey.pem"
-    restart: always
-    network_mode: "host"
+  #janus-gateway:
+  #  image: 'canyan/janus-gateway:master'
+  #  container_name: janus-multistream-server
+  #  command: ["/usr/local/bin/janus", "-F", "/usr/local/etc/janus"]
+  #  volumes:
+  #    - "./config/janus.jcfg:/usr/local/etc/janus/janus.jcfg"
+  #    - "./config/janus.transport.http.jcfg:/usr/local/etc/janus/janus.transport.http.jcfg"
+  #    - "./config/janus.plugin.videoroom.jcfg:/usr/local/etc/janus/janus.plugin.videoroom.jcfg"
+  #    - "./cert.pem:/usr/local/etc/janus/cert.pem"
+  #    - "./januskey.pem:/usr/local/etc/janus/januskey.pem"
+  #  restart: always
+  #  network_mode: "host"
   angularserver:
     build:
       context: ../
@@ -23,8 +23,8 @@ services:
     volumes:
       - "./config/nginx.conf:/etc/nginx/nginx.conf"
       - "./config/mime.types:/etc/nginx/conf/mime.types"
-      - "./nginx-selfsigned.crt:/etc/ssl/certs/nginx-selfsigned.crt"
-      - "./nginx-selfsigned.key:/etc/ssl/private/nginx-selfsigned.key"
+      - "./cert.pem:/etc/ssl/certs/cert.pem"
+      - "./key.pem:/etc/ssl/certs/key.pem"
     ports:
       - "11112:443"
       - "11111:80"
