@@ -173,10 +173,20 @@ mat-icon {
   max-width: 95%;
 }
 
-.speakerContainer {
+.documentContainer {
   flex: 1;
   display: flex;
+  position: relative;
   justify-content: center;
+}
+
+.documentContainer > app-menubar {
+  position: absolute;
+  bottom: 0;
+  z-index: 10;
+
+  margin-bottom: 0.75em;
+  border-radius: 1em;
 }
 
 .attendantStreamContainer {

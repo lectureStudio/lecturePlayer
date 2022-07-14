@@ -3,6 +3,11 @@ import {SlideView} from "../../view/slide.view";
 import {RenderSurface} from "../../render/render-surface";
 import {SlideRenderSurface} from "../../render/slide-render-surface";
 import {TextLayerSurface} from "../../render/text-layer-surface";
+import {JanusService} from "../../services/janus/janus.service";
+import {PlaybackService} from "../../services/playback.service";
+import {StreamPageSelectedAction} from "../../action/stream.page.selected.action";
+import {StreamActionParser} from "../../action/parser/stream.action.parser";
+import {PageAction} from "../../action/page.action";
 
 @Component({
   selector: 'app-document-view',
@@ -21,6 +26,8 @@ export class DocumentViewComponent implements OnInit, AfterViewInit, SlideView {
   private volatileRenderSurface: RenderSurface;
   private textLayerSurface: TextLayerSurface;
 
+  public showHoverMenu = false;
+
   public _cameraStreams: { stream: MediaStream, feedId: string, userName: string, loadingFinished?: boolean; firstRenderFinished?: boolean, isScreenshare?: boolean }[];
 
   @Input() set cameraStreams(value: { stream: MediaStream, feedId: string, userName: string, isScreenshare?: boolean }[]) {
@@ -31,7 +38,7 @@ export class DocumentViewComponent implements OnInit, AfterViewInit, SlideView {
     }
   }
 
-  constructor() { }
+  constructor(private janusService: JanusService) { }
 
   ngOnInit(): void {
   }
@@ -88,5 +95,27 @@ export class DocumentViewComponent implements OnInit, AfterViewInit, SlideView {
     this.actionRenderSurface.setSize(width, height);
     this.volatileRenderSurface.setSize(width, height);
     this.textLayerSurface.setSize(width, height);
+  }
+
+  pageBack() {
+    const activePageNumber = PlaybackService.getInstance().renderController.getPage().getPageNumber();
+    this.modifyPage(Math.min(activePageNumber - 1, 0));
+  }
+
+  pageForward() {
+    const activePageNumber = PlaybackService.getInstance().renderController.getPage().getPageNumber();
+    this.modifyPage(Math.max(activePageNumber + 1, 0));
+  }
+
+  private modifyPage(pageNumber: number) {
+    const action = new StreamPageSelectedAction(BigInt(0), pageNumber);
+    const parsed = StreamActionParser.parseActionToBinary(action);
+
+    this.janusService.sendData(parsed);
+
+    const pageAction = new PageAction(action.pageNumber);
+    pageAction.timestamp = 0;
+
+    PlaybackService.getInstance().addAction(pageAction);
   }
 }

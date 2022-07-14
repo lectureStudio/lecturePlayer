@@ -16,10 +16,18 @@ export class PlaybackService {
 
 	private actionPlayer: StreamActionPlayer;
 
+	private static _instance: PlaybackService;
+
+	public renderController: RenderController;
+
+	public static getInstance() {
+		return this._instance;
+	}
 
 	constructor(playbackModel: PlaybackModel) {
 		this.playbackModel = playbackModel;
 		this.documents = new Map();
+		PlaybackService._instance = this;
 	}
 
 	initialize(slideView: DocumentViewComponent, courseState: CourseState, documents: SlideDocument[], startTime: BigInt) {
@@ -46,13 +54,13 @@ export class PlaybackService {
 			}
 		}
 
-		const renderController = new RenderController();
-		renderController.setActionRenderSurface(slideView.getActionRenderSurface());
-		renderController.setSlideRenderSurface(slideView.getSlideRenderSurface());
-		renderController.setVolatileRenderSurface(slideView.getVolatileRenderSurface());
-		renderController.setTextLayerSurface(slideView.getTextLayerSurface());
+		this.renderController = new RenderController();
+		this.renderController.setActionRenderSurface(slideView.getActionRenderSurface());
+		this.renderController.setSlideRenderSurface(slideView.getSlideRenderSurface());
+		this.renderController.setVolatileRenderSurface(slideView.getVolatileRenderSurface());
+		this.renderController.setTextLayerSurface(slideView.getTextLayerSurface());
 
-		const executor = new StreamActionExecutor(renderController);
+		const executor = new StreamActionExecutor(this.renderController);
 		if (activeDoc) {
 			executor.setDocument(activeDoc);
 		}

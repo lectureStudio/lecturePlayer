@@ -7,12 +7,24 @@
             <app-gallery-view [isTinyView]="true" [skipAnimations]="true" [allowNavigation]="true" [cameraStreams]="_cameraStreams"></app-gallery-view>
         </div>
     </div>
-    <div class="speakerContainer">
+    <div class="documentContainer">
+        <app-menubar *ngIf="showHoverMenu" (mouseover)="showHoverMenu = true">
+            <app-menubar-button caption="Page back"
+                                matIconName="arrow_back"
+                                (clicked)="pageBack()"
+            ></app-menubar-button>
+
+            <app-menubar-button caption="Page forward"
+                                matIconName="arrow_forward"
+                                (clicked)="pageForward()"
+            ></app-menubar-button>
+        </app-menubar>
+
         <div #parent class="slide-view">
             <canvas #slideCanvas class="slide-canvas"></canvas>
             <canvas #actionCanvas class="action-canvas" scale="full"></canvas>
             <canvas #volatileCanvas class="volatile-canvas" scale="full"></canvas>
-            <div #textLayer class="text-layer"></div>
+            <div #textLayer class="text-layer" (mouseover)="showHoverMenu = true" (mouseleave)="showHoverMenu = true"></div>
         </div>
     </div>
 </div>

@@ -1,10 +1,10 @@
 <div class="container" xmlns="http://www.w3.org/1999/html">
 
-<!--    <app-gallery-view *ngIf="chosenViewMode === 'gallery'" [cameraStreams]="videoStreams"></app-gallery-view>-->
+    <app-gallery-view *ngIf="chosenViewMode === 'gallery'" [cameraStreams]="videoStreams"></app-gallery-view>
 
-<!--    <app-speaker-view *ngIf="chosenViewMode === 'speaker'" [cameraStreams]="videoStreams"></app-speaker-view>-->
+    <app-speaker-view *ngIf="chosenViewMode === 'speaker'" [cameraStreams]="videoStreams"></app-speaker-view>
 
-    <app-document-view [cameraStreams]="videoStreams" #slideView></app-document-view>
+    <app-document-view [style.display]="chosenViewMode !== 'document' ? 'none' : ''" [cameraStreams]="videoStreams" #slideView></app-document-view>
 
     <!-- TODO: Create components for this hierarchy! -->
 
@@ -36,8 +36,9 @@
                                 (clicked)="janusService.toggleScreenshare()"
             ></app-menubar-button>
 
-            <app-menubar-button caption="Whiteboard"
+            <app-menubar-button caption="Documents"
                                 matIconName="edit"
+                                (clicked)="openDocumentView()"
             ></app-menubar-button>
 
             <app-menubar-button caption="View mode"

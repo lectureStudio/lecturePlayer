@@ -106,6 +106,10 @@ class Page {
 		this.firePageEvent(new PageEvent(this, PageChangeType.Clear, undefined));
 	}
 
+	getPageNumber() {
+		return this.pageNumber;
+	}
+
 	private onSlideTransform(event: ShapeEvent): void {
 		this.firePageEvent(new PageEvent(this, PageChangeType.PageTransform, event.shape, event.dirtyRegion));
 	}

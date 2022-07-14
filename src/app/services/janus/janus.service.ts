@@ -740,11 +740,6 @@ export class JanusService {
             ondataopen: (label: string, protocol: string) => {
                 Janus.log("The DataChannel is available!" + " - " + label + " - " + protocol);
             },
-            ondata: (data: any) => {
-                if (this.subscriberJanusHandle.isPrimary) {
-                    this.dataCallback(data);
-                }
-            },
             oncleanup: () => {
                 Janus.log("Got a cleanup notification (remote feed)");
             },
@@ -1085,8 +1080,6 @@ export class JanusService {
     }
 
     public sendData(data: ArrayBuffer) {
-        setTimeout(() => {
-            this.publisherJanusHandle.data({data: data});
-        }, 5000);
+        this.publisherJanusHandle.data({data: data});
     }
 }

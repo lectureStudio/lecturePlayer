@@ -132,6 +132,10 @@ class RenderController {
 		}
 	}
 
+	getPage() {
+		return this.page;
+	}
+
 	private enableRendering(): void {
 		this.page.addChangeListener(this.pageChangeListener);
 	}

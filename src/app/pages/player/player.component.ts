@@ -37,7 +37,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
     public availableViewModes = {
         gallery: 'Gallery view',
-        speaker: 'Speaker view'
+        speaker: 'Speaker view',
+        document: 'Document view'
     }
 
     private streamActionBuffer: {
@@ -89,40 +90,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
                 }
             }
         });
-
-        const fakeDoc = {
-            documentName: 'CourseStateDoc',
-            documentId: BigInt(0),
-            documentFile: '/assets/sample.pdf',
-            type: 'type',
-            activePage: {
-                pageNumber: 0
-            },
-            pages: new Map([[0, {pageNumber: 0}]])
-        };
-
-
-        // @ts-ignore
-        this.courseStateService.getStateDocument(this.janusService.myRoomId, {
-            documentFile: '/assets/sample.pdf',
-            documentName: 'Dokument'
-        })
-            .then((doc: SlideDocument) => {
-                doc.setDocumentId(BigInt(0));
-                this.playbackService.addDocument(doc);
-
-                this.playbackService.initialize(this.slideView, {
-                    documentMap: new Map([[BigInt(0), fakeDoc]]),
-                    avtiveDocument: fakeDoc
-                }, [doc], BigInt(0));
-
-                this.flushActionBuffer(doc.getDocumentId());
-            })
-            .catch(error => {
-                console.error('(SlideDocumentError)', error);
-            });
-
-        console.log('(SlideDocument) Told it to load');
     }
 
     ngOnDestroy() {
@@ -171,6 +138,45 @@ export class PlayerComponent implements OnInit, OnDestroy {
         }, {key: "speaker", value: this.availableViewModes.speaker}], (selectedOption) => {
             this.chosenViewMode = selectedOption.key;
         }, this.chosenViewMode);
+    }
+
+    openDocumentView() {
+        this.chosenViewMode = 'document';
+
+        const fakeDoc = {
+            documentName: 'CourseStateDoc',
+            documentId: BigInt(0),
+            documentFile: '/assets/sample.pdf',
+            type: 'type',
+            activePage: {
+                pageNumber: 0
+            },
+            pages: new Map([[0, {pageNumber: 0}]])
+        };
+
+
+        // @ts-ignore
+        this.courseStateService.getStateDocument(this.janusService.myRoomId, {
+            documentFile: '/assets/sample.pdf',
+            documentName: 'Dokument'
+        })
+            .then((doc: SlideDocument) => {
+                doc.setDocumentId(BigInt(0));
+                this.playbackService.addDocument(doc);
+
+                this.playbackService.initialize(this.slideView, {
+                    documentMap: new Map([[BigInt(0), fakeDoc]]),
+                    avtiveDocument: fakeDoc
+                }, [doc], BigInt(0));
+
+                this.flushActionBuffer(doc.getDocumentId());
+            })
+            .catch(error => {
+                console.error('(SlideDocumentError)', error);
+            });
+
+        console.log('(SlideDocument) Told it to load');
+        this.slideView.repaint();
     }
 
     private processData(data: ArrayBuffer) {
