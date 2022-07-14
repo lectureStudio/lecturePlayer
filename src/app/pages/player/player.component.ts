@@ -5,7 +5,6 @@ import {StreamPageSelectedAction} from "../../action/stream.page.selected.action
 import {PageAction} from "../../action/page.action";
 import {StreamDocumentSelectedAction} from "../../action/stream.document.selected.action";
 import {StreamAction} from "../../action/stream.action";
-import {StreamSpeechPublishedAction} from "../../action/stream.speech.published.action";
 import {StreamPagePlaybackAction} from "../../action/stream.playback.action";
 import {StreamDocumentClosedAction} from "../../action/stream.document.closed.action";
 import {WhiteboardDocument} from "../../model/whiteboard.document";
@@ -18,6 +17,9 @@ import {CourseStateService} from "../../services/course.service";
 import {PlaybackService} from "../../services/playback.service";
 import {PlaybackModel} from "../../model/playback-model";
 import {DocumentViewComponent} from "../../components/document-view/document-view.component";
+import {DocumentType} from "../../model/document.type";
+import {StreamPageDeletedAction} from "../../action/stream.page.deleted.action";
+import {StreamPageCreatedAction} from "../../action/stream.page.created.action";
 import {SelectOverlayService} from "../../services/select-overlay.service";
 
 @Component({

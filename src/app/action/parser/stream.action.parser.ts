@@ -14,6 +14,7 @@ import { StreamSpeechPublishedAction } from "../stream.speech.published.action";
 import { ActionParser } from "./action.parser";
 import { ProgressiveDataView } from "./progressive-data-view";
 import { RecordedPageParser } from "./recorded-page.parser";
+import {StreamPageAction} from "../stream.page.action";
 
 export class StreamActionParser {
 
@@ -122,5 +123,11 @@ export class StreamActionParser {
 		const publisherId = BigInt(idStr);
 
 		return new type(publisherId);
+	}
+
+	static parseActionToBinary(action: StreamAction): ArrayBuffer {
+
+		return action.toByteBuffer();
+
 	}
 }
