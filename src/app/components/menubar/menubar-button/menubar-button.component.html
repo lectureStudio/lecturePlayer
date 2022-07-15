@@ -2,6 +2,6 @@
     <div *ngIf="subButtonClickAction" (click)="subButtonClickAction($event)" class="subbutton">
         <mat-icon>keyboard_arrow_up</mat-icon>
     </div>
-    <mat-icon [class.red]="highlightToggleStateActive">{{highlightToggleStateActive ? matIconName : matIconName}}</mat-icon>
+    <mat-icon [class.red]="highlightToggleStateActive">{{highlightToggleStateActive ? matIconNameHighlightedToggleState : matIconName}}</mat-icon>
     <p>{{highlightToggleStateActive ? captionHighlightedToggleState : caption}}</p>
 </div>

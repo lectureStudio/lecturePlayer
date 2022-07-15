@@ -24,9 +24,9 @@
 }
 
 mat-icon {
-  font-size: 35px;
-  width: 35px;
-  height: 35px;
+  font-size: min(2.25vw, 2.5em);
+  width: min(2.25vw, 2.5em);
+  height: min(2.25vw, 2.5em);
   margin: 0;
   color: white;
   text-align: center;
@@ -36,7 +36,7 @@ mat-icon {
 
 .button > p {
   font-weight: bold;
-  font-size: 16px;
+  font-size: min(0.75vw, 1em);
   margin: 0.25em;
   color: white;
 
@@ -59,6 +59,6 @@ mat-icon {
 }
 
 .subbutton > mat-icon {
-  font-size: 40px;
+  font-size: min(2vw, 3em);
   margin: 0;
 }

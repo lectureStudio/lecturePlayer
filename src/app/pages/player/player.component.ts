@@ -1,6 +1,6 @@
-import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {JanusService} from "../../services/janus/janus.service";
-import {Router} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {StreamPageSelectedAction} from "../../action/stream.page.selected.action";
 import {PageAction} from "../../action/page.action";
 import {StreamDocumentSelectedAction} from "../../action/stream.document.selected.action";
@@ -17,9 +17,6 @@ import {CourseStateService} from "../../services/course.service";
 import {PlaybackService} from "../../services/playback.service";
 import {PlaybackModel} from "../../model/playback-model";
 import {DocumentViewComponent} from "../../components/document-view/document-view.component";
-import {DocumentType} from "../../model/document.type";
-import {StreamPageDeletedAction} from "../../action/stream.page.deleted.action";
-import {StreamPageCreatedAction} from "../../action/stream.page.created.action";
 import {SelectOverlayService} from "../../services/select-overlay.service";
 
 @Component({
@@ -52,8 +49,14 @@ export class PlayerComponent implements OnInit, OnDestroy {
     private playbackModel: PlaybackModel;
 
     constructor(public janusService: JanusService, private router: Router,
-                private selectOverlayService: SelectOverlayService
+                private selectOverlayService: SelectOverlayService,
+                private activatedRoute: ActivatedRoute
     ) {
+        // @ts-ignore
+        this.janusService.myRoomId = this.activatedRoute.snapshot.params.courseId ?? 1;
+
+        console.log('Read room id: ', this.janusService.myRoomId);
+
         this.courseStateService = new CourseStateService("fastrootserver.de");
         this.playbackModel = new PlaybackModel();
         this.playbackService = new PlaybackService(this.playbackModel);

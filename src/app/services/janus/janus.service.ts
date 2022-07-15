@@ -83,8 +83,6 @@ export class JanusService {
     private dataCallback: (data: any) => void;
 
     constructor(private ngZone: NgZone) {
-        this.myRoomId = 1;
-
         this.opaqueId = "course-" + Janus.randomString(12);
         this.myUsername = Janus.randomString(12);
 

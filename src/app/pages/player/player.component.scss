@@ -4,13 +4,15 @@ body {
   overflow: hidden;
 }
 
-.container {
+.conferenceContainer {
+  background-color: #333;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
   max-height: 100vh;
-  height: 100vh;
+  height: 100%;
+  width: 100%;
 }
 
 .videoFeedContainer {

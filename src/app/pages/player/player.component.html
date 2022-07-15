@@ -1,4 +1,4 @@
-<div class="container" xmlns="http://www.w3.org/1999/html">
+<div class="conferenceContainer" xmlns="http://www.w3.org/1999/html">
 
     <app-gallery-view *ngIf="chosenViewMode === 'gallery'" [cameraStreams]="videoStreams"></app-gallery-view>
 
@@ -28,8 +28,8 @@
         </app-menubar-buttongroup>
 
         <app-menubar-buttongroup>
-            <app-menubar-button caption="Start Screenshare"
-                                captionHighlightedToggleState="Stop Screenshare"
+            <app-menubar-button caption="Screenshare"
+                                captionHighlightedToggleState="Screenshare"
                                 matIconName="screen_share"
                                 matIconNameHighlightedToggleState="stop_screen_share"
                                 [highlightToggleStateActive]="janusService.myScreenshareIsActive"
@@ -52,8 +52,9 @@
                                 matIconName="settings"
             ></app-menubar-button>
 
-            <app-menubar-button caption="Leave"
-                                matIconName="exit_to_app"
+            <app-menubar-button captionHighlightedToggleState="Leave"
+                                matIconNameHighlightedToggleState="exit_to_app"
+                                [highlightToggleStateActive]="true"
                                 (clicked)="leave()"
             ></app-menubar-button>
         </app-menubar-buttongroup>
