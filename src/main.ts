@@ -7,7 +7,7 @@ import { environment } from './environments/environment';
 import "./app/extension/context-2d.extension";
 
 import * as pdfjsLib from 'pdfjs-dist';
-pdfjsLib.GlobalWorkerOptions.workerSrc = './assets/pdf.worker.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc = './angular/assets/pdf.worker.js';
 
 if (environment.production) {
   enableProdMode();
