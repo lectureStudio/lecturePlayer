@@ -6,6 +6,8 @@ import { Utils } from "../utils/utils";
 
 export abstract class JanusParticipant extends EventTarget {
 
+	protected readonly janus: Janus;
+
 	protected handle: PluginHandle;
 
 	protected state: State;
@@ -17,15 +19,25 @@ export abstract class JanusParticipant extends EventTarget {
 	protected streams: Map<string, MediaStream>;
 
 
-	constructor() {
+	constructor(janus: Janus) {
 		super();
 
-		this.state = State.CONNECTING;
+		this.janus = janus;
+		this.state = State.DISCONNECTED;
 		this.view = new ParticipantView();
 		this.streams = new Map();
 
 		this.view.addEventListener("participant-mic-mute", this.onMuteAudio.bind(this));
 		this.view.addEventListener("participant-cam-mute", this.onMuteVideo.bind(this));
+	}
+
+	abstract connect(): void;
+
+	disconnect() {
+		this.handle.hangup();
+		this.handle.detach();
+
+		this.setState(State.DISCONNECTED);
 	}
 
 	setDeviceConstraints(deviceConstraints: any): void {
@@ -89,8 +101,28 @@ export abstract class JanusParticipant extends EventTarget {
 		}));
 	}
 
-	protected onIceState(state: 'connected' | 'failed') {
+	protected onIceState(state: "connected" | "failed" | "disconnected" | "closed") {
 		Janus.log("ICE state changed to " + state);
+
+		switch (state) {
+			case "connected":
+				this.dispatchEvent(Utils.createEvent("janus-participant-connection-connected", {
+					participant: this
+				}));
+				break;
+
+			case "disconnected":
+				this.dispatchEvent(Utils.createEvent("janus-participant-connection-disconnected", {
+					participant: this
+				}));
+				break;
+
+			case "failed":
+				this.dispatchEvent(Utils.createEvent("janus-participant-connection-failure", {
+					participant: this
+				}));
+				break;
+		}
 	}
 
 	protected onMediaState(medium: 'audio' | 'video', receiving: boolean, mid?: number) {
@@ -106,6 +138,10 @@ export abstract class JanusParticipant extends EventTarget {
 	}
 
 	protected setState(state: State) {
+		if (this.state === state) {
+			return;
+		}
+
 		this.state = state;
 
 		this.dispatchEvent(Utils.createEvent("janus-participant-state", {

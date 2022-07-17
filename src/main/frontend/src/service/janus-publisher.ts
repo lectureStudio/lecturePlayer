@@ -4,8 +4,6 @@ import { JanusParticipant } from "./janus-participant";
 
 export class JanusPublisher extends JanusParticipant {
 
-	private readonly janus: Janus;
-
 	private readonly roomId: number;
 
 	private readonly opaqueId: string;
@@ -14,15 +12,14 @@ export class JanusPublisher extends JanusParticipant {
 
 
 	constructor(janus: Janus, roomId: number, opaqueId: string) {
-		super();
+		super(janus);
 
-		this.janus = janus;
 		this.roomId = roomId;
 		this.opaqueId = opaqueId;
 		this.view.isLocal = true;
 	}
 
-	connect() {
+	override connect() {
 		this.janus.attach({
 			plugin: "janus.plugin.videoroom",
 			opaqueId: this.opaqueId,
@@ -39,10 +36,12 @@ export class JanusPublisher extends JanusParticipant {
 		});
 	}
 
-	disconnect() {
+	override disconnect() {
 		const unpublish = { request: "unpublish" };
 
 		this.handle.send({ message: unpublish });
+
+		super.disconnect();
 	}
 
 	getPublisherId(): bigint {

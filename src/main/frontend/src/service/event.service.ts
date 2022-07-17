@@ -15,11 +15,17 @@ export class EventService extends EventTarget {
 			reconnectDelay: 1000,
 			heartbeatIncoming: 1000,
 			heartbeatOutgoing: 1000,
-			debug: function (msg) {
-				// console.log("STOMP: " + str);
+			debug: (message) => {
+				// console.log("STOMP: " + message);
 			},
 		});
 		client.onConnect = () => {
+			console.log("STOMP connected");
+
+			this.dispatchEvent(Utils.createEvent("event-service-state", {
+				connected: true
+			}));
+
 			client.subscribe("/topic/course-state/" + courseId + "/stream", (message: Message) => {
 				const state = JSON.parse(message.body);
 
@@ -56,11 +62,8 @@ export class EventService extends EventTarget {
 				this.dispatchEvent(Utils.createEvent("quiz-state", state));
 			});
 		};
-		client.onStompError = function (frame) {
-			// Will be invoked in case of error encountered at Broker.
-			// Compliant brokers will terminate the connection after any error.
-			console.error("Broker reported error: " + frame.headers["message"]);
-			console.error("Additional details: " + frame.body);
+		client.onDisconnect = () => {
+			console.log("STOMP disconnected");
 		};
 		client.activate();
 

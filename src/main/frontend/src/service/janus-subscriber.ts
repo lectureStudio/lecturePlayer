@@ -5,8 +5,6 @@ import { State } from "../utils/state";
 
 export class JanusSubscriber extends JanusParticipant {
 
-	private readonly janus: Janus;
-
 	private readonly publisherId: any;
 
 	private readonly roomId: number;
@@ -17,15 +15,14 @@ export class JanusSubscriber extends JanusParticipant {
 
 
 	constructor(janus: Janus, publisherId: any, roomId: number, opaqueId: string) {
-		super();
+		super(janus);
 
-		this.janus = janus;
 		this.publisherId = publisherId;
 		this.roomId = roomId;
 		this.opaqueId = opaqueId;
 	}
 
-	connect() {
+	override connect() {
 		this.janus.attach({
 			plugin: "janus.plugin.videoroom",
 			opaqueId: this.opaqueId,

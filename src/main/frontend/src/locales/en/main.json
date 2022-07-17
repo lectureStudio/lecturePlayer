@@ -52,5 +52,8 @@
 	"course.recorded.modal.accept": "Got it",
 	"entry.modal.title": "Start media playback",
 	"entry.modal.description": "To play audio and video, click Start.",
-	"entry.modal.start": "Start"
+	"entry.modal.start": "Start",
+	"reconnect.title": "Connection interrupted",
+	"reconnect.description": "Reestablishing connection...",
+	"reconnect.abort": "Abort"
 }

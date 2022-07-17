@@ -50,7 +50,7 @@ export class JanusService extends EventTarget {
 	connect() {
 		// Initialize the library (all console debuggers enabled).
 		Janus.init({
-			// debug: "all",
+			debug: "all",
 			callback: () => {
 				// Make sure the browser supports WebRTC.
 				if (!Janus.isWebrtcSupported()) {
@@ -61,6 +61,24 @@ export class JanusService extends EventTarget {
 				this.createSession();
 			}
 		});
+	}
+
+	disconnect() {
+		for (const participant of this.publishers) {
+			participant.disconnect();
+		}
+		for (const participant of this.subscribers) {
+			participant.disconnect();
+		}
+
+		this.publishers.slice(0);
+		this.subscribers.slice(0);
+
+		// this.janus.destroy({
+		// 	cleanupHandles: true,
+		// 	unload: true,
+		// 	notifyDestroyed: false
+		// });
 	}
 
 	addPeer(peerId: bigint) {
@@ -91,7 +109,9 @@ export class JanusService extends EventTarget {
 		this.janus = new Janus({
 			server: this.serverUrl,
 			success: () => {
-				this.attach();
+				if (this.janus.getSessionId()) {
+					this.attach();
+				}
 			},
 			error: (cause: any) => {
 				console.error(cause);
@@ -112,7 +132,7 @@ export class JanusService extends EventTarget {
 				this.getParticipants(pluginHandle);
 			},
 			error: (cause: any) => {
-				console.error("  -- Error attaching plugin...", cause);
+				console.error("Error attaching plugin", cause);
 			}
 		});
 	}
@@ -173,12 +193,39 @@ export class JanusService extends EventTarget {
 	private attachToPublisher(publisher: any, isPrimary: boolean) {
 		const subscriber = new JanusSubscriber(this.janus, publisher.id, this.roomId, this.opaqueId);
 		subscriber.setDeviceConstraints(this.deviceConstraints);
+		subscriber.addEventListener("janus-participant-connection-connected", this.onParticipantConnectionConnected.bind(this));
+		subscriber.addEventListener("janus-participant-connection-disconnected", this.onParticipantConnectionDisconnected.bind(this));
+		subscriber.addEventListener("janus-participant-connection-failure", this.onParticipantConnectionFailure.bind(this));
 		subscriber.addEventListener("janus-participant-error", this.onSubscriberError.bind(this));
 		subscriber.addEventListener("janus-participant-state", this.onSubscriberState.bind(this));
 		subscriber.addEventListener("janus-participant-destroyed", this.onSubscriberDestroyed.bind(this));
 		subscriber.addEventListener("janus-participant-data", this.onSubscriberData.bind(this));
 		subscriber.isPrimary = isPrimary;
 		subscriber.connect();
+	}
+
+	private onParticipantConnectionConnected(event: CustomEvent) {
+		const subscriber: JanusSubscriber = event.detail.participant;
+
+		if (subscriber.isPrimary) {
+			this.dispatchEvent(Utils.createEvent("janus-connection-established"));
+		}
+	}
+
+	private onParticipantConnectionDisconnected(event: CustomEvent) {
+		const subscriber: JanusSubscriber = event.detail.participant;
+
+		if (subscriber.isPrimary) {
+			this.dispatchEvent(Utils.createEvent("janus-connection-failure"));
+		}
+	}
+
+	private onParticipantConnectionFailure(event: CustomEvent) {
+		const subscriber: JanusSubscriber = event.detail.participant;
+
+		if (subscriber.isPrimary) {
+			this.dispatchEvent(Utils.createEvent("janus-connection-failure"));
+		}
 	}
 
 	private onSubscriberError(event: CustomEvent) {

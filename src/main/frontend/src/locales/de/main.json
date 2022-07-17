@@ -52,5 +52,8 @@
 	"course.recorded.modal.accept": "Verstanden",
 	"entry.modal.title": "Medienwiedergabe Starten",
 	"entry.modal.description": "Um Audio und Video abzuspielen, klicken Sie auf Start.",
-	"entry.modal.start": "Starten"
+	"entry.modal.start": "Starten",
+	"reconnect.title": "Verbindung unterbrochen",
+	"reconnect.description": "Baue Verbindung wieder auf...",
+	"reconnect.abort": "Abbrechen"
 }

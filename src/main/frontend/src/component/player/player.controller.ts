@@ -18,6 +18,7 @@ import { t } from '../i18n-mixin';
 import { Modal } from '../modal/modal';
 import { PlayerViewController } from '../player-view/player-view.controller';
 import { QuizModal } from '../quiz-modal/quiz.modal';
+import { ReconnectModal } from '../reconnect-modal/reconnect.modal';
 import { RecordedModal } from '../recorded-modal/recorded.modal';
 import { SettingsModal } from '../settings-modal/settings.modal';
 import { SpeechAcceptedModal } from '../speech-accepted-modal/speech-accepted.modal';
@@ -26,6 +27,12 @@ import { Toaster } from '../toast/toaster';
 import { LecturePlayer } from './player';
 
 export class PlayerController implements ReactiveController {
+
+	private readonly reconnectState = {
+		attempt: 0,
+		attemptsMax: 5,
+		timeout: 2000
+	};
 
 	private readonly host: LecturePlayer;
 
@@ -62,7 +69,7 @@ export class PlayerController implements ReactiveController {
 		actionProcessor.onPeerConnected = this.onPeerConnected.bind(this);
 
 		this.courseStateService = new CourseStateService("https://" + window.location.host);
-		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus", actionProcessor);
+		this.janusService = new JanusService("wss://" + window.location.hostname + ":8989/janus", actionProcessor);
 		this.modals = new Map();
 
 		this.maxWidth576Query = window.matchMedia("(max-width: 576px)");
@@ -78,11 +85,15 @@ export class PlayerController implements ReactiveController {
 		this.host.addEventListener("player-chat-visibility", this.onChatVisibility.bind(this), false);
 		this.host.addEventListener("participant-video-play-error", this.onMediaPlayError.bind(this), false);
 
+		this.eventService.addEventListener("event-service-state", this.onEventServiceState.bind(this));
 		this.eventService.addEventListener("messenger-state", this.onMessengerState.bind(this));
 		this.eventService.addEventListener("quiz-state", this.onQuizState.bind(this));
 		this.eventService.addEventListener("recording-state", this.onRecordingState.bind(this));
 		this.eventService.addEventListener("stream-state", this.onStreamState.bind(this));
 		this.eventService.addEventListener("speech-state", this.onSpeechState.bind(this));
+
+		this.janusService.addEventListener("janus-connection-established", this.onJanusConnectionEstablished.bind(this));
+		this.janusService.addEventListener("janus-connection-failure", this.onJanusConnectionFailure.bind(this));
 
 		this.initToaster();
 	}
@@ -96,12 +107,18 @@ export class PlayerController implements ReactiveController {
 	private setConnectionState(state: State) {
 		this.host.state = state;
 
+		if (this.host.state !== State.RECONNECTING) {
+			this.closeAndDeleteModal(ReconnectModal.name);
+		}
+
 		switch (state) {
 			case State.CONNECTED_FEATURES:
 			case State.DISCONNECTED:
-				this.setFullscreen(false);
-				this.playbackService.dispose();
-				this.viewController.setDisconnected();
+				this.setDisconnected();
+				break;
+
+			case State.RECONNECTING:
+				this.setReconnecting();
 				break;
 		}
 	}
@@ -156,8 +173,47 @@ export class PlayerController implements ReactiveController {
 			.catch(error => {
 				console.error(error);
 
-				this.setConnectionState(State.DISCONNECTED);
+				if (this.host.state === State.RECONNECTING) {
+					this.reconnect();
+				}
+				else {
+					this.setConnectionState(State.DISCONNECTED);
+				}
 			});
+	}
+
+	private reconnect() {
+		if (this.host.state !== State.RECONNECTING) {
+			return;
+		}
+
+		console.log("Reconnecting...");
+
+		this.reconnectState.attempt++;
+
+		if (this.reconnectState.attempt >= this.reconnectState.attemptsMax) {
+			this.reconnectState.attempt = 0;
+			this.setConnectionState(State.DISCONNECTED);
+		}
+		else {
+			this.janusService.disconnect();
+			window.setTimeout(this.connect.bind(this), this.reconnectState.timeout);
+		}
+	}
+
+	private setDisconnected() {
+		this.setFullscreen(false);
+		this.playbackService.dispose();
+		this.viewController.setDisconnected();
+	}
+
+	private setReconnecting() {
+		const reconnectModal = new ReconnectModal();
+		reconnectModal.addEventListener("reconnect-modal-abort", () => {
+			this.setConnectionState(State.DISCONNECTED);
+		});
+
+		this.registerModal(ReconnectModal.name, reconnectModal);
 	}
 
 	private getDocument(stateDoc: CourseStateDocument): Promise<SlideDocument> {
@@ -246,6 +302,16 @@ export class PlayerController implements ReactiveController {
 			chatModal.feature = this.host.courseState.messageFeature;
 
 			this.registerModal(ChatModal.name, chatModal);
+		}
+	}
+
+	private onEventServiceState(event: CustomEvent) {
+		const connected = event.detail.connected;
+
+		if (connected) {
+			if (this.host.state === State.RECONNECTING) {
+				this.reconnect();
+			}
 		}
 	}
 
@@ -365,6 +431,16 @@ export class PlayerController implements ReactiveController {
 		else {
 			this.setConnectionState(State.DISCONNECTED);
 		}
+	}
+
+	private onJanusConnectionEstablished() {
+		if (this.host.state === State.RECONNECTING) {
+			this.setConnectionState(State.CONNECTED);
+		}
+	}
+
+	private onJanusConnectionFailure() {
+		this.setConnectionState(State.RECONNECTING);
 	}
 
 	private isClassroomProfile() {

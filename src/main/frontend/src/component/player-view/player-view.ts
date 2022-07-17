@@ -48,7 +48,9 @@ export class PlayerView extends I18nLitElement {
 	}
 
 	removeParticipant(view: ParticipantView) {
-		this.videoFeedContainer.removeChild(view);
+		if (this.videoFeedContainer.contains(view)) {
+			this.videoFeedContainer.removeChild(view);
+		}
 	}
 
 	protected render() {
