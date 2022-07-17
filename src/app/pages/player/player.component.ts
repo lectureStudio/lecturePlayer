@@ -160,7 +160,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
         const fakeDoc = {
             documentName: 'CourseStateDoc',
             documentId: BigInt(0),
-            documentFile: '/assets/sample.pdf',
+            documentFile: '/angular/assets/sample.pdf',
             type: 'type',
             activePage: {
                 pageNumber: 0
@@ -171,7 +171,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
         // @ts-ignore
         this.courseStateService.getStateDocument(this.janusService.myRoomId, {
-            documentFile: '/assets/sample.pdf',
+            documentFile: '/angular/assets/sample.pdf',
             documentName: 'Dokument'
         })
             .then((doc: SlideDocument) => {

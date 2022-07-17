@@ -104,12 +104,12 @@ export class DocumentViewComponent implements OnInit, AfterViewInit, SlideView {
 
   pageBack() {
     const activePageNumber = PlaybackService.getInstance().renderController.getPage().getPageNumber();
-    this.modifyPage(Math.min(activePageNumber - 1, 0));
+    this.modifyPage(activePageNumber - 1);
   }
 
   pageForward() {
     const activePageNumber = PlaybackService.getInstance().renderController.getPage().getPageNumber();
-    this.modifyPage(Math.max(activePageNumber + 1, 0));
+    this.modifyPage(activePageNumber + 1);
   }
 
   private modifyPage(pageNumber: number) {
