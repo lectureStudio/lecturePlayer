@@ -180,15 +180,6 @@ mat-icon {
   justify-content: center;
 }
 
-.documentContainer > app-menubar {
-  position: absolute;
-  bottom: 0;
-  z-index: 10;
-
-  margin-bottom: 0.75em;
-  border-radius: 1em;
-}
-
 .attendantStreamContainer {
   display: flex;
   overflow: hidden;
@@ -205,4 +196,20 @@ video {
   background: transparent;
   border-radius: 10px;
   overflow: hidden;
+}
+
+.menubarContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menubarContainer > app-menubar {
+  z-index: 10;
+
+  margin-bottom: 0.33em;
+  margin-top: 0.33em;
+  border-radius: 1em;
+
+  min-width: 10vw;
 }

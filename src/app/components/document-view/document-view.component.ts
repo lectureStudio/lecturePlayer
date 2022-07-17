@@ -20,6 +20,7 @@ export class DocumentViewComponent implements OnInit, AfterViewInit, SlideView {
   @ViewChild('volatileCanvas') volatileCanvas: ElementRef;
   @ViewChild('textLayer') textLayer: ElementRef;
   @ViewChild('parent') parent: ElementRef;
+  @ViewChild('pdfActionBar') pdfActionBar: ElementRef;
 
   private slideRenderSurface: SlideRenderSurface;
   private actionRenderSurface: RenderSurface;
@@ -95,6 +96,10 @@ export class DocumentViewComponent implements OnInit, AfterViewInit, SlideView {
     this.actionRenderSurface.setSize(width, height);
     this.volatileRenderSurface.setSize(width, height);
     this.textLayerSurface.setSize(width, height);
+
+    if (this.pdfActionBar?.nativeElement) {
+      this.pdfActionBar.nativeElement.style.width = width + 'px';
+    }
   }
 
   pageBack() {

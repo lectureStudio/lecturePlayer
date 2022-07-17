@@ -12,16 +12,16 @@
 
         <app-menubar-buttongroup>
             <app-menubar-button caption="Microphone off" captionHighlightedToggleState="Micrphone on"
-                                matIconName="mic_off"
-                                matIconNameHighlightedToggleState="mic"
+                                matIconName="mic"
+                                matIconNameHighlightedToggleState="mic_off"
                                 [highlightToggleStateActive]="janusService.isMuted"
                                 [subButtonClickAction]="showAvailableMicrophones"
                                 (clicked)="janusService.toggleMute()"></app-menubar-button>
 
             <app-menubar-button caption="Camera off"
                                 captionHighlightedToggleState="Camera on"
-                                matIconName="videocam_off"
-                                matIconNameHighlightedToggleState="videocam"
+                                matIconName="videocam"
+                                matIconNameHighlightedToggleState="videocam_off"
                                 [highlightToggleStateActive]="janusService.isVideoMuted"
                                 [subButtonClickAction]="showAvailableCameras"
                                 (clicked)="janusService.toggleCamera()"></app-menubar-button>

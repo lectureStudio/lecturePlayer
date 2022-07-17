@@ -14,7 +14,7 @@ export class HomeComponent implements OnInit {
   }
 
   buttonPressed() {
-    this.router.navigate(['/player']);
+    this.router.navigate(['/course/1']);
   }
 
 }

@@ -90,6 +90,13 @@ export class JanusService {
         window.janusService = this;
     }
 
+    setUsername(username: string) {
+        if (username && username !== '') {
+            this.myUsername = username;
+            console.log('(JanusService) Set username to ', this.myUsername);
+        }
+    }
+
     start() {
         this.isCurrentlyCreatingASubscription = false;
         this.subscriptions = {};
@@ -132,9 +139,11 @@ export class JanusService {
 
 
         this.publisherJanusHandle.hangup();
-        this.subscriberJanusHandle.hangup();
         if (this.screenshareJanusHandle) {
             this.screenshareJanusHandle.hangup();
+        }
+        if (this.subscriberJanusHandle) {
+            this.subscriberJanusHandle.hangup();
         }
         this.janus.destroy();
     }

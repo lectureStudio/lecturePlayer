@@ -18,6 +18,7 @@ import {PlaybackService} from "../../services/playback.service";
 import {PlaybackModel} from "../../model/playback-model";
 import {DocumentViewComponent} from "../../components/document-view/document-view.component";
 import {SelectOverlayService} from "../../services/select-overlay.service";
+import {DocumentService} from "../../services/document.service";
 
 @Component({
     selector: 'app-player',
@@ -53,7 +54,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
                 private activatedRoute: ActivatedRoute
     ) {
         // @ts-ignore
-        this.janusService.myRoomId = this.activatedRoute.snapshot.params.courseId ?? 1;
+        this.janusService.myRoomId = Number(this.activatedRoute.snapshot.params.courseId) ?? 1;
 
         console.log('Read room id: ', this.janusService.myRoomId);
 
@@ -108,8 +109,12 @@ export class PlayerComponent implements OnInit, OnDestroy {
     }
 
     leave() {
-        this.janusService.end();
-        this.router.navigate(['/']);
+        try {
+            this.janusService.end();
+        } catch (e) {
+            console.log('Could not end janus session: ', e);
+        }
+        document.location.href = '';
     }
 
     showAvailableMicrophones = (event: MouseEvent) => {
@@ -135,10 +140,16 @@ export class PlayerComponent implements OnInit, OnDestroy {
     }
 
     showAvailableViewModes = (event: MouseEvent) => {
-        this.selectOverlayService.trigger(event, [{
-            key: "gallery",
-            value: this.availableViewModes.gallery
-        }, {key: "speaker", value: this.availableViewModes.speaker}], (selectedOption) => {
+        const options = [
+            {key: "gallery", value: this.availableViewModes.gallery},
+            {key: "speaker", value: this.availableViewModes.speaker},
+        ];
+
+        if (PlaybackService.getInstance().renderController) {
+            options.push({key: "document", value: this.availableViewModes.document});
+        }
+
+        this.selectOverlayService.trigger(event, options, (selectedOption) => {
             this.chosenViewMode = selectedOption.key;
         }, this.chosenViewMode);
     }

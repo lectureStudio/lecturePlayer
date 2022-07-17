@@ -24,6 +24,10 @@
 }
 
 mat-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   font-size: min(2.25vw, 2.5em);
   width: min(2.25vw, 2.5em);
   height: min(2.25vw, 2.5em);
