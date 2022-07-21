@@ -55,6 +55,10 @@ export const playerViewStyles = css`
 		flex-direction: row;
 		margin-top: auto;
 		order: 6;
+		height: 100%;
+	}
+	:host chat-box {
+		height: 100%;
 	}
 	:host(:not([chatVisible])) chat-box {
 		display: none;
