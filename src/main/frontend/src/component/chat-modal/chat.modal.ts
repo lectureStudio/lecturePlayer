@@ -2,7 +2,6 @@ import { html } from "lit";
 import { Modal } from "../modal/modal";
 import { customElement, property } from "lit/decorators.js";
 import { t } from '../i18n-mixin';
-import { MessageFeature } from "../../model/course-feature";
 import { MessageService } from "../../service/message.service";
 import { Toaster } from "../toast/toaster";
 
@@ -13,7 +12,7 @@ export class ChatModal extends Modal {
 	courseId: number;
 
 	@property()
-	feature: MessageFeature;
+	messageService: MessageService;
 
 
 	protected post(event: Event) {
@@ -23,18 +22,20 @@ export class ChatModal extends Modal {
 		const submitButton = <HTMLButtonElement> event.target;
 		submitButton.disabled = true;
 
-		const service = new MessageService();
-		service.postMessageFromForm(this.courseId, messageForm)
-			.finally(() => {
-				messageForm.reset();
-				submitButton.disabled = false;
-
-				this.close();
+		this.messageService.postMessage(messageForm)
+			.then(() => {
+				Toaster.showSuccess(`${t("course.feature.message.sent")}`);
 			})
 			.catch(error => {
 				console.error(error);
 
 				Toaster.showError(`${t("course.feature.message.send.error")}`);
+			})
+			.finally(() => {
+				messageForm.reset();
+				submitButton.disabled = false;
+
+				this.close();
 			});
 	}
 
@@ -45,7 +46,7 @@ export class ChatModal extends Modal {
 					<span>${t("course.feature.message")}</span>
 				</header>
 				<article>
-					<message-form .feature="${this.feature}"></message-form>
+					<message-form .feature="${this.messageService?.feature}"></message-form>
 				</article>
 				<footer>
 					<button type="button" @click="${this.close}" class="btn btn-outline-secondary btn-sm">

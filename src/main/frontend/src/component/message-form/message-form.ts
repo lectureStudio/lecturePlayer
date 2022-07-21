@@ -19,8 +19,16 @@ export class MessageForm extends I18nLitElement {
 	render() {
 		return html`
 			<form id="course-message-form">
-				<input type="hidden" name="serviceId" value="${this.feature?.featureId}" />
-				<textarea name="text" rows="3" placeholder="${t("course.feature.message.placeholder")}"></textarea>
+				<div class="controls">
+					<span>${t("course.feature.message.target")}</span>
+					<select name="target" class="form-select form-select-sm" aria-label=".form-select-sm">
+						<option value="public" selected>${t("course.feature.message.target.all")}</option>
+					</select>
+				</div>
+				<div>
+					<input type="hidden" name="serviceId" value="${this.feature?.featureId}" />
+					<textarea name="text" rows="3" placeholder="${t("course.feature.message.placeholder")}"></textarea>
+				</div>
 			</form>
 		`;
 	}

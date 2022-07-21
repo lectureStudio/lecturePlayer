@@ -11,21 +11,19 @@ export const chatBoxStyles = css`
 		margin-bottom: 0.5rem;
 		line-height: 1.2;
 	}
-	.chat-info {
-		background-color: var(--bs-gray-200);
-		font-size: 0.875em;
-		padding: 0.25rem;
+	section {
+		display: flex;
+		flex: 1 1 auto;
+		flex-direction: column;
 		width: 100%;
+		height: 100%;
+		overflow-y: hidden;
+		align-items: stretch;
 	}
-	.chat-controls {
+	footer {
 		display: flex;
 	}
-	.chat-submit {
-		display: flex;
-		justify-content: flex-end;
-		padding: 0.25em;
-	}
-	.chat-controls button {
+	footer button {
 		background-color: transparent;
 		border: 0;
 		border-radius: 0;
@@ -34,8 +32,31 @@ export const chatBoxStyles = css`
 		padding: 0.25rem 0.5rem;
 		transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 	}
-	.chat-controls button:hover {
+	footer button:hover {
 		background-color: #0d6efd;
 		color: white;
+	}
+
+	.chat-submit {
+		display: flex;
+		justify-content: flex-end;
+		padding: 0.25em;
+	}
+
+	.chat-history {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+	}
+	.chat-history-log {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+		overflow-y: auto;
+		height: 100px;
+		padding-right: 15px;
+	}
+	.chat-history-log > * {
+		margin-bottom: 1em;
 	}
 `;

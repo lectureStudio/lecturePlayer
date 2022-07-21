@@ -1,6 +1,7 @@
 import { html } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import { CourseState } from '../../model/course-state';
+import { MessageService } from '../../service/message.service';
 import { I18nLitElement } from '../i18n-mixin';
 import { FeatureViewController } from './feature-view.controller';
 import { featureViewStyles } from './feature-view.styles';
@@ -17,6 +18,9 @@ export class PlayerFeatureView extends I18nLitElement {
 
 	@state()
 	courseState: CourseState;
+
+	@property()
+	messageService: MessageService;
 
 
 	protected render() {
@@ -35,7 +39,7 @@ export class PlayerFeatureView extends I18nLitElement {
 	protected renderChat() {
 		return this.courseState?.messageFeature ?
 			html`
-				<chat-box .courseId="${this.courseState?.courseId}" .feature="${this.courseState?.messageFeature}"></chat-box>
+				<chat-box .messageService="${this.messageService}"></chat-box>
 			`
 		: '';
 	}

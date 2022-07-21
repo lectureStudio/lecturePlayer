@@ -7,6 +7,7 @@ import { State } from '../../utils/state';
 import { PlayerView } from '../player-view/player-view';
 import { CourseState } from '../../model/course-state';
 import { MediaProfile, Settings } from '../../utils/settings';
+import { MessageService } from '../../service/message.service';
 
 @customElement('lecture-player')
 export class LecturePlayer extends I18nLitElement {
@@ -20,6 +21,9 @@ export class LecturePlayer extends I18nLitElement {
 
 	@state()
 	courseState: CourseState;
+
+	@state()
+	messageService: MessageService;
 
 	@property({ reflect: true })
 	state: State = State.CONNECTING;
@@ -52,8 +56,8 @@ export class LecturePlayer extends I18nLitElement {
 	protected render() {
 		return html`
 			<player-loading .text="${t("course.loading")}"></player-loading>
-			<player-view .courseId="${this.courseId}"></player-view>
-			<player-feature-view .courseState="${this.courseState}"></player-feature-view>
+			<player-view .courseId="${this.courseId}" .messageService="${this.messageService}"></player-view>
+			<player-feature-view .courseState="${this.courseState}" .messageService="${this.messageService}"></player-feature-view>
 			<player-offline .description="${this.description}"></player-offline>
 		`;
 	}

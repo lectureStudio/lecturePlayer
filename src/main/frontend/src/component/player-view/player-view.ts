@@ -1,6 +1,7 @@
 import { html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { CourseState } from '../../model/course-state';
+import { MessageService } from '../../service/message.service';
 import { PlayerControls } from '../controls/player-controls';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { ParticipantView } from '../participant-view/participant-view';
@@ -22,6 +23,9 @@ export class PlayerView extends I18nLitElement {
 
 	@property()
 	courseState: CourseState;
+
+	@property()
+	messageService: MessageService;
 
 	@property({ type: Boolean, reflect: true })
 	chatVisible: boolean;
@@ -67,7 +71,7 @@ export class PlayerView extends I18nLitElement {
 				<div class="video-feeds">
 				</div>
 				<div class="chat-container">
-					<chat-box .courseId="${this.courseId}" .feature="${this.courseState?.messageFeature}"></chat-box>
+					<chat-box .messageService="${this.messageService}"></chat-box>
 				</div>
 			</div>
 		`;

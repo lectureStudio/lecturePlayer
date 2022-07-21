@@ -6,6 +6,7 @@ import { SlideDocument } from '../../model/document';
 import { CourseStateService } from '../../service/course.service';
 import { EventService } from '../../service/event.service';
 import { JanusService } from '../../service/janus.service';
+import { MessageService } from '../../service/message.service';
 import { PlaybackService } from '../../service/playback.service';
 import { SpeechService } from '../../service/speech.service';
 import { Devices } from '../../utils/devices';
@@ -46,6 +47,8 @@ export class PlayerController implements ReactiveController {
 
 	private readonly playbackService: PlaybackService;
 
+	private messageService: MessageService;
+
 	private eventService: EventService;
 
 	private viewController: PlayerViewController;
@@ -76,7 +79,10 @@ export class PlayerController implements ReactiveController {
 	}
 
 	hostConnected() {
+		this.messageService = new MessageService(this.host.courseId);
 		this.eventService = new EventService(this.host.courseId);
+
+		this.host.messageService = this.messageService;
 
 		this.host.addEventListener("player-fullscreen", this.onFullscreen.bind(this));
 		this.host.addEventListener("player-settings", this.onSettings.bind(this), false);
@@ -123,6 +129,12 @@ export class PlayerController implements ReactiveController {
 		}
 	}
 
+	private setCourseState(state: CourseState) {
+		this.messageService.feature = state.messageFeature;
+
+		this.host.courseState = state;
+	}
+
 	private initToaster() {
 		Toaster.init({
 			duration: 5000,
@@ -139,7 +151,9 @@ export class PlayerController implements ReactiveController {
 			.then(courseState => {
 				console.log("Course state", courseState);
 
-				this.host.courseState = courseState;
+				this.messageService.userId = courseState.userId;
+
+				this.setCourseState(courseState);
 
 				if (courseState.activeDocument == null) {
 					// Update early, if not streaming.
@@ -326,12 +340,12 @@ export class PlayerController implements ReactiveController {
 			this.closeAndDeleteModal(ChatModal.name);
 		}
 
-		this.host.courseState = {
+		this.setCourseState({
 			...this.host.courseState,
 			...{
 				messageFeature: state.started ? state.feature : null
 			}
-		};
+		});
 		this.host.dispatchEvent(Utils.createEvent("messenger-state", state));
 
 		this.updateCourseState();
@@ -348,12 +362,12 @@ export class PlayerController implements ReactiveController {
 			this.closeAndDeleteModal(QuizModal.name);
 		}
 
-		this.host.courseState = {
+		this.setCourseState({
 			...this.host.courseState,
 			...{
 				quizFeature: state.started ? state.feature : null
 			}
-		};
+		});
 		this.host.dispatchEvent(Utils.createEvent("quiz-state", state));
 
 		this.updateCourseState();

@@ -27,7 +27,6 @@ export const featureViewStyles = css`
 	}
 	:host chat-box {
 		width: 100%;
-		height: fit-content;
 	}
 
 	@media (min-width: 576px) {

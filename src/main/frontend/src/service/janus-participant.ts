@@ -101,28 +101,52 @@ export abstract class JanusParticipant extends EventTarget {
 		}));
 	}
 
+	iceConnectionState: RTCIceConnectionState;
+
 	protected onIceState(state: "connected" | "failed" | "disconnected" | "closed") {
 		Janus.log("ICE state changed to " + state);
 
 		switch (state) {
 			case "connected":
+				if (this.iceConnectionState === "disconnected") {
+					console.log("configure");
+
+					this.handle.send({
+						message: {
+							request: "configure",
+							restart: true
+						}
+					});
+
+					this.janus.reconnect({
+						success: () => {
+							console.log("reconnected");
+						},
+						error: (error: string) => {
+							console.error(error);
+						}
+					});
+				}
+
 				this.dispatchEvent(Utils.createEvent("janus-participant-connection-connected", {
 					participant: this
 				}));
 				break;
 
-			case "disconnected":
-				this.dispatchEvent(Utils.createEvent("janus-participant-connection-disconnected", {
-					participant: this
-				}));
-				break;
+			// case "disconnected":
+			// 	this.dispatchEvent(Utils.createEvent("janus-participant-connection-disconnected", {
+			// 		participant: this
+			// 	}));
+			// 	break;
 
-			case "failed":
-				this.dispatchEvent(Utils.createEvent("janus-participant-connection-failure", {
-					participant: this
-				}));
-				break;
+			// case "failed":
+			// 	this.dispatchEvent(Utils.createEvent("janus-participant-connection-failure", {
+			// 		participant: this
+			// 	}));
+			// 	break;
 		}
+
+		this.iceConnectionState = state;
 	}
 
 	protected onMediaState(medium: 'audio' | 'video', receiving: boolean, mid?: number) {

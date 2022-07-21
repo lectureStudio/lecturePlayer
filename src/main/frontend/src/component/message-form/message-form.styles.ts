@@ -4,6 +4,21 @@ export const messageFormStyles = css`
 	:host {
 		width: 100%;
 	}
+	.controls {
+		display: flex;
+		flex-direction: row;
+		align-items: baseline;
+		padding: 0.25em 0;
+		font-size: 0.9em;
+	}
+	.controls > span {
+		padding-right: 1em;
+	}
+	.form-select {
+		max-width: fit-content;
+		height: auto;
+		line-height: 1em;
+	}
 	textarea {
 		resize: none;
 		border: 0;
