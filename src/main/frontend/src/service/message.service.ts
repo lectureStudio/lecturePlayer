@@ -76,7 +76,7 @@ export class MessageService extends EventTarget {
 	postMessage(form: HTMLFormElement): Promise<void> {
 		const data = new FormData(form);
 		const message: ChatMessage = {
-			serviceId: data.get("serviceId").toString(),
+			serviceId: this.feature.featureId,
 			text: data.get("text").toString()
 		};
 		const target = data.get("target").toString();

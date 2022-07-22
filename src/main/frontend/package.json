@@ -5,7 +5,7 @@
 	"private": true,
 	"scripts": {
 		"build:dev": "webpack --config webpack.dev.js",
-		"build:prod": "SET NODE_OPTIONS=--openssl-legacy-provider && webpack --config webpack.prod.js",
+		"build:prod": "webpack --config webpack.prod.js",
 		"watch": "concurrently \"webpack --config webpack.dev.js --watch\" \"npm run type-check:watch\"",
 		"start:dev": "webpack serve --host 0.0.0.0 --config webpack.dev.js",
 		"type-check": "tsc --noEmit",

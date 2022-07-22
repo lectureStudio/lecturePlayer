@@ -32,6 +32,16 @@ export class ChatBox extends I18nLitElement {
 	protected firstUpdated() {
 		// If the message service already has the history, show it.
 		this.addAllMessages(this.messageService.getMessageHistory());
+
+		window.setTimeout(() => {
+			const lastMessage = this.messageContainer.lastElementChild as ChatMessage;
+
+			if (lastMessage) {
+				this.scrollToMessage(lastMessage);
+
+				// this.messageContainer.scrollTop = this.messageContainer.scrollHeight;
+			}
+		}, 100);
 	}
 
 	protected post(event: Event): void {
@@ -68,7 +78,7 @@ export class ChatBox extends I18nLitElement {
 				</div>
 			</section>
 			<footer>
-				<message-form .feature="${this.messageService?.feature}"></message-form>
+				<message-form></message-form>
 				<button @click="${this.post}" type="submit" form="course-message-form" id="message-submit">
 					<svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
 						<path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z"/>
@@ -93,20 +103,26 @@ export class ChatBox extends I18nLitElement {
 	private addPublicMessage(event: CustomEvent) {
 		const message: MessageServiceMessage = event.detail;
 
-		this.insertMessage(message);
+		const chatMessage = this.insertMessage(message);
+		this.scrollToMessage(chatMessage);
 	}
 
 	private addPrivateMessage(event: CustomEvent) {
 		const message: MessageServiceMessage = event.detail;
 
-		this.insertMessage(message);
+		const chatMessage = this.insertMessage(message);
+		this.scrollToMessage(chatMessage);
 	}
 
-	private insertMessage(message: MessageServiceMessage) {
+	private insertMessage(message: MessageServiceMessage): ChatMessage {
 		const chatMessage = this.createMessage(message);
 
 		this.messageContainer.appendChild(chatMessage);
 
+		return chatMessage;
+	}
+
+	private scrollToMessage(chatMessage: ChatMessage) {
 		chatMessage.updateComplete.then(() => {
 			chatMessage.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
 		});

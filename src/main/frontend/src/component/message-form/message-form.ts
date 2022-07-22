@@ -1,6 +1,5 @@
 import { html } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
-import { MessageFeature } from '../../model/course-feature';
+import { customElement } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { messageFormStyles } from './message-form.styles';
 
@@ -11,9 +10,6 @@ export class MessageForm extends I18nLitElement {
 		I18nLitElement.styles,
 		messageFormStyles,
 	];
-
-	@property()
-	feature: MessageFeature;
 
 
 	render() {
@@ -26,7 +22,6 @@ export class MessageForm extends I18nLitElement {
 					</select>
 				</div>
 				<div>
-					<input type="hidden" name="serviceId" value="${this.feature?.featureId}" />
 					<textarea name="text" rows="3" placeholder="${t("course.feature.message.placeholder")}"></textarea>
 				</div>
 			</form>

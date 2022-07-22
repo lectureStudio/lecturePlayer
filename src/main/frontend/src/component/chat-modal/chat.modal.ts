@@ -46,7 +46,7 @@ export class ChatModal extends Modal {
 					<span>${t("course.feature.message")}</span>
 				</header>
 				<article>
-					<message-form .feature="${this.messageService?.feature}"></message-form>
+					<message-form></message-form>
 				</article>
 				<footer>
 					<button type="button" @click="${this.close}" class="btn btn-outline-secondary btn-sm">

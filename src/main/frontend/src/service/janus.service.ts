@@ -50,7 +50,7 @@ export class JanusService extends EventTarget {
 	connect() {
 		// Initialize the library (all console debuggers enabled).
 		Janus.init({
-			debug: "all",
+			// debug: "all",
 			callback: () => {
 				// Make sure the browser supports WebRTC.
 				if (!Janus.isWebrtcSupported()) {
@@ -73,12 +73,6 @@ export class JanusService extends EventTarget {
 
 		this.publishers.slice(0);
 		this.subscribers.slice(0);
-
-		// this.janus.destroy({
-		// 	cleanupHandles: true,
-		// 	unload: true,
-		// 	notifyDestroyed: false
-		// });
 	}
 
 	addPeer(peerId: bigint) {

@@ -313,7 +313,7 @@ export class PlayerController implements ReactiveController {
 		if (this.maxWidth576Query.matches) {
 			const chatModal = new ChatModal();
 			chatModal.courseId = this.host.courseId;
-			chatModal.feature = this.host.courseState.messageFeature;
+			chatModal.messageService = this.messageService;
 
 			this.registerModal(ChatModal.name, chatModal);
 		}
