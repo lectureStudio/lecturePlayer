@@ -1,6 +1,7 @@
 import { ChatMessage, MessageFeature } from "../model/course-feature";
 import { Client, Message, StompHeaders } from '@stomp/stompjs';
 import { Utils } from "../utils/utils";
+import { EventSubService } from "./event.service";
 
 export interface MessageServiceMessage {
 
@@ -22,9 +23,9 @@ export interface MessageServiceHistory {
 
 }
 
-export class MessageService extends EventTarget {
+export class MessageService extends EventTarget implements EventSubService {
 
-	private readonly courseId: number;
+	private courseId: number;
 
 	private client: Client;
 
@@ -35,11 +36,45 @@ export class MessageService extends EventTarget {
 	messages: MessageServiceMessage[];
 
 
-	constructor(courseId: number) {
+	constructor() {
 		super();
 
-		this.courseId = courseId;
 		this.messages = [];
+	}
+
+	initialize(courseId: number, client: Client): void {
+		this.courseId = courseId;
+		this.client = client;
+
+		client.subscribe("/topic/chat/" + this.courseId, (message: Message) => {
+			const chatMessage = JSON.parse(message.body);
+			const type = chatMessage["_type"];
+
+			console.log(chatMessage);
+
+			this.messages.push(chatMessage);
+
+			switch (type) {
+				case "MessengerMessage":
+					this.dispatchEvent(Utils.createEvent("message-service-public-message", chatMessage));
+					break;
+
+				case "MessengerReplyMessage":
+					// this.onMessengerReplyMessageReceive(chatMessage, message.headers);
+					break;
+			}
+		});
+
+		client.subscribe("/user/queue/chat/" + this.courseId, (message: Message) => {
+			// this.onMessengerDirectMessageReceive(JSON.parse(message.body));
+			const chatMessage = JSON.parse(message.body);
+
+			console.log(chatMessage);
+
+			this.messages.push(chatMessage);
+
+			this.dispatchEvent(Utils.createEvent("message-service-private-message", chatMessage));
+		});
 
 		this.fetchMessageHistory()
 			.then((history: MessageServiceHistory) => {
@@ -50,8 +85,6 @@ export class MessageService extends EventTarget {
 			.catch(error => {
 				console.error(error);
 			});
-
-		this.initClient();
 	}
 
 	getMessageHistory(): MessageServiceMessage[] {
@@ -104,62 +137,5 @@ export class MessageService extends EventTarget {
 
 			resolve();
 		});
-	}
-
-	private initClient() {
-		this.client = new Client({
-			brokerURL: "wss://" + window.location.host + "/api/subscriber/messenger",
-			reconnectDelay: 1000,
-			heartbeatIncoming: 1000,
-			heartbeatOutgoing: 1000,
-			debug: (message) => {
-				// console.log("STOMP MessageService: " + message);
-			},
-		});
-		this.client.onConnect = this.onConnected.bind(this);
-		this.client.onDisconnect = this.onDisconnected.bind(this);;
-		this.client.activate();
-
-		window.addEventListener("beforeunload", () => {
-			this.client.deactivate();
-		});
-	}
-
-	private async onConnected() {
-		console.log("STOMP MessageService connected");
-
-		this.client.subscribe("/topic/chat/" + this.courseId, (message: Message) => {
-			const chatMessage = JSON.parse(message.body);
-			const type = chatMessage["_type"];
-
-			console.log(chatMessage);
-
-			this.messages.push(chatMessage);
-
-			switch (type) {
-				case "MessengerMessage":
-					this.dispatchEvent(Utils.createEvent("message-service-public-message", chatMessage));
-					break;
-
-				case "MessengerReplyMessage":
-					// this.onMessengerReplyMessageReceive(chatMessage, message.headers);
-					break;
-			}
-		});
-
-		this.client.subscribe("/user/queue/chat/" + this.courseId, (message: Message) => {
-			// this.onMessengerDirectMessageReceive(JSON.parse(message.body));
-			const chatMessage = JSON.parse(message.body);
-
-			console.log(chatMessage);
-
-			this.messages.push(chatMessage);
-
-			this.dispatchEvent(Utils.createEvent("message-service-private-message", chatMessage));
-		});
-	}
-
-	private onDisconnected() {
-		console.log("STOM MessageService disconnected");
 	}
 }

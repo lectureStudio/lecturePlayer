@@ -47,7 +47,7 @@ export class PlayerController implements ReactiveController {
 
 	private readonly playbackService: PlaybackService;
 
-	private messageService: MessageService;
+	private readonly messageService: MessageService;
 
 	private eventService: EventService;
 
@@ -64,6 +64,7 @@ export class PlayerController implements ReactiveController {
 		this.host = host;
 		this.host.addController(this);
 
+		this.messageService = new MessageService();
 		this.speechService = new SpeechService();
 		this.playbackService = new PlaybackService();
 
@@ -79,8 +80,9 @@ export class PlayerController implements ReactiveController {
 	}
 
 	hostConnected() {
-		this.messageService = new MessageService(this.host.courseId);
 		this.eventService = new EventService(this.host.courseId);
+		this.eventService.addEventSubService(this.messageService);
+		this.eventService.connect();
 
 		this.host.messageService = this.messageService;
 
