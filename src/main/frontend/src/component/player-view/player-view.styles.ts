@@ -32,10 +32,13 @@ export const playerViewStyles = css`
 		height: 100%;
 		flex-grow: 1;
 	}
-	:host .feed-container {
+	:host .left-container {
 		display: flex;
-		flex-grow: 0;
 		flex-direction: column;
+		flex-shrink: 0;
+		background-color: white;
+		width: 15em;
+		max-width: 15em;
 	}
 	:host .right-container {
 		display: flex;
@@ -50,7 +53,7 @@ export const playerViewStyles = css`
 		flex-direction: row;
 		order: 1;
 	}
-	:host .chat-container {
+	:host .feature-container {
 		display: none;
 		flex-direction: row;
 		margin-top: auto;
@@ -60,7 +63,13 @@ export const playerViewStyles = css`
 	:host chat-box {
 		height: 100%;
 	}
+	:host participant-box {
+		height: 100%;
+	}
 	:host(:not([chatVisible])) chat-box {
+		display: none;
+	}
+	:host(:not([participantsVisible])) .left-container {
 		display: none;
 	}
 
@@ -76,7 +85,7 @@ export const playerViewStyles = css`
 			order: 2;
 			flex-direction: column;
 		}
-		:host .chat-container {
+		:host .feature-container {
 			order: 6;
 			display: block;
 		}

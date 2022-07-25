@@ -1,15 +1,17 @@
 import { html } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, query, state } from 'lit/decorators.js';
+import { repeat } from 'lit/directives/repeat.js';
+import { when } from 'lit/directives/when.js';
 import { CourseParticipant, CourseParticipantPresence } from '../../model/course-state';
 import { I18nLitElement, t } from '../i18n-mixin';
-import { messageFormStyles } from './message-form.styles';
+import { participantBoxStyles } from './participant-box.styles';
 
-@customElement('message-form')
-export class MessageForm extends I18nLitElement {
+@customElement('participant-box')
+export class ParticipantBox extends I18nLitElement {
 
 	static styles = [
 		I18nLitElement.styles,
-		messageFormStyles,
+		participantBoxStyles
 	];
 
 	@state()
@@ -17,6 +19,9 @@ export class MessageForm extends I18nLitElement {
 
 	@state()
 	userId: string;
+
+	@query(".participant-log")
+	participantContainer: HTMLElement;
 
 
 	override connectedCallback() {
@@ -27,25 +32,19 @@ export class MessageForm extends I18nLitElement {
 	}
 
 	protected render() {
-		const optionTemplates = [];
-
-		for (const participant of this.participants) {
-			optionTemplates.push(html`<option value="${participant.userId}">${participant.firstName} ${participant.familyName}</div>`);
-		}
-
 		return html`
-			<form id="course-message-form">
-				<div class="controls">
-					<span>${t("course.feature.message.target")}</span>
-					<select name="target" class="form-select form-select-sm" aria-label=".form-select-sm">
-						<option value="public" selected>${t("course.feature.message.target.all")}</option>
-						${optionTemplates}
-					</select>
+			<header>
+				${t("course.participants")} (${this.participants.length})
+			</header>
+			<section>
+				<div class="participants">
+					<div class="participant-log">
+					${repeat(this.participants, (participant) => participant.firstName, (participant, index) => html`
+						<div>${participant.firstName} ${participant.familyName} ${when(participant.userId === this.userId, () => html`(${t("course.participants.me")})`, () => '')}</div>
+					`)}
+					</div>
 				</div>
-				<div>
-					<textarea name="text" rows="3" placeholder="${t("course.feature.message.placeholder")}"></textarea>
-				</div>
-			</form>
+			</section>
 		`;
 	}
 

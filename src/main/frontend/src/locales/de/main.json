@@ -42,6 +42,8 @@
 	"course.feature.quiz.count.error": "Nur eine Antwort pro Quiz erlaubt",
 	"course.feature.quiz.input.invalid": "Eingabe nicht erlaubt",
 	"course.feature.quiz.sent": "Ihre Antwort wurde erfolgreich verschickt",
+	"course.participants": "Teilnehmer",
+	"course.participants.me": "Ich",
 	"course.speech.request.accepted": "Redebeitrag angenommen",
 	"course.speech.request.accepted.description": "Redebeitrag jetzt starten oder abbrechen, falls Sie es sich anders überlegt haben.",
 	"course.speech.request.rejected": "Redebeitrag abgelehnt",

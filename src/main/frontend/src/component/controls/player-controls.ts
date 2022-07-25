@@ -56,6 +56,9 @@ export class PlayerControls extends I18nLitElement {
 	chatVisible: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
+	participantsVisible: boolean = false;
+
+	@property({ type: Boolean, reflect: true })
 	fullscreen: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
@@ -132,6 +135,10 @@ export class PlayerControls extends I18nLitElement {
 		this.dispatchEvent(Utils.createEvent("player-chat-visibility"));
 	}
 
+	private onParticipantsVisibility(): void {
+		this.dispatchEvent(Utils.createEvent("player-participants-visibility"));
+	}
+
 	private onFullscreen(): void {
 		this.fullscreen = !this.fullscreen;
 
@@ -202,6 +209,13 @@ export class PlayerControls extends I18nLitElement {
 				</button>
 			</div>
 			<div class="col nav-right">
+				<button @click="${this.onParticipantsVisibility}" id="participants-button">
+					<svg class="svg-icon" fill="currentColor" viewBox="0 0 16 16">
+						<path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+						<path fill-rule="evenodd" d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/>
+						<path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
+					</svg>
+				</button>
 				<button @click="${this.onChatVisibility}" id="chat-button">
 					<svg class="svg-icon" fill="currentColor" stroke="currentColor" viewBox="0 0 16 16">
 						<path d="M2.678 11.894a1 1 0 0 1 .287.801 10.97 10.97 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8.06 8.06 0 0 0 8 14c3.996 0 7-2.807 7-6 0-3.192-3.004-6-7-6S1 4.808 1 8c0 1.468.617 2.83 1.678 3.894zm-.493 3.905a21.682 21.682 0 0 1-.713.129c-.2.032-.352-.176-.273-.362a9.68 9.68 0 0 0 .244-.637l.003-.01c.248-.72.45-1.548.524-2.319C.743 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7-3.582 7-8 7a9.06 9.06 0 0 1-2.347-.306c-.52.263-1.639.742-3.468 1.105z"/>

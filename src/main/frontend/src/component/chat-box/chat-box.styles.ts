@@ -6,9 +6,9 @@ export const chatBoxStyles = css`
 		flex-direction: column;
 	}
 	header {
+		align-self: center;
 		font-weight: 600;
-		margin-top: 0px;
-		margin-bottom: 0.5rem;
+		padding: 0.25em;
 		line-height: 1.2;
 	}
 	section {

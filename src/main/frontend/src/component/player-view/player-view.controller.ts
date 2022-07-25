@@ -23,6 +23,7 @@ export class PlayerViewController implements ReactiveController {
 		document.addEventListener("quiz-state", this.onQuizState.bind(this));
 
 		this.host.addEventListener("player-chat-visibility", this.onChatVisibility.bind(this), false);
+		this.host.addEventListener("player-participants-visibility", this.onParticipantsVisibility.bind(this), false);
 	}
 
 	setCourseState(courseState: CourseState) {
@@ -88,5 +89,9 @@ export class PlayerViewController implements ReactiveController {
 
 	private onChatVisibility() {
 		this.host.chatVisible = !this.host.chatVisible;
+	}
+
+	private onParticipantsVisibility() {
+		this.host.participantsVisible = !this.host.participantsVisible;
 	}
 }

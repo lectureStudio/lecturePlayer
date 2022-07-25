@@ -436,7 +436,7 @@ export class PlayerController implements ReactiveController {
 
 		this.host.courseState.participants = participants;
 
-		this.messageService.participants = participants;
+		this.host.dispatchEvent(Utils.createEvent("course-participants", this.host.courseState.participants));
 	}
 
 	private onParticipantPresence(event: CustomEvent) {
@@ -455,7 +455,10 @@ export class PlayerController implements ReactiveController {
 			}
 		}
 
-		this.messageService.participants = this.host.courseState.participants;
+		this.host.dispatchEvent(Utils.createEvent("course-participant-presence", {
+			participants: this.host.courseState.participants,
+			participant: participant
+		}));
 	}
 
 	private updateCourseState() {

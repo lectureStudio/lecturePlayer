@@ -30,6 +30,9 @@ export class PlayerView extends I18nLitElement {
 	@property({ type: Boolean, reflect: true })
 	chatVisible: boolean;
 
+	@property({ type: Boolean, reflect: true })
+	participantsVisible: boolean = true;
+
 	@query("player-controls")
 	controls: PlayerControls;
 
@@ -59,18 +62,23 @@ export class PlayerView extends I18nLitElement {
 
 	protected render() {
 		return html`
+			<div class="left-container">
+				<div class="feature-container">
+					<participant-box .userId="${this.courseState?.userId}"></participant-box>
+				</div>
+			</div>
 			<div class="center-container">
 				<div class="slide-container">
 					<slide-view></slide-view>
 				</div>
 				<div class="controls-container">
-					<player-controls .courseState="${this.courseState}" .chatVisible="${this.chatVisible}"></player-controls>
+					<player-controls .courseState="${this.courseState}" .chatVisible="${this.chatVisible}" .participantsVisible="${this.participantsVisible}"></player-controls>
 				</div>
 			</div>
 			<div class="right-container">
 				<div class="video-feeds">
 				</div>
-				<div class="chat-container">
+				<div class="feature-container">
 					<chat-box .messageService="${this.messageService}"></chat-box>
 				</div>
 			</div>

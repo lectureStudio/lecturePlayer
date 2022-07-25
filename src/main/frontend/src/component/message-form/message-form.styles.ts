@@ -12,7 +12,8 @@ export const messageFormStyles = css`
 		font-size: 0.9em;
 	}
 	.controls > span {
-		padding-right: 1em;
+		min-width: fit-content;
+		padding: 0 1em 0 0.25em;
 	}
 	.form-select {
 		max-width: fit-content;

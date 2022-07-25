@@ -42,6 +42,8 @@
 	"course.feature.quiz.count.error": "Only one answer per quiz is allowed",
 	"course.feature.quiz.input.invalid": "Input not allowed",
 	"course.feature.quiz.sent": "Your answer has been successfully sent",
+	"course.participants": "Participants",
+	"course.participants.me": "Me",
 	"course.speech.request.accepted": "Speech request accepted",
 	"course.speech.request.accepted.description": "Start your speech now or cancel it if you have changed your mind.",
 	"course.speech.request.rejected": "Speech request rejected",

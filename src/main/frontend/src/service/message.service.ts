@@ -2,7 +2,6 @@ import { ChatMessage, MessageFeature } from "../model/course-feature";
 import { Client, Message, StompHeaders } from '@stomp/stompjs';
 import { Utils } from "../utils/utils";
 import { EventSubService } from "./event.service";
-import { CourseParticipant } from "../model/course-state";
 
 export interface MessageServiceMessage {
 
@@ -14,7 +13,7 @@ export interface MessageServiceMessage {
 
 	familyName: string;
 
-	username: string;
+	userId: string;
 
 }
 
@@ -35,8 +34,6 @@ export class MessageService extends EventTarget implements EventSubService {
 	feature: MessageFeature;
 
 	messages: MessageServiceMessage[];
-
-	participants: CourseParticipant[];
 
 
 	constructor() {
@@ -79,34 +76,17 @@ export class MessageService extends EventTarget implements EventSubService {
 			this.dispatchEvent(Utils.createEvent("message-service-private-message", chatMessage));
 		});
 
-		this.fetchMessageHistory()
-			.then((history: MessageServiceHistory) => {
-				this.messages = history.messages;
+		client.subscribe("/app/course/chat/history/" + this.courseId, (message: Message) => {
+			const history = JSON.parse(message.body);
 
-				this.dispatchEvent(Utils.createEvent("message-service-message-history", this.messages));
-			})
-			.catch(error => {
-				console.error(error);
-			});
+			this.messages = history.messages;
+
+			this.dispatchEvent(Utils.createEvent("message-service-message-history", this.messages));
+		});
 	}
 
 	getMessageHistory(): MessageServiceMessage[] {
 		return this.messages;
-	}
-
-	fetchMessageHistory(): Promise<MessageServiceHistory> {
-		return new Promise<MessageServiceHistory>((resolve, reject) => {
-			fetch("/course/messenger/history/" + this.courseId, {
-				method: "GET",
-			})
-			.then(response => response.json())
-			.then(jsonResponse => {
-				resolve(jsonResponse as MessageServiceHistory);
-			})
-			.catch(error => {
-				reject(error);
-			});
-		});
 	}
 
 	postMessage(form: HTMLFormElement): Promise<void> {
@@ -116,6 +96,8 @@ export class MessageService extends EventTarget implements EventSubService {
 			text: data.get("text").toString()
 		};
 		const target = data.get("target").toString();
+
+		console.log(target);
 
 		return new Promise<void>((resolve, reject) => {
 			if (!this.client.connected) {
