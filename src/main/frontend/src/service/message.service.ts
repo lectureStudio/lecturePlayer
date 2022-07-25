@@ -2,6 +2,7 @@ import { ChatMessage, MessageFeature } from "../model/course-feature";
 import { Client, Message, StompHeaders } from '@stomp/stompjs';
 import { Utils } from "../utils/utils";
 import { EventSubService } from "./event.service";
+import { CourseParticipant } from "../model/course-state";
 
 export interface MessageServiceMessage {
 
@@ -34,6 +35,8 @@ export class MessageService extends EventTarget implements EventSubService {
 	feature: MessageFeature;
 
 	messages: MessageServiceMessage[];
+
+	participants: CourseParticipant[];
 
 
 	constructor() {

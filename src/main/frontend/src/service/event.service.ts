@@ -85,6 +85,13 @@ export class EventService extends EventTarget {
 			client.subscribe("/topic/course/" + this.courseId + "/presence", (message: Message) => {
 				const state = JSON.parse(message.body);
 
+				console.log("Presence", state);
+
+				this.dispatchEvent(Utils.createEvent("participant-presence", state));
+			});
+			client.subscribe("/app/course/participants/" + this.courseId, (message: Message) => {
+				const state = JSON.parse(message.body);
+
 				console.log("Presence state", state);
 
 				this.dispatchEvent(Utils.createEvent("presence-state", state));

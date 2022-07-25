@@ -1,6 +1,6 @@
 import { ReactiveController } from 'lit';
 import { StreamActionProcessor } from '../../action/stream-action-processor';
-import { CourseState, MessengerState, QuizState } from '../../model/course-state';
+import { CourseParticipant, CourseParticipantPresence, CourseState, MessengerState, QuizState } from '../../model/course-state';
 import { CourseStateDocument } from '../../model/course-state-document';
 import { SlideDocument } from '../../model/document';
 import { CourseStateService } from '../../service/course.service';
@@ -99,6 +99,8 @@ export class PlayerController implements ReactiveController {
 		this.eventService.addEventListener("recording-state", this.onRecordingState.bind(this));
 		this.eventService.addEventListener("stream-state", this.onStreamState.bind(this));
 		this.eventService.addEventListener("speech-state", this.onSpeechState.bind(this));
+		this.eventService.addEventListener("presence-state", this.onPresenceState.bind(this));
+		this.eventService.addEventListener("participant-presence", this.onParticipantPresence.bind(this));
 
 		this.janusService.addEventListener("janus-connection-established", this.onJanusConnectionEstablished.bind(this));
 		this.janusService.addEventListener("janus-connection-failure", this.onJanusConnectionFailure.bind(this));
@@ -427,6 +429,33 @@ export class PlayerController implements ReactiveController {
 				Toaster.showInfo(`${t("course.speech.request.rejected")}`);
 			}
 		}
+	}
+
+	private onPresenceState(event: CustomEvent) {
+		const participants: CourseParticipant[] = event.detail;
+
+		this.host.courseState.participants = participants;
+
+		this.messageService.participants = participants;
+	}
+
+	private onParticipantPresence(event: CustomEvent) {
+		const participant: CourseParticipantPresence = event.detail;
+
+		if (participant.presence === 'CONNECTED') {
+			this.host.courseState.participants.push(participant);
+		}
+		else if (participant.presence === 'DISCONNECTED') {
+			const index = this.host.courseState.participants.findIndex(p => {
+				return p.userId === participant.userId;
+			});
+
+			if (index > -1) {
+				this.host.courseState.participants.splice(index, 1);
+			}
+		}
+
+		this.messageService.participants = this.host.courseState.participants;
 	}
 
 	private updateCourseState() {

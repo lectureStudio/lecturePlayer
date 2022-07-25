@@ -19,6 +19,22 @@ export interface QuizState extends CourseFeatureState<QuizFeature> {
 
 }
 
+export interface CourseParticipant {
+
+	readonly userId: string;
+
+	readonly firstName: string;
+
+	readonly familyName: string;
+
+}
+
+export interface CourseParticipantPresence extends CourseParticipant {
+
+	readonly presence: "CONNECTED" | "DISCONNECTED";
+
+}
+
 export interface CourseState {
 
 	readonly courseId: number;
@@ -42,5 +58,7 @@ export interface CourseState {
 	readonly protected: boolean;
 
 	readonly recorded: boolean;
+
+	participants: CourseParticipant[];
 
 }
