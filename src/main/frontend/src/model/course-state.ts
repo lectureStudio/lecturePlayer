@@ -35,6 +35,14 @@ export interface CourseParticipantPresence extends CourseParticipant {
 
 }
 
+export interface CoursePrivilege {
+
+	readonly name: string;
+
+	readonly descriptionKey: string;
+
+}
+
 export interface CourseState {
 
 	readonly courseId: number;
@@ -58,6 +66,8 @@ export interface CourseState {
 	readonly protected: boolean;
 
 	readonly recorded: boolean;
+
+	readonly userPrivileges: CoursePrivilege[];
 
 	participants: CourseParticipant[];
 

@@ -36,6 +36,8 @@
 	"course.feature.message.target.all": "Everyone",
 	"course.feature.message.privately": "Privately",
 	"course.feature.message.me": "Me",
+	"course.feature.message.to.me": "me",
+	"course.feature.message.recipient": "{{sender}} to {{recipient}}",
 	"course.feature.quiz": "Quiz",
 	"course.feature.quiz.send": "Send",
 	"course.feature.quiz.send.error": "Failed to send answer",

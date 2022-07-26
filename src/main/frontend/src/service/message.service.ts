@@ -17,6 +17,12 @@ export interface MessageServiceMessage {
 
 }
 
+export interface MessageServiceDirectMessage extends MessageServiceMessage {
+
+	recipient: string;
+
+}
+
 export interface MessageServiceHistory {
 
 	messages: MessageServiceMessage[];
@@ -66,7 +72,6 @@ export class MessageService extends EventTarget implements EventSubService {
 		});
 
 		client.subscribe("/user/queue/chat/" + this.courseId, (message: Message) => {
-			// this.onMessengerDirectMessageReceive(JSON.parse(message.body));
 			const chatMessage = JSON.parse(message.body);
 
 			console.log(chatMessage);
@@ -95,9 +100,7 @@ export class MessageService extends EventTarget implements EventSubService {
 			serviceId: this.feature.featureId,
 			text: data.get("text").toString()
 		};
-		const target = data.get("target").toString();
-
-		console.log(target);
+		const recipient = data.get("recipient").toString();
 
 		return new Promise<void>((resolve, reject) => {
 			if (!this.client.connected) {
@@ -107,11 +110,7 @@ export class MessageService extends EventTarget implements EventSubService {
 
 			const headers: StompHeaders = {
 				courseId: this.courseId.toString(),
-				messageType: target,
-			}
-
-			if (target === "user") {
-				// headers.username = this.messengerDestination.username;
+				recipient: recipient,
 			}
 
 			this.client.publish({

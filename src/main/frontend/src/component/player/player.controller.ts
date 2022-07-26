@@ -8,6 +8,7 @@ import { EventService } from '../../service/event.service';
 import { JanusService } from '../../service/janus.service';
 import { MessageService } from '../../service/message.service';
 import { PlaybackService } from '../../service/playback.service';
+import { PrivilegeService } from '../../service/privilege.service';
 import { SpeechService } from '../../service/speech.service';
 import { Devices } from '../../utils/devices';
 import { MediaProfile, Settings } from '../../utils/settings';
@@ -43,6 +44,8 @@ export class PlayerController implements ReactiveController {
 
 	private readonly courseStateService: CourseStateService;
 
+	private readonly privilegeService: PrivilegeService;
+
 	private readonly janusService: JanusService;
 
 	private readonly playbackService: PlaybackService;
@@ -67,6 +70,7 @@ export class PlayerController implements ReactiveController {
 		this.messageService = new MessageService();
 		this.speechService = new SpeechService();
 		this.playbackService = new PlaybackService();
+		this.privilegeService = new PrivilegeService();
 
 		const actionProcessor = new StreamActionProcessor(this.playbackService);
 		actionProcessor.onGetDocument = this.getDocument.bind(this);
@@ -85,6 +89,7 @@ export class PlayerController implements ReactiveController {
 		this.eventService.connect();
 
 		this.host.messageService = this.messageService;
+		this.host.privilegeService = this.privilegeService;
 
 		this.host.addEventListener("player-fullscreen", this.onFullscreen.bind(this));
 		this.host.addEventListener("player-settings", this.onSettings.bind(this), false);
@@ -137,6 +142,8 @@ export class PlayerController implements ReactiveController {
 		this.messageService.feature = state.messageFeature;
 
 		this.host.courseState = state;
+
+		this.privilegeService.userPrivileges = state.userPrivileges;
 	}
 
 	private initToaster() {
@@ -442,10 +449,15 @@ export class PlayerController implements ReactiveController {
 	private onParticipantPresence(event: CustomEvent) {
 		const participant: CourseParticipantPresence = event.detail;
 
-		if (participant.presence === 'CONNECTED') {
+		// React only to events originated from other participants.
+		if (participant.userId === this.host.courseState.userId) {
+			return;
+		}
+
+		if (participant.presence === "CONNECTED") {
 			this.host.courseState.participants.push(participant);
 		}
-		else if (participant.presence === 'DISCONNECTED') {
+		else if (participant.presence === "DISCONNECTED") {
 			const index = this.host.courseState.participants.findIndex(p => {
 				return p.userId === participant.userId;
 			});

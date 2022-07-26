@@ -3,8 +3,10 @@ import { customElement, property, query } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { chatBoxStyles } from './chat-box.styles';
 import { Toaster } from '../../component/toast/toaster';
-import { MessageService, MessageServiceMessage } from '../../service/message.service';
+import { MessageService, MessageServiceDirectMessage, MessageServiceMessage } from '../../service/message.service';
 import { ChatMessage } from './chat-message';
+import { CourseParticipant } from '../../model/course-state';
+import { PrivilegeService } from '../../service/privilege.service';
 
 @customElement('chat-box')
 export class ChatBox extends I18nLitElement {
@@ -17,12 +19,21 @@ export class ChatBox extends I18nLitElement {
 	@property()
 	messageService: MessageService;
 
+	@property()
+	participants: CourseParticipant[] = [];
+
+	@property()
+	privilegeService: PrivilegeService;
+
 	@query(".chat-history-log")
 	messageContainer: HTMLElement;
 
 
 	override connectedCallback() {
 		super.connectedCallback()
+
+		document.addEventListener("course-participants", this.setParticipants.bind(this), false);
+		document.addEventListener("course-participant-presence", this.handleParticipantPresence.bind(this), false);
 
 		this.messageService.addEventListener("message-service-message-history", this.addMessageHistory.bind(this));
 		this.messageService.addEventListener("message-service-public-message", this.addPublicMessage.bind(this));
@@ -75,14 +86,17 @@ export class ChatBox extends I18nLitElement {
 					</div>
 				</div>
 			</section>
+
+			${this.privilegeService.canWriteMessages() ? html`
 			<footer>
-				<message-form .userId="${this.messageService?.userId}"></message-form>
+				<message-form .participants="${this.participants}" .privilegeService="${this.privilegeService}"></message-form>
 				<button @click="${this.post}" type="submit" form="course-message-form" id="message-submit">
 					<svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
 						<path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z"/>
 					</svg>
 				</button>
 			</footer>
+			` : ''}
 		`;
 	}
 
@@ -106,14 +120,26 @@ export class ChatBox extends I18nLitElement {
 	}
 
 	private addPrivateMessage(event: CustomEvent) {
-		const message: MessageServiceMessage = event.detail;
+		const message: MessageServiceDirectMessage = event.detail;
 
-		const chatMessage = this.insertMessage(message);
+		const chatMessage = this.insertDirectMessage(message);
 		this.scrollToMessage(chatMessage);
 	}
 
 	private insertMessage(message: MessageServiceMessage): ChatMessage {
 		const chatMessage = this.createMessage(message);
+
+		this.messageContainer.appendChild(chatMessage);
+
+		return chatMessage;
+	}
+
+	private insertDirectMessage(message: MessageServiceDirectMessage): ChatMessage {
+		const recipient = this.getParticipant(message.recipient);
+
+		const chatMessage = this.createMessage(message);
+		chatMessage.recipient = `${recipient.firstName} ${recipient.familyName}`;
+		chatMessage.private = true;
 
 		this.messageContainer.appendChild(chatMessage);
 
@@ -134,5 +160,27 @@ export class ChatBox extends I18nLitElement {
 		chatMessage.myself = message.userId === this.messageService.userId;
 
 		return chatMessage;
+	}
+
+	private setParticipants(event: CustomEvent) {
+		const set: CourseParticipant[] = event.detail;
+
+		// Do it this way to trigger an update.
+		this.participants = [...this.getParticipantsWithoutMe(set)];
+	}
+
+	private handleParticipantPresence(event: CustomEvent) {
+		const set: CourseParticipant[] = event.detail.participants;
+
+		// Do it this way to trigger an update.
+		this.participants = [...this.getParticipantsWithoutMe(set)];
+	}
+
+	private getParticipant(userId: string): CourseParticipant {
+		return this.participants.find(participant => participant.userId === userId);
+	}
+
+	private getParticipantsWithoutMe(set: CourseParticipant[]): CourseParticipant[] {
+		return set.filter(participant => participant.userId !== this.messageService.userId);
 	}
 }

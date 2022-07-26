@@ -2,6 +2,7 @@ import { html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { CourseState } from '../../model/course-state';
 import { MessageService } from '../../service/message.service';
+import { PrivilegeService } from '../../service/privilege.service';
 import { PlayerControls } from '../controls/player-controls';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { ParticipantView } from '../participant-view/participant-view';
@@ -23,6 +24,9 @@ export class PlayerView extends I18nLitElement {
 
 	@property()
 	courseState: CourseState;
+
+	@property()
+	privilegeService: PrivilegeService;
 
 	@property()
 	messageService: MessageService;
@@ -79,7 +83,9 @@ export class PlayerView extends I18nLitElement {
 				<div class="video-feeds">
 				</div>
 				<div class="feature-container">
-					<chat-box .messageService="${this.messageService}"></chat-box>
+				${this.privilegeService.canReadMessages() ? html`
+					<chat-box .messageService="${this.messageService}" .privilegeService="${this.privilegeService}"></chat-box>
+				` : ''}
 				</div>
 			</div>
 		`;
