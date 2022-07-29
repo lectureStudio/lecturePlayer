@@ -76,7 +76,7 @@ export class PlayerView extends I18nLitElement {
 					<slide-view></slide-view>
 				</div>
 				<div class="controls-container">
-					<player-controls .courseState="${this.courseState}" .chatVisible="${this.chatVisible}" .participantsVisible="${this.participantsVisible}"></player-controls>
+					<player-controls .courseState="${this.courseState}" .chatVisible="${this.chatVisible}" .participantsVisible="${this.participantsVisible}" .privilegeService="${this.privilegeService}"></player-controls>
 				</div>
 			</div>
 			<div class="right-container">

@@ -49,14 +49,18 @@ export class PlayerFeatureView extends I18nLitElement {
 			html`
 				<chat-box .messageService="${this.messageService}" .privilegeService="${this.privilegeService}"></chat-box>
 			`
-		: '';
+			: '';
 	}
 
 	protected renderQuiz() {
+		if (!this.privilegeService.canParticipateInQuiz()) {
+			return '';
+		}
+
 		return this.courseState?.quizFeature ?
 			html`
 				<quiz-box .courseId="${this.courseState?.courseId}" .feature="${this.courseState?.quizFeature}"></quiz-box>
 			`
-		: '';
+			: '';
 	}
 }

@@ -6,14 +6,22 @@ export class PrivilegeService {
 
 
 	canReadMessages(): boolean {
-		return this.userPrivileges.findIndex(privilege => privilege.name === "COURSE_MESSENGER_READ_PRIVILEGE") > -1;
+		return this.userPrivileges.findIndex(privilege => privilege.name === "CHAT_READ") > -1;
 	}
 
 	canWriteMessages(): boolean {
-		return this.userPrivileges.findIndex(privilege => privilege.name === "COURSE_MESSENGER_WRITE_PRIVILEGE") > -1;
+		return this.userPrivileges.findIndex(privilege => privilege.name === "CHAT_WRITE") > -1;
 	}
 
 	canWritePrivateMessages(): boolean {
-		return this.userPrivileges.findIndex(privilege => privilege.name === "COURSE_MESSENGER_WRITE_DIRECT_PRIVILEGE") > -1;
+		return this.userPrivileges.findIndex(privilege => privilege.name === "CHAT_WRITE_PRIVATELY") > -1;
+	}
+
+	canContributeBySpeech(): boolean {
+		return this.userPrivileges.findIndex(privilege => privilege.name === "SPEECH") > -1;
+	}
+
+	canParticipateInQuiz(): boolean {
+		return this.userPrivileges.findIndex(privilege => privilege.name === "QUIZ_PARTICIPATION") > -1;
 	}
 }
