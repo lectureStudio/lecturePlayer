@@ -36,6 +36,7 @@ export class EventService extends EventTarget {
 			reconnectDelay: 1000,
 			heartbeatIncoming: 1000,
 			heartbeatOutgoing: 1000,
+			discardWebsocketOnCommFailure: false,
 			debug: (message) => {
 				// console.log("STOMP: " + message);
 			},
@@ -47,54 +48,47 @@ export class EventService extends EventTarget {
 				connected: true
 			}));
 
-			client.subscribe("/topic/course/" + this.courseId + "/stream", (message: Message) => {
+			client.subscribe("/topic/course/event/" + this.courseId + "/stream", (message: Message) => {
 				const state = JSON.parse(message.body);
 
 				console.log("Stream state", state);
 
 				this.dispatchEvent(Utils.createEvent("stream-state", state));
 			});
-			client.subscribe("/topic/course/" + this.courseId + "/recording", (message: Message) => {
+			client.subscribe("/topic/course/event/" + this.courseId + "/recording", (message: Message) => {
 				const state = JSON.parse(message.body);
 
 				console.log("Recording state", state);
 
 				this.dispatchEvent(Utils.createEvent("recording-state", state));
 			});
-			client.subscribe("/topic/course/" + this.courseId + "/speech", (message: Message) => {
+			client.subscribe("/topic/course/event/" + this.courseId + "/speech", (message: Message) => {
 				const state = JSON.parse(message.body);
 
 				console.log("Speech state", state);
 
 				this.dispatchEvent(Utils.createEvent("speech-state", state));
 			});
-			client.subscribe("/topic/course/" + this.courseId + "/messenger", (message: Message) => {
+			client.subscribe("/topic/course/event/" + this.courseId + "/messenger", (message: Message) => {
 				const state = JSON.parse(message.body);
 
-				console.log("Messenger state", state);
+				console.log("Chat state", state);
 
-				this.dispatchEvent(Utils.createEvent("messenger-state", state));
+				this.dispatchEvent(Utils.createEvent("chat-state", state));
 			});
-			client.subscribe("/topic/course/" + this.courseId + "/quiz", (message: Message) => {
+			client.subscribe("/topic/course/event/" + this.courseId + "/quiz", (message: Message) => {
 				const state = JSON.parse(message.body);
 
 				console.log("Quiz state", state);
 
 				this.dispatchEvent(Utils.createEvent("quiz-state", state));
 			});
-			client.subscribe("/topic/course/" + this.courseId + "/presence", (message: Message) => {
+			client.subscribe("/topic/course/event/" + this.courseId + "/presence", (message: Message) => {
 				const state = JSON.parse(message.body);
 
 				console.log("Presence", state);
 
 				this.dispatchEvent(Utils.createEvent("participant-presence", state));
-			});
-			client.subscribe("/app/course/participants/" + this.courseId, (message: Message) => {
-				const state = JSON.parse(message.body);
-
-				console.log("Presence state", state);
-
-				this.dispatchEvent(Utils.createEvent("presence-state", state));
 			});
 
 			for (const subService of this.subServices) {
@@ -103,6 +97,12 @@ export class EventService extends EventTarget {
 		};
 		client.onDisconnect = () => {
 			console.log("STOMP disconnected");
+		};
+		client.onWebSocketError = async (error: any) => {
+			console.error("STOMP WebSocket Error", error);
+		};
+		client.onStompError = async (error: any) => {
+			console.error("STOMP Error", error);
 		};
 		client.activate();
 

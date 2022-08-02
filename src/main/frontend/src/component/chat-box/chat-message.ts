@@ -15,7 +15,7 @@ export class ChatMessage extends I18nLitElement {
 
 	content: string;
 
-	originator: string;
+	sender: string;
 
 	recipient: string;
 
@@ -31,18 +31,18 @@ export class ChatMessage extends I18nLitElement {
 
 		if (this.private) {
 			src = t("course.feature.message.recipient", {
-				sender: this.myself ? t("course.feature.message.me") : this.recipient,
-				recipient: this.myself ? this.recipient : t("course.feature.message.to.me")
+				sender: this.sender,
+				recipient: this.recipient
 			});
 		}
 		else {
-			src = this.myself ? t("course.feature.message.me") : this.originator;
+			src = this.sender;
 		}
 
 		return html`
 			<div class="message-head">
 				<span class="message-time">${this.timestamp}</span>
-				<span class="message-originator">${src}</span>
+				<span class="message-sender">${src}</span>
 
 				${this.private ? html`
 				<span class="message-private">${t("course.feature.message.privately")}</span>

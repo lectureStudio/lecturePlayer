@@ -225,7 +225,8 @@ export const playerControlsStyles = css`
 		display: initial;
 	}
 
-	:host(:not([hasChat])) #chat-button {
+	:host(:not([hasChat])) #chat-button,
+	:host(:not([hasParticipants])) #participants-button {
 		display: none;
 	}
 	:host([chatVisible]) #chat-button,

@@ -69,6 +69,4 @@ export interface CourseState {
 
 	readonly userPrivileges: CoursePrivilege[];
 
-	participants: CourseParticipant[];
-
 }

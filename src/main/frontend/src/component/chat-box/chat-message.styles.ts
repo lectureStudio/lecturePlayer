@@ -6,7 +6,7 @@ export const chatMessageStyles = css`
 		font-size: 0.8rem;
 		margin-bottom: 0.3em;
 	}
-	.message-originator {
+	.message-sender {
 		font-weight: bold;
 	}
 	.message-time {

@@ -6,11 +6,12 @@ import { SlideDocument } from '../../model/document';
 import { CourseStateService } from '../../service/course.service';
 import { EventService } from '../../service/event.service';
 import { JanusService } from '../../service/janus.service';
-import { MessageService } from '../../service/message.service';
+import { MessageService, MessageServiceHistory } from '../../service/message.service';
 import { PlaybackService } from '../../service/playback.service';
 import { PrivilegeService } from '../../service/privilege.service';
 import { SpeechService } from '../../service/speech.service';
 import { Devices } from '../../utils/devices';
+import { HttpRequest } from '../../utils/http-request';
 import { MediaProfile, Settings } from '../../utils/settings';
 import { State } from '../../utils/state';
 import { Utils } from '../../utils/utils';
@@ -27,6 +28,9 @@ import { SpeechAcceptedModal } from '../speech-accepted-modal/speech-accepted.mo
 import { ToastGravity, ToastPosition } from '../toast/toast';
 import { Toaster } from '../toast/toaster';
 import { LecturePlayer } from './player';
+import { course } from '../../model/course';
+import { participants } from '../../model/participants';
+import { chatHistory } from '../../model/chat-history';
 
 export class PlayerController implements ReactiveController {
 
@@ -99,12 +103,11 @@ export class PlayerController implements ReactiveController {
 		this.host.addEventListener("participant-video-play-error", this.onMediaPlayError.bind(this), false);
 
 		this.eventService.addEventListener("event-service-state", this.onEventServiceState.bind(this));
-		this.eventService.addEventListener("messenger-state", this.onMessengerState.bind(this));
+		this.eventService.addEventListener("chat-state", this.onChatState.bind(this));
 		this.eventService.addEventListener("quiz-state", this.onQuizState.bind(this));
 		this.eventService.addEventListener("recording-state", this.onRecordingState.bind(this));
 		this.eventService.addEventListener("stream-state", this.onStreamState.bind(this));
 		this.eventService.addEventListener("speech-state", this.onSpeechState.bind(this));
-		this.eventService.addEventListener("presence-state", this.onPresenceState.bind(this));
 		this.eventService.addEventListener("participant-presence", this.onParticipantPresence.bind(this));
 
 		this.janusService.addEventListener("janus-connection-established", this.onJanusConnectionEstablished.bind(this));
@@ -139,11 +142,16 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private setCourseState(state: CourseState) {
-		this.messageService.feature = state.messageFeature;
-
-		this.host.courseState = state;
-
-		this.privilegeService.userPrivileges = state.userPrivileges;
+		course.courseId = state.courseId;
+		course.timeStarted = state.timeStarted;
+		course.title = state.title;
+		course.description = state.description;
+		course.userId = state.userId;
+		course.userPrivileges = state.userPrivileges;
+		course.chatFeature = state.messageFeature;
+		course.quizFeature = state.quizFeature;
+		course.documentMap = state.documentMap;
+		course.activeDocument = state.activeDocument;
 	}
 
 	private initToaster() {
@@ -162,8 +170,6 @@ export class PlayerController implements ReactiveController {
 			.then(courseState => {
 				console.log("Course state", courseState);
 
-				this.messageService.userId = courseState.userId;
-
 				this.setCourseState(courseState);
 
 				if (courseState.activeDocument == null) {
@@ -180,9 +186,9 @@ export class PlayerController implements ReactiveController {
 						if (courseState.activeDocument) {
 							this.registerModal(RecordedModal.name, new RecordedModal(), false, false);
 
-							this.playbackService.initialize(this.viewController.host, this.host.courseState, documents);
+							this.playbackService.initialize(this.viewController.host, documents);
 
-							this.viewController.setCourseState(courseState);
+							this.viewController.update();
 
 							this.janusService.setRoomId(this.host.courseId);
 							this.janusService.connect();
@@ -270,6 +276,14 @@ export class PlayerController implements ReactiveController {
 		return this.courseStateService.getCourseState(this.host.courseId);
 	}
 
+	private getParticipants(): Promise<CourseParticipant[]> {
+		return new HttpRequest().get("/course/participants/" + this.host.courseId);
+	}
+
+	private getChatHistory(): Promise<MessageServiceHistory> {
+		return new HttpRequest().get("/course/chat/history/" + this.host.courseId);
+	}
+
 	private onPeerConnected(peerId: bigint) {
 		this.janusService.addPeer(peerId);
 	}
@@ -314,8 +328,8 @@ export class PlayerController implements ReactiveController {
 
 	private onQuizAction() {
 		const quizModal = new QuizModal();
-		quizModal.courseId = this.host.courseId;
-		quizModal.feature = this.host.courseState.quizFeature;
+		quizModal.courseId = course.courseId;
+		quizModal.feature = course.quizFeature;
 
 		this.registerModal(QuizModal.name, quizModal);
 	}
@@ -323,7 +337,7 @@ export class PlayerController implements ReactiveController {
 	private onChatVisibility() {
 		if (this.maxWidth576Query.matches) {
 			const chatModal = new ChatModal();
-			chatModal.courseId = this.host.courseId;
+			chatModal.courseId = course.courseId;
 			chatModal.messageService = this.messageService;
 
 			this.registerModal(ChatModal.name, chatModal);
@@ -334,30 +348,58 @@ export class PlayerController implements ReactiveController {
 		const connected = event.detail.connected;
 
 		if (connected) {
-			if (this.host.state === State.RECONNECTING) {
-				this.reconnect();
+			switch (this.host.state) {
+				case State.CONNECTING:
+				case State.CONNECTED:
+				case State.CONNECTED_FEATURES:
+					this.fetchState();
+					break;
+
+				case State.RECONNECTING:
+					this.reconnect();
+					break;
 			}
 		}
 	}
 
-	private onMessengerState(event: CustomEvent) {
+	private fetchState() {
+		console.log("fetch state");
+
+		const promises = new Array<Promise<any>>();
+
+		promises.push(this.getParticipants());
+
+		if (course.chatFeature != null) {
+			promises.push(this.getChatHistory());
+		}
+
+		Promise.all(promises).then(values => {
+			participants.participants = values[0];
+
+			if (values.length > 1) {
+				chatHistory.history = values[1].messages;
+			}
+
+			console.log("participants", participants.participants);
+			console.log("chat history", chatHistory.history);
+		});
+	}
+
+	private onChatState(event: CustomEvent) {
 		const state: MessengerState = event.detail;
 
 		if (this.host.courseId !== state.courseId) {
 			return;
 		}
 
-		if (!state.started) {
+		course.chatFeature = state.started ? state.feature : null;
+
+		if (state.started) {
+			this.fetchState();
+		}
+		else {
 			this.closeAndDeleteModal(ChatModal.name);
 		}
-
-		this.setCourseState({
-			...this.host.courseState,
-			...{
-				messageFeature: state.started ? state.feature : null
-			}
-		});
-		this.host.dispatchEvent(Utils.createEvent("messenger-state", state));
 
 		this.updateCourseState();
 	}
@@ -373,13 +415,7 @@ export class PlayerController implements ReactiveController {
 			this.closeAndDeleteModal(QuizModal.name);
 		}
 
-		this.setCourseState({
-			...this.host.courseState,
-			...{
-				quizFeature: state.started ? state.feature : null
-			}
-		});
-		this.host.dispatchEvent(Utils.createEvent("quiz-state", state));
+		course.quizFeature = state.started ? state.feature : null;
 
 		this.updateCourseState();
 	}
@@ -417,7 +453,8 @@ export class PlayerController implements ReactiveController {
 		else {
 			this.closeAllModals();
 
-			this.host.courseState.activeDocument = null;
+			course.activeDocument = null;
+
 			this.updateCourseState();
 		}
 	}
@@ -438,49 +475,26 @@ export class PlayerController implements ReactiveController {
 		}
 	}
 
-	private onPresenceState(event: CustomEvent) {
-		const participants: CourseParticipant[] = event.detail;
-
-		this.host.courseState.participants = participants;
-
-		this.host.dispatchEvent(Utils.createEvent("course-participants", this.host.courseState.participants));
-	}
-
 	private onParticipantPresence(event: CustomEvent) {
 		const participant: CourseParticipantPresence = event.detail;
 
 		// React only to events originated from other participants.
-		if (participant.userId === this.host.courseState.userId) {
+		if (participant.userId === course.userId) {
 			return;
 		}
 
 		if (participant.presence === "CONNECTED") {
-			this.host.courseState.participants.push(participant);
+			participants.add(participant);
 		}
 		else if (participant.presence === "DISCONNECTED") {
-			const index = this.host.courseState.participants.findIndex(p => {
-				return p.userId === participant.userId;
-			});
-
-			if (index > -1) {
-				this.host.courseState.participants.splice(index, 1);
-			}
+			participants.remove(participant);
 		}
-
-		this.host.dispatchEvent(Utils.createEvent("course-participant-presence", {
-			participants: this.host.courseState.participants,
-			participant: participant
-		}));
 	}
 
 	private updateCourseState() {
-		if (!this.host.courseState) {
-			return;
-		}
-
 		const isClassroom = this.isClassroomProfile();
-		const hasFeatures = this.host.courseState.messageFeature != null || this.host.courseState.quizFeature != null;
-		const hasStream = this.host.courseState.activeDocument != null;
+		const hasFeatures = course.chatFeature != null || course.quizFeature != null;
+		const hasStream = course.activeDocument != null;
 
 		if (hasStream && !isClassroom) {
 			this.setConnectionState(State.CONNECTED);

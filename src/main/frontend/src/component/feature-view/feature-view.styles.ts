@@ -28,6 +28,14 @@ export const featureViewStyles = css`
 	:host chat-box {
 		width: 100%;
 	}
+	:host(:not([hasChat])) .center,
+	:host(:not([hasQuiz])) .right {
+		width: 100%;
+	}
+	:host(:not([hasChat])) .right,
+	:host(:not([hasQuiz])) .center {
+		display: none;
+	}
 
 	@media (min-width: 576px) {
 		:host > div {

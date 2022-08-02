@@ -1,9 +1,8 @@
 import { ReactiveController } from "lit";
-import { CourseState, MessengerState, QuizState } from "../../model/course-state";
 import { State } from "../../utils/state";
-import { Utils } from "../../utils/utils";
 import { ParticipantView } from "../participant-view/participant-view";
 import { PlayerView } from "./player-view";
+import { course } from '../../model/course';
 
 export class PlayerViewController implements ReactiveController {
 
@@ -18,21 +17,21 @@ export class PlayerViewController implements ReactiveController {
 	}
 
 	hostConnected() {
-		document.addEventListener("messenger-state", this.onMessengerState.bind(this));
+		course.addEventListener("course-chat-feature", this.onChatState.bind(this));
+		course.addEventListener("course-quiz-feature", this.onQuizState.bind(this));
+
 		document.addEventListener("participant-state", this.onParticipantState.bind(this));
-		document.addEventListener("quiz-state", this.onQuizState.bind(this));
 
 		this.host.addEventListener("player-chat-visibility", this.onChatVisibility.bind(this), false);
 		this.host.addEventListener("player-participants-visibility", this.onParticipantsVisibility.bind(this), false);
+
+		this.host.chatVisible = course.chatFeature != null;
 	}
 
-	setCourseState(courseState: CourseState) {
-		this.host.courseState = Utils.mergeDeep(this.host.courseState || {}, courseState);
-		this.host.chatVisible = this.host.courseState.messageFeature != null;
-
+	update() {
 		this.clockIntervalId = window.setInterval(() => {
 			try {
-				this.host.controls.duration = (Date.now() - this.host.courseState.timeStarted);
+				this.host.controls.duration = (Date.now() - course.timeStarted);
 			}
 			catch (error) {
 				clearInterval(this.clockIntervalId);
@@ -43,35 +42,16 @@ export class PlayerViewController implements ReactiveController {
 	setDisconnected() {
 		clearInterval(this.clockIntervalId);
 
-		this.host.courseState = null;
 		this.host.controls.handUp = false;
 		this.host.controls.fullscreen = false;
 	}
 
-	private onMessengerState(event: CustomEvent) {
-		const state: MessengerState = event.detail;
-		const started = state.started;
-
-		this.host.courseState = {
-			...this.host.courseState,
-			...{
-				messageFeature: started ? state.feature : null
-			}
-		};
-		this.host.chatVisible = started;
+	private onChatState() {
+		this.host.chatVisible = course.chatFeature != null;
 		this.host.requestUpdate();
 	}
 
-	private onQuizState(event: CustomEvent) {
-		const state: QuizState = event.detail;
-		const started = state.started;
-
-		this.host.courseState = {
-			...this.host.courseState,
-			...{
-				quizFeature: started ? state.feature : null
-			}
-		};
+	private onQuizState() {
 		this.host.requestUpdate();
 	}
 

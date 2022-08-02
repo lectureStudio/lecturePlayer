@@ -1,10 +1,10 @@
-import { html, PropertyValues } from 'lit';
-import { customElement, property, query, state } from 'lit/decorators.js';
-import { CourseState } from '../../model/course-state';
+import { html } from 'lit';
+import { customElement, property, query } from 'lit/decorators.js';
 import { PrivilegeService } from '../../service/privilege.service';
 import { Utils } from '../../utils/utils';
 import { I18nLitElement } from '../i18n-mixin';
 import { playerControlsStyles } from './player-controls.styles';
+import { course } from '../../model/course';
 
 @customElement('player-controls')
 export class PlayerControls extends I18nLitElement {
@@ -12,14 +12,6 @@ export class PlayerControls extends I18nLitElement {
 	static styles = [
 		playerControlsStyles,
 	];
-
-	@state({
-		hasChanged(value: CourseState, oldValue: CourseState): boolean {
-			// React on nested property changes.
-			return true;
-		}
-	})
-	courseState: CourseState;
 
 	@property()
 	privilegeService: PrivilegeService;
@@ -60,6 +52,9 @@ export class PlayerControls extends I18nLitElement {
 	chatVisible: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
+	hasParticipants: boolean = false;
+
+	@property({ type: Boolean, reflect: true })
 	participantsVisible: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
@@ -69,11 +64,17 @@ export class PlayerControls extends I18nLitElement {
 	handUp: boolean = false;
 
 
-	protected updated(properties: PropertyValues): void {
-		if (properties.has("courseState")) {
-			this.hasChat = this.courseState?.messageFeature != null && this.courseState.messageFeature.featureId != null;
-			this.hasQuiz = this.courseState?.quizFeature != null && this.courseState.quizFeature.featureId != null;
-		}
+	override connectedCallback() {
+		super.connectedCallback()
+
+		course.addEventListener("course-chat-feature", this.onChatState.bind(this));
+		course.addEventListener("course-quiz-feature", this.onQuizState.bind(this));
+		course.addEventListener("course-user-privileges", () => {
+			this.hasParticipants = this.privilegeService.canViewParticipants();
+		});
+
+		this.hasChat = course.chatFeature != null && course.chatFeature.featureId != null;
+		this.hasQuiz = course.quizFeature != null && course.quizFeature.featureId != null;
 	}
 
 	protected firstUpdated(): void {
@@ -129,6 +130,16 @@ export class PlayerControls extends I18nLitElement {
 		this.dispatchEvent(Utils.createEvent("player-hand-action", {
 			handUp: this.handUp
 		}));
+	}
+
+	private onChatState() {
+		this.hasChat = course.chatFeature != null && course.chatFeature.featureId != null;
+		this.requestUpdate();
+	}
+
+	private onQuizState() {
+		this.hasQuiz = course.quizFeature != null && course.quizFeature.featureId != null;
+		this.requestUpdate();
 	}
 
 	private onQuiz(): void {

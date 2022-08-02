@@ -2,9 +2,9 @@ import { Action } from "../action/action";
 import { StreamActionExecutor } from "../action/action.executor";
 import { StreamActionPlayer } from "../action/stream-action-player";
 import { PlayerView } from "../component/player-view/player-view";
-import { CourseState } from "../model/course-state";
 import { SlideDocument } from "../model/document";
 import { RenderController } from "../render/render-controller";
+import { course } from '../model/course';
 
 export class PlaybackService {
 
@@ -15,7 +15,7 @@ export class PlaybackService {
 	private renderController: RenderController;
 
 
-	initialize(playerView: PlayerView, courseState: CourseState, documents: SlideDocument[]) {
+	initialize(playerView: PlayerView, documents: SlideDocument[]) {
 		this.documents = new Map();
 
 		documents.forEach((doc: SlideDocument) => {
@@ -23,7 +23,7 @@ export class PlaybackService {
 		});
 
 		// Select active document.
-		const activeStateDoc = courseState.activeDocument;
+		const activeStateDoc = course.activeDocument;
 		let activeDoc: SlideDocument = null;
 
 		for (const doc of documents) {

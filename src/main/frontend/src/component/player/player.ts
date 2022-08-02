@@ -5,7 +5,6 @@ import { PlayerController } from './player.controller';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { State } from '../../utils/state';
 import { PlayerView } from '../player-view/player-view';
-import { CourseState } from '../../model/course-state';
 import { MediaProfile, Settings } from '../../utils/settings';
 import { MessageService } from '../../service/message.service';
 import { PrivilegeService } from '../../service/privilege.service';
@@ -19,9 +18,6 @@ export class LecturePlayer extends I18nLitElement {
 	];
 
 	private controller = new PlayerController(this);
-
-	@state()
-	courseState: CourseState;
 
 	@state()
 	messageService: MessageService;
@@ -60,8 +56,8 @@ export class LecturePlayer extends I18nLitElement {
 	protected render() {
 		return html`
 			<player-loading .text="${t("course.loading")}"></player-loading>
-			<player-view .courseId="${this.courseId}" .messageService="${this.messageService}" .privilegeService="${this.privilegeService}"></player-view>
-			<player-feature-view .courseState="${this.courseState}" .messageService="${this.messageService}" .privilegeService="${this.privilegeService}"></player-feature-view>
+			<player-view .messageService="${this.messageService}" .privilegeService="${this.privilegeService}"></player-view>
+			<player-feature-view .messageService="${this.messageService}" .privilegeService="${this.privilegeService}"></player-feature-view>
 			<player-offline .description="${this.description}"></player-offline>
 		`;
 	}

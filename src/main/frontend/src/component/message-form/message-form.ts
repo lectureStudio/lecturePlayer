@@ -1,9 +1,10 @@
 import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
-import { CourseParticipant, CoursePrivilege } from '../../model/course-state';
 import { PrivilegeService } from '../../service/privilege.service';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { messageFormStyles } from './message-form.styles';
+import { participants } from '../../model/participants';
+import { course } from '../../model/course';
 
 @customElement('message-form')
 export class MessageForm extends I18nLitElement {
@@ -14,18 +15,25 @@ export class MessageForm extends I18nLitElement {
 	];
 
 	@state()
-	participants: CourseParticipant[] = [];
-
-	@state()
 	privilegeService: PrivilegeService;
 
+
+	override connectedCallback() {
+		super.connectedCallback()
+
+		participants.addEventListener("all", () => { this.requestUpdate() }, false);
+		participants.addEventListener("added", () => { this.requestUpdate() }, false);
+		participants.addEventListener("removed", () => { this.requestUpdate() }, false);
+	}
 
 	protected render() {
 		const optionTemplates = [];
 
 		if (this.privilegeService.canWritePrivateMessages()) {
-			for (const participant of this.participants) {
-				optionTemplates.push(html`<option value="${participant.userId}">${participant.firstName} ${participant.familyName}</div>`);
+			for (const participant of participants.participants) {
+				if (participant.userId !== course.userId) {
+					optionTemplates.push(html`<option value="${participant.userId}">${participant.firstName} ${participant.familyName}</option>`);
+				}
 			}
 		}
 
