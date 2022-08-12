@@ -166,6 +166,9 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private connect() {
+		participants.clear();
+		chatHistory.clear();
+
 		this.getCourseState()
 			.then(courseState => {
 				console.log("Course state", courseState);

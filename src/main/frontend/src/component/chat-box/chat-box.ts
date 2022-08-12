@@ -35,6 +35,7 @@ export class ChatBox extends I18nLitElement {
 		chatHistory.addEventListener("all", this.addAllMessages.bind(this), false);
 		chatHistory.addEventListener("added", this.addMessage.bind(this), false);
 		chatHistory.addEventListener("removed", this.removeMessage.bind(this), false);
+		chatHistory.addEventListener("cleared", this.clearMessages.bind(this), false);
 	}
 
 	protected post(event: Event): void {
@@ -114,6 +115,14 @@ export class ChatBox extends I18nLitElement {
 
 		// const chatMessage = this.insertMessage(message);
 		// this.scrollToMessage(chatMessage);
+	}
+
+	private clearMessages() {
+		this.messageContainer.remove;
+
+		while (this.messageContainer.firstChild) {
+			this.messageContainer.removeChild(this.messageContainer.firstChild);
+		}
 	}
 
 	private insertMessage(message: MessageServiceMessage) {

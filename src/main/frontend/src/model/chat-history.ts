@@ -42,6 +42,8 @@ class ChatHistory extends EventTarget {
 
 	clear() {
 		this._history = [];
+
+		this.dispatchEvent(Utils.createEvent("cleared"));
 	}
 }
 

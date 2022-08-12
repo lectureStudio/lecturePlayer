@@ -49,6 +49,8 @@ class Participants extends EventTarget {
 
 	clear() {
 		this._participants = [];
+
+		this.dispatchEvent(Utils.createEvent("cleared"));
 	}
 }
 

@@ -24,6 +24,7 @@ export class MessageForm extends I18nLitElement {
 		participants.addEventListener("all", () => { this.requestUpdate() }, false);
 		participants.addEventListener("added", () => { this.requestUpdate() }, false);
 		participants.addEventListener("removed", () => { this.requestUpdate() }, false);
+		participants.addEventListener("cleared", () => { this.requestUpdate() }, false);
 	}
 
 	protected render() {
