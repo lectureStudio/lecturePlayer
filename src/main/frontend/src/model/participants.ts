@@ -46,6 +46,10 @@ class Participants extends EventTarget {
 			this.dispatchEvent(Utils.createEvent("removed", participant));
 		}
 	}
+
+	clear() {
+		this._participants = [];
+	}
 }
 
 export const participants = new Participants();

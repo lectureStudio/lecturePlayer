@@ -14,6 +14,10 @@ export class PrivilegeService {
 		return course.userPrivileges.findIndex(privilege => privilege.name === "CHAT_WRITE_PRIVATELY") > -1;
 	}
 
+	canWriteMessagesToOrganisators(): boolean {
+		return course.userPrivileges.findIndex(privilege => privilege.name === "CHAT_WRITE_TO_ORGANISATOR") > -1;
+	}
+
 	canContributeBySpeech(): boolean {
 		return course.userPrivileges.findIndex(privilege => privilege.name === "SPEECH") > -1;
 	}

@@ -37,12 +37,17 @@ export class MessageForm extends I18nLitElement {
 			}
 		}
 
+		const organisatorsOption = this.privilegeService.canWriteMessagesToOrganisators()
+			? html`<option value="organisers">${t("course.feature.message.target.organisers")}</option>`
+			: '';
+
 		return html`
 			<form id="course-message-form">
 				<div class="controls">
 					<span>${t("course.feature.message.target")}</span>
 					<select name="recipient" class="form-select form-select-sm" aria-label=".form-select-sm">
 						<option value="public" selected>${t("course.feature.message.target.all")}</option>
+						${organisatorsOption}
 						${optionTemplates}
 					</select>
 				</div>

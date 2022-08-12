@@ -102,6 +102,7 @@ export class JanusService extends EventTarget {
 	private createSession() {
 		this.janus = new Janus({
 			server: this.serverUrl,
+			destroyOnUnload: true,
 			success: () => {
 				if (this.janus.getSessionId()) {
 					this.attach();

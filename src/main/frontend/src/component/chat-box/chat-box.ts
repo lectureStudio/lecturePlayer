@@ -135,11 +135,16 @@ export class ChatBox extends I18nLitElement {
 
 	private insertDirectMessage(message: MessageServiceDirectMessage): ChatMessage {
 		const toMe = message.recipient === course.userId
+		const toOrganisers = message.recipient === "organisers";
 
 		const recipient = this.getParticipant(message.recipient);
 
 		const chatMessage = this.createMessage(message);
-		chatMessage.recipient = toMe ? `${t("course.feature.message.to.me")}` : `${recipient.firstName} ${recipient.familyName}`;
+		chatMessage.recipient = toMe
+			? `${t("course.feature.message.to.me")}`
+			: toOrganisers
+				? `${t("course.feature.message.to.organisers")}`
+				: `${recipient.firstName} ${recipient.familyName}`;
 		chatMessage.private = true;
 
 		this.messageContainer.appendChild(chatMessage);

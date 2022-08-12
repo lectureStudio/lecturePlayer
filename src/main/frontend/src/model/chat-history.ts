@@ -39,6 +39,10 @@ class ChatHistory extends EventTarget {
 			this.dispatchEvent(Utils.createEvent("removed", message));
 		// }
 	}
+
+	clear() {
+		this._history = [];
+	}
 }
 
 export const chatHistory = new ChatHistory();

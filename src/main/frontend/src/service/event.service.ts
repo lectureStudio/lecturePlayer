@@ -62,14 +62,14 @@ export class EventService extends EventTarget {
 
 				this.dispatchEvent(Utils.createEvent("recording-state", state));
 			});
-			client.subscribe("/topic/course/event/" + this.courseId + "/speech", (message: Message) => {
+			client.subscribe("/user/queue/course/" + this.courseId + "/speech", (message: Message) => {
 				const state = JSON.parse(message.body);
 
 				console.log("Speech state", state);
 
 				this.dispatchEvent(Utils.createEvent("speech-state", state));
 			});
-			client.subscribe("/topic/course/event/" + this.courseId + "/messenger", (message: Message) => {
+			client.subscribe("/topic/course/event/" + this.courseId + "/chat", (message: Message) => {
 				const state = JSON.parse(message.body);
 
 				console.log("Chat state", state);

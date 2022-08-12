@@ -81,7 +81,7 @@ export class PlayerController implements ReactiveController {
 		actionProcessor.onPeerConnected = this.onPeerConnected.bind(this);
 
 		this.courseStateService = new CourseStateService("https://" + window.location.host);
-		this.janusService = new JanusService("wss://" + window.location.hostname + ":8989/janus", actionProcessor);
+		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus", actionProcessor);
 		this.modals = new Map();
 
 		this.maxWidth576Query = window.matchMedia("(max-width: 576px)");
@@ -191,6 +191,7 @@ export class PlayerController implements ReactiveController {
 							this.viewController.update();
 
 							this.janusService.setRoomId(this.host.courseId);
+							this.janusService.setUserId(courseState.userId);
 							this.janusService.connect();
 
 							if (courseState.recorded) {
@@ -236,6 +237,9 @@ export class PlayerController implements ReactiveController {
 		this.setFullscreen(false);
 		this.playbackService.dispose();
 		this.viewController.setDisconnected();
+
+		participants.clear();
+		chatHistory.clear();
 	}
 
 	private setReconnecting() {
@@ -399,6 +403,8 @@ export class PlayerController implements ReactiveController {
 		}
 		else {
 			this.closeAndDeleteModal(ChatModal.name);
+
+			chatHistory.clear();
 		}
 
 		this.updateCourseState();

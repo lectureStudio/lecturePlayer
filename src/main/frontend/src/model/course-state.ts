@@ -27,6 +27,8 @@ export interface CourseParticipant {
 
 	readonly familyName: string;
 
+	readonly participantType: "ORGANISATOR" | "CO_ORGANISATOR" | "PARTICIPANT";
+
 }
 
 export interface CourseParticipantPresence extends CourseParticipant {

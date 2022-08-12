@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { MessageService } from '../../service/message.service';
 import { PrivilegeService } from '../../service/privilege.service';
 import { I18nLitElement } from '../i18n-mixin';

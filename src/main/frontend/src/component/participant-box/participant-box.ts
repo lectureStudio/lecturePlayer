@@ -38,6 +38,9 @@ export class ParticipantBox extends I18nLitElement {
 			if (participant.userId === course.userId) {
 				name += ` (${t("course.participants.me")})`;
 			}
+			if (participant.participantType && participant.participantType !== "PARTICIPANT") {
+				name += ` (${t("course.role." + participant.participantType.toLowerCase())})`;
+			}
 
 			templates.push(html`<div>${name}</div>`);
 		}
