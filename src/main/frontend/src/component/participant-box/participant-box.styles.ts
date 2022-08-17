@@ -40,4 +40,14 @@ export const participantBoxStyles = css`
 	.participant-log > *:hover {
 		background-color: #F1F5F9;
 	}
+	.participant {
+		display: flex;
+		align-items: end;
+	}
+
+	[class^="icon-"],
+	[class*=" icon-"] {
+		font-size: 1.4em;
+		margin-left: auto;
+	}
 `;

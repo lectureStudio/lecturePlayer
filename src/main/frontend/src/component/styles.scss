@@ -36,6 +36,18 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
+.icon-cam:before {
+	content: "\e90f";
+}
+.icon-cam-muted:before {
+	content: "\e910";
+}
+.icon-mic:before {
+	content: "\e911";
+}
+.icon-mic-muted:before {
+	content: "\e912";
+}
 .icon-audio-mute:before {
 	content: "\e900";
 }
@@ -57,6 +69,9 @@
 .icon-speech:before {
 	content: "\e906";
 }
+.icon-quiz:before {
+	content: "\e90e";
+}
 .icon-fullscreen-exit:before {
 	content: "\e907";
 }
@@ -77,6 +92,12 @@
 }
 .icon-organisator:before {
 	content: "\e90d";
+}
+.icon-unavailable:before {
+	content: "\e913";
+}
+.icon-close:before {
+	content: "\e914";
 }
 
 

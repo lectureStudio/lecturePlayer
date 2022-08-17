@@ -65,11 +65,6 @@ export const participantViewStyles = css`
 		background-color: #F1F5F9;
 		color: #334155;
 	}
-	.controls svg {
-		display: inline-block;
-		height: 1em;
-		width: 1em;
-	}
 	.controls #mic-muted {
 		color: #DC2626;
 	}
@@ -89,26 +84,26 @@ export const participantViewStyles = css`
 	}
 
 	:host([micMute]) .icon-mic,
-	:not([micMute]) .icon-mic-mute {
+	:not([micMute]) .icon-mic-muted {
 		display: none;
 	}
-	:host([micMute]) .icon-mic-mute,
+	:host([micMute]) .icon-mic-muted,
 	:not([micMute]) .icon-mic {
 		display: initial;
 	}
-	:host([micMute]) .icon-mic-mute {
+	:host([micMute]) .icon-mic-muted {
 		color: #991B1B;
 	}
 
 	:host([camMute]) .icon-cam,
-	:not([camMute]) .icon-cam-mute {
+	:not([camMute]) .icon-cam-muted {
 		display: none;
 	}
-	:host([camMute]) .icon-cam-mute,
+	:host([camMute]) .icon-cam-muted,
 	:not([camMute]) .icon-cam {
 		display: initial;
 	}
-	:host([camMute]) .icon-cam-mute {
+	:host([camMute]) .icon-cam-muted {
 		color: #991B1B;
 	}
 `;

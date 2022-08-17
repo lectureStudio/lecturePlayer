@@ -19,12 +19,10 @@ export const playerOfflineStyles = css`
 		padding: 0.5rem 0;
 		align-self: center;
 	}
-	:host > div > svg {
+	:host > div > span {
 		color: #0d6efd;
-		width: 2.1rem;
-		height: 2.1rem;
+		font-size: 3em;
 		align-self: center;
-		padding-bottom: 0.5em;
 	}
 	:host > div > hr {
 		width: 100%;

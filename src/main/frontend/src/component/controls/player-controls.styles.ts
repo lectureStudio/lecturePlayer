@@ -22,15 +22,10 @@ export const playerControlsStyles = css`
 	:host .invisible {
 		display: none;
 	}
-	:host path {
-		stroke: #007db5;
-	}
-	:host .svg-icon > * {
-		stroke-width: 0.1;
-	}
 	:host button {
 		display: flex;
 		align-items: center;
+		justify-content: center;
 		padding: 0;
 		border: 0;
 		background: transparent;
@@ -41,7 +36,7 @@ export const playerControlsStyles = css`
 		width: 40px;
 		min-height: 40px;
 		height: 40px;
-		font-size: 1.25em;
+		font-size: 1.65em;
 	}
 	:host button:hover {
 		color: rgba(0, 125, 181, 1);
@@ -58,20 +53,6 @@ export const playerControlsStyles = css`
 	}
 	:host button.active:hover {
 		color: rgba(0, 125, 181, 0.8);
-	}
-	:host button.selected path {
-		color: #F9FAFB;
-		stroke: #F9FAFB;
-	}
-	:host button svg {
-		display: block;
-		width: 18px;
-		height: 18px;
-		vertical-align: text-bottom;
-		margin: 0 auto;
-	}
-	:host #settingsButton path {
-		stroke: #212529;
 	}
 	:host #quiz-button {
 		color: #15803D;
@@ -216,12 +197,12 @@ export const playerControlsStyles = css`
 		display: none;
 	}
 
-	:host([fullscreen]) .fullscreen,
-	:not([fullscreen]) .fullscreen-exit {
+	:host([fullscreen]) .icon-fullscreen,
+	:not([fullscreen]) .icon-fullscreen-exit {
 		display: none;
 	}
-	:host([fullscreen]) .fullscreen-exit,
-	:not([fullscreen]) .fullscreen {
+	:host([fullscreen]) .icon-fullscreen-exit,
+	:not([fullscreen]) .icon-fullscreen {
 		display: initial;
 	}
 
@@ -248,14 +229,14 @@ export const playerControlsStyles = css`
 		stroke: #F9FAFB;
 	}
 
-	#volumeIndicator > svg {
+	#volumeIndicator > span {
 		display: none;
 	}
-	:host([volumeState="0"]) #volumeIndicator svg:nth-child(1),
-	:host([volumeState="1"]) #volumeIndicator svg:nth-child(2),
-	:host([volumeState="2"]) #volumeIndicator svg:nth-child(3),
-	:host([volumeState="3"]) #volumeIndicator svg:nth-child(4),
-	:host([volumeState="4"]) #volumeIndicator svg:nth-child(5) {
+	:host([volumeState="0"]) #volumeIndicator span:nth-child(1),
+	:host([volumeState="1"]) #volumeIndicator span:nth-child(2),
+	:host([volumeState="2"]) #volumeIndicator span:nth-child(3),
+	:host([volumeState="3"]) #volumeIndicator span:nth-child(4),
+	:host([volumeState="4"]) #volumeIndicator span:nth-child(5) {
 		display: inherit;
 	}
 

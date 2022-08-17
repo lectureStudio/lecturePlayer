@@ -35,15 +35,31 @@ export class ParticipantBox extends I18nLitElement {
 
 		for (const participant of participants.participants) {
 			let name = `${participant.firstName} ${participant.familyName}`;
+			let type;
 
 			if (participant.userId === course.userId) {
 				name += ` (${t("course.participants.me")})`;
 			}
-			if (participant.participantType && participant.participantType !== "PARTICIPANT") {
-				name += ` (${t("course.role." + participant.participantType.toLowerCase())})`;
+
+			switch (participant.participantType) {
+				case 'ORGANISATOR':
+				case 'CO_ORGANISATOR':
+					const lower = participant.participantType.toLowerCase();
+
+					type = html`
+						<span class="icon-${lower}" id="participant-type">
+							<ui-tooltip for="participant-type">${t("course.role." + lower)}</ui-tooltip>
+						</span>
+					`;
+					break;
 			}
 
-			templates.push(html`<div>${name}</div>`);
+			templates.push(html`
+				<div class="participant">
+					<span>${name}</span>
+					${type}
+				</div>
+			`);
 		}
 
 		return html`
