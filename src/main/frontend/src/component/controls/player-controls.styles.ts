@@ -223,10 +223,8 @@ export const playerControlsStyles = css`
 	}
 
 	:host([handUp]) #hand-button {
-		background-color: rgba(25, 135, 84, 1);
-	}
-	:host([handUp]) #hand-button path {
-		stroke: #F9FAFB;
+		background: rgba(21, 128, 61, 0.2);
+		color: #166534;
 	}
 
 	#volumeIndicator > span {

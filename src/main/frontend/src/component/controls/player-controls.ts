@@ -2,7 +2,7 @@ import { html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { PrivilegeService } from '../../service/privilege.service';
 import { Utils } from '../../utils/utils';
-import { I18nLitElement } from '../i18n-mixin';
+import { I18nLitElement, t } from '../i18n-mixin';
 import { playerControlsStyles } from './player-controls.styles';
 import { course } from '../../model/course';
 
@@ -193,30 +193,42 @@ export class PlayerControls extends I18nLitElement {
 					<span class="icon-audio-low"></span>
 					<span class="icon-audio-up"></span>
 					<span class="icon-audio-high"></span>
+					<ui-tooltip for="volumeIndicator" .text="${this.mutedVolume ? t("controls.audio.unmute") : t("controls.audio.mute")}"></ui-tooltip>
 				</button>
 				<input type="range" id="volumeSlider" min="0" max="1" value="1" step="0.01" .value="${this.volume}" @input="${this.onVolume}">
 				<span id="duration">${this.getFormattedDuration()}</span>
 			</div>
 			<div class="col nav-center">
 				${this.privilegeService.canContributeBySpeech() ? html`
-				<button @click="${this.onHand}" class="icon-speech" id="hand-button"></button>
+				<button @click="${this.onHand}" class="icon-speech" id="hand-button">
+					<ui-tooltip for="hand-button" .text="${this.handUp ? t("controls.speech.abort") : t("controls.speech.start")}"></ui-tooltip>
+				</button>
 				` : ''}
 
 				${this.privilegeService.canParticipateInQuiz() ? html`
-				<button @click="${this.onQuiz}" class="icon-quiz" id="quiz-button"></button>
+				<button @click="${this.onQuiz}" class="icon-quiz" id="quiz-button">
+					<ui-tooltip for="quiz-button" .text="${t("controls.quiz.show")}"></ui-tooltip>
+				</button>
 				` : ''}
 			</div>
 			<div class="col nav-right">
-				<button @click="${this.onParticipantsVisibility}" class="icon-participants" id="participants-button"></button>
+				<button @click="${this.onParticipantsVisibility}" class="icon-participants" id="participants-button">
+					<ui-tooltip for="participants-button" .text="${t(this.participantsVisible ? "controls.participants.hide" : "controls.participants.show")}"></ui-tooltip>
+				</button>
 
 				${this.privilegeService.canReadMessages() ? html`
-				<button @click="${this.onChatVisibility}" class="icon-chat" id="chat-button"></button>
+				<button @click="${this.onChatVisibility}" class="icon-chat" id="chat-button">
+					<ui-tooltip for="chat-button" .text="${this.chatVisible ? t("controls.chat.hide") : t("controls.chat.show")}"></ui-tooltip>
+				</button>
 				` : ''}
 
-				<button @click="${this.onSettings}" class="icon-settings"></button>
-				<button @click="${this.onFullscreen}">
+				<button @click="${this.onSettings}" class="icon-settings" id="settings-button">
+					<ui-tooltip for="settings-button" .text="${t("controls.settings")}"></ui-tooltip>
+				</button>
+				<button @click="${this.onFullscreen}" id="fullscreen-button">
 					<span class="icon-fullscreen"></span>
 					<span class="icon-fullscreen-exit"></span>
+					<ui-tooltip for="fullscreen-button" .text="${this.fullscreen ? t("controls.fullscreen.off") : t("controls.fullscreen.on")}"></ui-tooltip>
 				</button>
 			</div>
 		`;
