@@ -16,3 +16,166 @@
 
 @import "~bootstrap/scss/helpers";
 @import "~bootstrap/scss/utilities/api";
+
+*:not(:defined) {
+	visibility: hidden;
+}
+
+[class^="icon-"],
+[class*=" icon-"] {
+	/* use !important to prevent issues with browser extensions that change fonts */
+	font-family: 'player' !important;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.icon-audio-mute:before {
+	content: "\e900";
+}
+.icon-audio-off:before {
+	content: "\e901";
+}
+.icon-audio-low:before {
+	content: "\e902";
+}
+.icon-audio-up:before {
+	content: "\e903";
+}
+.icon-audio-high:before {
+	content: "\e904";
+}
+.icon-chat:before {
+	content: "\e905";
+}
+.icon-speech:before {
+	content: "\e906";
+}
+.icon-fullscreen-exit:before {
+	content: "\e907";
+}
+.icon-fullscreen:before {
+	content: "\e908";
+}
+.icon-settings:before {
+	content: "\e909";
+}
+.icon-send:before {
+	content: "\e90a";
+}
+.icon-participants:before {
+	content: "\e90b";
+}
+.icon-co_organisator:before {
+	content: "\e90c";
+}
+.icon-organisator:before {
+	content: "\e90d";
+}
+
+
+
+
+[data-tippy-root] {
+	max-width: calc(100vw - 10px)
+}
+
+.tippy-box {
+	position: relative;
+	background-color: #333;
+	color: #fff;
+	border-radius: 4px;
+	font-size: 14px;
+	line-height: 1.4;
+	white-space: normal;
+	outline: 0;
+	transition-property: transform, visibility, opacity;
+	box-shadow: 0 0 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.tippy-box[data-placement^=top]>.tippy-arrow {
+	bottom: 0
+}
+.tippy-box[data-placement^=top]>.tippy-arrow:before {
+	bottom: -7px;
+	left: 0;
+	border-width: 8px 8px 0;
+	border-top-color: initial;
+	transform-origin: center top
+}
+
+.tippy-box[data-placement^=bottom]>.tippy-arrow {
+	top: 0
+}
+.tippy-box[data-placement^=bottom]>.tippy-arrow:before {
+	top: -7px;
+	left: 0;
+	border-width: 0 8px 8px;
+	border-bottom-color: initial;
+	transform-origin: center bottom
+}
+
+.tippy-box[data-placement^=left]>.tippy-arrow {
+	right: 0
+}
+.tippy-box[data-placement^=left]>.tippy-arrow:before {
+	border-width: 8px 0 8px 8px;
+	border-left-color: initial;
+	right: -7px;
+	transform-origin: center left
+}
+
+.tippy-box[data-placement^=right]>.tippy-arrow {
+	left: 0
+}
+.tippy-box[data-placement^=right]>.tippy-arrow:before {
+	left: -7px;
+	border-width: 8px 8px 8px 0;
+	border-right-color: initial;
+	transform-origin: center right
+}
+
+.tippy-box[data-inertia][data-state=visible] {
+	transition-timing-function: cubic-bezier(.54, 1.5, .38, 1.11)
+}
+
+.tippy-arrow {
+	width: 16px;
+	height: 16px;
+	color: #333
+}
+.tippy-arrow:before {
+	content: "";
+	position: absolute;
+	border-color: transparent;
+	border-style: solid
+}
+.tippy-content {
+	position: relative;
+	padding: 5px 9px;
+	z-index: 1
+}
+
+
+
+.tippy-box[data-animation=shift-away-subtle][data-state=hidden] {
+	opacity: 0
+}
+.tippy-box[data-animation=shift-away-subtle][data-state=hidden][data-placement^=top] {
+	transform: translateY(5px)
+}
+.tippy-box[data-animation=shift-away-subtle][data-state=hidden][data-placement^=bottom] {
+	transform: translateY(-5px)
+}
+.tippy-box[data-animation=shift-away-subtle][data-state=hidden][data-placement^=left] {
+	transform: translateX(5px)
+}
+.tippy-box[data-animation=shift-away-subtle][data-state=hidden][data-placement^=right] {
+	transform: translateX(-5px)
+}

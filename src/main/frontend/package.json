@@ -58,6 +58,7 @@
 		"janus-gateway": "git://github.com/meetecho/janus-gateway.git",
 		"lit": "^2.2.7",
 		"pdfjs-dist": "^2.14.305",
+		"tippy.js": "^6.3.7",
 		"web-dialog": "^0.0.11"
 	}
 }

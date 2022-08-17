@@ -14,6 +14,7 @@ import './component/quiz-box/quiz-box';
 import './component/quiz-form/quiz-form';
 import './component/modal/modal';
 import './component/toast/toast';
+import './component/tooltip/tooltip';
 
 import i18next from 'i18next';
 import LanguageDetector from "i18next-browser-languagedetector";
