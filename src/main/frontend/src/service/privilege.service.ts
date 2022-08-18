@@ -2,11 +2,19 @@ import { course } from '../model/course';
 
 export class PrivilegeService {
 
+	canUseChat(): boolean {
+		return this.canReadMessages() || this.canWriteMessages();
+	}
+
+	canWriteMessages(): boolean {
+		return this.canWritePrivateMessages() || this.canWriteMessagesToAll() || this.canWriteMessagesToOrganisators();
+	}
+
 	canReadMessages(): boolean {
 		return course.userPrivileges.findIndex(privilege => privilege.name === "CHAT_READ") > -1;
 	}
 
-	canWriteMessages(): boolean {
+	canWriteMessagesToAll(): boolean {
 		return course.userPrivileges.findIndex(privilege => privilege.name === "CHAT_WRITE") > -1;
 	}
 

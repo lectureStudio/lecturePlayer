@@ -34,6 +34,7 @@ export const chatMessageStyles = css`
 		border-radius: 4px;
 		padding: 1px 6px;
 		margin: 0 0 0 1em;
+		height: fit-content;
 	}
 
 	:host([myself]) .message-head {

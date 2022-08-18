@@ -129,7 +129,7 @@ export class PlayerView extends I18nLitElement {
 					<div class="video-feeds">
 					</div>
 					<div class="feature-container">
-						${this.privilegeService.canReadMessages() ? html`
+						${this.privilegeService.canUseChat() ? html`
 						<chat-box .messageService="${this.messageService}" .privilegeService="${this.privilegeService}"></chat-box>
 						` : ''}
 					</div>

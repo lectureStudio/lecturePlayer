@@ -65,6 +65,7 @@ export class ChatBox extends I18nLitElement {
 			<header>
 				${t("course.feature.message")}
 			</header>
+
 			<section>
 				<div class="chat-history">
 					<div class="chat-history-log">
@@ -72,12 +73,12 @@ export class ChatBox extends I18nLitElement {
 				</div>
 			</section>
 
-			${this.privilegeService.canWriteMessages() ? html`
 			<footer>
+				${this.privilegeService.canWriteMessages() ? html`
 				<message-form .privilegeService="${this.privilegeService}"></message-form>
 				<button @click="${this.post}" type="submit" form="course-message-form" class="icon-send" id="message-submit"></button>
+				` : ''}
 			</footer>
-			` : ''}
 		`;
 	}
 
@@ -87,6 +88,11 @@ export class ChatBox extends I18nLitElement {
 		}
 
 		this.requestUpdate();
+
+		if (!this.privilegeService.canReadMessages()) {
+			// No privilege to read/receive messages.
+			return;
+		}
 
 		this.updateComplete.then(() => {
 			window.setTimeout(() => {
@@ -114,6 +120,11 @@ export class ChatBox extends I18nLitElement {
 	}
 
 	private clearMessages() {
+		if (!this.privilegeService.canReadMessages()) {
+			// No privilege to read/receive messages.
+			return;
+		}
+
 		this.messageContainer.remove;
 
 		while (this.messageContainer.firstChild) {
@@ -122,6 +133,11 @@ export class ChatBox extends I18nLitElement {
 	}
 
 	private insertMessage(message: MessageServiceMessage) {
+		if (!this.privilegeService.canReadMessages()) {
+			// No privilege to read/receive messages.
+			return null;
+		}
+
 		if (message._type === "MessengerDirectMessage") {
 			return this.insertDirectMessage(message as MessageServiceDirectMessage);
 		}

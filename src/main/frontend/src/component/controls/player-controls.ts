@@ -216,7 +216,7 @@ export class PlayerControls extends I18nLitElement {
 					<ui-tooltip for="participants-button" .text="${t(this.participantsVisible ? "controls.participants.hide" : "controls.participants.show")}" sticky="true"></ui-tooltip>
 				</button>
 
-				${this.privilegeService.canReadMessages() ? html`
+				${this.privilegeService.canUseChat() ? html`
 				<button @click="${this.onChatVisibility}" class="icon-chat" id="chat-button">
 					<ui-tooltip for="chat-button" .text="${this.chatVisible ? t("controls.chat.hide") : t("controls.chat.show")}" sticky="true"></ui-tooltip>
 				</button>
