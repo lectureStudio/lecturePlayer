@@ -8,6 +8,11 @@ export const playerViewStyles = css`
 		width: 100%;
 		height: 100%;
 	}
+	:host > div {
+		display: flex;
+		width: 100%;
+		height: 100%;
+	}
 	:host .center-container {
 		display: flex;
 		flex-direction: column;
@@ -37,21 +42,24 @@ export const playerViewStyles = css`
 		flex-direction: column;
 		flex-shrink: 0;
 		background-color: white;
-		width: 15em;
-		max-width: 15em;
+		min-width: 200px;
 	}
 	:host .right-container {
 		display: flex;
 		flex-direction: column;
 		flex-shrink: 0;
 		background-color: white;
-		width: 15em;
-		max-width: 15em;
+		min-width: 200px;
 	}
 	:host .video-feeds {
 		display: flex;
 		flex-direction: row;
+		align-items: center;
+		justify-content: center;
 		order: 1;
+	}
+	:host .video-feeds > * {
+		max-width: 250px;
 	}
 	:host .feature-container {
 		display: none;
@@ -83,7 +91,6 @@ export const playerViewStyles = css`
 		}
 		:host .video-feeds {
 			order: 2;
-			flex-direction: column;
 		}
 		:host .feature-container {
 			order: 6;

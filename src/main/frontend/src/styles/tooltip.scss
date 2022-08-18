@@ -1,107 +1,6 @@
-@import "~bootstrap/scss/functions";
-@import "~bootstrap/scss/variables";
-@import "~bootstrap/scss/mixins";
-@import "~bootstrap/scss/utilities";
-
-@import "~bootstrap/scss/root";
-@import "~bootstrap/scss/reboot";
-@import "~bootstrap/scss/type";
-@import "~bootstrap/scss/containers";
-@import "~bootstrap/scss/grid";
-@import "~bootstrap/scss/forms";
-@import "~bootstrap/scss/buttons";
-@import "~bootstrap/scss/alert";
-@import "~bootstrap/scss/tooltip";
-@import "~bootstrap/scss/popover";
-
-@import "~bootstrap/scss/helpers";
-@import "~bootstrap/scss/utilities/api";
-
 *:not(:defined) {
 	visibility: hidden;
 }
-
-[class^="icon-"],
-[class*=" icon-"] {
-	/* use !important to prevent issues with browser extensions that change fonts */
-	font-family: 'player' !important;
-	font-style: normal;
-	font-weight: normal;
-	font-variant: normal;
-	text-transform: none;
-	line-height: 1;
-
-	/* Better Font Rendering =========== */
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
-
-.icon-cam:before {
-	content: "\e90f";
-}
-.icon-cam-muted:before {
-	content: "\e910";
-}
-.icon-mic:before {
-	content: "\e911";
-}
-.icon-mic-muted:before {
-	content: "\e912";
-}
-.icon-audio-mute:before {
-	content: "\e900";
-}
-.icon-audio-off:before {
-	content: "\e901";
-}
-.icon-audio-low:before {
-	content: "\e902";
-}
-.icon-audio-up:before {
-	content: "\e903";
-}
-.icon-audio-high:before {
-	content: "\e904";
-}
-.icon-chat:before {
-	content: "\e905";
-}
-.icon-speech:before {
-	content: "\e906";
-}
-.icon-quiz:before {
-	content: "\e90e";
-}
-.icon-fullscreen-exit:before {
-	content: "\e907";
-}
-.icon-fullscreen:before {
-	content: "\e908";
-}
-.icon-settings:before {
-	content: "\e909";
-}
-.icon-send:before {
-	content: "\e90a";
-}
-.icon-participants:before {
-	content: "\e90b";
-}
-.icon-co_organisator:before {
-	content: "\e90c";
-}
-.icon-organisator:before {
-	content: "\e90d";
-}
-.icon-unavailable:before {
-	content: "\e913";
-}
-.icon-close:before {
-	content: "\e914";
-}
-
-
-
 
 [data-tippy-root] {
 	max-width: calc(100vw - 10px)
@@ -183,8 +82,9 @@
 	z-index: 1
 }
 
-
-
+/*
+ * Animations
+ */
 .tippy-box[data-animation=shift-away-subtle][data-state=hidden] {
 	opacity: 0
 }

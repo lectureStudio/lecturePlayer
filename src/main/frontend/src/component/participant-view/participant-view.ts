@@ -8,6 +8,7 @@ import { participantViewStyles } from "./participant-view.styles";
 export class ParticipantView extends I18nLitElement {
 
 	static styles = [
+		I18nLitElement.styles,
 		participantViewStyles
 	];
 

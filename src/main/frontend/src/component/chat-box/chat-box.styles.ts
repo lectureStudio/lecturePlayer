@@ -48,7 +48,7 @@ export const chatBoxStyles = css`
 		flex: 1 1 auto;
 		overflow-y: auto;
 		height: 100px;
-		padding-right: 15px;
+		padding: 0 15px 0 5px;
 	}
 	.chat-history-log > * {
 		margin-bottom: 1em;

@@ -213,12 +213,12 @@ export class PlayerControls extends I18nLitElement {
 			</div>
 			<div class="col nav-right">
 				<button @click="${this.onParticipantsVisibility}" class="icon-participants" id="participants-button">
-					<ui-tooltip for="participants-button" .text="${t(this.participantsVisible ? "controls.participants.hide" : "controls.participants.show")}"></ui-tooltip>
+					<ui-tooltip for="participants-button" .text="${t(this.participantsVisible ? "controls.participants.hide" : "controls.participants.show")}" sticky="true"></ui-tooltip>
 				</button>
 
 				${this.privilegeService.canReadMessages() ? html`
 				<button @click="${this.onChatVisibility}" class="icon-chat" id="chat-button">
-					<ui-tooltip for="chat-button" .text="${this.chatVisible ? t("controls.chat.hide") : t("controls.chat.show")}"></ui-tooltip>
+					<ui-tooltip for="chat-button" .text="${this.chatVisible ? t("controls.chat.hide") : t("controls.chat.show")}" sticky="true"></ui-tooltip>
 				</button>
 				` : ''}
 

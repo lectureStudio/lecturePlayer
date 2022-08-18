@@ -2,7 +2,7 @@ import { PropertyValues } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { I18nLitElement } from '../i18n-mixin';
 import { tooltipStyles } from './tooltip.styles';
-import tippy, { sticky } from 'tippy.js';
+import tippy, { Instance, Props, sticky } from 'tippy.js';
 
 @customElement('ui-tooltip')
 export class PlayerLoading extends I18nLitElement {
@@ -10,6 +10,11 @@ export class PlayerLoading extends I18nLitElement {
 	static styles = [
 		tooltipStyles,
 	];
+
+	private props: Instance<Props>;
+
+	@property({ attribute: true })
+	sticky: boolean = false;
 
 	@property({ attribute: true })
 	for: string;
@@ -30,14 +35,14 @@ export class PlayerLoading extends I18nLitElement {
 			target = this.previousElementSibling;
 		}
 
-		tippy(target, {
+		this.props = tippy(target, {
 			content: this.text ? this.text : this.textContent,
 			allowHTML: false,
 			arrow: true,
 			animation: 'shift-away-subtle',
 			trigger: 'mouseenter',
 			interactive: true,
-			sticky: 'popper',
+			sticky: this.sticky ? 'popper' : false,
 			plugins: [sticky],
 			onHidden: (instance) => {
 				if (this.newText) {
@@ -50,7 +55,12 @@ export class PlayerLoading extends I18nLitElement {
 
 	protected updated(changedProperties: PropertyValues): void {
 		if (changedProperties.has("text")) {
-			this.newText = this.text;
+			if (this.props.state.isMounted) {
+				this.newText = this.text;
+			}
+			else {
+				this.props.setContent(this.text);
+			}
 		}
 	}
 }

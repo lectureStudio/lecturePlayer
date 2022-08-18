@@ -1,7 +1,7 @@
 import { LitElement } from 'lit';
 import i18next, { t } from 'i18next';
 
-import commonStyles from './styles.scss';
+import commonStyles from '../styles/styles.scss';
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
