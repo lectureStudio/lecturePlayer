@@ -66,7 +66,7 @@ export const playerViewStyles = css`
 	:host chat-box {
 		height: 100%;
 	}
-	:host participant-box {
+	:host participants-box {
 		height: 100%;
 	}
 	:host(:not([chatVisible])) chat-box {

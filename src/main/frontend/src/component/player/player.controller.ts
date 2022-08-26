@@ -31,6 +31,7 @@ import { LecturePlayer } from './player';
 import { course } from '../../model/course';
 import { participants } from '../../model/participants';
 import { chatHistory } from '../../model/chat-history';
+import { ParticipantsModal } from '../participants-modal/participants.modal';
 
 export class PlayerController implements ReactiveController {
 
@@ -100,6 +101,7 @@ export class PlayerController implements ReactiveController {
 		this.host.addEventListener("player-hand-action", this.onHandAction.bind(this), false);
 		this.host.addEventListener("player-quiz-action", this.onQuizAction.bind(this), false);
 		this.host.addEventListener("player-chat-visibility", this.onChatVisibility.bind(this), false);
+		this.host.addEventListener("player-participants-visibility", this.onParticipantsVisibility.bind(this), false);
 		this.host.addEventListener("participant-video-play-error", this.onMediaPlayError.bind(this), false);
 
 		this.eventService.addEventListener("event-service-state", this.onEventServiceState.bind(this));
@@ -348,6 +350,15 @@ export class PlayerController implements ReactiveController {
 			chatModal.privilegeService = this.privilegeService;
 
 			this.registerModal(ChatModal.name, chatModal);
+		}
+	}
+
+	private onParticipantsVisibility() {
+		if (this.maxWidth576Query.matches) {
+			const participantsModal = new ParticipantsModal();
+			participantsModal.privilegeService = this.privilegeService;
+
+			this.registerModal(ParticipantsModal.name, participantsModal);
 		}
 	}
 

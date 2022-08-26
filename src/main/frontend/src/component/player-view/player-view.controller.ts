@@ -6,6 +6,8 @@ import { course } from '../../model/course';
 
 export class PlayerViewController implements ReactiveController {
 
+	private readonly maxWidth576Query: MediaQueryList;
+
 	readonly host: PlayerView;
 
 	private clockIntervalId: number;
@@ -14,6 +16,13 @@ export class PlayerViewController implements ReactiveController {
 	constructor(host: PlayerView) {
 		this.host = host;
 		this.host.addController(this);
+
+		this.maxWidth576Query = window.matchMedia("(max-width: 576px)");
+		this.maxWidth576Query.onchange = (event) => {
+			if (event.matches) {
+				this.on576pxWidth();
+			}
+		};
 	}
 
 	hostConnected() {
@@ -29,6 +38,10 @@ export class PlayerViewController implements ReactiveController {
 	}
 
 	update() {
+		if (this.maxWidth576Query.matches) {
+			this.on576pxWidth();
+		}
+
 		this.clockIntervalId = window.setInterval(() => {
 			try {
 				this.host.controls.duration = (Date.now() - course.timeStarted);
@@ -68,10 +81,19 @@ export class PlayerViewController implements ReactiveController {
 	}
 
 	private onChatVisibility() {
-		this.host.chatVisible = !this.host.chatVisible;
+		if (!this.maxWidth576Query.matches) {
+			this.host.chatVisible = !this.host.chatVisible;
+		}
 	}
 
 	private onParticipantsVisibility() {
-		this.host.participantsVisible = !this.host.participantsVisible;
+		if (!this.maxWidth576Query.matches) {
+			this.host.participantsVisible = !this.host.participantsVisible;
+		}
+	}
+
+	private on576pxWidth() {
+		this.host.chatVisible = false;
+		this.host.participantsVisible = false;
 	}
 }

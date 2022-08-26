@@ -1,13 +1,13 @@
 import { html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
-import { participantBoxStyles } from './participant-box.styles';
+import { participantBoxStyles } from './participants-box.styles';
 import { participants } from '../../model/participants';
 import { course } from '../../model/course';
 import { PrivilegeService } from '../../service/privilege.service';
 
-@customElement('participant-box')
-export class ParticipantBox extends I18nLitElement {
+@customElement('participants-box')
+export class ParticipantsBox extends I18nLitElement {
 
 	static styles = [
 		I18nLitElement.styles,

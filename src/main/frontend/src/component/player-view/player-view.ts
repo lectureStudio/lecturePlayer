@@ -143,7 +143,7 @@ export class PlayerView extends I18nLitElement {
 				<div class="left-container">
 					<div class="feature-container">
 						${this.privilegeService.canViewParticipants() ? html`
-						<participant-box .privilegeService="${this.privilegeService}"></participant-box>
+						<participants-box .privilegeService="${this.privilegeService}"></participants-box>
 						` : ''}
 					</div>
 				</div>

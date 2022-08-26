@@ -9,7 +9,7 @@ import './component/offline/player-offline';
 import './component/feature-view/feature-view';
 import './component/chat-box/chat-box';
 import './component/message-form/message-form';
-import './component/participant-box/participant-box';
+import './component/participants-box/participants-box';
 import './component/quiz-box/quiz-box';
 import './component/quiz-form/quiz-form';
 import './component/modal/modal';
