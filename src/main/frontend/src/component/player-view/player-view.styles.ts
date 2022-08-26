@@ -37,25 +37,19 @@ export const playerViewStyles = css`
 		height: 100%;
 		flex-grow: 1;
 	}
-	:host .left-container {
-		display: flex;
-		flex-direction: column;
-		flex-shrink: 0;
-		background-color: white;
-		min-width: 200px;
-	}
+	:host .left-container,
 	:host .right-container {
 		display: flex;
 		flex-direction: column;
 		flex-shrink: 0;
 		background-color: white;
-		min-width: 200px;
 	}
 	:host .video-feeds {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
 		justify-content: center;
+		padding: 0.25em;
 		order: 1;
 	}
 	:host .video-feeds > * {

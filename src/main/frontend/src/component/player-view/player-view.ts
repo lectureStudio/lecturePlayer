@@ -80,12 +80,42 @@ export class PlayerView extends I18nLitElement {
 			this.shadowRoot.querySelector(".right-container")
 		];
 
-		this.split = Split(elements, {
+		// Minimum sizes in percent.
+		const minSizes = [10, 50, 10];
+
+		const splitOptions: Split.Options = {
 			sizes: [13, 72, 15],
-			minSize: [200, 100, 200],
+			minSize: minSizes,
 			maxSize: [400, Infinity, 500],
-			snapOffset: 0
-		});
+			snapOffset: 0,
+			elementStyle: function (dimension, size, gutterSize, index) {
+				if (index !== 1 && size < minSizes[index]) {
+					// Min size for left and right panes.
+					size = minSizes[index];
+				}
+
+				return {
+					'flex-basis': 'calc(' + size + '% - ' + gutterSize + 'px)',
+				}
+			},
+			onDragEnd: (sizes) => {
+				// Minsize for the left pane.
+				if (sizes[0] < minSizes[0]) {
+					sizes[0] = minSizes[0];
+				}
+				// Minsize for the right pane.
+				if (sizes[2] < minSizes[2]) {
+					sizes[2] = minSizes[2];
+				}
+
+				// Center pane.
+				sizes[1] = 100 - sizes[0] - sizes[2];
+
+				this.split.setSizes(sizes);
+			}
+		};
+
+		this.split = Split(elements, splitOptions);
 	}
 
 	protected updated(changedProperties: PropertyValues): void {

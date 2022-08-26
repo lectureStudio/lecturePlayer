@@ -155,17 +155,15 @@ export class ChatBox extends I18nLitElement {
 	}
 
 	private insertDirectMessage(message: MessageServiceDirectMessage): ChatMessage {
-		const toMe = message.recipient === course.userId
-		const toOrganisers = message.recipient === "organisers";
-
-		const recipient = this.getParticipant(message.recipient);
+		const toMe = message.recipientId === course.userId;
+		const toOrganisers = message.recipientId === "organisers";
 
 		const chatMessage = this.createMessage(message);
 		chatMessage.recipient = toMe
 			? `${t("course.feature.message.to.me")}`
 			: toOrganisers
 				? `${t("course.feature.message.to.organisers")}`
-				: `${recipient.firstName} ${recipient.familyName}`;
+				: `${message.recipientFirstName} ${message.recipientFamilyName}`;
 		chatMessage.private = true;
 
 		this.messageContainer.appendChild(chatMessage);
@@ -189,9 +187,5 @@ export class ChatBox extends I18nLitElement {
 		chatMessage.myself = byMe;
 
 		return chatMessage;
-	}
-
-	private getParticipant(userId: string): CourseParticipant {
-		return participants.participants.find(participant => participant.userId === userId);
 	}
 }

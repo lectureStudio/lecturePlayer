@@ -29,7 +29,11 @@ export interface MessageServiceMessage {
 
 export interface MessageServiceDirectMessage extends MessageServiceMessage {
 
-	recipient: string;
+	recipientId: string;
+
+	recipientFirstName: string;
+
+	recipientFamilyName: string;
 
 }
 
