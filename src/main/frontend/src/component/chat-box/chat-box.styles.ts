@@ -24,6 +24,7 @@ export const chatBoxStyles = css`
 		display: flex;
 	}
 	footer button {
+		display: var(--send-button-display, block);
 		background-color: transparent;
 		border: 0;
 		border-radius: 0;

@@ -5,9 +5,7 @@ import { chatBoxStyles } from './chat-box.styles';
 import { Toaster } from '../../component/toast/toaster';
 import { MessageService, MessageServiceDirectMessage, MessageServiceMessage } from '../../service/message.service';
 import { ChatMessage } from './chat-message';
-import { CourseParticipant } from '../../model/course-state';
 import { PrivilegeService } from '../../service/privilege.service';
-import { participants } from '../../model/participants';
 import { chatHistory } from '../../model/chat-history';
 import { course } from '../../model/course';
 
@@ -36,6 +34,15 @@ export class ChatBox extends I18nLitElement {
 		chatHistory.addEventListener("added", this.addMessage.bind(this), false);
 		chatHistory.addEventListener("removed", this.removeMessage.bind(this), false);
 		chatHistory.addEventListener("cleared", this.clearMessages.bind(this), false);
+	}
+
+	send() {
+		const sendButton: HTMLButtonElement = this.shadowRoot.querySelector("#message-submit");
+		sendButton.click();
+	}
+
+	protected firstUpdated(): void {
+		this.addAllMessages();
 	}
 
 	protected post(event: Event): void {

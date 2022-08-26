@@ -12,6 +12,7 @@ export const playerViewStyles = css`
 		display: flex;
 		width: 100%;
 		height: 100%;
+		flex-direction: column;
 	}
 	:host .center-container {
 		display: flex;
@@ -77,11 +78,12 @@ export const playerViewStyles = css`
 
 
 	@media (min-width: 576px) {
-		:host {
+		:host > div {
 			flex-direction: row;
 		}
 		:host .center-container {
 			order: 0;
+			flex-basis: initial;
 		}
 		:host .video-feeds {
 			order: 2;
@@ -89,6 +91,18 @@ export const playerViewStyles = css`
 		:host .feature-container {
 			order: 6;
 			display: block;
+		}
+	}
+	@media (max-width: 575px) {
+		:host .center-container,
+		:host .right-container {
+			flex-basis: initial !important;
+		}
+		:host .left-container {
+			display: none;
+		}
+		.gutter {
+			display: none;
 		}
 	}
 `;

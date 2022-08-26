@@ -344,8 +344,8 @@ export class PlayerController implements ReactiveController {
 	private onChatVisibility() {
 		if (this.maxWidth576Query.matches) {
 			const chatModal = new ChatModal();
-			chatModal.courseId = course.courseId;
 			chatModal.messageService = this.messageService;
+			chatModal.privilegeService = this.privilegeService;
 
 			this.registerModal(ChatModal.name, chatModal);
 		}

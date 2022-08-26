@@ -5,6 +5,7 @@ export const modalStyles = css`
 		--dialog-backdrop-bg: rgba(0, 0, 0, 0.5);
 		--dialog-border-radius: 0.25em;
 		--dialog-padding: 0;
+		--dialog-z-index: 999;
 	}
 	web-dialog::part(dialog) {
 		border-radius: 0.3333em;
