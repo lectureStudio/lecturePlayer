@@ -4,9 +4,18 @@ import { ParticipantView } from "../participant-view/participant-view";
 import { PlayerView } from "./player-view";
 import { course } from '../../model/course';
 
+interface BreakpointConfig {
+
+	chatVisible: boolean;
+	participantsVisible: boolean;
+
+}
+
 export class PlayerViewController implements ReactiveController {
 
 	private readonly maxWidth576Query: MediaQueryList;
+
+	private breakpointConfig: BreakpointConfig;
 
 	readonly host: PlayerView;
 
@@ -19,9 +28,7 @@ export class PlayerViewController implements ReactiveController {
 
 		this.maxWidth576Query = window.matchMedia("(max-width: 576px)");
 		this.maxWidth576Query.onchange = (event) => {
-			if (event.matches) {
-				this.on576pxWidth();
-			}
+			this.onCompactLayout(event.matches);
 		};
 	}
 
@@ -35,11 +42,16 @@ export class PlayerViewController implements ReactiveController {
 		this.host.addEventListener("player-participants-visibility", this.onParticipantsVisibility.bind(this), false);
 
 		this.host.chatVisible = course.chatFeature != null;
+
+		this.breakpointConfig = {
+			chatVisible: this.host.chatVisible,
+			participantsVisible: this.host.participantsVisible
+		};
 	}
 
 	update() {
 		if (this.maxWidth576Query.matches) {
-			this.on576pxWidth();
+			this.onCompactLayout(true);
 		}
 
 		this.clockIntervalId = window.setInterval(() => {
@@ -92,8 +104,22 @@ export class PlayerViewController implements ReactiveController {
 		}
 	}
 
-	private on576pxWidth() {
-		this.host.chatVisible = false;
-		this.host.participantsVisible = false;
+	private onCompactLayout(compact: boolean) {
+		if (compact) {
+			// Store current (visible) state.
+			this.breakpointConfig = {
+				chatVisible: this.host.chatVisible,
+				participantsVisible: this.host.participantsVisible
+			};
+
+			// Hide elements.
+			this.host.chatVisible = false;
+			this.host.participantsVisible = false;
+		}
+		else {
+			// Re-store state.
+			this.host.chatVisible = this.breakpointConfig.chatVisible;
+			this.host.participantsVisible = this.breakpointConfig.participantsVisible;
+		}
 	}
 }
