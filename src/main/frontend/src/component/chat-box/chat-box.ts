@@ -90,6 +90,8 @@ export class ChatBox extends I18nLitElement {
 	}
 
 	private addAllMessages() {
+		this.clearMessages();
+
 		for (const message of chatHistory.history) {
 			this.insertMessage(message);
 		}
