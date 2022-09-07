@@ -69,6 +69,10 @@ export const participantViewStyles = css`
 		color: #DC2626;
 	}
 
+	:host(:not([hasVideo])) {
+		display: none;
+	}
+
 	:host(:not([isLocal])) .controls .buttons {
 		display: none;
 	}
