@@ -98,12 +98,12 @@ export class EventService extends EventTarget {
 		client.onDisconnect = () => {
 			console.log("STOMP disconnected");
 		};
-		client.onWebSocketError = async (error: any) => {
-			console.error("STOMP WebSocket Error", error);
-		};
-		client.onStompError = async (error: any) => {
-			console.error("STOMP Error", error);
-		};
+		// client.onWebSocketError = async (error: any) => {
+		// 	console.error("STOMP WebSocket Error", error);
+		// };
+		// client.onStompError = async (error: any) => {
+		// 	console.error("STOMP Error", error);
+		// };
 		client.activate();
 
 		window.addEventListener("beforeunload", () => {

@@ -133,17 +133,17 @@ export abstract class JanusParticipant extends EventTarget {
 				}));
 				break;
 
-			// case "disconnected":
-			// 	this.dispatchEvent(Utils.createEvent("janus-participant-connection-disconnected", {
-			// 		participant: this
-			// 	}));
-			// 	break;
+			case "disconnected":
+				this.dispatchEvent(Utils.createEvent("janus-participant-connection-disconnected", {
+					participant: this
+				}));
+				break;
 
-			// case "failed":
-			// 	this.dispatchEvent(Utils.createEvent("janus-participant-connection-failure", {
-			// 		participant: this
-			// 	}));
-			// 	break;
+			case "failed":
+				this.dispatchEvent(Utils.createEvent("janus-participant-connection-failure", {
+					participant: this
+				}));
+				break;
 		}
 
 		this.iceConnectionState = state;
