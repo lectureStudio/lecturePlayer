@@ -69,7 +69,8 @@ export const participantViewStyles = css`
 		color: #DC2626;
 	}
 
-	:host(:not([hasVideo])) {
+	:host(:not([hasVideo])),
+	:host(:not([state="1"])) {
 		display: none;
 	}
 

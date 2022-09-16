@@ -9,6 +9,9 @@ import { SlideView } from '../slide-view/slide-view';
 import { PlayerViewController } from './player-view.controller';
 import { playerViewStyles } from './player-view.styles';
 import { course } from '../../model/course';
+import { ScreenView } from '../screen-view/screen-view';
+import { SlideLayout } from '../../model/slide-layout';
+import { State } from '../../utils/state';
 import Split from 'split.js'
 
 @customElement('player-view')
@@ -25,6 +28,8 @@ export class PlayerView extends I18nLitElement {
 
 	private splitSizes: number[];
 
+	private slideLayout: SlideLayout = SlideLayout.Card;
+
 	@property()
 	privilegeService: PrivilegeService;
 
@@ -37,11 +42,17 @@ export class PlayerView extends I18nLitElement {
 	@property({ type: Boolean, reflect: true })
 	participantsVisible: boolean = true;
 
+	@property({ type: Boolean, reflect: true })
+	screenVisible: boolean = false;
+
 	@query("player-controls")
 	controls: PlayerControls;
 
 	@query(".video-feeds")
 	videoFeedContainer: HTMLElement;
+
+	@query("screen-view")
+	screenView: ScreenView;
 
 
 	getController(): PlayerViewController {
@@ -53,6 +64,8 @@ export class PlayerView extends I18nLitElement {
 	}
 
 	addParticipant(view: ParticipantView) {
+		view.addEventListener("participant-state", this.onParticipantState.bind(this));
+		view.addEventListener("participant-screen-stream", this.onParticipantScreenStream.bind(this));
 		view.setVolume(this.controls.volume);
 
 		this.videoFeedContainer.appendChild(view);
@@ -64,11 +77,23 @@ export class PlayerView extends I18nLitElement {
 		}
 	}
 
+	addParticipantScreen(video: HTMLVideoElement) {
+		this.screenView.addVideo(video);
+	}
+
+	removeParticipantScreen() {
+		this.screenView.removeVideo();
+	}
+
 	override connectedCallback() {
 		super.connectedCallback()
 
 		course.addEventListener("course-user-privileges", () => {
 			this.participantsVisible = this.privilegeService.canViewParticipants();
+		});
+
+		this.addEventListener("screen-view-video", (event: CustomEvent) => {
+			this.screenVisible = event.detail.hasVideo;
 		});
 	}
 
@@ -149,7 +174,8 @@ export class PlayerView extends I18nLitElement {
 				</div>
 				<div class="center-container">
 					<div class="slide-container">
-						<slide-view></slide-view>
+						<slide-view class="slides"></slide-view>
+						<screen-view></screen-view>
 					</div>
 					<div class="controls-container">
 						<player-controls .chatVisible="${this.chatVisible}" .participantsVisible="${this.participantsVisible}" .privilegeService="${this.privilegeService}"></player-controls>
@@ -166,5 +192,20 @@ export class PlayerView extends I18nLitElement {
 				</div>
 			</div>
 		`;
+	}
+
+	private onParticipantState(event: CustomEvent) {
+		this.screenView.setState(event.detail.state);
+	}
+
+	private onParticipantScreenStream(event: CustomEvent) {
+		const state: State = event.detail.state;
+
+		if (state === State.CONNECTED) {
+			this.addParticipantScreen(event.detail.video);
+		}
+		else if (state === State.DISCONNECTED) {
+			this.removeParticipantScreen();
+		}
 	}
 }

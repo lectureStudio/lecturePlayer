@@ -75,6 +75,9 @@ export const playerViewStyles = css`
 	:host(:not([participantsVisible])) .left-container {
 		display: none;
 	}
+	:host([screenVisible]) slide-view {
+		display: none !important;
+	}
 
 
 	@media (min-width: 576px) {

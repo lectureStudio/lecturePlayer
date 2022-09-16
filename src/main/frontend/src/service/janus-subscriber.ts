@@ -11,6 +11,8 @@ export class JanusSubscriber extends JanusParticipant {
 
 	private readonly opaqueId: string;
 
+	private readonly streamIds: Map<string, string>;
+
 	isPrimary = false;
 
 
@@ -20,6 +22,7 @@ export class JanusSubscriber extends JanusParticipant {
 		this.publisherId = publisherId;
 		this.roomId = roomId;
 		this.opaqueId = opaqueId;
+		this.streamIds = new Map();
 	}
 
 	override connect() {
@@ -48,7 +51,9 @@ export class JanusSubscriber extends JanusParticipant {
 			request: "join",
 			ptype: "subscriber",
 			room: this.roomId,
-			feed: this.publisherId
+			streams: [{
+				feed: this.publisherId
+			}]
 		};
 
 		this.handle.send({ message: subscribe });
@@ -65,9 +70,29 @@ export class JanusSubscriber extends JanusParticipant {
 		if (event) {
 			if (event === "attached") {
 				// Subscriber created and attached.
-				Janus.log("Successfully attached to feed " + message["id"] + " (" + message["display"] + ") in room " + message["room"]);
+				const streams = message["streams"];
+
+				if (streams) {
+					for (const stream of streams) {
+						const mid: string = stream["mid"];
+						const description: string = stream["feed_description"];
+
+						if (mid && description) {
+							this.streamIds.set(mid, description);
+
+							console.log("stream", mid, description);
+						}
+					}
+				}
 
 				this.setState(State.CONNECTING);
+			}
+			if (event === "event") {
+				const started = message.started;
+
+				if (started === "ok") {
+					this.setState(State.CONNECTED);
+				}
 			}
 		}
 
@@ -82,16 +107,6 @@ export class JanusSubscriber extends JanusParticipant {
 			return;
 		}
 
-		this.handle.webrtcStuff.remoteStream.addEventListener('removetrack', (event) => {
-			// This event listener is faster than the default one.
-			if (event.track.kind === "audio") {
-				this.view.removeAudio();
-			}
-			else if (event.track.kind === "video") {
-				this.view.removeVideo();
-			}
-		});
-
 		this.addTrack(mid, track);
 	}
 
@@ -103,9 +118,19 @@ export class JanusSubscriber extends JanusParticipant {
 	}
 
 	private createAnswer(jsep: JSEP, wantData: boolean) {
+		const media = [];
+
+		if (wantData) {
+			// We only specify data channels here, as this way in
+			// case they were offered we'll enable them. Since we
+			// don't mention audio or video tracks, we autoaccept them
+			// as recvonly (since we won't capture anything ourselves).
+			media.push({ type: 'data' });
+		}
+
 		this.handle.createAnswer({
 			jsep: jsep,
-			media: { audioSend: false, videoSend: false, data: wantData },	// We want recvonly audio/video.
+			tracks: media,
 			success: (jsep: JSEP) => {
 				const body = {
 					request: "start",
@@ -126,22 +151,20 @@ export class JanusSubscriber extends JanusParticipant {
 			return;
 		}
 
+		// Create new audio/video stream.
 		let mediaElement = null;
 
 		if (track.kind === "audio") {
 			mediaElement = document.createElement("audio");
 			mediaElement.autoplay = true;
-
-			this.view.addAudio(mediaElement);
 		}
 		else if (track.kind === "video") {
 			mediaElement = document.createElement("video");
 			mediaElement.playsInline = true;
 			mediaElement.autoplay = true;
-
-			this.view.addVideo(mediaElement);
 		}
 
+		// Wire the stream to the media element.
 		const stream = new MediaStream();
 		stream.addTrack(track.clone());
 
@@ -151,6 +174,19 @@ export class JanusSubscriber extends JanusParticipant {
 
 		if (this.deviceConstraints) {
 			this.setAudioSink(mediaElement, this.deviceConstraints.audioOutput);
+		}
+
+		// Attach the stream to the view.
+		if (track.kind === "audio") {
+			this.view.addAudio(mediaElement);
+		}
+		else if (track.kind === "video") {
+			if (this.isScreenTrack(mid)) {
+				this.view.addScreenVideo(mediaElement as HTMLVideoElement);
+			}
+			else {
+				this.view.addVideo(mediaElement as HTMLVideoElement);
+			}
 		}
 	}
 
@@ -169,11 +205,22 @@ export class JanusSubscriber extends JanusParticipant {
 
 		this.streams.delete(mid);
 
+		// Remove media stream from the view.
 		if (kind === "audio") {
 			this.view.removeAudio();
 		}
 		else if (kind === "video") {
-			this.view.removeVideo();
+			if (this.isScreenTrack(mid)) {
+				this.view.removeScreenVideo();
+			}
+			else {
+				this.view.removeVideo();
+			}
 		}
+	}
+
+	private isScreenTrack(mid: string): boolean {
+		const streamDescription = this.streamIds.get(mid);
+		return streamDescription && streamDescription === "screen";
 	}
 }

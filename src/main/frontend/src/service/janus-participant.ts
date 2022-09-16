@@ -85,7 +85,9 @@ export abstract class JanusParticipant extends EventTarget {
 	protected onWebRtcState(isConnected: boolean) {
 		Janus.log("Janus says our WebRTC PeerConnection is " + (isConnected ? "up" : "down") + " now");
 
-		this.setState(isConnected ? State.CONNECTED : State.DISCONNECTED);
+		if (!isConnected) {
+			this.setState(State.DISCONNECTED);
+		}
 	}
 
 	protected onSlowLink(uplink: boolean, lost: number, mid: string) {
@@ -167,6 +169,7 @@ export abstract class JanusParticipant extends EventTarget {
 		}
 
 		this.state = state;
+		this.view.setState(state);
 
 		this.dispatchEvent(Utils.createEvent("janus-participant-state", {
 			participant: this,

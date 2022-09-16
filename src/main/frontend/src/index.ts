@@ -13,6 +13,7 @@ import './component/participants-box/participants-box';
 import './component/quiz-box/quiz-box';
 import './component/quiz-form/quiz-form';
 import './component/modal/modal';
+import './component/screen-view/screen-view';
 import './component/toast/toast';
 import './component/tooltip/tooltip';
 

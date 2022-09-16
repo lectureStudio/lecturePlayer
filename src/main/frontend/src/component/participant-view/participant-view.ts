@@ -1,5 +1,6 @@
 import { html } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
+import { State } from "../../utils/state";
 import { Utils } from "../../utils/utils";
 import { I18nLitElement } from "../i18n-mixin";
 import { participantViewStyles } from "./participant-view.styles";
@@ -11,6 +12,9 @@ export class ParticipantView extends I18nLitElement {
 		I18nLitElement.styles,
 		participantViewStyles
 	];
+
+	@property({ type: State, reflect: true })
+	private state: State = State.DISCONNECTED;
 
 	@property()
 	name: string;
@@ -36,6 +40,8 @@ export class ParticipantView extends I18nLitElement {
 	@query("video")
 	video: HTMLVideoElement;
 
+	screenVideo: HTMLVideoElement;
+
 	volume: number;
 
 
@@ -44,6 +50,15 @@ export class ParticipantView extends I18nLitElement {
 
 		document.addEventListener("player-volume", this.onAudioVolume.bind(this));
 		document.addEventListener("player-start-media", this.onStartMediaPlayback.bind(this));
+	}
+
+	setState(state: State) {
+		this.state = state;
+
+		this.dispatchEvent(Utils.createEvent("participant-state", {
+			participant: this,
+			state: state
+		}));
 	}
 
 	addAudio(audio: HTMLAudioElement) {
@@ -58,8 +73,23 @@ export class ParticipantView extends I18nLitElement {
 	}
 
 	addVideo(video: HTMLVideoElement) {
+		const stream = video.srcObject as MediaStream;
+		const tracks = stream.getVideoTracks();
+
+		if (stream.getVideoTracks().length > 0) {
+			const track = tracks[0];
+
+			track.addEventListener("mute", (e) => {
+				this.hasVideo = false;
+			});
+			track.addEventListener("unmute", (e) => {
+				this.hasVideo = !track.muted && this.state === State.CONNECTED;
+			});
+
+			this.hasVideo = !track.muted && this.state === State.CONNECTED;
+		}
+
 		this.container.appendChild(video);
-		this.hasVideo = true;
 
 		video.play()
 			.catch(error => {
@@ -69,9 +99,28 @@ export class ParticipantView extends I18nLitElement {
 			});
 	}
 
+	addScreenVideo(video: HTMLVideoElement) {
+		this.screenVideo = video;
+
+		this.dispatchEvent(Utils.createEvent("participant-screen-stream", {
+			participant: this,
+			state: State.CONNECTED,
+			video: video,
+		}));
+	}
+
 	removeVideo() {
 		this.removeMedia("video");
 		this.hasVideo = false;
+	}
+
+	removeScreenVideo() {
+		this.screenVideo = null;
+
+		this.dispatchEvent(Utils.createEvent("participant-screen-stream", {
+			participant: this,
+			state: State.DISCONNECTED,
+		}));
 	}
 
 	setVolume(volume: number) {

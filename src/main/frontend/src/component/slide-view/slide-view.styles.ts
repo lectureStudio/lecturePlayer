@@ -11,7 +11,7 @@ export const slideViewStyles = css`
 		position: relative;
 		text-align: center;
 		box-sizing: border-box;
-		display: flex !important;
+		display: flex;
 		align-items: center !important;
 		justify-content: center !important;
 	}
