@@ -134,7 +134,7 @@ export class PlayerController implements ReactiveController {
 		this.host.state = state;
 
 		if (this.host.state !== State.RECONNECTING) {
-			this.closeAndDeleteModal(ReconnectModal.name);
+			this.closeAndDeleteModal("ReconnectModal");
 		}
 
 		switch (state) {
@@ -195,7 +195,7 @@ export class PlayerController implements ReactiveController {
 				this.getDocuments(courseState.documentMap)
 					.then(documents => {
 						if (courseState.activeDocument) {
-							this.registerModal(RecordedModal.name, new RecordedModal(), false, false);
+							this.registerModal("RecordedModal", new RecordedModal(), false, false);
 
 							this.playbackService.initialize(this.viewController.host, documents);
 
@@ -206,7 +206,7 @@ export class PlayerController implements ReactiveController {
 							this.janusService.connect();
 
 							if (courseState.recorded) {
-								this.openModal(RecordedModal.name);
+								this.openModal("RecordedModal");
 							}
 
 							this.updateCourseState();
@@ -259,7 +259,7 @@ export class PlayerController implements ReactiveController {
 			this.setConnectionState(State.DISCONNECTED);
 		});
 
-		this.registerModal(ReconnectModal.name, reconnectModal);
+		this.registerModal("ReconnectModal", reconnectModal);
 	}
 
 	private getDocument(stateDoc: CourseStateDocument): Promise<SlideDocument> {
@@ -325,7 +325,7 @@ export class PlayerController implements ReactiveController {
 	private onSettings() {
 		const settingsModal = new SettingsModal();
 
-		this.registerModal(SettingsModal.name, settingsModal);
+		this.registerModal("SettingsModal", settingsModal);
 	}
 
 	private onHandAction(event: CustomEvent) {
@@ -346,7 +346,7 @@ export class PlayerController implements ReactiveController {
 		quizModal.courseId = course.courseId;
 		quizModal.feature = course.quizFeature;
 
-		this.registerModal(QuizModal.name, quizModal);
+		this.registerModal("QuizModal", quizModal);
 	}
 
 	private onChatVisibility() {
@@ -355,7 +355,7 @@ export class PlayerController implements ReactiveController {
 			chatModal.messageService = this.messageService;
 			chatModal.privilegeService = this.privilegeService;
 
-			this.registerModal(ChatModal.name, chatModal);
+			this.registerModal("ChatModal", chatModal);
 		}
 	}
 
@@ -364,7 +364,7 @@ export class PlayerController implements ReactiveController {
 			const participantsModal = new ParticipantsModal();
 			participantsModal.privilegeService = this.privilegeService;
 
-			this.registerModal(ParticipantsModal.name, participantsModal);
+			this.registerModal("ParticipantsModal", participantsModal);
 		}
 	}
 
@@ -422,7 +422,7 @@ export class PlayerController implements ReactiveController {
 			this.fetchState();
 		}
 		else {
-			this.closeAndDeleteModal(ChatModal.name);
+			this.closeAndDeleteModal("ChatModal");
 
 			chatHistory.clear();
 		}
@@ -438,7 +438,7 @@ export class PlayerController implements ReactiveController {
 		}
 
 		if (!state.started) {
-			this.closeAndDeleteModal(QuizModal.name);
+			this.closeAndDeleteModal("QuizModal");
 		}
 
 		course.quizFeature = state.started ? state.feature : null;
@@ -455,10 +455,10 @@ export class PlayerController implements ReactiveController {
 		}
 
 		if (started) {
-			this.openModal(RecordedModal.name);
+			this.openModal("RecordedModal");
 		}
 		else {
-			this.closeModal(RecordedModal.name);
+			this.closeModal("RecordedModal");
 		}
 	}
 
@@ -626,7 +626,7 @@ export class PlayerController implements ReactiveController {
 				this.janusService.startSpeech(speechConstraints);
 			});
 
-			this.registerModal(SpeechAcceptedModal.name, speechModal);
+			this.registerModal("SpeechAcceptedModal", speechModal);
 		}
 		else {
 			// Speech has been aborted by the remote peer.
@@ -644,16 +644,20 @@ export class PlayerController implements ReactiveController {
 			this.sendSpeechRequest();
 		});
 
-		this.registerModal(SettingsModal.name, settingsModal);
+		this.registerModal("SettingsModal", settingsModal);
 	}
 
 	private onMediaPlayError() {
+		if (this.modals.has("EntryModal")) {
+			return;
+		}
+
 		const entryModal = new EntryModal();
 		entryModal.addEventListener("modal-closed", () => {
 			this.host.dispatchEvent(Utils.createEvent("player-start-media"));
 		});
 
-		this.registerModal(EntryModal.name, entryModal);
+		this.registerModal("EntryModal", entryModal);
 	}
 
 	private registerModal(name: string, modal: Modal, autoRemove: boolean = true, open: boolean = true) {
