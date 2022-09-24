@@ -2,6 +2,9 @@ import { Janus, JSEP, PluginHandle } from "janus-gateway";
 import { JanusParticipant } from "./janus-participant";
 import { Utils } from "../utils/utils";
 import { State } from "../utils/state";
+import { ProgressiveDataView } from "../action/parser/progressive-data-view";
+import { StreamActionParser } from "../action/parser/stream.action.parser";
+import { StreamMediaChangeAction } from "../action/stream.media.change.action";
 
 export class JanusSubscriber extends JanusParticipant {
 
@@ -111,10 +114,32 @@ export class JanusSubscriber extends JanusParticipant {
 	}
 
 	private onData(data: ArrayBuffer | Blob) {
+		if (data instanceof Blob) {
+			// Firefox...
+			data.arrayBuffer().then(buffer => {
+				this.processData(buffer);
+			});
+		}
+		else {
+			this.processData(data);
+		}
+
 		this.dispatchEvent(Utils.createEvent("janus-participant-data", {
 			participant: this,
 			data: data
 		}));
+	}
+
+	private processData(data: ArrayBuffer) {
+		const dataView = new ProgressiveDataView(data);
+		const length = dataView.getInt32();
+		const type = dataView.getInt8();
+
+		const action = StreamActionParser.parse(dataView, type, length);
+
+		if (action instanceof StreamMediaChangeAction) {
+			this.view.setMediaChange(action.type, action.enabled);
+		}
 	}
 
 	private createAnswer(jsep: JSEP, wantData: boolean) {

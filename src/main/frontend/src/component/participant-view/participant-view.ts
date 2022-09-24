@@ -1,5 +1,6 @@
 import { html } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
+import { MediaType } from "../../model/media-type";
 import { State } from "../../utils/state";
 import { Utils } from "../../utils/utils";
 import { I18nLitElement } from "../i18n-mixin";
@@ -121,6 +122,22 @@ export class ParticipantView extends I18nLitElement {
 			participant: this,
 			state: State.DISCONNECTED,
 		}));
+	}
+
+	setMediaChange(type: MediaType, active: boolean) {
+		if (type === MediaType.Audio) {
+			this.micMute = !active;
+		}
+		else if (type === MediaType.Camera) {
+			this.camMute = !active;
+			this.hasVideo = active;
+		}
+		else if (type === MediaType.Screen) {
+			this.dispatchEvent(Utils.createEvent("participant-screen-stream", {
+				participant: this,
+				state: active ? State.CONNECTED : State.DISCONNECTED,
+			}));
+		}
 	}
 
 	setVolume(volume: number) {

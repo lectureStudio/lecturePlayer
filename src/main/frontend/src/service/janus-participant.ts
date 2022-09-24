@@ -18,6 +18,8 @@ export abstract class JanusParticipant extends EventTarget {
 
 	protected streams: Map<string, MediaStream>;
 
+	private iceConnectionState: RTCIceConnectionState;
+
 
 	constructor(janus: Janus) {
 		super();
@@ -102,8 +104,6 @@ export abstract class JanusParticipant extends EventTarget {
 			participant: this
 		}));
 	}
-
-	iceConnectionState: RTCIceConnectionState;
 
 	protected onIceState(state: "connected" | "failed" | "disconnected" | "closed") {
 		Janus.log("ICE state changed to " + state);

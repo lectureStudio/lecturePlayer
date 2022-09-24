@@ -10,6 +10,9 @@ export enum MediaType {
 	Camera = "Camera",
 
 	/** Messenger events (text and quiz) stream. */
-	Messenger = "Messenger"
+	Messenger = "Messenger",
+
+	/** Shared screen and window stream. */
+	Screen = "Screen"
 
 }

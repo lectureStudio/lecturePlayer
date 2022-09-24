@@ -33,6 +33,15 @@ export class ScreenView extends I18nLitElement {
 	}
 
 	addVideo(video: HTMLVideoElement) {
+		if (!video) {
+			if (Utils.isFirefox()) {
+				// Firefox does not remove/close the media stream. The stream starts playing again,
+				// if the remote peer starts sharing media.
+				this.setHasVideo(true);
+			}
+			return;
+		}
+
 		const stream = video.srcObject as MediaStream;
 		const tracks = stream.getVideoTracks();
 
@@ -60,7 +69,13 @@ export class ScreenView extends I18nLitElement {
 	}
 
 	removeVideo() {
-		this.removeMedia("video");
+		if (!Utils.isFirefox()) {
+			// Firefox does not remove/close the media stream. The stream starts playing again,
+			// if the remote peer starts sharing media. Other browsers do.
+			// Thus do not remove the video element.
+			this.removeMedia("video");
+		}
+
 		this.setHasVideo(false);
 	}
 

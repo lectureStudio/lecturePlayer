@@ -1,5 +1,9 @@
 export class Utils {
 
+	static isFirefox() {
+		return navigator.userAgent.indexOf("Firefox") != -1;
+	}
+
 	static isObject(item: any) {
 		return (item && typeof item === 'object' && !Array.isArray(item));
 	}
