@@ -106,7 +106,7 @@ export class PlayerView extends I18nLitElement {
 		];
 
 		// Minimum sizes in percent.
-		const minSizes = [10, 50, 10];
+		const minSizes = [0, 50, 0];
 
 		const splitOptions: Split.Options = {
 			sizes: [13, 72, 15],
@@ -126,7 +126,7 @@ export class PlayerView extends I18nLitElement {
 			onDragEnd: (sizes) => {
 				// Minsize for the left pane.
 				if (sizes[0] < minSizes[0]) {
-					sizes[0] = minSizes[0];
+					sizes[0] = this.participantsVisible ? minSizes[0] : 0;
 				}
 				// Minsize for the right pane.
 				if (sizes[2] < minSizes[2]) {
@@ -148,14 +148,17 @@ export class PlayerView extends I18nLitElement {
 			if (!this.participantsVisible) {
 				// Save pane sizes and collapse the participant pane.
 				this.splitSizes = this.split.getSizes();
+
 				this.split.collapse(0);
+				this.split.setSizes([0, this.splitSizes[0] + this.splitSizes[1], this.splitSizes[2]]);
 			}
 			else {
 				// Restore pane sizes.
 				if (this.splitSizes) {
-					// Except the right pane. Set the current size.
-					// this.splitSizes[2] = this.split.getSizes()[2];
-					this.split.setSizes(this.splitSizes);
+					const sizes = this.split.getSizes();
+					// Center pane size = current size - previous left pane size.
+					this.split.setSizes([this.splitSizes[0], sizes[1] + sizes[0] - this.splitSizes[0], sizes[2]]);
+
 					this.splitSizes = null;
 				}
 			}
