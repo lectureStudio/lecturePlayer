@@ -1,14 +1,11 @@
 import { ActionExecutor } from "./action-executor";
-import { ExecutableBase } from "../utils/executable-base";
 
-abstract class ActionPlayer extends ExecutableBase {
+export abstract class ActionPlayer {
 
 	protected readonly executor: ActionExecutor;
 
 
 	constructor(executor: ActionExecutor) {
-		super();
-
 		this.executor = executor;
 	}
 
@@ -21,5 +18,3 @@ abstract class ActionPlayer extends ExecutableBase {
 	protected abstract executeActions(): void;
 
 }
-
-export { ActionPlayer };

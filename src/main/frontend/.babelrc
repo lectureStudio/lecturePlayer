@@ -1,24 +1,32 @@
 {
+	"assumptions": {
+		"setPublicClassFields": true
+	},
 	"presets": [
 		[
 			"@babel/env",
 			{
-				"debug": true
+				"debug": true,
+				"targets": {
+					"esmodules": true
+				},
+				"modules": false,
+				"useBuiltIns": false
 			}
 		],
 		"@babel/typescript"
 	],
 	"plugins": [
+
 		[
 			"@babel/proposal-decorators",
 			{
-				"legacy": true
+				"decoratorsBeforeExport": true
 			}
 		],
 		[
 			"@babel/proposal-class-properties",
 			{
-
 			}
 		],
 		"@babel/proposal-object-rest-spread",

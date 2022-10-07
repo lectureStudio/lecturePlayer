@@ -6,7 +6,7 @@ import { SizeEvent } from "../event/size-event";
 import { TypedEvent, Listener, Disposable } from "../utils/event-listener";
 import { Transform } from "../geometry/transform";
 
-class RenderSurface {
+export class RenderSurface {
 
 	protected readonly parent: HTMLElement;
 
@@ -20,7 +20,7 @@ class RenderSurface {
 
 	private readonly transform: Transform;
 
-	private size: Dimension;
+	private size: Dimension = new Dimension(0, 0);
 
 
 	constructor(parent: HTMLElement, canvas: HTMLCanvasElement) {
@@ -35,8 +35,8 @@ class RenderSurface {
 		this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	}
 
-	registerRenderer(shapeName: String, render: ShapeRenderer): void {
-		this.renderers.set(shapeName, render);
+	registerRenderer(shape: Shape, render: ShapeRenderer): void {
+		this.renderers.set(shape.getShapeType(), render);
 	}
 
 	renderImageSource(canvas: CanvasImageSource): void {
@@ -58,7 +58,7 @@ class RenderSurface {
 	}
 
 	renderShape(shape: Shape, dirtyRegion: Rectangle): void {
-		const renderer = this.renderers.get(shape.constructor.name);
+		const renderer = this.renderers.get(shape.getShapeType());
 
 		if (renderer) {
 			const s = this.canvas.width * this.transform.getScaleX();
@@ -86,8 +86,13 @@ class RenderSurface {
 
 		// HiDPI handling
 		const dpr = window.devicePixelRatio || 1;
+		const newSize = new Dimension(width * dpr, height * dpr);
 
-		this.size = new Dimension(width * dpr, height * dpr);
+		if (newSize.equals(this.size)) {
+			return;
+		}
+
+		this.size = newSize;
 
 		this.resizeCanvas(width, height, dpr);
 		this.fireSizeEvent(new SizeEvent(this.size));
@@ -122,8 +127,8 @@ class RenderSurface {
 		return this.sizeEvent.subscribe(listener);
 	}
 
-	removeSizeListener(listener: Listener<SizeEvent>): void {
-		this.sizeEvent.unsubscribe(listener);
+	removeSizeListeners(): void {
+		this.sizeEvent.unsubscribeAll();
 	}
 
 	protected fireSizeEvent(event: SizeEvent): void {
@@ -142,5 +147,3 @@ class RenderSurface {
 		this.canvas.style.height = height + "px";
 	}
 }
-
-export { RenderSurface };

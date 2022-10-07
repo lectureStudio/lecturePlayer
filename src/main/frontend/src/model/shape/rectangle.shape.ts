@@ -3,7 +3,7 @@ import { Rectangle } from "../../geometry/rectangle";
 import { Point } from "../../geometry/point";
 import { Line } from "../../geometry/line";
 
-class RectangleShape extends FormShape {
+export class RectangleShape extends FormShape {
 
 	contains(point: Point): boolean {
 		// Handle simple cases.
@@ -73,6 +73,10 @@ class RectangleShape extends FormShape {
 		return shape;
 	}
 
+	public getShapeType(): string {
+		return "rectangle";
+	}
+
 	private intersectsSegment(delta: number, x1: number, y1: number, x2: number, y2: number, p: Point): boolean {
 		let x3 = p.x + delta;
 		let y3 = p.y + delta;
@@ -95,5 +99,3 @@ class RectangleShape extends FormShape {
 		return false;
 	}
 }
-
-export { RectangleShape };

@@ -1,11 +1,12 @@
 import { FormShape } from "./form.shape";
 
-class SelectShape extends FormShape {
+export class SelectShape extends FormShape {
 
 	constructor() {
 		super(0, null);
 	}
 
+	public getShapeType(): string {
+		return "select";
+	}
 }
-
-export { SelectShape };

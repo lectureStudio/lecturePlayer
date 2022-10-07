@@ -9,21 +9,25 @@
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
 		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true,
+		"emitDecoratorMetadata": false,
+		"useDefineForClassFields": false,
 		"strictBindCallApply": true,
 		"moduleResolution": "node",
 		"module": "es6",
 		"target": "es5",
 		"lib": [
 			"dom",
+			"dom.iterable",
 			"es5",
 			"es6",
 			"es2015",
 			"es2015.collection",
-			"es2015.iterable"
+			"es2015.iterable",
+			"es2019"
 		],
 		"typeRoots": [
-			"node_modules/@types"
+			"node_modules/@types",
+			"./src/types"
 		]
 	}
 }

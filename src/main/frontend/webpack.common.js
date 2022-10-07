@@ -15,7 +15,7 @@ module.exports = {
 		// janus.js does not use 'import' to access to the functionality of webrtc-adapter,
 		// instead it expects a global object called 'adapter' for that.
 		// Let's make that object available.
-		new webpack.ProvidePlugin({ adapter: ['webrtc-adapter', 'default'] })
+		new webpack.ProvidePlugin({ adapter: ['webrtc-adapter', 'default'] }),
 	],
 	output: {
 		path: path.resolve(__dirname, '../resources/web-player-js'),
@@ -38,39 +38,28 @@ module.exports = {
 					exports: 'Janus',
 				},
 			},
-			// Process component templates
 			{
-				test: /\.html$/,
-				type: 'asset/source',
-				exclude: [
-					path.resolve(__dirname, './src/index.html')
-				]
+				test: /\.css$/,
+				loader: 'lit-css-loader',
+				options: {
+					specifier: 'lit' // defaults to `lit`
+				}
 			},
 			{
-				test: /\.(s?)css$/,
-				type: 'asset/source',
-				exclude: [
-					path.resolve(__dirname, './src/style.css'),
-					path.resolve(__dirname, './src/icons.css'),
-					path.resolve(__dirname, './src/tooltip.css')
-				]
-			},
-			{
-				test: /\.(woff|woff2|eot|ttf|otf)$/i,
-				type: 'asset/inline',
-			},
-			// Process the global stylesheet
-			{
-				test: /\.(s?)css$/,
+				test: /\.scss$/,
+				exclude: /node_modules/,
 				use: [
-					'style-loader',
-					'css-loader',
-					'postcss-loader'
-				],
-				exclude: [
-					/node_modules/,
-					path.resolve(__dirname, "src/view"),
-					path.resolve(__dirname, "src/component")
+					{
+						loader: "lit-css-loader"
+					},
+					{
+						loader: "sass-loader",
+						options: {
+							sassOptions: {
+								outputStyle: "compressed"
+							},
+						},
+					}
 				],
 			},
 			{
@@ -85,8 +74,14 @@ module.exports = {
 				exclude: /node_modules/,
 				use: [
 					'babel-loader',
-					'angular2-template-loader',
 				]
+			},
+			{
+				test: /locales/,
+				loader: '@alienfast/i18next-loader',
+				options: {
+					basenameAsNamespace: true
+				}
 			}
 		]
 	}

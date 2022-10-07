@@ -3,7 +3,7 @@ import { Point } from "../../geometry/point";
 import { Ellipse } from "../../geometry/ellipse";
 import { Rectangle } from "../../geometry/rectangle";
 
-class EllipseShape extends FormShape {
+export class EllipseShape extends FormShape {
 
 	contains(point: Point): boolean {
 		if (this.points.length < 2) {
@@ -41,6 +41,8 @@ class EllipseShape extends FormShape {
 
 		return shape;
 	}
-}
 
-export { EllipseShape };
+	public getShapeType(): string {
+		return "ellipse";
+	}
+}

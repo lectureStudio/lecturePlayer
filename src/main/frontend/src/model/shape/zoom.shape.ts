@@ -1,9 +1,13 @@
 import { FormShape } from "./form.shape";
 
-class ZoomShape extends FormShape {
+export class ZoomShape extends FormShape {
 
 	constructor() {
 		super(0, null);
+	}
+
+	public getShapeType(): string {
+		return "zoom";
 	}
 
 	protected updateBounds(): void {
@@ -15,7 +19,4 @@ class ZoomShape extends FormShape {
 
 		this.bounds.height = height;
 	}
-
 }
-
-export { ZoomShape };

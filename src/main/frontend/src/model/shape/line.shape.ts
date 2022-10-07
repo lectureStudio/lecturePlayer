@@ -1,6 +1,6 @@
 import { FormShape } from "./form.shape";
 
-class LineShape extends FormShape {
+export class LineShape extends FormShape {
 
 	clone(): LineShape {
 		const shape = new LineShape(this.handle, this.brush.clone());
@@ -15,6 +15,7 @@ class LineShape extends FormShape {
 		return shape;
 	}
 
+	public getShapeType(): string {
+		return "line";
+	}
 }
-
-export { LineShape };

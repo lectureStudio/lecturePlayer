@@ -1,22 +1,40 @@
 import { ActionPlayer } from "./action-player";
 import { ActionExecutor } from "./action-executor";
-import { SyncState } from "../utils/sync-state";
 import { Action } from "./action";
 import { SlideDocument } from "../model/document";
 
-class StreamActionPlayer extends ActionPlayer {
-
-	private readonly syncState: SyncState;
+export class StreamActionPlayer extends ActionPlayer {
 
 	private actions: Action[];
 
 	private requestID: number;
 
 
-	constructor(executor: ActionExecutor, syncState: SyncState) {
+	constructor(executor: ActionExecutor) {
 		super(executor);
+	}
 
-		this.syncState = syncState;
+	start(): void {
+		this.actions = [];
+
+		try {
+			this.run();
+		}
+		catch (e) {
+			console.error(e);
+
+			throw new Error("Execute action failed.");
+		}
+	}
+
+	stop(): void {
+		cancelAnimationFrame(this.requestID);
+
+		this.actions.length = 0;
+	}
+
+	suspend(): void {
+		cancelAnimationFrame(this.requestID);
 	}
 
 	addAction(action: Action): void {
@@ -53,7 +71,6 @@ class StreamActionPlayer extends ActionPlayer {
 		while (actionCount > 0) {
 			// Get next action for execution.
 			const action = this.actions[0];
-			const time = this.syncState.audioTime;
 
 			// if (time >= action.timestamp) {
 				//console.log("action latency: " + (time - action.timestamp));
@@ -76,39 +93,9 @@ class StreamActionPlayer extends ActionPlayer {
 		}
 	}
 
-	protected initInternal(): void {
-		this.actions = [];
-	}
-
-	protected startInternal(): void {
-		try {
-			this.run();
-		}
-		catch (e) {
-			console.error(e);
-
-			throw new Error("Execute action failed.");
-		}
-	}
-
-	protected stopInternal(): void {
-		cancelAnimationFrame(this.requestID);
-	}
-
-	protected suspendInternal(): void {
-		cancelAnimationFrame(this.requestID);
-	}
-
-	protected destroyInternal(): void {
-		this.actions.length = 0;
-	}
-
 	private run() {
 		this.executeActions();
 
 		this.requestID = requestAnimationFrame(this.run.bind(this));
 	}
-
 }
-
-export { StreamActionPlayer };

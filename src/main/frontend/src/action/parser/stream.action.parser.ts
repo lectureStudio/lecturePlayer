@@ -14,49 +14,40 @@ import { StreamSpeechPublishedAction } from "../stream.speech.published.action";
 import { ActionParser } from "./action.parser";
 import { ProgressiveDataView } from "./progressive-data-view";
 import { RecordedPageParser } from "./recorded-page.parser";
+import { StreamMediaChangeAction } from "../stream.media.change.action";
+import { MediaType } from "../../model/media-type";
 
 export class StreamActionParser {
 
 	static parse(dataView: ProgressiveDataView, type: StreamActionType, length: number): StreamAction {
-		let action: StreamAction = null;
-
 		switch (type) {
 			case StreamActionType.STREAM_INIT:
-				//action = this.initAction(dataView);
-				break;
+				//return this.initAction(dataView);
 			case StreamActionType.STREAM_START:
-				action = this.startAction(dataView);
-				break;
+				return this.startAction(dataView);
 			case StreamActionType.STREAM_PAGE_ACTION:
-				action = this.playbackAction(dataView);
-				break;
+				return this.playbackAction(dataView);
 			case StreamActionType.STREAM_PAGE_ACTIONS:
-				action = this.playbackActions(dataView);
-				break;
+				return this.playbackActions(dataView);
 			case StreamActionType.STREAM_PAGE_CREATED:
-				action = this.pageAction(dataView, StreamPageCreatedAction);
-				break;
+				return this.pageAction(dataView, StreamPageCreatedAction);
 			case StreamActionType.STREAM_PAGE_DELETED:
-				action = this.pageAction(dataView, StreamPageDeletedAction);
-				break;
+				return this.pageAction(dataView, StreamPageDeletedAction);
 			case StreamActionType.STREAM_PAGE_SELECTED:
-				action = this.pageAction(dataView, StreamPageSelectedAction);
-				break;
+				return this.pageAction(dataView, StreamPageSelectedAction);
 			case StreamActionType.STREAM_DOCUMENT_CREATED:
-				action = this.documentAction(dataView, StreamDocumentCreatedAction);
-				break;
+				return this.documentAction(dataView, StreamDocumentCreatedAction);
 			case StreamActionType.STREAM_DOCUMENT_CLOSED:
-				action = this.documentAction(dataView, StreamDocumentClosedAction);
-				break;
+				return this.documentAction(dataView, StreamDocumentClosedAction);
 			case StreamActionType.STREAM_DOCUMENT_SELECTED:
-				action = this.documentAction(dataView, StreamDocumentSelectedAction);
-				break;
+				return this.documentAction(dataView, StreamDocumentSelectedAction);
 			case StreamActionType.STREAM_SPEECH_PUBLISHED:
-				action = this.speechAction(dataView, StreamSpeechPublishedAction);
-				break;
+				return this.speechAction(dataView, StreamSpeechPublishedAction);
+			case StreamActionType.STREAM_CAMERA_CHANGE:
+			case StreamActionType.STREAM_MICROPHONE_CHANGE:
+			case StreamActionType.STREAM_SCREEN_SHARE_CHANGE:
+				return this.mediaChangeAction(dataView, type);
 		}
-
-		return action;
 	}
 
 	private static startAction(dataView: ProgressiveDataView): StreamStartAction {
@@ -118,5 +109,24 @@ export class StreamActionParser {
 		const publisherId = BigInt(idStr);
 
 		return new type(publisherId);
+	}
+
+	private static mediaChangeAction(dataView: ProgressiveDataView, type: StreamActionType): StreamMediaChangeAction {
+		const enabled = dataView.getInt8() > 0;
+		let mediaType: MediaType;
+
+		switch (type) {
+			case StreamActionType.STREAM_CAMERA_CHANGE:
+				mediaType = MediaType.Camera;
+				break;
+			case StreamActionType.STREAM_MICROPHONE_CHANGE:
+				mediaType = MediaType.Audio;
+				break;
+			case StreamActionType.STREAM_SCREEN_SHARE_CHANGE:
+				mediaType = MediaType.Screen;
+				break;
+		}
+
+		return new StreamMediaChangeAction(mediaType, enabled);
 	}
 }

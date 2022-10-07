@@ -4,9 +4,8 @@ import { SlideDocument } from "../model/document";
 import { PenPoint } from "../geometry/pen-point";
 import { AtomicTool } from "../tool/atomic.tool";
 import { ActionExecutor } from "./action-executor";
-import { Observer } from "../utils/observable";
 
-class SimpleActionExecutor implements ActionExecutor {
+export class SimpleActionExecutor implements ActionExecutor {
 
 	private readonly document: SlideDocument;
 
@@ -22,10 +21,6 @@ class SimpleActionExecutor implements ActionExecutor {
 	constructor(document: SlideDocument) {
 		this.document = document;
 		this.toolContext = new ToolContext(null);
-	}
-
-	setOnSelectPageIndex(observer: Observer<number>): void {
-		
 	}
 
 	setSeek(seek: boolean): void {
@@ -105,5 +100,3 @@ class SimpleActionExecutor implements ActionExecutor {
 		this.previousTool = tool;
 	}
 }
-
-export { SimpleActionExecutor };

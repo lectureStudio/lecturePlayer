@@ -1,12 +1,9 @@
 import { Tool } from "../tool/tool";
 import { AtomicTool } from "../tool/atomic.tool";
 import { PenPoint } from "../geometry/pen-point";
-import { Observer } from "../utils/observable";
 import { SlideDocument } from "../model/document";
 
-interface ActionExecutor {
-
-	setOnSelectPageIndex(observer: Observer<number>): void;
+export interface ActionExecutor {
 
 	setSeek(seek: boolean): void;
 
@@ -29,5 +26,3 @@ interface ActionExecutor {
 	endTool(point: PenPoint): void;
 
 }
-
-export { ActionExecutor };

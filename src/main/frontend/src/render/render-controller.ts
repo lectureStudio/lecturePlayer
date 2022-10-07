@@ -33,10 +33,14 @@ import { LatexShape } from "../model/shape/latex.shape";
 import { LatexRenderer } from "./latex.renderer";
 import { PenShape } from "../model/shape/pen.shape";
 import { PenRenderer } from "./pen.renderer";
+import { Brush } from "../paint/brush";
+import { SlideView } from "../component/slide-view/slide-view";
 
-class RenderController {
+export class RenderController {
 
 	private readonly pageChangeListener: (event: PageEvent) => void;
+
+	private readonly visibilityChangeListener: () => void;
 
 	private slideRenderSurface: SlideRenderSurface;
 
@@ -55,19 +59,19 @@ class RenderController {
 	private seek: boolean = false;
 
 
-	constructor() {
+	constructor(slideView: SlideView) {
 		this.pageChangeListener = this.pageChanged.bind(this);
+		this.visibilityChangeListener = this.visibilityChanged.bind(this);
 		this.lastTransform = new Transform();
 
-		document.addEventListener("visibilitychange", () => {
-			if (document.visibilityState === "visible") {
-				setTimeout(() => {
-					window.dispatchEvent(new Event("resize"));
-	
-					this.renderAllLayers(this.page);
-				}, 100);
-			}
-		});
+		document.addEventListener("visibilitychange", this.visibilityChangeListener);
+
+		this.setActionRenderSurface(slideView.getActionRenderSurface());
+		this.setSlideRenderSurface(slideView.getSlideRenderSurface());
+		this.setVolatileRenderSurface(slideView.getVolatileRenderSurface());
+		this.setTextLayerSurface(slideView.getTextLayerSurface());
+
+		slideView.setRenderController(this);
 	}
 
 	getPage(): Page {
@@ -116,29 +120,6 @@ class RenderController {
 		}
 	}
 
-	setSlideRenderSurface(renderSurface: SlideRenderSurface): void {
-		this.slideRenderSurface = renderSurface;
-		this.slideRenderSurface.registerRenderer(SlideShape.name, new SlideRenderer());
-		this.slideRenderSurface.addSizeListener(this.slideRenderSurfaceSizeChanged.bind(this));
-	}
-
-	setActionRenderSurface(renderSurface: RenderSurface): void {
-		this.actionRenderSurface = renderSurface;
-		this.actionRenderSurface.addSizeListener(this.actionRenderSurfaceSizeChanged.bind(this));
-
-		this.registerShapeRenderers(renderSurface);
-	}
-
-	setVolatileRenderSurface(renderSurface: RenderSurface): void {
-		this.volatileRenderSurface = renderSurface;
-
-		this.registerShapeRenderers(renderSurface);
-	}
-
-	setTextLayerSurface(textLayerSurface: TextLayerSurface): void {
-		this.textLayerSurface = textLayerSurface;
-	}
-
 	beginBulkRender(): void {
 		if (!this.seek) {
 			this.disableRendering();
@@ -150,6 +131,40 @@ class RenderController {
 			this.refreshAnnotationLayers();
 			this.enableRendering();
 		}
+	}
+
+	dispose() {
+		this.slideRenderSurface.removeSizeListeners();
+		this.actionRenderSurface.removeSizeListeners();
+
+		document.removeEventListener("visibilitychange", this.visibilityChangeListener);
+
+		if (this.page) {
+			this.page.removeChangeListener(this.pageChangeListener);
+		}
+	}
+
+	private setSlideRenderSurface(renderSurface: SlideRenderSurface): void {
+		this.slideRenderSurface = renderSurface;
+		this.slideRenderSurface.registerRenderer(new SlideShape(null), new SlideRenderer());
+		this.slideRenderSurface.addSizeListener(this.slideRenderSurfaceSizeChanged.bind(this));
+	}
+
+	private setActionRenderSurface(renderSurface: RenderSurface): void {
+		this.actionRenderSurface = renderSurface;
+		this.actionRenderSurface.addSizeListener(this.actionRenderSurfaceSizeChanged.bind(this));
+
+		this.registerShapeRenderers(renderSurface);
+	}
+
+	private setVolatileRenderSurface(renderSurface: RenderSurface): void {
+		this.volatileRenderSurface = renderSurface;
+
+		this.registerShapeRenderers(renderSurface);
+	}
+
+	private setTextLayerSurface(textLayerSurface: TextLayerSurface): void {
+		this.textLayerSurface = textLayerSurface;
 	}
 
 	private updateSurfaceSize(page: Page): Promise<void> {
@@ -205,6 +220,16 @@ class RenderController {
 			case PageChangeType.ShapeModified:
 				this.renderVolatileLayer(event.shape, event.dirtyRegion);
 				break;
+		}
+	}
+
+	private visibilityChanged(): void {
+		if (document.visibilityState === "visible") {
+			setTimeout(() => {
+				window.dispatchEvent(new Event("resize"));
+
+				this.renderAllLayers(this.page);
+			}, 100);
 		}
 	}
 
@@ -311,19 +336,19 @@ class RenderController {
 	}
 
 	private registerShapeRenderers(renderSurface: RenderSurface): void {
-		renderSurface.registerRenderer(PenShape.name, new PenRenderer());
-		renderSurface.registerRenderer(StrokeShape.name, new HighlighterRenderer());
-		renderSurface.registerRenderer(PointerShape.name, new PointerRenderer());
-		renderSurface.registerRenderer(ArrowShape.name, new ArrowRenderer());
-		renderSurface.registerRenderer(RectangleShape.name, new RectangleRenderer());
-		renderSurface.registerRenderer(LineShape.name, new LineRenderer());
-		renderSurface.registerRenderer(EllipseShape.name, new EllipseRenderer());
-		renderSurface.registerRenderer(SelectShape.name, new SelectRenderer());
-		renderSurface.registerRenderer(TextShape.name, new TextRenderer());
-		renderSurface.registerRenderer(TextHighlightShape.name, new TextHighlightRenderer());
-		renderSurface.registerRenderer(LatexShape.name, new LatexRenderer());
-		renderSurface.registerRenderer(ZoomShape.name, new ZoomRenderer());
+		const brush = new Brush(null, null);
+
+		renderSurface.registerRenderer(new PenShape(null, brush), new PenRenderer());
+		renderSurface.registerRenderer(new StrokeShape(null, brush), new HighlighterRenderer());
+		renderSurface.registerRenderer(new PointerShape(null, brush), new PointerRenderer());
+		renderSurface.registerRenderer(new ArrowShape(null, brush), new ArrowRenderer());
+		renderSurface.registerRenderer(new RectangleShape(null, brush), new RectangleRenderer());
+		renderSurface.registerRenderer(new LineShape(null, brush), new LineRenderer());
+		renderSurface.registerRenderer(new EllipseShape(null, brush), new EllipseRenderer());
+		renderSurface.registerRenderer(new SelectShape(), new SelectRenderer());
+		renderSurface.registerRenderer(new TextShape(null), new TextRenderer());
+		renderSurface.registerRenderer(new TextHighlightShape(null, null), new TextHighlightRenderer());
+		renderSurface.registerRenderer(new LatexShape(null), new LatexRenderer());
+		renderSurface.registerRenderer(new ZoomShape(), new ZoomRenderer());
 	}
 }
-
-export { RenderController };

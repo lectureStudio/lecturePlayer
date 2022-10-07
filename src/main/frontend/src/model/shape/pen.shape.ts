@@ -6,7 +6,7 @@ import { ShapeEvent } from "./shape-event";
 import { Point } from "../../geometry/point";
 import { Rectangle } from "../../geometry/rectangle";
 
-class PenShape extends StrokeShape {
+export class PenShape extends StrokeShape {
 
 	private stroke: PenStroke;
 
@@ -69,6 +69,8 @@ class PenShape extends StrokeShape {
 
 		return shape;
 	}
-}
 
-export { PenShape };
+	public getShapeType(): string {
+		return "pen";
+	}
+}

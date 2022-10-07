@@ -4,10 +4,9 @@ import { ToolContext } from "../tool/tool-context";
 import { SlideDocument } from "../model/document";
 import { PenPoint } from "../geometry/pen-point";
 import { AtomicTool } from "../tool/atomic.tool";
-import { Observer } from "../utils/observable";
 import { RenderController } from "../render/render-controller";
 
-class StreamActionExecutor implements ActionExecutor {
+export class StreamActionExecutor implements ActionExecutor {
 
 	private readonly renderController: RenderController;
 
@@ -19,16 +18,10 @@ class StreamActionExecutor implements ActionExecutor {
 
 	private previousTool: Tool;
 
-	private pageIndexObserver: Observer<number>;
-
 
 	constructor(renderController: RenderController) {
 		this.renderController = renderController;
 		this.toolContext = new ToolContext(renderController);
-	}
-
-	setOnSelectPageIndex(observer: Observer<number>): void {
-		this.pageIndexObserver = observer;
 	}
 
 	setKeyEvent(keyEvent: KeyboardEvent): void {
@@ -48,10 +41,6 @@ class StreamActionExecutor implements ActionExecutor {
 
 		this.toolContext.page = page;
 		this.renderController.setPage(page);
-
-		if (this.pageIndexObserver) {
-			this.pageIndexObserver(pageNumber);
-		}
 	}
 
 	removePageNumber(pageNumber: number): void {
@@ -112,5 +101,3 @@ class StreamActionExecutor implements ActionExecutor {
 		this.previousTool = tool;
 	}
 }
-
-export { StreamActionExecutor };

@@ -1,53 +1,29 @@
 import { Action } from "../action/action";
 import { StreamActionExecutor } from "../action/action.executor";
 import { StreamActionPlayer } from "../action/stream-action-player";
-import { MediaPlayer } from "../media/media-player";
-import { CourseState } from "../model/course-state";
+import { PlayerView } from "../component/player-view/player-view";
 import { SlideDocument } from "../model/document";
-import { PlaybackModel } from "../model/playback-model";
 import { RenderController } from "../render/render-controller";
-import { SyncState } from "../utils/sync-state";
-import { PlayerView } from "../view";
+import { course } from '../model/course';
 
 export class PlaybackService {
 
-	private readonly playbackModel: PlaybackModel;
-
-	private readonly documents: Map<bigint, SlideDocument>;
+	private documents: Map<bigint, SlideDocument>;
 
 	private actionPlayer: StreamActionPlayer;
 
+	private renderController: RenderController;
 
-	constructor(playbackModel: PlaybackModel) {
-		this.playbackModel = playbackModel;
+
+	initialize(playerView: PlayerView, documents: SlideDocument[]) {
 		this.documents = new Map();
-	}
 
-	initialize(playerView: PlayerView, courseState: CourseState, documents: SlideDocument[], startTime: BigInt) {
 		documents.forEach((doc: SlideDocument) => {
 			this.addDocument(doc);
 		});
 
-		const startTimeMs = Number(startTime);
-
-		const slideView = playerView.getSlideView();
-
-		const mediaPlayer = new MediaPlayer(playerView.getMediaElement());
-		mediaPlayer.muted = this.playbackModel.getMuted();
-		mediaPlayer.addTimeListener(() => {
-			playerView.setDuration(Date.now() - startTimeMs);
-		});
-
-		playerView.setOnMute((mute: boolean) => {
-			mediaPlayer.muted = mute;
-		});
-		playerView.setOnVolume((value: number) => {
-			mediaPlayer.muted = false;
-			mediaPlayer.volume = value;
-		});
-
 		// Select active document.
-		const activeStateDoc = courseState.avtiveDocument;
+		const activeStateDoc = course.activeDocument;
 		let activeDoc: SlideDocument = null;
 
 		for (const doc of documents) {
@@ -57,24 +33,23 @@ export class PlaybackService {
 			}
 		}
 
-		const renderController = new RenderController();
-		renderController.setActionRenderSurface(slideView.getActionRenderSurface());
-		renderController.setSlideRenderSurface(slideView.getSlideRenderSurface());
-		renderController.setVolatileRenderSurface(slideView.getVolatileRenderSurface());
-		renderController.setTextLayerSurface(slideView.getTextLayerSurface());
+		this.renderController = new RenderController(playerView.getSlideView());
 
-		slideView.setRenderController(renderController);
-
-		const executor = new StreamActionExecutor(renderController);
+		const executor = new StreamActionExecutor(this.renderController);
 		executor.setDocument(activeDoc);
 		executor.setPageNumber(activeStateDoc.activePage.pageNumber);
 
-		this.actionPlayer = new StreamActionPlayer(executor, new SyncState(mediaPlayer));
+		this.actionPlayer = new StreamActionPlayer(executor);
 		this.actionPlayer.start();
+	}
 
-		this.playbackModel.webrtcConnectedProperty.subscribe(() => {
-			playerView.show();
-		});
+	dispose() {
+		if (this.actionPlayer) {
+			this.actionPlayer.stop();
+		}
+		if (this.renderController) {
+			this.renderController.dispose();
+		}
 	}
 
 	addAction(action: Action): void {
