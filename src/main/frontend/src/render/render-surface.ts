@@ -10,8 +10,6 @@ export class RenderSurface {
 
 	protected readonly parent: HTMLElement;
 
-	protected readonly parent: HTMLElement;
-
 	protected readonly canvas: HTMLCanvasElement;
 
 	protected readonly canvasContext: CanvasRenderingContext2D;
