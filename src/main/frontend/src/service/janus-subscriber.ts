@@ -182,6 +182,7 @@ export class JanusSubscriber extends JanusParticipant {
 		if (track.kind === "audio") {
 			mediaElement = document.createElement("audio");
 			mediaElement.autoplay = true;
+			mediaElement.muted = false;
 		}
 		else if (track.kind === "video") {
 			mediaElement = document.createElement("video");

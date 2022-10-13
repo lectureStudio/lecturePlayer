@@ -85,6 +85,13 @@ export class JanusPublisher extends JanusParticipant {
 				this.createOffer();
 				this.setState(State.CONNECTING);
 			}
+			if (event === "event") {
+				const configured = message.configured;
+
+				if (configured === "ok") {
+					this.setState(State.CONNECTED);
+				}
+			}
 		}
 
 		if (jsep) {
@@ -171,14 +178,14 @@ export class JanusPublisher extends JanusParticipant {
 			mediaElement.autoplay = true;
 			mediaElement.muted = true;
 
-			this.view.addVideo(mediaElement);
-
 			const stream = new MediaStream();
 			stream.addTrack(track.clone());
 
 			this.streams.set(id, stream);
 
 			Janus.attachMediaStream(mediaElement, stream);
+
+			this.view.addVideo(mediaElement);
 		}
 	}
 

@@ -67,6 +67,13 @@ export class ParticipantView extends I18nLitElement {
 
 		// Set current volume.
 		this.audio.volume = this.volume;
+
+		audio.play()
+			.catch(error => {
+				if (error.name == "NotAllowedError") {
+					this.dispatchEvent(Utils.createEvent("participant-video-play-error"));
+				}
+			});
 	}
 
 	removeAudio() {
@@ -77,17 +84,17 @@ export class ParticipantView extends I18nLitElement {
 		const stream = video.srcObject as MediaStream;
 		const tracks = stream.getVideoTracks();
 
-		if (stream.getVideoTracks().length > 0) {
+		if (tracks.length > 0) {
 			const track = tracks[0];
 
 			track.addEventListener("mute", (e) => {
 				this.hasVideo = false;
 			});
 			track.addEventListener("unmute", (e) => {
-				this.hasVideo = !track.muted && this.state === State.CONNECTED;
+				this.hasVideo = !track.muted && this.state !== State.DISCONNECTED;
 			});
 
-			this.hasVideo = !track.muted && this.state === State.CONNECTED;
+			this.hasVideo = this.isLocal || (!track.muted && this.state === State.CONNECTED);
 		}
 
 		this.container.appendChild(video);
@@ -153,6 +160,9 @@ export class ParticipantView extends I18nLitElement {
 	}
 
 	private onStartMediaPlayback(e: CustomEvent) {
+		if (this.audio) {
+			this.audio.play();
+		}
 		if (this.video) {
 			this.video.play();
 		}
