@@ -174,6 +174,8 @@ export class JanusService extends EventTarget {
 		}
 		else if (state === State.DISCONNECTED) {
 			console.log("publisher disconnected");
+
+			document.dispatchEvent(Utils.createEvent("speech-canceled"));
 		}
 
 		document.dispatchEvent(Utils.createEvent("participant-state", event.detail));
