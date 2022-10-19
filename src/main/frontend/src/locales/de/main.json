@@ -79,5 +79,10 @@
 	"entry.modal.start": "Starten",
 	"reconnect.title": "Verbindung unterbrochen",
 	"reconnect.description": "Baue Verbindung wieder auf...",
-	"reconnect.abort": "Abbrechen"
+	"reconnect.abort": "Abbrechen",
+	"vpn.modal.title": "Netzzugang",
+	"vpn.modal.description": "Um gestreamte Kurse ansehen zu können, müssen Sie Netzzugang zum Datennetz der TU Darmstadt haben. Alle TU-Angehörigen haben folgende Optionen zum Netzzugang:",
+	"vpn.modal.description.vpn": "Sichere Verbindung ins TU-Netz und Zugang zu Services außerhalb des TU Datennetzes.",
+	"vpn.modal.description.wlan": "Nahezu flächendeckender Internetzugang am Campus und im Kongresszentrum \u201Cdarmstadtium\u201D.",
+	"vpn.modal.reconnect": "Bitte die Seite neu laden, nachdem die Verbindung erfolgreich aufgebaut worden ist."
 }

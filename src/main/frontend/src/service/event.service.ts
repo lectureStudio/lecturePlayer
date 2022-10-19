@@ -51,42 +51,42 @@ export class EventService extends EventTarget {
 			client.subscribe("/topic/course/event/" + this.courseId + "/stream", (message: Message) => {
 				const state = JSON.parse(message.body);
 
-				console.log("Stream state", state);
+				// console.log("Stream state", state);
 
 				this.dispatchEvent(Utils.createEvent("stream-state", state));
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/recording", (message: Message) => {
 				const state = JSON.parse(message.body);
 
-				console.log("Recording state", state);
+				// console.log("Recording state", state);
 
 				this.dispatchEvent(Utils.createEvent("recording-state", state));
 			});
 			client.subscribe("/user/queue/course/" + this.courseId + "/speech", (message: Message) => {
 				const state = JSON.parse(message.body);
 
-				console.log("Speech state", state);
+				// console.log("Speech state", state);
 
 				this.dispatchEvent(Utils.createEvent("speech-state", state));
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/chat", (message: Message) => {
 				const state = JSON.parse(message.body);
 
-				console.log("Chat state", state);
+				// console.log("Chat state", state);
 
 				this.dispatchEvent(Utils.createEvent("chat-state", state));
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/quiz", (message: Message) => {
 				const state = JSON.parse(message.body);
 
-				console.log("Quiz state", state);
+				// console.log("Quiz state", state);
 
 				this.dispatchEvent(Utils.createEvent("quiz-state", state));
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/presence", (message: Message) => {
 				const state = JSON.parse(message.body);
 
-				console.log("Presence", state);
+				// console.log("Presence", state);
 
 				this.dispatchEvent(Utils.createEvent("participant-presence", state));
 			});
@@ -98,12 +98,6 @@ export class EventService extends EventTarget {
 		client.onDisconnect = () => {
 			console.log("STOMP disconnected");
 		};
-		// client.onWebSocketError = async (error: any) => {
-		// 	console.error("STOMP WebSocket Error", error);
-		// };
-		// client.onStompError = async (error: any) => {
-		// 	console.error("STOMP Error", error);
-		// };
 		client.activate();
 
 		window.addEventListener("beforeunload", () => {

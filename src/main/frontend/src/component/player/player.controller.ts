@@ -32,6 +32,7 @@ import { course } from '../../model/course';
 import { participants } from '../../model/participants';
 import { chatHistory } from '../../model/chat-history';
 import { ParticipantsModal } from '../participants-modal/participants.modal';
+import { VpnModal } from '../vpn-modal/vpn.modal';
 
 export class PlayerController implements ReactiveController {
 
@@ -82,7 +83,7 @@ export class PlayerController implements ReactiveController {
 		actionProcessor.onPeerConnected = this.onPeerConnected.bind(this);
 
 		this.courseStateService = new CourseStateService("https://" + window.location.host);
-		this.janusService = new JanusService("wss://" + window.location.hostname + ":8989/janus", actionProcessor);
+		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus", actionProcessor);
 		this.modals = new Map();
 
 		this.maxWidth576Query = window.matchMedia("(max-width: 576px)");
@@ -114,6 +115,7 @@ export class PlayerController implements ReactiveController {
 
 		this.janusService.addEventListener("janus-connection-established", this.onJanusConnectionEstablished.bind(this));
 		this.janusService.addEventListener("janus-connection-failure", this.onJanusConnectionFailure.bind(this));
+		this.janusService.addEventListener("janus-session-error", this.onJanusSessionError.bind(this));
 
 		this.initToaster();
 	}
@@ -179,7 +181,7 @@ export class PlayerController implements ReactiveController {
 
 		this.getCourseState()
 			.then(courseState => {
-				console.log("Course state", courseState);
+				//console.log("Course state", courseState);
 
 				this.setCourseState(courseState);
 
@@ -403,9 +405,6 @@ export class PlayerController implements ReactiveController {
 			if (values.length > 1) {
 				chatHistory.history = values[1].messages;
 			}
-
-			console.log("participants", participants.participants);
-			console.log("chat history", chatHistory.history);
 		});
 	}
 
@@ -541,6 +540,12 @@ export class PlayerController implements ReactiveController {
 
 	private onJanusConnectionFailure() {
 		this.setConnectionState(State.RECONNECTING);
+	}
+
+	private onJanusSessionError() {
+		const vpnModal = new VpnModal();
+
+		this.registerModal("VpnModal", vpnModal);
 	}
 
 	private isClassroomProfile() {

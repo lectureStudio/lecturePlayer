@@ -110,6 +110,8 @@ export class JanusService extends EventTarget {
 			},
 			error: (cause: any) => {
 				console.error(cause);
+
+				this.dispatchEvent(Utils.createEvent("janus-session-error"));
 			},
 			destroyed: () => {
 				Janus.log("Janus destroyed");
