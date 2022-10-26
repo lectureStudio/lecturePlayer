@@ -6,6 +6,12 @@ import { Utils } from "../utils/utils";
 
 export abstract class JanusParticipant extends EventTarget {
 
+	private readonly reconnectState = {
+		attempt: 0,
+		attemptsMax: 3,
+		timeout: 1500
+	};
+
 	protected readonly janus: Janus;
 
 	protected handle: PluginHandle;
@@ -82,6 +88,13 @@ export abstract class JanusParticipant extends EventTarget {
 			participant: this,
 			error: cause
 		}));
+
+		this.reconnectState.attempt++;
+
+		if (this.reconnectState.attempt < this.reconnectState.attemptsMax) {
+			// Try again.
+			window.setTimeout(this.connect.bind(this), this.reconnectState.timeout);
+		}
 	}
 
 	protected onWebRtcState(isConnected: boolean) {
