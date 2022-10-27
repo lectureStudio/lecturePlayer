@@ -93,6 +93,8 @@ export class ScreenView extends I18nLitElement {
 
 	private onStartMediaPlayback(e: CustomEvent) {
 		if (this.video) {
+			this.setHasVideo(this.state === State.CONNECTED);
+
 			this.video.play();
 		}
 	}

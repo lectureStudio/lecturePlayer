@@ -13,6 +13,7 @@ import { ScreenView } from '../screen-view/screen-view';
 import { SlideLayout } from '../../model/slide-layout';
 import { State } from '../../utils/state';
 import Split from 'split.js'
+import { Utils } from '../../utils/utils';
 
 @customElement('player-view')
 export class PlayerView extends I18nLitElement {
@@ -203,11 +204,12 @@ export class PlayerView extends I18nLitElement {
 
 	private onParticipantScreenStream(event: CustomEvent) {
 		const state: State = event.detail.state;
+		const temp: boolean = !Utils.isFirefox();
 
 		if (state === State.CONNECTED) {
 			this.addParticipantScreen(event.detail.video);
 		}
-		else if (state === State.DISCONNECTED) {
+		else if (state === State.DISCONNECTED && !temp) {
 			this.removeParticipantScreen();
 		}
 	}
