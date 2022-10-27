@@ -43,8 +43,6 @@ export class ParticipantView extends I18nLitElement {
 	@query("video")
 	video: HTMLVideoElement;
 
-	screenVideo: HTMLVideoElement;
-
 	volume: number;
 
 
@@ -111,8 +109,6 @@ export class ParticipantView extends I18nLitElement {
 	}
 
 	addScreenVideo(video: HTMLVideoElement) {
-		this.screenVideo = video;
-
 		this.dispatchEvent(Utils.createEvent("participant-screen-stream", {
 			participant: this,
 			state: State.CONNECTED,
@@ -126,8 +122,6 @@ export class ParticipantView extends I18nLitElement {
 	}
 
 	removeScreenVideo() {
-		this.screenVideo = null;
-
 		this.dispatchEvent(Utils.createEvent("participant-screen-stream", {
 			participant: this,
 			state: State.DISCONNECTED,
@@ -143,9 +137,9 @@ export class ParticipantView extends I18nLitElement {
 			this.hasVideo = active;
 		}
 		else if (type === MediaType.Screen) {
-			this.dispatchEvent(Utils.createEvent("participant-screen-stream", {
+			this.dispatchEvent(Utils.createEvent("participant-screen-visibility", {
 				participant: this,
-				state: active ? State.CONNECTED : State.DISCONNECTED,
+				visible: active,
 			}));
 		}
 	}

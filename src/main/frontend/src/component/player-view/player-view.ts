@@ -67,6 +67,7 @@ export class PlayerView extends I18nLitElement {
 	addParticipant(view: ParticipantView) {
 		view.addEventListener("participant-state", this.onParticipantState.bind(this));
 		view.addEventListener("participant-screen-stream", this.onParticipantScreenStream.bind(this));
+		view.addEventListener("participant-screen-visibility", this.onParticipantScreenVisibility.bind(this));
 		view.setVolume(this.controls.volume);
 
 		this.videoFeedContainer.appendChild(view);
@@ -76,14 +77,6 @@ export class PlayerView extends I18nLitElement {
 		if (this.videoFeedContainer.contains(view)) {
 			this.videoFeedContainer.removeChild(view);
 		}
-	}
-
-	addParticipantScreen(video: HTMLVideoElement) {
-		this.screenView.addVideo(video);
-	}
-
-	removeParticipantScreen() {
-		this.screenView.removeVideo();
 	}
 
 	override connectedCallback() {
@@ -204,13 +197,18 @@ export class PlayerView extends I18nLitElement {
 
 	private onParticipantScreenStream(event: CustomEvent) {
 		const state: State = event.detail.state;
-		const temp: boolean = !Utils.isFirefox();
 
 		if (state === State.CONNECTED) {
-			this.addParticipantScreen(event.detail.video);
+			this.screenView.addVideo(event.detail.video);
 		}
-		else if (state === State.DISCONNECTED && !temp) {
-			this.removeParticipantScreen();
+		else if (state === State.DISCONNECTED) {
+			this.screenView.removeVideo();
 		}
+	}
+
+	private onParticipantScreenVisibility(event: CustomEvent) {
+		const visible: boolean = event.detail.visible;
+
+		this.screenView.setVideoVisible(visible);
 	}
 }

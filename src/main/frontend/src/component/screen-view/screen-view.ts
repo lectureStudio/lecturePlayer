@@ -79,6 +79,10 @@ export class ScreenView extends I18nLitElement {
 		this.setHasVideo(false);
 	}
 
+	setVideoVisible(visible: boolean) {
+		this.setHasVideo(visible);
+	}
+
 	setState(state: State) {
 		this.state = state;
 	}
@@ -91,11 +95,27 @@ export class ScreenView extends I18nLitElement {
 		}));
 	}
 
+	private setVideoVisibility(video: HTMLVideoElement) {
+		if (!video) {
+			return;
+		}
+
+		const stream = video.srcObject as MediaStream;
+		const tracks = stream.getVideoTracks();
+
+		if (stream.getVideoTracks().length > 0) {
+			const track = tracks[0];
+
+			this.setHasVideo(!track.muted && this.state === State.CONNECTED);
+		}
+	}
+
 	private onStartMediaPlayback(e: CustomEvent) {
 		if (this.video) {
-			this.setHasVideo(this.state === State.CONNECTED);
-
-			this.video.play();
+			this.video.play()
+				.then(() => {
+					this.setVideoVisibility(this.video);
+				});
 		}
 	}
 

@@ -83,8 +83,6 @@ export class JanusSubscriber extends JanusParticipant {
 
 						if (mid && description) {
 							this.streamIds.set(mid, description);
-
-							console.log("stream", mid, description);
 						}
 					}
 				}
