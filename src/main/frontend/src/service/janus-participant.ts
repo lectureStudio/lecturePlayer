@@ -1,6 +1,7 @@
 import { Janus, PluginHandle } from "janus-gateway";
 import { ParticipantView } from "../component/participant-view/participant-view";
 import { Devices } from "../utils/devices";
+import { DeviceSettings } from "../utils/settings";
 import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
 
@@ -18,7 +19,7 @@ export abstract class JanusParticipant extends EventTarget {
 
 	protected state: State;
 
-	protected deviceConstraints: any;
+	protected deviceSettings: DeviceSettings;
 
 	protected view: ParticipantView;
 
@@ -48,19 +49,8 @@ export abstract class JanusParticipant extends EventTarget {
 		this.setState(State.DISCONNECTED);
 	}
 
-	setDeviceConstraints(deviceConstraints: any): void {
-		this.deviceConstraints = deviceConstraints;
-	}
-
-	setAudioSink(element: HTMLMediaElement, audioSink: string) {
-		if (!('sinkId' in HTMLMediaElement.prototype)) {
-			return;
-		}
-
-		element.setSinkId(audioSink)
-			.catch(error => {
-				console.error(error);
-			});
+	setDeviceSettings(settings: DeviceSettings): void {
+		this.deviceSettings = settings;
 	}
 
 	protected onMuteAudio() {

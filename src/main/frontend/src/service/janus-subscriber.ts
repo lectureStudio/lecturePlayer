@@ -5,6 +5,7 @@ import { State } from "../utils/state";
 import { ProgressiveDataView } from "../action/parser/progressive-data-view";
 import { StreamActionParser } from "../action/parser/stream.action.parser";
 import { StreamMediaChangeAction } from "../action/stream.media.change.action";
+import { Devices } from "../utils/devices";
 
 export class JanusSubscriber extends JanusParticipant {
 
@@ -178,13 +179,15 @@ export class JanusSubscriber extends JanusParticipant {
 
 		// Create new audio/video stream.
 		let mediaElement = null;
+		const isAudio = track.kind === "audio";
+		const isVideo = track.kind === "video";
 
-		if (track.kind === "audio") {
+		if (isAudio) {
 			mediaElement = document.createElement("audio");
 			mediaElement.autoplay = true;
 			mediaElement.muted = false;
 		}
-		else if (track.kind === "video") {
+		else if (isVideo) {
 			mediaElement = document.createElement("video");
 			mediaElement.playsInline = true;
 			mediaElement.autoplay = true;
@@ -198,15 +201,16 @@ export class JanusSubscriber extends JanusParticipant {
 
 		Janus.attachMediaStream(mediaElement, stream);
 
-		if (this.deviceConstraints) {
-			this.setAudioSink(mediaElement, this.deviceConstraints.audioOutput);
-		}
-
 		// Attach the stream to the view.
-		if (track.kind === "audio") {
+		if (isAudio) {
+			// Set speaker output device.
+			if (this.deviceSettings) {
+				Devices.setAudioSink(mediaElement, this.deviceSettings.audioOutput);
+			}
+
 			this.view.addAudio(mediaElement);
 		}
-		else if (track.kind === "video") {
+		else if (isVideo) {
 			if (this.isScreenTrack(mid)) {
 				this.view.addScreenVideo(mediaElement as HTMLVideoElement);
 			}

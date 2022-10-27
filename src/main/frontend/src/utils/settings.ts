@@ -1,3 +1,5 @@
+import { Utils } from "./utils";
+
 export interface DeviceSettings {
 
 	audioInput: string;
@@ -61,6 +63,14 @@ export class Settings {
 		Settings.clearCameraId();
 	}
 
+	static getDeviceSettings(): DeviceSettings {
+		return {
+			audioInput: this.getMicrophoneId(),
+			audioOutput: this.getSpeakerId(),
+			videoInput: this.getCameraId()
+		};
+	}
+
 	static saveDeviceChoice(devices: DeviceSettings) {
 		if (devices.audioInput) {
 			if (devices.audioInput === "none") {
@@ -69,6 +79,8 @@ export class Settings {
 			else {
 				Settings.setMicrophoneId(devices.audioInput);
 			}
+
+			document.dispatchEvent(Utils.createEvent("microphone-setting-changed"));
 		}
 		if (devices.audioOutput) {
 			if (devices.audioOutput === "none") {
@@ -77,6 +89,8 @@ export class Settings {
 			else {
 				Settings.setSpeakerId(devices.audioOutput);
 			}
+
+			document.dispatchEvent(Utils.createEvent("speaker-setting-changed"));
 		}
 		if (devices.videoInput) {
 			if (devices.videoInput === "none") {
@@ -85,6 +99,8 @@ export class Settings {
 			else {
 				Settings.setCameraId(devices.videoInput);
 			}
+
+			document.dispatchEvent(Utils.createEvent("camera-setting-changed"));
 		}
 	}
 }

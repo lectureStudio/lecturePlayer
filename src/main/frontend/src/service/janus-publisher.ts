@@ -117,7 +117,7 @@ export class JanusPublisher extends JanusParticipant {
 	}
 
 	private createOffer() {
-		const useVideo = this.deviceConstraints.videoDeviceId != null;
+		const useVideo = this.deviceSettings.videoInput != null;
 
 		// Publish our stream.
 		this.handle.createOffer({
@@ -128,10 +128,10 @@ export class JanusPublisher extends JanusParticipant {
 				audioSend: true,
 				videoSend: useVideo,
 				audio: {
-					deviceId: this.deviceConstraints.audioDeviceId
+					deviceId: this.deviceSettings.audioInput
 				},
 				video: {
-					deviceId: this.deviceConstraints.videoDeviceId,
+					deviceId: this.deviceSettings.videoInput,
 					width: 1280,
 					height: 720,
 				},

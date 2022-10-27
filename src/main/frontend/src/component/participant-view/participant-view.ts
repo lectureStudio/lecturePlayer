@@ -1,6 +1,8 @@
 import { html } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import { MediaType } from "../../model/media-type";
+import { Devices } from "../../utils/devices";
+import { Settings } from "../../utils/settings";
 import { State } from "../../utils/state";
 import { Utils } from "../../utils/utils";
 import { I18nLitElement } from "../i18n-mixin";
@@ -51,6 +53,7 @@ export class ParticipantView extends I18nLitElement {
 
 		document.addEventListener("player-volume", this.onAudioVolume.bind(this));
 		document.addEventListener("player-start-media", this.onStartMediaPlayback.bind(this));
+		document.addEventListener("speaker-setting-changed", this.onSpeakerSetting.bind(this));
 	}
 
 	setState(state: State) {
@@ -165,6 +168,12 @@ export class ParticipantView extends I18nLitElement {
 		}
 		if (this.video) {
 			this.video.play();
+		}
+	}
+
+	private onSpeakerSetting(e: CustomEvent) {
+		if (this.audio) {
+			Devices.setAudioSink(this.audio, Settings.getSpeakerId());
 		}
 	}
 

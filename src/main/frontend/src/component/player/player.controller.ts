@@ -12,7 +12,7 @@ import { PrivilegeService } from '../../service/privilege.service';
 import { SpeechService } from '../../service/speech.service';
 import { Devices } from '../../utils/devices';
 import { HttpRequest } from '../../utils/http-request';
-import { MediaProfile, Settings } from '../../utils/settings';
+import { DeviceSettings, MediaProfile, Settings } from '../../utils/settings';
 import { State } from '../../utils/state';
 import { Utils } from '../../utils/utils';
 import { ChatModal } from '../chat-modal/chat.modal';
@@ -562,17 +562,14 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private speechAccepted() {
-		const speechConstraints = {
-			audioDeviceId: Settings.getMicrophoneId(),
-			videoDeviceId: Settings.getCameraId()
-		};
+		const speechConstraints = Settings.getDeviceSettings();
 
 		const constraints = {
 			audio: {
-				deviceId: speechConstraints.audioDeviceId ? { exact: speechConstraints.audioDeviceId } : undefined
+				deviceId: speechConstraints.audioInput ? { exact: speechConstraints.audioInput } : undefined
 			},
 			video: {
-				deviceId: speechConstraints.videoDeviceId ? { exact: speechConstraints.videoDeviceId } : undefined,
+				deviceId: speechConstraints.videoInput ? { exact: speechConstraints.videoInput } : undefined,
 				width: 1280,
 				height: 720,
 				facingMode: "user"
@@ -586,7 +583,7 @@ export class PlayerController implements ReactiveController {
 			.catch(error => {
 				console.error(error.name);
 
-				speechConstraints.videoDeviceId = undefined;
+				speechConstraints.videoInput = undefined;
 
 				this.showSpeechAcceptedModal(null, speechConstraints, true);
 			});
@@ -619,7 +616,7 @@ export class PlayerController implements ReactiveController {
 		this.host.dispatchEvent(Utils.createEvent("speech-canceled"));
 	}
 
-	private showSpeechAcceptedModal(stream: MediaStream, speechConstraints: any, camBlocked: boolean) {
+	private showSpeechAcceptedModal(stream: MediaStream, deviceSettings: DeviceSettings, camBlocked: boolean) {
 		if (this.speechRequestId) {
 			const speechModal = new SpeechAcceptedModal();
 			speechModal.stream = stream;
@@ -628,7 +625,7 @@ export class PlayerController implements ReactiveController {
 				this.cancelSpeech();
 			});
 			speechModal.addEventListener("speech-accepted-start", () => {
-				this.janusService.startSpeech(speechConstraints);
+				this.janusService.startSpeech(deviceSettings);
 			});
 
 			this.registerModal("SpeechAcceptedModal", speechModal);
