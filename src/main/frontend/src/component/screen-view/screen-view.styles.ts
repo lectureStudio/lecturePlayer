@@ -10,17 +10,19 @@ export const screenViewStyles = css`
 	}
 	:host .container {
 		display: flex;
+		align-items: center;
+		justify-content: center;
 		width: 100%;
 		height: 100%;
 		box-sizing: border-box;
+		padding: 0;
 		position: relative;
 	}
 	:host video {
 		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
+		border: 1px solid;
+		max-width: 100%;
+		max-height: 100%;
 		z-index: 1;
 	}
 
