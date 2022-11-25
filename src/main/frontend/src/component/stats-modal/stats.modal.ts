@@ -128,6 +128,16 @@ export class StatsModal extends Modal {
 				name: t("stats.bitrate"),
 				inMetric: this.getBitrate(audioStats.inboundStats?.bitrateIn),
 				outMetric: this.getBitrate(audioStats.outboundStats?.bitrateOut)
+			},
+			{
+				name: t("stats.jitter"),
+				inMetric: this.getJitter(audioStats.inboundStats?.jitter),
+				outMetric: this.getJitter(audioStats.outboundStats?.jitter)
+			},
+			{
+				name: t("stats.packet.loss"),
+				inMetric: this.getPacketLoss(audioStats.inboundStats?.packetLossPercent),
+				outMetric: this.getPacketLoss(audioStats.outboundStats?.packetLossPercent)
 			}
 		];
 
@@ -159,6 +169,16 @@ export class StatsModal extends Modal {
 				name: t("stats.bitrate"),
 				inMetric: this.getBitrate(videoStats.inboundStats?.bitrateIn),
 				outMetric: this.getBitrate(videoStats.outboundStats?.bitrateOut)
+			},
+			{
+				name: t("stats.jitter"),
+				inMetric: this.getJitter(videoStats.inboundStats?.jitter),
+				outMetric: this.getJitter(videoStats.outboundStats?.jitter)
+			},
+			{
+				name: t("stats.packet.loss"),
+				inMetric: this.getPacketLoss(videoStats.inboundStats?.packetLossPercent),
+				outMetric: this.getPacketLoss(videoStats.outboundStats?.packetLossPercent)
 			}
 		];
 
@@ -241,6 +261,22 @@ export class StatsModal extends Modal {
 	private getResolution(frameWidth: number, frameHeight: number) {
 		if (frameWidth != null && frameHeight != null) {
 			return `${frameWidth}x${frameHeight}`;
+		}
+
+		return null;
+	}
+
+	private getJitter(value: number) {
+		if (value != null) {
+			return `${(value * 1000).toFixed()} ${t("ms")}`;
+		}
+
+		return null;
+	}
+
+	private getPacketLoss(value: number) {
+		if (value != null) {
+			return `${value.toFixed(1)} ${t("%")}`;
 		}
 
 		return null;

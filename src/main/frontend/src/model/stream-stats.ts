@@ -6,6 +6,11 @@ interface StreamMediaStats {
 	bytesSent?: number;
 	bitrateIn?: number;
 	bitrateOut?: number;
+	jitter?: number;
+	packetsReceived?: number;
+	packetsSent?: number;
+	packetsLost?: number;
+	packetLossPercent?: number;
 
 }
 

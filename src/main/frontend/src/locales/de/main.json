@@ -92,6 +92,8 @@
 	"stats.documents.size": "Größe",
 	"stats.codec": "Codec",
 	"stats.bitrate": "Bitrate",
+	"stats.jitter": "Jitter",
+	"stats.packet.loss": "Paketverlust",
 	"stats.format": "Format",
 	"stats.inbound": "Eingehend",
 	"stats.outbound": "Ausgehend",

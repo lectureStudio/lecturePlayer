@@ -45,15 +45,15 @@ export class RTCStatsService {
 			return;
 		}
 
-		// Find the track for the given stats, since not all browsers provide us the 'mid' in the stats.
-		const trackDesc = this.getTrackDescription(stats.ssrc);
-
 		if (stats.kind === "audio") {
 			const audioStats = this.createAudioStats(stats, codecStats, inbound);
 
 			this.setStats(streamStats, "audioStats", audioStats, inbound);
 		}
 		else if (stats.kind === "video") {
+			// Find the track for the given stats, since not all browsers provide us the 'mid' in the stats.
+			const trackDesc = this.getTrackDescription(stats.ssrc);
+
 			const videoStats = this.createVideoStats(stats, codecStats, inbound);
 
 			if (trackDesc === "camera") {
@@ -74,10 +74,18 @@ export class RTCStatsService {
 		};
 
 		if (inbound) {
-			audioStats.bytesReceived = (<RTCInboundRtpStreamStats> stats).bytesReceived;
+			const inboundStats: RTCInboundRtpStreamStats = stats;
+
+			audioStats.bytesReceived = inboundStats.bytesReceived;
+			audioStats.jitter = inboundStats.jitter;
+			audioStats.packetsReceived = inboundStats.packetsReceived;
+			audioStats.packetsLost = inboundStats.packetsLost;
 		}
 		else {
-			audioStats.bytesSent = (<RTCOutboundRtpStreamStats> stats).bytesSent;
+			const outboundStats: RTCOutboundRtpStreamStats = stats;
+
+			audioStats.bytesSent = outboundStats.bytesSent;
+			audioStats.packetsSent = outboundStats.packetsSent;
 		}
 
 		return audioStats;
@@ -93,10 +101,18 @@ export class RTCStatsService {
 		};
 
 		if (inbound) {
-			videoStats.bytesReceived = (<RTCInboundRtpStreamStats> stats).bytesReceived;
+			const inboundStats: RTCInboundRtpStreamStats = stats;
+
+			videoStats.bytesReceived = inboundStats.bytesReceived;
+			videoStats.jitter = inboundStats.jitter;
+			videoStats.packetsReceived = inboundStats.packetsReceived;
+			videoStats.packetsLost = inboundStats.packetsLost;
 		}
 		else {
-			videoStats.bytesSent = (<RTCOutboundRtpStreamStats> stats).bytesSent;
+			const outboundStats: RTCOutboundRtpStreamStats = stats;
+
+			videoStats.bytesSent = outboundStats.bytesSent;
+			videoStats.packetsSent = outboundStats.packetsSent;
 		}
 
 		return videoStats;
@@ -144,6 +160,8 @@ export class RTCStatsService {
 
 			this.getBitrate(timestamp, bytesReceived, stats, inbound);
 
+			this.getPacketLossPercent(stats);
+
 			targetStats.inboundStats = stats;
 		}
 		else {
@@ -152,6 +170,8 @@ export class RTCStatsService {
 			const bytesSent = targetStats.outboundStats?.bytesSent;
 
 			this.getBitrate(timestamp, bytesSent, stats, inbound);
+
+			this.getPacketLossPercent(stats);
 
 			targetStats.outboundStats = stats;
 		}
@@ -170,5 +190,9 @@ export class RTCStatsService {
 				stats.bitrateOut = bytesDelta / timeDelta; // bits per second
 			}
 		}
+	}
+
+	private getPacketLossPercent(stats: StreamAudioStats | StreamVideoStats) {
+		stats.packetLossPercent = stats.packetsLost / (stats.packetsReceived + stats.packetsLost) * 100;
 	}
 }
