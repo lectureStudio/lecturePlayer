@@ -4,7 +4,7 @@ export const toastContainerStyles = css`
 	:host {
 		display: flex;
 		flex-direction: column;
-		position: absolute;
+		position: fixed;
 		padding: 1rem;
 		z-index: 1000;
 		width: max-content;

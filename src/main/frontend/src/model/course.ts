@@ -1,7 +1,8 @@
 import { Utils } from '../utils/utils';
 import { MessageFeature, QuizFeature } from './course-feature';
-import { CoursePrivilege } from './course-state';
+import { CourseMediaState, CoursePrivilege } from './course-state';
 import { CourseStateDocument } from './course-state-document';
+import { StreamStats } from './stream-stats';
 
 class Course extends EventTarget {
 
@@ -24,6 +25,10 @@ class Course extends EventTarget {
 	private _documentMap: Map<bigint, CourseStateDocument>;
 
 	private _activeDocument: CourseStateDocument;
+
+	private _mediaState: CourseMediaState;
+
+	private _streamStats: StreamStats = {};
 
 
 	get courseId() {
@@ -124,6 +129,26 @@ class Course extends EventTarget {
 		this._activeDocument = document;
 
 		this.dispatchEvent(Utils.createEvent("course-active-document"));
+	}
+
+	get mediaState() {
+		return this._mediaState;
+	}
+
+	set mediaState(state: CourseMediaState) {
+		this._mediaState = state;
+
+		this.dispatchEvent(Utils.createEvent("course-media-state"));
+	}
+
+	get streamStats() {
+		return this._streamStats;
+	}
+
+	set streamStats(stats: StreamStats) {
+		this._streamStats = stats;
+
+		this.dispatchEvent(Utils.createEvent("course-stream-stats"));
 	}
 }
 

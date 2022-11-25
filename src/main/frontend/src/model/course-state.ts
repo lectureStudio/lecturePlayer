@@ -45,6 +45,16 @@ export interface CoursePrivilege {
 
 }
 
+export interface CourseMediaState {
+
+	microphoneActive: boolean;
+
+	cameraActive: boolean;
+
+	screenActive: boolean;
+
+}
+
 export interface CourseState {
 
 	readonly courseId: number;
@@ -70,5 +80,7 @@ export interface CourseState {
 	readonly recorded: boolean;
 
 	readonly userPrivileges: CoursePrivilege[];
+
+	readonly mediaState: CourseMediaState;
 
 }

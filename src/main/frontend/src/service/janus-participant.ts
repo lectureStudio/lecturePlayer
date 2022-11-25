@@ -4,6 +4,7 @@ import { Devices } from "../utils/devices";
 import { DeviceSettings } from "../utils/settings";
 import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
+import { RTCStatsService } from "./rtc-stats.service";
 
 export abstract class JanusParticipant extends EventTarget {
 
@@ -12,6 +13,12 @@ export abstract class JanusParticipant extends EventTarget {
 		attemptsMax: 3,
 		timeout: 1500
 	};
+
+	private statsService: RTCStatsService;
+
+	private iceConnectionState: RTCIceConnectionState;
+
+	protected readonly streamIds: Map<string, string>;
 
 	protected readonly janus: Janus;
 
@@ -25,16 +32,18 @@ export abstract class JanusParticipant extends EventTarget {
 
 	protected streams: Map<string, MediaStream>;
 
-	private iceConnectionState: RTCIceConnectionState;
-
 
 	constructor(janus: Janus) {
 		super();
+
+		this.streamIds = new Map();
 
 		this.janus = janus;
 		this.state = State.DISCONNECTED;
 		this.view = new ParticipantView();
 		this.streams = new Map();
+
+		this.statsService = new RTCStatsService();
 
 		this.view.addEventListener("participant-mic-mute", this.onMuteAudio.bind(this));
 		this.view.addEventListener("participant-cam-mute", this.onMuteVideo.bind(this));
@@ -51,6 +60,12 @@ export abstract class JanusParticipant extends EventTarget {
 
 	setDeviceSettings(settings: DeviceSettings): void {
 		this.deviceSettings = settings;
+	}
+
+	getStats() {
+		this.statsService.pc = this.handle.webrtcStuff.pc;
+		this.statsService.streamIds = this.streamIds;
+		this.statsService.getStats();
 	}
 
 	protected onMuteAudio() {

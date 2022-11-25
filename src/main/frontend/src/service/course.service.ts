@@ -1,6 +1,7 @@
 import { ProgressiveDataView } from "../action/parser/progressive-data-view";
 import { RecordedPageParser } from "../action/parser/recorded-page.parser";
 import { SimpleActionExecutor } from "../action/simple-action-executor";
+import { course } from "../model/course";
 import { CourseState } from "../model/course-state";
 import { CourseStateDocument } from "../model/course-state-document";
 import { SlideDocument } from "../model/document";
@@ -32,10 +33,12 @@ export class CourseStateService {
 						if (!dataBuffer) {
 							throw new Error("Received empty course document");
 						}
-	
+
+						this.updateDocumentStats(stateDoc, dataBuffer.byteLength);
+
 						const byteBuffer = new Uint8Array(dataBuffer);
 						const docService = new DocumentService();
-	
+
 						return docService.loadDocument(byteBuffer);
 					})
 					.then((slideDoc: SlideDocument) => {
@@ -62,6 +65,34 @@ export class CourseStateService {
 			this.preloadSlideDocument(courseId, stateDoc, slideDoc)
 				.then(() => {
 					resolve(slideDoc);
+				})
+				.catch((error: any) => {
+					reject(error);
+				});
+		});
+	}
+
+	getPageActions(courseId: number, documentId: number, pageNumber: number): Promise<RecordedPage> {
+		return new Promise<RecordedPage>((resolve, reject) => {
+			return new HttpRequest().setResponseType("arraybuffer").get<ArrayBuffer>(this.getFullPath("/" + courseId + "/pages/" + documentId + "/" + pageNumber))
+				.then((dataBuffer: ArrayBuffer) => {
+					if (!dataBuffer) {
+						reject("Received empty page actions");
+						return;
+					}
+
+					console.log(dataBuffer);
+
+					const dataView = new ProgressiveDataView(dataBuffer);
+					const bufferLength = dataBuffer.byteLength;
+					const entryLength = dataView.getInt32();
+
+					const pageParser = new RecordedPageParser();
+					const recordedPage = pageParser.parse(dataView);
+
+					console.log(recordedPage);
+
+					resolve(recordedPage);
 				})
 				.catch((error: any) => {
 					reject(error);
@@ -137,5 +168,23 @@ export class CourseStateService {
 
 	private getFullPath(path: string): string {
 		return this.host + this.apiPath + path;
+	}
+
+	private updateDocumentStats(stateDoc: CourseStateDocument, byteSize: number) {
+		let stats = course.streamStats.documentStats;
+
+		if (!stats) {
+			stats = {
+				countReceived: 0,
+				countSent: 0,
+				bytesReceived: 0,
+				bytesSent: 0
+			};
+
+			course.streamStats.documentStats = stats;
+		}
+
+		stats.countReceived += 1;
+		stats.bytesReceived += byteSize;
 	}
 }

@@ -15,8 +15,6 @@ export class JanusSubscriber extends JanusParticipant {
 
 	private readonly opaqueId: string;
 
-	private readonly streamIds: Map<string, string>;
-
 	isPrimary = false;
 
 
@@ -26,7 +24,6 @@ export class JanusSubscriber extends JanusParticipant {
 		this.publisherId = publisherId;
 		this.roomId = roomId;
 		this.opaqueId = opaqueId;
-		this.streamIds = new Map();
 	}
 
 	override connect() {

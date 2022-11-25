@@ -8,6 +8,8 @@ import { DeviceSettings, Settings } from "../utils/settings";
 
 export class JanusService extends EventTarget {
 
+	private readonly statsIntervalMs = 1000;
+
 	private readonly serverUrl: string;
 
 	private readonly actionProcessor: StreamActionProcessor;
@@ -21,6 +23,8 @@ export class JanusService extends EventTarget {
 	private roomId: number;
 
 	private opaqueId: string;
+
+	private intervalId: number;
 
 
 	constructor(serverUrl: string, actionProcessor: StreamActionProcessor) {
@@ -92,6 +96,26 @@ export class JanusService extends EventTarget {
 		this.publishers.forEach(publisher => {
 			publisher.disconnect();
 		});
+	}
+
+	startStatsCapture() {
+		// First round is instant.
+		this.getStats();
+
+		this.intervalId = window.setInterval(this.getStats.bind(this), this.statsIntervalMs);
+	}
+
+	stopStatsCapture() {
+		window.clearInterval(this.intervalId);
+	}
+
+	private getStats() {
+		for (const participant of this.publishers) {
+			participant.getStats();
+		}
+		for (const participant of this.subscribers) {
+			participant.getStats();
+		}
 	}
 
 	private createSession() {
