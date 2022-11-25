@@ -3,7 +3,7 @@ import { customElement, property, query } from 'lit/decorators.js';
 import { MessageService } from '../../service/message.service';
 import { PrivilegeService } from '../../service/privilege.service';
 import { PlayerControls } from '../controls/player-controls';
-import { I18nLitElement } from '../i18n-mixin';
+import { I18nLitElement, t } from '../i18n-mixin';
 import { ParticipantView } from '../participant-view/participant-view';
 import { SlideView } from '../slide-view/slide-view';
 import { PlayerViewController } from './player-view.controller';
@@ -173,6 +173,11 @@ export class PlayerView extends I18nLitElement {
 					<div class="slide-container">
 						<slide-view class="slides"></slide-view>
 						<screen-view></screen-view>
+						<div class="bottom-left">
+							<button @click="${this.onStats}" class="icon-participants" id="stats-button">
+								<ui-tooltip for="stats-button" .text="${t("controls.stats")}" sticky="true"></ui-tooltip>
+							</button>
+						</div>
 					</div>
 					<div class="controls-container">
 						<player-controls .chatVisible="${this.chatVisible}" .participantsVisible="${this.participantsVisible}" .privilegeService="${this.privilegeService}"></player-controls>
@@ -189,6 +194,10 @@ export class PlayerView extends I18nLitElement {
 				</div>
 			</div>
 		`;
+	}
+
+	private onStats() {
+		this.dispatchEvent(Utils.createEvent("player-stats-action"));
 	}
 
 	private onParticipantState(event: CustomEvent) {

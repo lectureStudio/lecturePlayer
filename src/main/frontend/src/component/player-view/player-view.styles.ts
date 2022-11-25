@@ -8,6 +8,38 @@ export const playerViewStyles = css`
 		width: 100%;
 		height: 100%;
 	}
+	:host button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		border-radius: 0.25em;
+		cursor: pointer;
+		outline: none;
+		min-width: 24px;
+		width: 24px;
+		min-height: 24px;
+		height: 24px;
+		font-size: 1.25em;
+	}
+	:host button:hover {
+		color: rgba(0, 125, 181, 1);
+		background-color: rgba(222, 226, 230, 0.9);
+	}
+	:host button.selected {
+		background-color: rgba(0, 125, 181, 1);
+	}
+	:host button.selected:hover {
+		background-color: rgba(0, 125, 181, 0.8);
+	}
+	:host button.active {
+		color: rgba(0, 125, 181, 1);
+	}
+	:host button.active:hover {
+		color: rgba(0, 125, 181, 0.8);
+	}
 	:host > div {
 		display: flex;
 		width: 100%;
@@ -24,6 +56,7 @@ export const playerViewStyles = css`
 	:host .slide-container {
 		display: flex;
 		flex-direction: row;
+		position: relative;
 		height: 100%;
 		margin: 5px;
 	}
@@ -65,6 +98,14 @@ export const playerViewStyles = css`
 	}
 	:host chat-box {
 		height: 100%;
+	}
+	:host .bottom-left {
+		display: flex;
+		position: absolute;
+		bottom: 0;
+		background: #F3F4F6;
+		border-radius: 0.25em;
+		z-index: 10;
 	}
 	:host participants-box {
 		height: 100%;

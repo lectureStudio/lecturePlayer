@@ -52,6 +52,21 @@ export const participantViewStyles = css`
 		width: 100%;
 		justify-content: end;
 	}
+	:host .controls .media-state {
+		display: flex;
+		background: #F3F4F633;
+		bottom: 0;
+		border-radius: 0.25em;
+	}
+	.media-state .mic-state {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 20px;
+		width: 20px;
+		min-height: 20px;
+		height: 20px;
+	}
 	.controls button {
 		display: flex;
 		align-items: center;
@@ -65,11 +80,7 @@ export const participantViewStyles = css`
 		background-color: #F1F5F9;
 		color: #334155;
 	}
-	.controls #mic-muted {
-		color: #DC2626;
-	}
 
-	:host(:not([hasVideo])),
 	:host(:not([state="1"])) {
 		display: none;
 	}
@@ -78,37 +89,41 @@ export const participantViewStyles = css`
 		display: none;
 	}
 
-	:host(:not([micMuted])) #mic-muted {
-		display: none;
-	}
-	:host([hasVideo]) .name {
-		display: none;
-	}
-	:host(:not([hasVideo])) video {
-		display: none;
-	}
 
-	:host([micMute]) .icon-mic,
-	:not([micMute]) .icon-mic-muted {
+	:host([micActive]) #mic-remote-muted,
+	:not([micActive]) #mic-remote {
 		display: none;
 	}
-	:host([micMute]) .icon-mic-muted,
-	:not([micMute]) .icon-mic {
+	:host([micActive]) #mic-remote,
+	:not([micActive]) #mic-remote-muted {
 		display: initial;
 	}
-	:host([micMute]) .icon-mic-muted {
-		color: #991B1B;
+	:not([micActive]) #mic-remote-muted {
+		color: #DC2626;
 	}
 
-	:host([camMute]) .icon-cam,
-	:not([camMute]) .icon-cam-muted {
+
+	:host([micMute]) #mic-local,
+	:not([micMute]) #mic-local-muted {
 		display: none;
 	}
-	:host([camMute]) .icon-cam-muted,
-	:not([camMute]) .icon-cam {
+	:host([micMute]) #mic-local-muted,
+	:not([micMute]) #mic-local {
 		display: initial;
 	}
-	:host([camMute]) .icon-cam-muted {
-		color: #991B1B;
+	:host([micMute]) #mic-local-muted {
+		color: #DC2626;
+	}
+
+	:host([camMute]) #cam-local,
+	:not([camMute]) #cam-local-muted {
+		display: none;
+	}
+	:host([camMute]) #cam-local-muted,
+	:not([camMute]) #cam-local {
+		display: initial;
+	}
+	:host([camMute]) #cam-local-muted {
+		color: #DC2626;
 	}
 `;

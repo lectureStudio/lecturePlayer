@@ -1,5 +1,6 @@
 import { html } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
+import { course } from "../../model/course";
 import { MediaType } from "../../model/media-type";
 import { Devices } from "../../utils/devices";
 import { Settings } from "../../utils/settings";
@@ -21,6 +22,12 @@ export class ParticipantView extends I18nLitElement {
 
 	@property()
 	name: string;
+
+	@property({ type: Boolean, reflect: true })
+	camActive: boolean = false;
+
+	@property({ type: Boolean, reflect: true })
+	micActive: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
 	micMute: boolean = false;
@@ -52,6 +59,9 @@ export class ParticipantView extends I18nLitElement {
 		document.addEventListener("player-volume", this.onAudioVolume.bind(this));
 		document.addEventListener("player-start-media", this.onStartMediaPlayback.bind(this));
 		document.addEventListener("speaker-setting-changed", this.onSpeakerSetting.bind(this));
+
+		this.micActive = course.mediaState.microphoneActive;
+		this.camActive = course.mediaState.cameraActive;
 	}
 
 	setState(state: State) {
@@ -130,9 +140,11 @@ export class ParticipantView extends I18nLitElement {
 
 	setMediaChange(type: MediaType, active: boolean) {
 		if (type === MediaType.Audio) {
+			this.micActive = active;
 			this.micMute = !active;
 		}
 		else if (type === MediaType.Camera) {
+			this.camActive = active;
 			this.camMute = !active;
 			this.hasVideo = active;
 		}
@@ -201,15 +213,20 @@ export class ParticipantView extends I18nLitElement {
 			<div class="container">
 				<span class="name">${this.name}</span>
 				<div class="controls">
-					<span class="icon-mic-muted" id="mic-muted"></span>
+					<div class="media-state">
+						<div class="mic-state">
+							<span class="icon-mic" id="mic-remote"></span>
+							<span class="icon-mic-muted" id="mic-remote-muted"></span>
+						</div>
+					</div>
 					<div class="buttons">
 						<button @click="${this.onAudioMute}">
-							<span class="icon-mic"></span>
-							<span class="icon-mic-muted"></span>
+							<span class="icon-mic" id="mic-local"></span>
+							<span class="icon-mic-muted" id="mic-local-muted"></span>
 						</button>
 						<button @click="${this.onVideoMute}">
-							<span class="icon-cam"></span>
-							<span class="icon-cam-muted"></span>
+							<span class="icon-cam" id="cam-local"></span>
+							<span class="icon-cam-muted" id="cam-local-muted"></span>
 						</button>
 					</div>
 				</div>
