@@ -59,16 +59,15 @@ export class PlayerViewController implements ReactiveController {
 				this.host.controls.duration = (Date.now() - course.timeStarted);
 			}
 			catch (error) {
-				clearInterval(this.clockIntervalId);
+				window.clearInterval(this.clockIntervalId);
 			}
 		}, 500);
 	}
 
 	setDisconnected() {
-		clearInterval(this.clockIntervalId);
+		window.clearInterval(this.clockIntervalId);
 
-		this.host.controls.handUp = false;
-		this.host.controls.fullscreen = false;
+		this.host.cleanup();
 	}
 
 	private onChatState() {
