@@ -223,6 +223,13 @@ declare module "janus-gateway" {
 		detach(params?: DetachOptions): void;
 	}
 
+	interface JanusRoomParticipant {
+		display?: string;
+		id?: number;
+		publisher?: boolean;
+		talking?: boolean;
+	}
+
 	class Janus {
 		static webRTCAdapter: any;
 		static safariVp8: boolean;

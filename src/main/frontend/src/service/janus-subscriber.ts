@@ -18,12 +18,14 @@ export class JanusSubscriber extends JanusParticipant {
 	isPrimary = false;
 
 
-	constructor(janus: Janus, publisherId: any, roomId: number, opaqueId: string) {
+	constructor(janus: Janus, publisherId: any, publisherName: string, roomId: number, opaqueId: string) {
 		super(janus);
 
 		this.publisherId = publisherId;
 		this.roomId = roomId;
 		this.opaqueId = opaqueId;
+
+		this.view.name = publisherName;
 	}
 
 	override connect() {

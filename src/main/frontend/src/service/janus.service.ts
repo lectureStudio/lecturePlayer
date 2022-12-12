@@ -1,4 +1,4 @@
-import { Janus, PluginHandle } from "janus-gateway";
+import { Janus, JanusRoomParticipant, PluginHandle } from "janus-gateway";
 import { JanusPublisher } from "./janus-publisher";
 import { JanusSubscriber } from "./janus-subscriber";
 import { State } from "../utils/state";
@@ -49,7 +49,7 @@ export class JanusService extends EventTarget {
 	connect() {
 		// Initialize the library (all console debuggers enabled).
 		Janus.init({
-			// debug: "all",
+			debug: "all",
 			callback: () => {
 				// Make sure the browser supports WebRTC.
 				if (!Janus.isWebrtcSupported()) {
@@ -166,7 +166,7 @@ export class JanusService extends EventTarget {
 
 				if (canJoin) {
 					for (let i in res.participants) {
-						const publisher = res.participants[i];
+						const publisher: JanusRoomParticipant = res.participants[i];
 
 						this.attachToPublisher(publisher, !publisher.display);
 					}
@@ -208,8 +208,8 @@ export class JanusService extends EventTarget {
 		this.publishers = this.publishers.filter(pub => pub !== publisher);
 	}
 
-	private attachToPublisher(publisher: any, isPrimary: boolean) {
-		const subscriber = new JanusSubscriber(this.janus, publisher.id, this.roomId, this.opaqueId);
+	private attachToPublisher(publisher: JanusRoomParticipant, isPrimary: boolean) {
+		const subscriber = new JanusSubscriber(this.janus, publisher.id, publisher.display, this.roomId, this.opaqueId);
 		subscriber.setDeviceSettings(Settings.getDeviceSettings());
 		subscriber.addEventListener("janus-participant-connection-connected", this.onParticipantConnectionConnected.bind(this));
 		subscriber.addEventListener("janus-participant-connection-disconnected", this.onParticipantConnectionDisconnected.bind(this));
@@ -279,7 +279,7 @@ export class JanusService extends EventTarget {
 			this.stopSpeech();
 			this.janus.destroy({
 				cleanupHandles: false,
-				unload: true,
+				unload: false,
 				notifyDestroyed: false
 			});
 		}

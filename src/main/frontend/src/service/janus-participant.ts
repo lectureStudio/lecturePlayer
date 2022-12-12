@@ -52,8 +52,8 @@ export abstract class JanusParticipant extends EventTarget {
 	abstract connect(): void;
 
 	disconnect() {
-		this.handle.hangup();
-		this.handle.detach();
+		//this.handle.hangup();
+		//this.handle.detach();
 
 		this.setState(State.DISCONNECTED);
 	}
