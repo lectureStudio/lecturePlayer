@@ -44,6 +44,8 @@
 	"course.feature.message.placeholder": "Geben Sie Ihre Nachricht ein",
 	"course.feature.message.send": "Senden",
 	"course.feature.message.send.error": "Nachricht konnte nicht gesendet werden",
+	"course.feature.message.send.error.connection": "Verbindungsfehler: Nachricht konnte nicht gesendet werden",
+	"course.feature.message.send.error.recipient": "Teilnehmer:in nicht verfügbar: Nachricht konnte nicht gesendet werden",
 	"course.feature.message.sent": "Ihre Nachricht wurde erfolgreich verschickt",
 	"course.feature.message.target": "Senden an",
 	"course.feature.message.target.all": "Alle",

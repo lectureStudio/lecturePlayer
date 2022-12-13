@@ -55,14 +55,28 @@ export class ChatBox extends I18nLitElement {
 		this.messageService.postMessage(messageForm)
 			.then(() => {
 				Toaster.showSuccess(`${t("course.feature.message.sent")}`);
+
+				// Reset form only on success.
+				messageForm.reset();
 			})
 			.catch(error => {
 				console.error(error);
 
-				Toaster.showError(`${t("course.feature.message.send.error")}`);
+				let errorMessage: string;
+
+				if (error === "connection") {
+					errorMessage = t("course.feature.message.send.error.connection");
+				}
+				else if (error === "recipient") {
+					errorMessage = t("course.feature.message.send.error.recipient");
+				}
+				else {
+					errorMessage = t("course.feature.message.send.error");
+				}
+
+				Toaster.showError(errorMessage);
 			})
 			.finally(() => {
-				messageForm.reset();
 				submitButton.disabled = false;
 			});
 	}

@@ -44,6 +44,8 @@
 	"course.feature.message.placeholder": "Enter your Message",
 	"course.feature.message.send": "Send",
 	"course.feature.message.send.error": "Failed to send message",
+	"course.feature.message.send.error.connection": "Connection Error: Failed to send message",
+	"course.feature.message.send.error.recipient": "Participant not available: Failed to send message",
 	"course.feature.message.sent": "Your message has been successfully sent",
 	"course.feature.message.target": "Send to",
 	"course.feature.message.target.all": "Everyone",

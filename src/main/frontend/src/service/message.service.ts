@@ -3,6 +3,13 @@ import { EventSubService } from "./event.service";
 import { chatHistory } from '../model/chat-history';
 import { course } from '../model/course';
 
+export enum ChatRecipientType {
+
+	Public = "public",
+	Organisers = "organisers"
+
+}
+
 export interface ChatMessage {
 
 	serviceId: string;
@@ -72,17 +79,21 @@ export class MessageService extends EventTarget implements EventSubService {
 			serviceId: course.chatFeature.featureId,
 			text: data.get("text").toString()
 		};
-		const recipient = data.get("recipient").toString();
+		const recipient = data.get("recipient");
+
+		if (!recipient) {
+			return Promise.reject("recipient");
+		}
 
 		return new Promise<void>((resolve, reject) => {
 			if (!this.client.connected) {
-				reject();
+				reject("connection");
 				return;
 			}
 
 			const headers: StompHeaders = {
 				courseId: this.courseId.toString(),
-				recipient: recipient,
+				recipient: recipient.toString(),
 			}
 
 			this.client.publish({
