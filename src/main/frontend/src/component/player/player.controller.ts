@@ -33,7 +33,6 @@ import { participants } from '../../model/participants';
 import { chatHistory } from '../../model/chat-history';
 import { ParticipantsModal } from '../participants-modal/participants.modal';
 import { VpnModal } from '../vpn-modal/vpn.modal';
-import { StatsModal } from '../stats-modal/stats.modal';
 
 export class PlayerController implements ReactiveController {
 
@@ -99,7 +98,6 @@ export class PlayerController implements ReactiveController {
 		this.host.privilegeService = this.privilegeService;
 
 		this.host.addEventListener("player-fullscreen", this.onFullscreen.bind(this));
-		this.host.addEventListener("player-stats-action", this.onStatsAction.bind(this), false);
 		this.host.addEventListener("player-settings", this.onSettings.bind(this), false);
 		this.host.addEventListener("player-hand-action", this.onHandAction.bind(this), false);
 		this.host.addEventListener("player-quiz-action", this.onQuizAction.bind(this), false);
@@ -325,15 +323,9 @@ export class PlayerController implements ReactiveController {
 		this.setFullscreen(event.detail.fullscreen === true);
 	}
 
-	private onStatsAction() {
-		const statsModal = new StatsModal();
-		statsModal.janusService = this.janusService;
-
-		this.registerModal("StatsModal", statsModal);
-	}
-
 	private onSettings() {
 		const settingsModal = new SettingsModal();
+		settingsModal.janusService = this.janusService;
 
 		this.registerModal("SettingsModal", settingsModal);
 	}

@@ -49,7 +49,7 @@ export class JanusService extends EventTarget {
 	connect() {
 		// Initialize the library (all console debuggers enabled).
 		Janus.init({
-			debug: "all",
+			// debug: "all",
 			callback: () => {
 				// Make sure the browser supports WebRTC.
 				if (!Janus.isWebrtcSupported()) {

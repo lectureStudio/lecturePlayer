@@ -14,7 +14,7 @@ export const I18nMixin = <T extends Constructor<LitElement>>(superClass: T) => {
 		];
 
 
-		connectedCallback() {
+		override connectedCallback() {
 			super.connectedCallback();
 
 			this.initialize();

@@ -1,11 +1,10 @@
 import { html } from "lit";
-import { Modal } from "../modal/modal";
 import { customElement } from "lit/decorators.js";
-import { t } from '../i18n-mixin';
-import { statsModalStyles } from "./stats.modal.tyles";
+import { I18nLitElement, t } from '../i18n-mixin';
 import { course } from "../../model/course";
 import { AudioStats, DataStats, DocumentStats, VideoStats } from "../../model/stream-stats";
 import { JanusService } from "../../service/janus.service";
+import { streamStatsStyles } from "./stream-stats.styles";
 
 interface StatsEntry {
 
@@ -15,12 +14,12 @@ interface StatsEntry {
 
 }
 
-@customElement("stats-modal")
-export class StatsModal extends Modal {
+@customElement("stream-stats")
+export class StreamStats extends I18nLitElement {
 
 	static styles = [
-		Modal.styles,
-		statsModalStyles
+		I18nLitElement.styles,
+		streamStatsStyles
 	];
 
 	private readonly intervalMs: number = 1000;
@@ -30,54 +29,41 @@ export class StatsModal extends Modal {
 	janusService: JanusService;
 
 
-	override open() {
+	override connectedCallback() {
+		super.connectedCallback();
+
 		this.janusService.startStatsCapture();
 
-		super.open();
-	}
-
-	override opened() {
 		this.timerId = window.setInterval(this.requestUpdate.bind(this), this.intervalMs);
-
-		super.opened();
 	}
 
-	override closed() {
+	override disconnectedCallback() {
 		this.janusService.stopStatsCapture();
 
 		window.clearInterval(this.timerId);
 		delete this.timerId;
 
-		super.closed();
+		super.disconnectedCallback();
 	}
 
 	protected render() {
 		return html`
-			<web-dialog @open="${this.opened}" ?open="${this.show}" @close="${this.closed}" @closing="${this.closing}">
-				<article>
-					<player-tabs>
-						<p slot="tab">${t("stats.audio")}</p>
-						<p slot="panel">${this.renderStatsTable(this.getAudioStats(course.streamStats.audioStats))}</p>
+			<player-tabs>
+				<p slot="tab">${t("stats.audio")}</p>
+				<p slot="panel">${this.renderStatsTable(this.getAudioStats(course.streamStats.audioStats))}</p>
 
-						<p slot="tab">${t("stats.camera")}</p>
-						<p slot="panel">${this.renderStatsTable(this.getVideoStats(course.streamStats.cameraStats))}</p>
+				<p slot="tab">${t("stats.camera")}</p>
+				<p slot="panel">${this.renderStatsTable(this.getVideoStats(course.streamStats.cameraStats))}</p>
 
-						<p slot="tab">${t("stats.screen")}</p>
-						<p slot="panel">${this.renderStatsTable(this.getVideoStats(course.streamStats.screenStats))}</p>
+				<p slot="tab">${t("stats.screen")}</p>
+				<p slot="panel">${this.renderStatsTable(this.getVideoStats(course.streamStats.screenStats))}</p>
 
-						<p slot="tab">${t("stats.documents")}</p>
-						<p slot="panel">${this.renderStatsTable(this.getDocumentStats(course.streamStats.documentStats))}</p>
+				<p slot="tab">${t("stats.documents")}</p>
+				<p slot="panel">${this.renderStatsTable(this.getDocumentStats(course.streamStats.documentStats))}</p>
 
-						<p slot="tab">${t("stats.events")}</p>
-						<p slot="panel">${this.renderStatsTable(this.getDataStats(course.streamStats.dataStats))}</p>
-					</player-tabs>
-				</article>
-				<footer>
-					<button type="button" @click="${this.close}" class="btn btn-outline-secondary btn-sm">
-						${t("course.feature.close")}
-					</button>
-				</footer>
-			</web-dialog>
+				<p slot="tab">${t("stats.events")}</p>
+				<p slot="panel">${this.renderStatsTable(this.getDataStats(course.streamStats.dataStats))}</p>
+			</player-tabs>
 		`;
 	}
 

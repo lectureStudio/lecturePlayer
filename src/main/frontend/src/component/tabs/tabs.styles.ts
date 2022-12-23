@@ -3,6 +3,7 @@ import { css } from 'lit';
 export const playerTabsStyles = css`
 	nav {
 		display: flex;
+		flex-wrap: wrap;
 	}
 	nav > ::slotted([slot="tab"]) {
 		cursor: pointer;
@@ -14,6 +15,7 @@ export const playerTabsStyles = css`
 	}
 	nav > ::slotted([slot="tab"][selected]) {
 		border-color: black;
+		color: #185ee0;
 	}
 	::slotted([slot="panel"]) {
 		display: none;

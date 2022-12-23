@@ -39,7 +39,7 @@ export class PlayerTabs extends I18nLitElement {
 
 	render() {
 		return html`
-			<nav>
+			<nav part="nav">
 				<slot name="tab" @click=${this.handleSelect}></slot>
 			</nav>
 			<slot name="panel"></slot>
