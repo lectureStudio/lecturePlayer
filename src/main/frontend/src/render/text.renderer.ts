@@ -32,7 +32,18 @@ class TextRenderer implements ShapeRenderer {
 		context.setTransform(1, 0, 0, 1, 0, 0);
 		context.font = scaledFont.toString();
 		context.fillStyle = shape.getTextColor().toRgba();
-		context.fillText(text, x, y + scaledHeight);
+
+		this.fillTextMultiLine(context, text, x, y, scaledHeight);
+	}
+
+	fillTextMultiLine(context: CanvasRenderingContext2D, text: string, x: number, y: number, lineHeight: number) {
+		const lines = text.split("\n");
+
+		for (var i = 0; i < lines.length; ++i) {
+			context.fillText(lines[i], x, y);
+
+			y += lineHeight;
+		}
 	}
 }
 
