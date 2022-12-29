@@ -48,14 +48,14 @@ export class SettingsModal extends Modal {
 				</header>
 				<article>
 					<player-tabs>
-						<p slot="tab">${t("settings.stats")}</p>
-						<p slot="panel"><stream-stats .janusService="${this.janusService}"></stream-stats></p>
-
-						<p slot="tab">${t("settings.sound")}</p>
+						<p slot="tab">${t("settings.audio")}</p>
 						<p slot="panel"><sound-settings></sound-settings></p>
 
 						<p slot="tab">${t("settings.camera")}</p>
 						<p slot="panel"><camera-settings></camera-settings></p>
+
+						<p slot="tab">${t("settings.stats")}</p>
+						<p slot="panel"><stream-stats .janusService="${this.janusService}"></stream-stats></p>
 					</player-tabs>
 				</article>
 				<footer>

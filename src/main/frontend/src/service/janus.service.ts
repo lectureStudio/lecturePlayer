@@ -168,7 +168,7 @@ export class JanusService extends EventTarget {
 					for (let i in res.participants) {
 						const publisher: JanusRoomParticipant = res.participants[i];
 
-						this.attachToPublisher(publisher, !publisher.display);
+						this.attachToPublisher(publisher, true);
 					}
 				}
 				else {
