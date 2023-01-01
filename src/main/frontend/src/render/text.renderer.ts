@@ -40,7 +40,7 @@ class TextRenderer implements ShapeRenderer {
 		const lines = text.split("\n");
 
 		if (lines.length > 0) {
-			const metrics = context.measureText(lines[0]);
+			const metrics = context.measureText("Xg");
 
 			y += metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
 		}

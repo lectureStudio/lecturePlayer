@@ -218,7 +218,12 @@ export class RenderController {
 				break;
 
 			case PageChangeType.ShapeModified:
-				this.renderVolatileLayer(event.shape, event.dirtyRegion);
+				if (event.shape.getShapeType() === "text") {
+					this.renderAllLayers(this.page);
+				}
+				else {
+					this.renderVolatileLayer(event.shape, event.dirtyRegion);
+				}
 				break;
 		}
 	}
