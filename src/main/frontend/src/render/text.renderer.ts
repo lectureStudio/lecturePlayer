@@ -39,6 +39,12 @@ class TextRenderer implements ShapeRenderer {
 	fillTextMultiLine(context: CanvasRenderingContext2D, text: string, x: number, y: number, lineHeight: number) {
 		const lines = text.split("\n");
 
+		if (lines.length > 0) {
+			const metrics = context.measureText(lines[0]);
+
+			y += metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+		}
+
 		for (var i = 0; i < lines.length; ++i) {
 			context.fillText(lines[i], x, y);
 

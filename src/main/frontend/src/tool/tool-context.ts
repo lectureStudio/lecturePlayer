@@ -15,11 +15,15 @@ class ToolContext {
 	}
 
 	beginBulkRender(): void {
-		this.renderController.beginBulkRender();
+		if (this.renderController) {
+			this.renderController.beginBulkRender();
+		}
 	}
 
 	endBulkRender(): void {
-		this.renderController.endBulkRender();
+		if (this.renderController) {
+			this.renderController.endBulkRender();
+		}
 	}
 }
 
