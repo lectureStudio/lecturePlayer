@@ -30,7 +30,8 @@ class PdfTextRenderer {
 			textContent: textContent,
 			container: root,
 			viewport: viewport,
-			enhanceTextSelection: true,
+			// enhanceTextSelection: true,
+			textLayerMode: 2,
 			textDivs: []
 		})
 		.promise.catch((reason: any) => {
