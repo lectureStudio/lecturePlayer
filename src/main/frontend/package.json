@@ -22,7 +22,7 @@
 	"author": "Alex Andres",
 	"license": "Apache-2.0",
 	"devDependencies": {
-		"@alienfast/i18next-loader": "^1.1.4",
+		"@alienfast/i18next-loader": "^2.0.1",
 		"@babel/cli": "^7.17.6",
 		"@babel/core": "^7.17.5",
 		"@babel/plugin-proposal-class-properties": "^7.16.7",
