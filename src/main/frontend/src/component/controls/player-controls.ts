@@ -5,6 +5,7 @@ import { Utils } from '../../utils/utils';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { playerControlsStyles } from './player-controls.styles';
 import { course } from '../../model/course';
+import { participants } from '../../model/participants';
 
 @customElement('player-controls')
 export class PlayerControls extends I18nLitElement {
@@ -64,6 +65,14 @@ export class PlayerControls extends I18nLitElement {
 	@property({ type: Boolean, reflect: true })
 	handUp: boolean = false;
 
+	@property({ type: Boolean, reflect: true })
+	mutedMic: boolean = false;
+
+	@property({ type: Boolean, reflect: true })
+	mutedCam: boolean = false;
+
+	@property({ type: Boolean, reflect: true })
+	isConference: boolean = false;
 
 	override connectedCallback() {
 		super.connectedCallback()
@@ -76,6 +85,8 @@ export class PlayerControls extends I18nLitElement {
 
 		this.hasChat = course.chatFeature != null && course.chatFeature.featureId != null;
 		this.hasQuiz = course.quizFeature != null && course.quizFeature.featureId != null;
+
+		this.isConference = course.conference;
 	}
 
 	protected firstUpdated(): void {
@@ -123,6 +134,22 @@ export class PlayerControls extends I18nLitElement {
 			this.setVolume(this.mutedVolume);
 			this.mutedVolume = null;
 		}		
+	}
+
+	private onMuteMic(): void {
+		this.mutedMic = !this.mutedMic;
+
+		this.dispatchEvent(Utils.createEvent("player-mic", {
+			mutedMic: this.mutedMic
+		}));
+	}
+
+	private onMuteVideo(): void {
+		this.mutedCam = !this.mutedCam;
+		
+		this.dispatchEvent(Utils.createEvent("player-cam", {
+			mutedCam: this.mutedCam,
+		}));
 	}
 
 	private onHand(): void {
@@ -187,6 +214,16 @@ export class PlayerControls extends I18nLitElement {
 	render() {
 		return html`
 			<div class="col nav-left">
+				<button @click="${this.onMuteMic}" class="conference-control" id="mic-button">
+					<span class="icon-mic"></span>
+					<span class="icon-mic-muted"></span>
+					<ui-tooltip for="mic-button" .text="${this.mutedMic ? t("controls.mic.unmute") : t("controls.mic.mute")}"></ui-tooltip>
+				</button>
+				<button @click="${this.onMuteVideo}" class="conference-control" id="cam-button">
+					<span class="icon-cam"></span>
+					<span class="icon-cam-muted"></span>
+					<ui-tooltip for="cam-button" .text="${this.mutedCam ? t("controls.cam.unmute") : t("controls.cam.mute")}"></ui-tooltip>
+				</button>
 				<button id="volumeIndicator" @click="${this.onMuteAudio}">
 					<span class="icon-audio-mute"></span>
 					<span class="icon-audio-off"></span>

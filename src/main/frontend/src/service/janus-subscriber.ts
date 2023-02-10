@@ -15,7 +15,7 @@ export class JanusSubscriber extends JanusParticipant {
 
 	private readonly opaqueId: string;
 
-	isPrimary = false;
+	isPrimary = true;
 
 
 	constructor(janus: Janus, publisherId: any, publisherName: string, roomId: number, opaqueId: string) {
@@ -111,28 +111,38 @@ export class JanusSubscriber extends JanusParticipant {
 		this.addTrack(mid, track);
 	}
 
-	private onData(data: ArrayBuffer | Blob) {
-		if (data instanceof Blob) {
+	private onData(data: any | ArrayBuffer | Blob) {
+
+		if ((typeof data) == "string") {
+			const message = JSON.parse(data);
+			console.log("onData", message.muted, message.id)
+
+			document.dispatchEvent(Utils.createEvent("subscriber-cam-mute", {
+				muted: message.muted,
+				id: message.id
+			}))
+		} 
+		/*else if (data instanceof Blob) {
 			// Firefox...
 			data.arrayBuffer().then(buffer => {
 				this.processData(buffer);
 			});
-		}
-		else {
-			this.processData(data);
-		}
+			}
+			else {
+				this.processData(data);
+			}
 
-		this.dispatchEvent(Utils.createEvent("janus-participant-data", {
-			participant: this,
-			data: data
-		}));
+			this.dispatchEvent(Utils.createEvent("janus-participant-data", {
+				participant: this,
+				data: data
+			}));*/
 	}
 
 	private processData(data: ArrayBuffer) {
 		const dataView = new ProgressiveDataView(data);
 		const length = dataView.getInt32();
 		const type = dataView.getInt8();
-
+		
 		const action = StreamActionParser.parse(dataView, type, length);
 
 		if (action instanceof StreamMediaChangeAction) {

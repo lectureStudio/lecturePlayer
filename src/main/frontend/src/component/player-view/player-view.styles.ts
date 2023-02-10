@@ -65,6 +65,11 @@ export const playerViewStyles = css`
 		align-items: flex-end;
 		width: 100%;
 	}
+	:host .conference-container {
+		display: flex;
+		height: 100%;
+		place-content: center;
+	}
 	:host slide-view {
 		display: flex;
 		width: 100%;
@@ -119,7 +124,9 @@ export const playerViewStyles = css`
 	:host([screenVisible]) slide-view {
 		display: none !important;
 	}
-
+	:host(:not([slidesVisible])) .slide-container {
+		display: none !important;
+	}
 
 	@media (min-width: 576px) {
 		:host > div {

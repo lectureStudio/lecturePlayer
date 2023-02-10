@@ -1,5 +1,9 @@
 import { Janus, JSEP, PluginHandle } from "janus-gateway";
+import { course } from "../model/course";
+import { participants } from "../model/participants";
+import { HttpRequest } from "../utils/http-request";
 import { State } from "../utils/state";
+import { Utils } from "../utils/utils";
 import { JanusParticipant } from "./janus-participant";
 
 export class JanusPublisher extends JanusParticipant {
@@ -10,13 +14,20 @@ export class JanusPublisher extends JanusParticipant {
 
 	private publisherId: bigint;
 
+	private publisherName: string;
 
-	constructor(janus: Janus, roomId: number, opaqueId: string) {
+
+	constructor(janus: Janus, roomId: number, opaqueId: string, userName: string) {
 		super(janus);
 
 		this.roomId = roomId;
 		this.opaqueId = opaqueId;
 		this.view.isLocal = true;
+		this.publisherName = userName;
+		this.view.name = userName;
+
+		//this.view.addEventListener("participant-cam-mute", this.onMuteVideo.bind(this));
+
 	}
 
 	override connect() {
@@ -49,19 +60,48 @@ export class JanusPublisher extends JanusParticipant {
 	}
 
 	private onConnected(handle: PluginHandle) {
+		
+		console.log("joining")
+	
 		this.handle = handle;
 
 		const subscribe = {
 			request: "join",
 			ptype: "publisher",
 			room: this.roomId,
-			display: Janus.randomString(12)
+			display: this.publisherName ? this.publisherName : course.userId
 		};
 
 		this.handle.send({ message: subscribe });
+
+		const audioLevel = {
+			request: "configure",
+			record: true
+
+		};
+		
+		this.handle.send({ message: audioLevel });
+
+		const list = {
+			request: "list",
+		};
+		
+		this.handle.send({ message: list });
+	}
+
+	protected onWebRtcState(isConnected: boolean) {
+		Janus.log("Janus says our WebRTC PeerConnection is " + (isConnected ? "up" : "down") + " now");
+
+		if (!isConnected) {
+			this.setState(State.DISCONNECTED);
+		}
+		if(isConnected) {
+			console.log("handlePub",this.handle)
+		}
 	}
 
 	private onMessage(message: any, jsep?: JSEP) {
+		console.log("message", message)
 		const event = message["videoroom"];
 
 		if (message["error"]) {
@@ -82,15 +122,40 @@ export class JanusPublisher extends JanusParticipant {
 			if (event === "joined") {
 				this.publisherId = BigInt(message["id"]);
 
+				console.log("joined", message)
+
 				this.createOffer();
 				this.setState(State.CONNECTING);
 			}
+	
 			if (event === "event") {
 				const configured = message.configured;
+				const publishers = message.publishers;
+				const leaving = message.leaving;
+
+				if (publishers) {
+					for (let publisher of publishers) {
+						this.dispatchEvent(Utils.createEvent("publisher-room", publisher));
+					}
+				}
+
+				if (leaving) {
+					document.dispatchEvent(Utils.createEvent("leaving-room", leaving));
+				}
 
 				if (configured === "ok") {
 					this.setState(State.CONNECTED);
 				}
+			}
+
+			if(event === "talking" || event === "stopped-talking") {
+				console.log("talking", message)
+				const talking = {
+					id: message.id,
+					state: event
+				}
+				//const publisherId = message.id;
+				document.dispatchEvent(Utils.createEvent("participant-talking", talking));
 			}
 		}
 
@@ -137,6 +202,7 @@ export class JanusPublisher extends JanusParticipant {
 				},
 				failIfNoAudio: true,
 				failIfNoVideo: false,
+				data: true
 			},
 			success: (jsep: JSEP) => {
 				Janus.debug("Got publisher SDP!", jsep);
@@ -156,7 +222,7 @@ export class JanusPublisher extends JanusParticipant {
 			},
 			error: (error: any) => {
 				Janus.error("WebRTC error:", error);
-
+				console.log("error  " + error);
 				this.onError(error);
 			}
 		});
@@ -210,5 +276,32 @@ export class JanusPublisher extends JanusParticipant {
 		else if (kind === "video") {
 			this.view.removeVideo();
 		}
+	}
+
+	protected onMuteVideo() {
+		const muted = this.view.camMute;
+		muted ? this.view.video?.classList.add("hide-video") : this.view.video?.classList.remove("hide-video");
+		//this.handle.send({ message: this.configureMediaMute("1", muted) });
+
+		const message = JSON.stringify({muted: muted, id: Number(this.publisherId)})
+		
+		this.handle.data({
+			text: message,
+			error: function(error:any) {console.log(error)},
+			success: function() {console.log("data send")},
+		});
+	}
+
+	protected configureMediaMute(mid: string, send: boolean) {		
+		const configure = {
+			request: "configure",
+			streams: [
+				{
+					"mid" : mid,
+					"send" : send
+				}
+			]
+		};
+		return configure;
 	}
 }

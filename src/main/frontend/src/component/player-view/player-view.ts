@@ -13,6 +13,11 @@ import { ScreenView } from '../screen-view/screen-view';
 import { SlideLayout } from '../../model/slide-layout';
 import { State } from '../../utils/state';
 import Split from 'split.js'
+import { ConferenceView } from '../conference-view/conference-view';
+import { participants } from '../../model/participants';
+import { Utils } from '../../utils/utils';
+import { ConferenceTile } from '../conference-tile/conference-tile';
+
 
 @customElement('player-view')
 export class PlayerView extends I18nLitElement {
@@ -54,6 +59,11 @@ export class PlayerView extends I18nLitElement {
 	@query("screen-view")
 	screenView: ScreenView;
 
+	@query("conference-view")
+	conferenceView: ConferenceView;
+
+	@query(".video-conference")
+	videoConferenceContainer: HTMLElement;
 
 	getController(): PlayerViewController {
 		return this.controller;
@@ -63,13 +73,18 @@ export class PlayerView extends I18nLitElement {
 		return this.renderRoot.querySelector("slide-view");
 	}
 
-	addParticipant(view: ParticipantView) {
+	addParticipant(view: ParticipantView, tileId: number) {
 		view.addEventListener("participant-state", this.onParticipantState.bind(this));
 		view.addEventListener("participant-screen-stream", this.onParticipantScreenStream.bind(this));
 		view.addEventListener("participant-screen-visibility", this.onParticipantScreenVisibility.bind(this));
 		view.setVolume(this.controls.volume);
 
-		this.videoFeedContainer.appendChild(view);
+		if (course.conference) {
+			this.conferenceView.addParticipantView(view, tileId);
+		}
+		else {
+			this.videoFeedContainer.appendChild(view);
+		}
 	}
 
 	removeParticipant(view: ParticipantView) {
@@ -183,8 +198,12 @@ export class PlayerView extends I18nLitElement {
 						<participants-box .privilegeService="${this.privilegeService}"></participants-box>
 						` : ''}
 					</div>
+					<button @click=${this.addDummyViews}>Add Dummy!</button>
 				</div>
 				<div class="center-container">
+					<div class="conference-container">
+						<conference-view></conference-view>
+					</div>
 					<div class="slide-container">
 						<slide-view class="slides"></slide-view>
 						<screen-view></screen-view>
@@ -204,6 +223,15 @@ export class PlayerView extends I18nLitElement {
 				</div>
 			</div>
 		`;
+	}
+
+	private addDummyViews() {
+		const view: ParticipantView = new ParticipantView;
+		view.addVideo
+		view.setState(State.CONNECTED);
+		view.hasVideo = true;
+		view.name = "testname";
+		this.conferenceView.addParticipantView(view, 323);
 	}
 
 	private onParticipantState(event: CustomEvent) {

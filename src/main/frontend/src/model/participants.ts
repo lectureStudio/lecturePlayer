@@ -5,7 +5,6 @@ class Participants extends EventTarget {
 
 	private _participants: CourseParticipant[] = [];
 
-
 	get participants(): CourseParticipant[] {
 		return this._participants;
 	}

@@ -52,6 +52,8 @@ export class ParticipantView extends I18nLitElement {
 
 	volume: number;
 
+	@property({ type: Boolean, reflect: true })
+	isConference: boolean = false;
 
 	constructor() {
 		super();
@@ -59,9 +61,13 @@ export class ParticipantView extends I18nLitElement {
 		document.addEventListener("player-volume", this.onAudioVolume.bind(this));
 		document.addEventListener("player-start-media", this.onStartMediaPlayback.bind(this));
 		document.addEventListener("speaker-setting-changed", this.onSpeakerSetting.bind(this));
+		document.addEventListener("player-mic", this.onAudioMute.bind(this));
+		document.addEventListener("player-cam", this.onVideoMute.bind(this));
 
 		this.micActive = course.mediaState.microphoneActive;
 		this.camActive = course.mediaState.cameraActive;
+
+		this.isConference = course.conference;
 	}
 
 	setState(state: State) {
@@ -192,16 +198,24 @@ export class ParticipantView extends I18nLitElement {
 		}
 	}
 
-	private onAudioMute(): void {
-		this.micMute = !this.micMute;
+	private onAudioMute(e: CustomEvent) {
+		const controls = e.detail;
+		if(controls.mutedMic) {
+			this.micMute = controls.mutedMic;
+		}
+		else this.micMute = !this.micMute;
 
 		this.dispatchEvent(Utils.createEvent("participant-mic-mute", {
 			mute: this.micMute
 		}));
 	}
 
-	private onVideoMute(): void {
-		this.camMute = !this.camMute;
+	private onVideoMute(e: CustomEvent) {
+		const controls = e.detail;
+		if(controls.mutedCam) {
+			this.camMute = controls.mutedCam;
+		}
+		else this.camMute = !this.camMute;
 
 		this.dispatchEvent(Utils.createEvent("participant-cam-mute", {
 			camMute: this.camMute
@@ -220,11 +234,11 @@ export class ParticipantView extends I18nLitElement {
 						</div>
 					</div>
 					<div class="buttons">
-						<button @click="${this.onAudioMute}">
+						<button @click="${this.onAudioMute}" class="conference-control">
 							<span class="icon-mic" id="mic-local"></span>
 							<span class="icon-mic-muted" id="mic-local-muted"></span>
 						</button>
-						<button @click="${this.onVideoMute}">
+						<button @click="${this.onVideoMute}" class="conference-control">
 							<span class="icon-cam" id="cam-local"></span>
 							<span class="icon-cam-muted" id="cam-local-muted"></span>
 						</button>

@@ -214,17 +214,40 @@ export const playerControlsStyles = css`
 	:host([participantsVisible]) #participants-button {
 		color: #007db5;
 	}
-
 	:host([hasQuiz]) #quiz-button {
 		animation: button-pulse 2s 5;
 	}
 	:host(:not([hasQuiz])) #quiz-button {
 		display: none;
 	}
-
+	:host([mutedMic]) .icon-mic,
+	:not([mutedMic]) .icon-mic-muted {
+		display: none;
+	}
+	:host([mutedMic]) .icon-mic-muted,
+	:not([mutedMic]) .icon-mic {
+		display: initial;
+	}
+	:host([mutedMic]) .icon-mic-muted {
+		color: #DC2626;
+	}
+	:host([mutedCam]) .icon-cam,
+	:not([mutedCam]) .icon-cam-muted {
+		display: none;
+	}
+	:host([mutedCam]) .icon-cam-muted,
+	:not([mutedCam]) .icon-cam {
+		display: initial;
+	}
+	:host([mutedCam]) .icon-cam-muted {
+		color: #DC2626;
+	}
 	:host([handUp]) #hand-button {
 		background: rgba(21, 128, 61, 0.2);
 		color: #166534;
+	}
+	:host(:not([isConference])) .conference-control {
+		display: none;
 	}
 
 	#volumeIndicator > span {

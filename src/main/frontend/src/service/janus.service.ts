@@ -26,6 +26,8 @@ export class JanusService extends EventTarget {
 
 	private intervalId: number;
 
+	private userName: string;
+
 
 	constructor(serverUrl: string, actionProcessor: StreamActionProcessor) {
 		super();
@@ -36,6 +38,7 @@ export class JanusService extends EventTarget {
 		this.subscribers = [];
 
 		this.opaqueId = "user-" + Janus.randomString(42);
+
 	}
 
 	setUserId(userId: string) {
@@ -44,6 +47,10 @@ export class JanusService extends EventTarget {
 
 	setRoomId(roomId: number) {
 		this.roomId = roomId;
+	}
+
+	setUserName(userName: string) {
+		this.userName = userName;
 	}
 
 	connect() {
@@ -84,11 +91,22 @@ export class JanusService extends EventTarget {
 	}
 
 	startSpeech(deviceSettings: DeviceSettings) {
-		const publisher = new JanusPublisher(this.janus, this.roomId, this.opaqueId);
+		const publisher = new JanusPublisher(this.janus, this.roomId, this.opaqueId, this.userName);
 		publisher.setDeviceSettings(deviceSettings);
 		publisher.addEventListener("janus-participant-error", this.onPublisherError.bind(this));
 		publisher.addEventListener("janus-participant-state", this.onPublisherState.bind(this));
 		publisher.addEventListener("janus-participant-destroyed", this.onPublisherDestroyed.bind(this));
+		publisher.connect();
+	}
+
+	attachAsPublisher() {
+		console.log("attchAsPub")
+		const publisher = new JanusPublisher(this.janus, this.roomId, this.opaqueId, this.userName);
+		publisher.setDeviceSettings(Settings.getDeviceSettings());
+		publisher.addEventListener("janus-participant-error", this.onPublisherError.bind(this));
+		publisher.addEventListener("janus-participant-state", this.onPublisherState.bind(this));
+		publisher.addEventListener("janus-participant-destroyed", this.onPublisherDestroyed.bind(this));
+		publisher.addEventListener("publisher-room", this.onPublisherRoom.bind(this));
 		publisher.connect();
 	}
 
@@ -123,6 +141,7 @@ export class JanusService extends EventTarget {
 			server: this.serverUrl,
 			destroyOnUnload: true,
 			success: () => {
+				console.log("createSession success");
 				if (this.janus.getSessionId()) {
 					this.attach();
 				}
@@ -144,7 +163,7 @@ export class JanusService extends EventTarget {
 			opaqueId: this.opaqueId,
 			success: (pluginHandle: PluginHandle) => {
 				Janus.log("Plugin attached! (" + pluginHandle.getPlugin() + ", id=" + pluginHandle.getId() + ")");
-
+				this.attachAsPublisher();
 				this.getParticipants(pluginHandle);
 			},
 			error: (cause: any) => {
@@ -167,7 +186,6 @@ export class JanusService extends EventTarget {
 				if (canJoin) {
 					for (let i in res.participants) {
 						const publisher: JanusRoomParticipant = res.participants[i];
-
 						this.attachToPublisher(publisher, true);
 					}
 				}
@@ -291,5 +309,10 @@ export class JanusService extends EventTarget {
 		if (subscriber.isPrimary) {
 			this.actionProcessor.processData(event.detail.data);
 		}
+	}
+
+	private onPublisherRoom(event: CustomEvent) {
+		const publisher: JanusRoomParticipant = event.detail;
+		this.attachToPublisher(publisher, true);
 	}
 }

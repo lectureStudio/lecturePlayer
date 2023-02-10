@@ -82,9 +82,9 @@ export class PlayerViewController implements ReactiveController {
 	private onParticipantState(event: CustomEvent) {
 		const view: ParticipantView = event.detail.view;
 		const state: State = event.detail.state;
-
+		const tileId: number = event.detail.participant.publisherId;
 		if (state === State.CONNECTING) {
-			this.host.addParticipant(view);
+			this.host.addParticipant(view, tileId);
 		}
 		else if (state === State.DISCONNECTED) {
 			this.host.removeParticipant(view);

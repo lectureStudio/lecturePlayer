@@ -18,7 +18,7 @@ module.exports = {
 		new webpack.ProvidePlugin({ adapter: ['webrtc-adapter', 'default'] }),
 	],
 	output: {
-		path: path.resolve(__dirname, '../resources/web-player-js'),
+		path: '/home/feil/workspace/lectureStreaming/src/main/resources/static/js/',
 		filename: '[name].js',
 		library: "lect",
 		libraryTarget: 'umd',

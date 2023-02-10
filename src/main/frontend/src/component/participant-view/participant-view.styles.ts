@@ -96,8 +96,6 @@ export const participantViewStyles = css`
 	:host(:not([isLocal])) .controls .buttons {
 		display: none;
 	}
-
-
 	:host([micActive]) #mic-remote-muted,
 	:not([micActive]) #mic-remote {
 		display: none;
@@ -109,8 +107,6 @@ export const participantViewStyles = css`
 	:not([micActive]) #mic-remote-muted {
 		color: #DC2626;
 	}
-
-
 	:host([micMute]) #mic-local,
 	:not([micMute]) #mic-local-muted {
 		display: none;
@@ -122,7 +118,6 @@ export const participantViewStyles = css`
 	:host([micMute]) #mic-local-muted {
 		color: #DC2626;
 	}
-
 	:host([camMute]) #cam-local,
 	:not([camMute]) #cam-local-muted {
 		display: none;
@@ -133,5 +128,11 @@ export const participantViewStyles = css`
 	}
 	:host([camMute]) #cam-local-muted {
 		color: #DC2626;
+	}
+	:host([isConference]) .conference-control {
+		display: none;
+	}
+	:host .hide-video {
+		display: none;
 	}
 `;

@@ -33,6 +33,7 @@ import { participants } from '../../model/participants';
 import { chatHistory } from '../../model/chat-history';
 import { ParticipantsModal } from '../participants-modal/participants.modal';
 import { VpnModal } from '../vpn-modal/vpn.modal';
+import { WhiteboardDocument } from '../../model/whiteboard.document';
 
 export class PlayerController implements ReactiveController {
 
@@ -83,7 +84,7 @@ export class PlayerController implements ReactiveController {
 		actionProcessor.onPeerConnected = this.onPeerConnected.bind(this);
 
 		this.courseStateService = new CourseStateService("https://" + window.location.host);
-		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus", actionProcessor);
+		this.janusService = new JanusService("https://" + window.location.hostname + "/janus", actionProcessor);
 		this.modals = new Map();
 
 		this.maxWidth576Query = window.matchMedia("(max-width: 576px)");
@@ -177,10 +178,46 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private connect() {
+
 		participants.clear();
 		chatHistory.clear();
 
-		this.getCourseState()
+		new HttpRequest().get("/course/user").then((userObject: any) => {
+			// init courseState
+		const courseState: CourseState = {
+			courseId: this.host.courseId,
+			activeDocument: null,
+			documentMap: null,
+			timeStarted: 0,
+			userId: userObject.userId,
+			title: "saasd",
+			description: "asds",
+			messageFeature: null,
+			quizFeature: null,
+			protected: false,
+			recorded: false,
+			userPrivileges: [],
+			mediaState: {microphoneActive: false, cameraActive: false, screenActive: false}
+		}
+		this.setCourseState(courseState);
+
+		const userName = userObject.firstName + " " + userObject.familyName
+
+		this.janusService.setRoomId(this.host.courseId);
+		this.janusService.setUserId(courseState.userId);
+		this.janusService.setUserName(userName);
+		this.janusService.connect();
+
+		//this.updateCourseState();
+		this.setConnectionState(State.CONNECTED);
+
+			console.log(userObject);
+		})
+		.catch(error => {
+			console.log(error)
+		})
+
+		/*this.getCourseState()
 			.then(courseState => {
 				this.setCourseState(courseState);
 
@@ -223,7 +260,7 @@ export class PlayerController implements ReactiveController {
 				else {
 					this.setConnectionState(State.DISCONNECTED);
 				}
-			});
+			});*/
 	}
 
 	private reconnect() {
@@ -507,7 +544,6 @@ export class PlayerController implements ReactiveController {
 		if (participant.userId === course.userId) {
 			return;
 		}
-
 		if (participant.presence === "CONNECTED") {
 			participants.add(participant);
 		}

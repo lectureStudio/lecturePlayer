@@ -16,6 +16,7 @@ import { ProgressiveDataView } from "./progressive-data-view";
 import { RecordedPageParser } from "./recorded-page.parser";
 import { StreamMediaChangeAction } from "../stream.media.change.action";
 import { MediaType } from "../../model/media-type";
+import { type } from "os";
 
 export class StreamActionParser {
 

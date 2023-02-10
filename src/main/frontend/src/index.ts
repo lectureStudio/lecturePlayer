@@ -3,6 +3,7 @@ export * from './extension';
 import './component/player/player';
 import './component/slide-view/slide-view';
 import './component/player-view/player-view';
+import './component/conference-view/conference-view';
 import './component/controls/player-controls';
 import './component/loading/player-loading';
 import './component/offline/player-offline';

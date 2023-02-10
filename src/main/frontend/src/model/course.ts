@@ -30,6 +30,8 @@ class Course extends EventTarget {
 
 	private _streamStats: StreamStats = {};
 
+	private _conference: boolean;
+
 
 	get courseId() {
 		return this._courseId;
@@ -149,6 +151,10 @@ class Course extends EventTarget {
 		this._streamStats = stats;
 
 		this.dispatchEvent(Utils.createEvent("course-stream-stats"));
+	}
+
+	get conference() {
+		return true;
 	}
 }
 

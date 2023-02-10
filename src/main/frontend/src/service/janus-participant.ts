@@ -108,6 +108,9 @@ export abstract class JanusParticipant extends EventTarget {
 		if (!isConnected) {
 			this.setState(State.DISCONNECTED);
 		}
+		if(isConnected) {
+			console.log("handle",this.handle)
+		}
 	}
 
 	protected onSlowLink(uplink: boolean, lost: number, mid: string) {
