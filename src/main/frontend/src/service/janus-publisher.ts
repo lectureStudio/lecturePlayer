@@ -1,5 +1,7 @@
 import { Janus, JSEP, PluginHandle } from "janus-gateway";
+import { StreamMediaChangeAction } from "../action/stream.media.change.action";
 import { course } from "../model/course";
+import { MediaType } from "../model/media-type";
 import { participants } from "../model/participants";
 import { HttpRequest } from "../utils/http-request";
 import { State } from "../utils/state";
@@ -283,12 +285,14 @@ export class JanusPublisher extends JanusParticipant {
 		muted ? this.view.video?.classList.add("hide-video") : this.view.video?.classList.remove("hide-video");
 		//this.handle.send({ message: this.configureMediaMute("1", muted) });
 
-		const message = JSON.stringify({muted: muted, id: Number(this.publisherId)})
-		
+		//const message = JSON.stringify({muted: muted, id: Number(this.publisherId)});
+
+		const camMuteAction = new StreamMediaChangeAction(MediaType.Camera, muted);
+
 		this.handle.data({
-			text: message,
-			error: function(error:any) {console.log(error)},
-			success: function() {console.log("data send")},
+			data: camMuteAction.toBuffer(),
+			error: function (error: any) { console.log(error) },
+			success: function () { console.log("data send") },
 		});
 	}
 

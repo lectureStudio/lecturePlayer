@@ -112,7 +112,7 @@ export class JanusSubscriber extends JanusParticipant {
 	}
 
 	private onData(data: any | ArrayBuffer | Blob) {
-
+/*
 		if ((typeof data) == "string") {
 			const message = JSON.parse(data);
 			console.log("onData", message.muted, message.id)
@@ -121,21 +121,22 @@ export class JanusSubscriber extends JanusParticipant {
 				muted: message.muted,
 				id: message.id
 			}))
-		} 
-		/*else if (data instanceof Blob) {
+		}
+*/
+		if (data instanceof Blob) {
 			// Firefox...
 			data.arrayBuffer().then(buffer => {
 				this.processData(buffer);
 			});
-			}
-			else {
-				this.processData(data);
-			}
+		}
+		else {
+			this.processData(data);
+		}
 
-			this.dispatchEvent(Utils.createEvent("janus-participant-data", {
-				participant: this,
-				data: data
-			}));*/
+		this.dispatchEvent(Utils.createEvent("janus-participant-data", {
+			participant: this,
+			data: data
+		}));
 	}
 
 	private processData(data: ArrayBuffer) {
