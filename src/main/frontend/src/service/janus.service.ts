@@ -100,7 +100,6 @@ export class JanusService extends EventTarget {
 	}
 
 	attachAsPublisher() {
-		console.log("attchAsPub")
 		const publisher = new JanusPublisher(this.janus, this.roomId, this.opaqueId, this.userName);
 		publisher.setDeviceSettings(Settings.getDeviceSettings());
 		publisher.addEventListener("janus-participant-error", this.onPublisherError.bind(this));

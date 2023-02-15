@@ -77,7 +77,7 @@ export abstract class JanusParticipant extends EventTarget {
 		}
 	}
 
-	protected onMuteVideo() {
+	protected onMuteVideo(e: CustomEvent) {
 		if (this.view.camMute) {
 			this.handle.muteVideo();
 		}
@@ -107,9 +107,6 @@ export abstract class JanusParticipant extends EventTarget {
 
 		if (!isConnected) {
 			this.setState(State.DISCONNECTED);
-		}
-		if(isConnected) {
-			console.log("handle",this.handle)
 		}
 	}
 

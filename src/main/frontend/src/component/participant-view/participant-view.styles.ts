@@ -132,7 +132,7 @@ export const participantViewStyles = css`
 	:host([isConference]) .conference-control {
 		display: none;
 	}
-	:host .hide-video {
+	:host([camMute]) video {
 		display: none;
 	}
 `;

@@ -111,18 +111,7 @@ export class JanusSubscriber extends JanusParticipant {
 		this.addTrack(mid, track);
 	}
 
-	private onData(data: any | ArrayBuffer | Blob) {
-/*
-		if ((typeof data) == "string") {
-			const message = JSON.parse(data);
-			console.log("onData", message.muted, message.id)
-
-			document.dispatchEvent(Utils.createEvent("subscriber-cam-mute", {
-				muted: message.muted,
-				id: message.id
-			}))
-		}
-*/
+	private onData(data: ArrayBuffer | Blob) {		
 		if (data instanceof Blob) {
 			// Firefox...
 			data.arrayBuffer().then(buffer => {

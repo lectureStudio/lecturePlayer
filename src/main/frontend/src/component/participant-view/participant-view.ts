@@ -62,7 +62,6 @@ export class ParticipantView extends I18nLitElement {
 		document.addEventListener("player-start-media", this.onStartMediaPlayback.bind(this));
 		document.addEventListener("speaker-setting-changed", this.onSpeakerSetting.bind(this));
 		document.addEventListener("player-mic", this.onAudioMute.bind(this));
-		document.addEventListener("player-cam", this.onVideoMute.bind(this));
 
 		this.micActive = course.mediaState.microphoneActive;
 		this.camActive = course.mediaState.cameraActive;
@@ -211,12 +210,12 @@ export class ParticipantView extends I18nLitElement {
 	}
 
 	private onVideoMute(e: CustomEvent) {
-		const controls = e.detail;
-		if(controls.mutedCam) {
-			this.camMute = controls.mutedCam;
-		}
-		else this.camMute = !this.camMute;
-
+		//const controls = e.detail;
+		//if(controls.mutedCam) {
+		//	this.camMute = controls.mutedCam;
+		//}
+		//else 
+		this.camMute = !this.camMute;
 		this.dispatchEvent(Utils.createEvent("participant-cam-mute", {
 			camMute: this.camMute
 		}));

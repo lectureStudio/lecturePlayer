@@ -19,8 +19,6 @@ enum StreamActionType {
 	STREAM_MICROPHONE_CHANGE,
 	STREAM_SCREEN_SHARE_CHANGE,
 
-	STREAM_CAMERA_MUTE
-
 }
 
 export { StreamActionType };

@@ -2,8 +2,6 @@ import { Janus, JSEP, PluginHandle } from "janus-gateway";
 import { StreamMediaChangeAction } from "../action/stream.media.change.action";
 import { course } from "../model/course";
 import { MediaType } from "../model/media-type";
-import { participants } from "../model/participants";
-import { HttpRequest } from "../utils/http-request";
 import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
 import { JanusParticipant } from "./janus-participant";
@@ -19,16 +17,16 @@ export class JanusPublisher extends JanusParticipant {
 	private publisherName: string;
 
 
-	constructor(janus: Janus, roomId: number, opaqueId: string, userName: string) {
+	constructor(janus: Janus, roomId: number, opaqueId: string, publisherName: string) {
 		super(janus);
 
 		this.roomId = roomId;
 		this.opaqueId = opaqueId;
 		this.view.isLocal = true;
-		this.publisherName = userName;
-		this.view.name = userName;
+		this.publisherName = publisherName;
+		this.view.name = publisherName;
 
-		//this.view.addEventListener("participant-cam-mute", this.onMuteVideo.bind(this));
+		document.addEventListener("controls-cam-mute", this.onControlsMuteCam.bind(this));
 
 	}
 
@@ -75,35 +73,9 @@ export class JanusPublisher extends JanusParticipant {
 		};
 
 		this.handle.send({ message: subscribe });
-
-		const audioLevel = {
-			request: "configure",
-			record: true
-
-		};
-		
-		this.handle.send({ message: audioLevel });
-
-		const list = {
-			request: "list",
-		};
-		
-		this.handle.send({ message: list });
-	}
-
-	protected onWebRtcState(isConnected: boolean) {
-		Janus.log("Janus says our WebRTC PeerConnection is " + (isConnected ? "up" : "down") + " now");
-
-		if (!isConnected) {
-			this.setState(State.DISCONNECTED);
-		}
-		if(isConnected) {
-			console.log("handlePub",this.handle)
-		}
 	}
 
 	private onMessage(message: any, jsep?: JSEP) {
-		console.log("message", message)
 		const event = message["videoroom"];
 
 		if (message["error"]) {
@@ -123,8 +95,6 @@ export class JanusPublisher extends JanusParticipant {
 		if (event) {
 			if (event === "joined") {
 				this.publisherId = BigInt(message["id"]);
-
-				console.log("joined", message)
 
 				this.createOffer();
 				this.setState(State.CONNECTING);
@@ -150,13 +120,12 @@ export class JanusPublisher extends JanusParticipant {
 				}
 			}
 
+			// Check if publisher is talking
 			if(event === "talking" || event === "stopped-talking") {
-				console.log("talking", message)
 				const talking = {
 					id: message.id,
 					state: event
 				}
-				//const publisherId = message.id;
 				document.dispatchEvent(Utils.createEvent("participant-talking", talking));
 			}
 		}
@@ -224,7 +193,6 @@ export class JanusPublisher extends JanusParticipant {
 			},
 			error: (error: any) => {
 				Janus.error("WebRTC error:", error);
-				console.log("error  " + error);
 				this.onError(error);
 			}
 		});
@@ -280,32 +248,16 @@ export class JanusPublisher extends JanusParticipant {
 		}
 	}
 
-	protected onMuteVideo() {
-		const muted = this.view.camMute;
-		muted ? this.view.video?.classList.add("hide-video") : this.view.video?.classList.remove("hide-video");
-		//this.handle.send({ message: this.configureMediaMute("1", muted) });
+	protected onControlsMuteCam(e: CustomEvent) {
+		this.view.setMediaChange(MediaType.Camera, this.view.camMute);
+		this.onMuteVideo;
 
-		//const message = JSON.stringify({muted: muted, id: Number(this.publisherId)});
-
-		const camMuteAction = new StreamMediaChangeAction(MediaType.Camera, muted);
-
+		const camMuteAction = new StreamMediaChangeAction(MediaType.Camera, !this.view.camMute);
+		
 		this.handle.data({
 			data: camMuteAction.toBuffer(),
 			error: function (error: any) { console.log(error) },
-			success: function () { console.log("data send") },
+			success: function () { console.log("camera state changed") },
 		});
-	}
-
-	protected configureMediaMute(mid: string, send: boolean) {		
-		const configure = {
-			request: "configure",
-			streams: [
-				{
-					"mid" : mid,
-					"send" : send
-				}
-			]
-		};
-		return configure;
 	}
 }

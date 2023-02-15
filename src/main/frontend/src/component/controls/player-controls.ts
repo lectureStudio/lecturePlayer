@@ -83,8 +83,13 @@ export class PlayerControls extends I18nLitElement {
 			this.hasParticipants = this.privilegeService.canViewParticipants();
 		});
 
+		course.addEventListener("course-media-state", this.onMediaChange.bind(this));
+
 		this.hasChat = course.chatFeature != null && course.chatFeature.featureId != null;
 		this.hasQuiz = course.quizFeature != null && course.quizFeature.featureId != null;
+
+		//this.mutedMic = course.mediaState.microphoneActive;
+		//this.mutedCam = !course.mediaState.cameraActive;
 
 		this.isConference = course.conference;
 	}
@@ -147,9 +152,7 @@ export class PlayerControls extends I18nLitElement {
 	private onMuteVideo(): void {
 		this.mutedCam = !this.mutedCam;
 		
-		this.dispatchEvent(Utils.createEvent("player-cam", {
-			mutedCam: this.mutedCam,
-		}));
+		this.dispatchEvent(Utils.createEvent("controls-cam-mute"));
 	}
 
 	private onHand(): void {
@@ -209,6 +212,10 @@ export class PlayerControls extends I18nLitElement {
 		const seconds = "0" + date.getUTCSeconds();
 
 		return hours + ":" + minutes.slice(-2) + ":" + seconds.slice(-2);
+	}
+
+	private onMediaChange(e: CustomEvent) {
+		console.log("meidachange", e)
 	}
 
 	render() {
