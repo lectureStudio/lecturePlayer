@@ -5,11 +5,11 @@ export const conferenceViewStyles = css`
 		margin: auto;
 		width: 100%;
 	}
-	:host .tiles-container {
+	:host .grid-container {
 		display: grid;
 		grid-gap: 5px;
 	}
-	:host .hide-tile {
+	:host .hide-grid {
 		display: none;
 	}
 `;

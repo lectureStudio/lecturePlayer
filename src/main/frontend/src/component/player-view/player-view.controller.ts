@@ -3,6 +3,7 @@ import { State } from "../../utils/state";
 import { ParticipantView } from "../participant-view/participant-view";
 import { PlayerView } from "./player-view";
 import { course } from '../../model/course';
+import { GridElement } from "../grid-element/grid-element";
 
 interface BreakpointConfig {
 
@@ -82,9 +83,9 @@ export class PlayerViewController implements ReactiveController {
 	private onParticipantState(event: CustomEvent) {
 		const view: ParticipantView = event.detail.view;
 		const state: State = event.detail.state;
-		const tileId: number = event.detail.participant.publisherId;
+		const gridElement: GridElement = event.detail.gridElement;
 		if (state === State.CONNECTING) {
-			this.host.addParticipant(view, tileId);
+			this.host.addParticipant(view, gridElement);
 		}
 		else if (state === State.DISCONNECTED) {
 			this.host.removeParticipant(view);

@@ -144,9 +144,7 @@ export class PlayerControls extends I18nLitElement {
 	private onMuteMic(): void {
 		this.mutedMic = !this.mutedMic;
 
-		this.dispatchEvent(Utils.createEvent("player-mic", {
-			mutedMic: this.mutedMic
-		}));
+		this.dispatchEvent(Utils.createEvent("controls-mic-mute"));
 	}
 
 	private onMuteVideo(): void {

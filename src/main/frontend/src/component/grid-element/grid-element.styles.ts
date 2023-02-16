@@ -1,6 +1,6 @@
 import { css } from 'lit';
 
-export const conferenceTileStyles = css`
+export const gridElementStyles = css`
 	:host .inner-container {
 		display: flex;
 		align-items: center;
@@ -9,8 +9,8 @@ export const conferenceTileStyles = css`
 		width: 100%;
 		height: 100%;
 	}
-	:host([talking]) .talking {
-		border: 2px #32cd32 solid;
+
+	:host(:not([isVisible])) {
+		display: none;
 	}
-	
 `;

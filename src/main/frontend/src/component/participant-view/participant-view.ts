@@ -55,13 +55,15 @@ export class ParticipantView extends I18nLitElement {
 	@property({ type: Boolean, reflect: true })
 	isConference: boolean = false;
 
+	@property({ type: Boolean, reflect: true })
+	isTalking: boolean = false;
+
 	constructor() {
 		super();
 
 		document.addEventListener("player-volume", this.onAudioVolume.bind(this));
 		document.addEventListener("player-start-media", this.onStartMediaPlayback.bind(this));
 		document.addEventListener("speaker-setting-changed", this.onSpeakerSetting.bind(this));
-		document.addEventListener("player-mic", this.onAudioMute.bind(this));
 
 		this.micActive = course.mediaState.microphoneActive;
 		this.camActive = course.mediaState.cameraActive;
@@ -198,23 +200,13 @@ export class ParticipantView extends I18nLitElement {
 	}
 
 	private onAudioMute(e: CustomEvent) {
-		const controls = e.detail;
-		if(controls.mutedMic) {
-			this.micMute = controls.mutedMic;
-		}
-		else this.micMute = !this.micMute;
-
+		this.micMute = !this.micMute;
 		this.dispatchEvent(Utils.createEvent("participant-mic-mute", {
 			mute: this.micMute
 		}));
 	}
 
-	private onVideoMute(e: CustomEvent) {
-		//const controls = e.detail;
-		//if(controls.mutedCam) {
-		//	this.camMute = controls.mutedCam;
-		//}
-		//else 
+	private onVideoMute(): void {
 		this.camMute = !this.camMute;
 		this.dispatchEvent(Utils.createEvent("participant-cam-mute", {
 			camMute: this.camMute

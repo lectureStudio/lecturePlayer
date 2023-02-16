@@ -26,8 +26,8 @@ export class JanusPublisher extends JanusParticipant {
 		this.publisherName = publisherName;
 		this.view.name = publisherName;
 
+		document.addEventListener("controls-mic-mute", this.onControlsMuteMic.bind(this));
 		document.addEventListener("controls-cam-mute", this.onControlsMuteCam.bind(this));
-
 	}
 
 	override connect() {
@@ -112,6 +112,7 @@ export class JanusPublisher extends JanusParticipant {
 				}
 
 				if (leaving) {
+					console.log(leaving)
 					document.dispatchEvent(Utils.createEvent("leaving-room", leaving));
 				}
 
@@ -120,13 +121,11 @@ export class JanusPublisher extends JanusParticipant {
 				}
 			}
 
-			// Check if publisher is talking
-			if(event === "talking" || event === "stopped-talking") {
-				const talking = {
-					id: message.id,
-					state: event
-				}
-				document.dispatchEvent(Utils.createEvent("participant-talking", talking));
+			if (event === "talking") {
+				this.view.isTalking = true;
+				document.dispatchEvent(Utils.createEvent("publisher-talking", this.gridElement));
+			} else if (event === "stopped-talking") {
+				this.view.isTalking = false;
 			}
 		}
 
@@ -248,16 +247,31 @@ export class JanusPublisher extends JanusParticipant {
 		}
 	}
 
-	protected onControlsMuteCam(e: CustomEvent) {
-		this.view.setMediaChange(MediaType.Camera, this.view.camMute);
-		this.onMuteVideo;
+	protected onControlsMuteCam(): void {
+		const camMuted = this.view.camMute;
+		this.view.setMediaChange(MediaType.Camera, camMuted);
+		this.onMuteVideo();
 
-		const camMuteAction = new StreamMediaChangeAction(MediaType.Camera, !this.view.camMute);
+		const camMuteAction = new StreamMediaChangeAction(MediaType.Camera, !camMuted);
 		
 		this.handle.data({
 			data: camMuteAction.toBuffer(),
 			error: function (error: any) { console.log(error) },
 			success: function () { console.log("camera state changed") },
+		});
+	}
+
+	protected onControlsMuteMic(): void {
+		const micMuted = this.view.micMute;
+		this.view.setMediaChange(MediaType.Audio, micMuted);
+		this.onMuteAudio();
+
+		const micMuteAction = new StreamMediaChangeAction(MediaType.Audio, !micMuted);
+		
+		this.handle.data({
+			data: micMuteAction.toBuffer(),
+			error: function (error: any) { console.log(error) },
+			success: function () { console.log("microphone state changed") },
 		});
 	}
 }

@@ -16,7 +16,7 @@ import Split from 'split.js'
 import { ConferenceView } from '../conference-view/conference-view';
 import { participants } from '../../model/participants';
 import { Utils } from '../../utils/utils';
-import { ConferenceTile } from '../conference-tile/conference-tile';
+import { GridElement } from '../grid-element/grid-element';
 
 
 @customElement('player-view')
@@ -73,14 +73,14 @@ export class PlayerView extends I18nLitElement {
 		return this.renderRoot.querySelector("slide-view");
 	}
 
-	addParticipant(view: ParticipantView, tileId: number) {
+	addParticipant(view: ParticipantView, gridElement: GridElement) {
 		view.addEventListener("participant-state", this.onParticipantState.bind(this));
 		view.addEventListener("participant-screen-stream", this.onParticipantScreenStream.bind(this));
 		view.addEventListener("participant-screen-visibility", this.onParticipantScreenVisibility.bind(this));
 		view.setVolume(this.controls.volume);
 
 		if (course.conference) {
-			this.conferenceView.addParticipantView(view, tileId);
+			this.conferenceView.addGridElement(gridElement);
 		}
 		else {
 			this.videoFeedContainer.appendChild(view);
@@ -231,7 +231,9 @@ export class PlayerView extends I18nLitElement {
 		view.setState(State.CONNECTED);
 		view.hasVideo = true;
 		view.name = "testname";
-		this.conferenceView.addParticipantView(view, 323);
+		const gridElement: GridElement = new GridElement();
+		gridElement.addView(view);
+		this.conferenceView.addGridElement(gridElement);
 	}
 
 	private onParticipantState(event: CustomEvent) {
