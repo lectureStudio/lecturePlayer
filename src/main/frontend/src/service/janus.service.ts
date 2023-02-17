@@ -226,6 +226,11 @@ export class JanusService extends EventTarget {
 	}
 
 	private attachToPublisher(publisher: JanusRoomParticipant, isPrimary: boolean) {
+		if (this.subscribers.some(sub => sub.getPublisherId() === publisher.id)) {
+			// Do not subscribe to already subscribed publisher.
+			return;
+		}
+
 		const subscriber = new JanusSubscriber(this.janus, publisher.id, publisher.display, this.roomId, this.opaqueId);
 		subscriber.setDeviceSettings(Settings.getDeviceSettings());
 		subscriber.addEventListener("janus-participant-connection-connected", this.onParticipantConnectionConnected.bind(this));

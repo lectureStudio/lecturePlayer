@@ -47,6 +47,9 @@ export class StreamActionParser {
 			case StreamActionType.STREAM_MICROPHONE_CHANGE:
 			case StreamActionType.STREAM_SCREEN_SHARE_CHANGE:
 				return this.mediaChangeAction(dataView, type);
+
+			default:
+				throw new Error("StreamAction not implemented");
 		}
 	}
 

@@ -1,4 +1,4 @@
-import { Janus, PluginHandle } from "janus-gateway";
+import { Janus, JanusRoomParticipant, PluginHandle } from "janus-gateway";
 import { GridElement } from "../component/grid-element/grid-element";
 import { ParticipantView } from "../component/participant-view/participant-view";
 import { Devices } from "../utils/devices";
@@ -33,6 +33,8 @@ export abstract class JanusParticipant extends EventTarget {
 
 	protected gridElement: GridElement;
 
+	protected publishers: Array<JanusRoomParticipant>;
+
 	protected streams: Map<string, MediaStream>;
 
 
@@ -47,6 +49,7 @@ export abstract class JanusParticipant extends EventTarget {
 		this.gridElement = new GridElement();
 		this.gridElement.addView(this.view);
 		this.streams = new Map();
+		this.publishers = [];
 
 		this.statsService = new RTCStatsService();
 

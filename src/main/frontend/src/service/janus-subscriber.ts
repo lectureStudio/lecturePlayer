@@ -31,6 +31,10 @@ export class JanusSubscriber extends JanusParticipant {
 		document.addEventListener("leaving-room", this.removeGridElement.bind(this));
 	}
 
+	getPublisherId() {
+		return this.publisherId;
+	}
+
 	override connect() {
 		this.janus.attach({
 			plugin: "janus.plugin.videoroom",

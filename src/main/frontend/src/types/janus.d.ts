@@ -113,7 +113,24 @@ declare module "janus-gateway" {
 		opaqueId?: string;
 	}
 
+	interface OfferTrackParams {
+		type: "audio" | "video" | "screen" | "data";
+		mid?: string;
+		capture?: boolean | any;
+		simulcast?: boolean;
+		recv?: boolean;
+		add?: boolean;
+		replace?: boolean;
+		remove?: boolean;
+		dontStop?: boolean;
+		transforms?: {
+			sender: Array<TransformStream>;
+			receiver: Array<TransformStream>;
+		};
+	}
+
 	interface OfferParams {
+		tracks?: Array<OfferTrackParams>,
 		media?: {
 			audioSend?: boolean;
 			audioRecv?: boolean;

@@ -10,6 +10,20 @@ export interface DeviceInfo {
 
 export class Devices {
 
+	static async getVideoStream() {
+		const videoSource = Settings.getCameraId();
+		const constraints = {
+			video: {
+				deviceId: videoSource ? { exact: videoSource } : undefined,
+				width: 1280,
+				height: 720,
+				facingMode: "user"
+			}
+		};
+
+		return await navigator.mediaDevices.getUserMedia(constraints);
+	}
+
 	static enumerateDevices(useVideo: boolean, useSettings: boolean): Promise<DeviceInfo> {
 		let constraints: any;
 	

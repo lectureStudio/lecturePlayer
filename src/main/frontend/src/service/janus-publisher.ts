@@ -2,6 +2,7 @@ import { Janus, JSEP, PluginHandle } from "janus-gateway";
 import { StreamMediaChangeAction } from "../action/stream.media.change.action";
 import { course } from "../model/course";
 import { MediaType } from "../model/media-type";
+import { Devices } from "../utils/devices";
 import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
 import { JanusParticipant } from "./janus-participant";
@@ -16,6 +17,8 @@ export class JanusPublisher extends JanusParticipant {
 
 	private publisherName: string;
 
+	private streamMids: Map<string, string>;
+
 
 	constructor(janus: Janus, roomId: number, opaqueId: string, publisherName: string) {
 		super(janus);
@@ -25,9 +28,10 @@ export class JanusPublisher extends JanusParticipant {
 		this.view.isLocal = true;
 		this.publisherName = publisherName;
 		this.view.name = publisherName;
+		this.streamMids = new Map();
 
-		document.addEventListener("controls-mic-mute", this.onControlsMuteMic.bind(this));
-		document.addEventListener("controls-cam-mute", this.onControlsMuteCam.bind(this));
+		//document.addEventListener("controls-mic-mute", this.onControlsMuteMic.bind(this));
+		//document.addEventListener("controls-cam-mute", this.onControlsMuteCam.bind(this));
 	}
 
 	override connect() {
@@ -107,6 +111,12 @@ export class JanusPublisher extends JanusParticipant {
 
 				if (publishers) {
 					for (let publisher of publishers) {
+						if (this.publishers.find(p => p.id === publisher.id)) {
+							continue;
+						}
+
+						this.publishers.push(publisher);
+
 						this.dispatchEvent(Utils.createEvent("publisher-room", publisher));
 					}
 				}
@@ -117,6 +127,11 @@ export class JanusPublisher extends JanusParticipant {
 				}
 
 				if (configured === "ok") {
+					// Map stream types to their mid.
+					for (let stream of message.streams) {
+						this.streamMids.set(stream.type, stream.mid);
+					}
+
 					this.setState(State.CONNECTED);
 				}
 			}
@@ -124,7 +139,8 @@ export class JanusPublisher extends JanusParticipant {
 			if (event === "talking") {
 				this.view.isTalking = true;
 				document.dispatchEvent(Utils.createEvent("publisher-talking", this.gridElement));
-			} else if (event === "stopped-talking") {
+			}
+			else if (event === "stopped-talking") {
 				this.view.isTalking = false;
 			}
 		}
@@ -139,9 +155,13 @@ export class JanusPublisher extends JanusParticipant {
 		}
 	}
 
+	private getTrackId(track: MediaStreamTrack) {
+		return track.id.replace(/[{}]/g, "");
+	}
+
 	private onLocalTrack(track: MediaStreamTrack, active: boolean) {
 		// We use the track ID as name of the element, but it may contain invalid characters.
-		var trackId = track.id.replace(/[{}]/g, "");
+		const trackId = this.getTrackId(track);
 
 		if (!active) {
 			this.removeTrack(trackId, track.kind);
@@ -157,23 +177,27 @@ export class JanusPublisher extends JanusParticipant {
 		// Publish our stream.
 		this.handle.createOffer({
 			// Publishers are sendonly.
-			media: {
-				audioRecv: false,
-				videoRecv: false,
-				audioSend: true,
-				videoSend: useVideo,
-				audio: {
-					deviceId: this.deviceSettings.audioInput
+			tracks: [
+				{
+					type: "audio",
+					capture: {
+						deviceId: this.deviceSettings.audioInput
+					},
+					recv: false
 				},
-				video: {
-					deviceId: this.deviceSettings.videoInput,
-					width: 1280,
-					height: 720,
+				{
+					type: "video",
+					capture: {
+						deviceId: this.deviceSettings.videoInput,
+						width: 1280,
+						height: 720,
+					},
+					recv: false
 				},
-				failIfNoAudio: true,
-				failIfNoVideo: false,
-				data: true
-			},
+				{
+					type: "data",
+				}
+			],
 			success: (jsep: JSEP) => {
 				Janus.debug("Got publisher SDP!", jsep);
 
@@ -214,7 +238,7 @@ export class JanusPublisher extends JanusParticipant {
 			mediaElement.muted = true;
 
 			const stream = new MediaStream();
-			stream.addTrack(track.clone());
+			stream.addTrack(track);
 
 			this.streams.set(id, stream);
 
@@ -246,7 +270,7 @@ export class JanusPublisher extends JanusParticipant {
 			this.view.removeVideo();
 		}
 	}
-
+/*
 	protected onControlsMuteCam(): void {
 		this.view.setMediaChange(MediaType.Camera, this.view.camMute);
 		this.onMuteVideo();
@@ -270,6 +294,93 @@ export class JanusPublisher extends JanusParticipant {
 			data: micMuteAction.toBuffer(),
 			error: function (error: any) { console.log(error) },
 			success: function () { console.log("microphone state changed") },
+		});
+	}
+*/
+	protected override onMuteAudio() {
+		super.onMuteAudio();
+
+		const muted = this.view.micMute;
+		const micMuteAction = new StreamMediaChangeAction(MediaType.Audio, !muted);
+
+		this.view.setMediaChange(MediaType.Audio, muted);
+
+		this.handle.data({
+			data: micMuteAction.toBuffer(),
+			error: function (error: any) { console.error(error) },
+			success: function () { console.log("data send") },
+		});
+	}
+
+	protected override onMuteVideo() {
+		super.onMuteVideo();
+
+		const muted = this.view.camMute;
+
+		this.view.setMediaChange(MediaType.Camera, muted);
+
+		this.enableStream(this.streamMids.get("video"), !muted)
+			.then(() => {
+				const camMuteAction = new StreamMediaChangeAction(MediaType.Camera, !muted);
+
+				this.handle.data({
+					data: camMuteAction.toBuffer(),
+					error: function (error: any) { console.error(error) },
+					success: function () { console.log("data send") },
+				});
+			})
+			.catch(console.error);
+	}
+
+	private async enableStream(mid: string, enable: boolean) {
+		for (let transceiver of this.handle.webrtcStuff.pc.getTransceivers()) {
+			if (transceiver.mid === mid) {
+				// Toggle transceiver direction in order to tell the gateway whether video
+				// should be relayed to other participants or not.
+				transceiver.direction = enable ? "sendonly" : "inactive";
+
+				if (enable) {
+					// Query video device to get a new video stream.
+					const stream = await Devices.getVideoStream();
+					const track = stream.getVideoTracks()[0];
+					const trackId = this.getTrackId(track);
+
+					// Set the new active video track.
+					await transceiver.sender.replaceTrack(track);
+
+					// Notification of new track.
+					this.addTrack(trackId, track);
+				}
+				else {
+					const track = transceiver.sender.track;
+					const trackId = this.getTrackId(track);
+
+					// Stopping the video track will turn off the active device.
+					track.stop();
+					// Remove the current video track since we are not sending anything as of now.
+					transceiver.sender.replaceTrack(null);
+
+					// Notification of track removal.
+					this.removeTrack(trackId, track.kind);
+				}
+				break;
+			}
+		}
+
+		// Manipulating transceiver (direction) requires updating the session description
+		// that is offered to the gateway.
+		this.handle.createOffer({
+			success: (jsep: JSEP) => {
+				// Got new SDP, send it to the gateway.
+				const configure = {
+					request: "configure"
+				};
+
+				this.handle.send({ message: configure, jsep: jsep });
+			},
+			error: (error: any) => {
+				console.error("Create offer error", error);
+			}
 		});
 	}
 }
