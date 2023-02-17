@@ -248,11 +248,10 @@ export class JanusPublisher extends JanusParticipant {
 	}
 
 	protected onControlsMuteCam(): void {
-		const camMuted = this.view.camMute;
-		this.view.setMediaChange(MediaType.Camera, camMuted);
+		this.view.setMediaChange(MediaType.Camera, this.view.camMute);
 		this.onMuteVideo();
 
-		const camMuteAction = new StreamMediaChangeAction(MediaType.Camera, !camMuted);
+		const camMuteAction = new StreamMediaChangeAction(MediaType.Camera, !this.view.camMute);
 		
 		this.handle.data({
 			data: camMuteAction.toBuffer(),
@@ -262,11 +261,10 @@ export class JanusPublisher extends JanusParticipant {
 	}
 
 	protected onControlsMuteMic(): void {
-		const micMuted = this.view.micMute;
-		this.view.setMediaChange(MediaType.Audio, micMuted);
+		this.view.setMediaChange(MediaType.Audio, this.view.micMute);
 		this.onMuteAudio();
 
-		const micMuteAction = new StreamMediaChangeAction(MediaType.Audio, !micMuted);
+		const micMuteAction = new StreamMediaChangeAction(MediaType.Audio, !this.view.micMute);
 		
 		this.handle.data({
 			data: micMuteAction.toBuffer(),
