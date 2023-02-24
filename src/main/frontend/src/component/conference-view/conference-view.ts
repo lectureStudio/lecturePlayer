@@ -65,7 +65,6 @@ export class ConferenceView extends I18nLitElement {
 
         document.addEventListener("remove-grid-element", this.removeGridElement.bind(this));
         document.addEventListener("publisher-talking", this.onTalkingPublisher.bind(this));
-
     }
 
     protected render() {

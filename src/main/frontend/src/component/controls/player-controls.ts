@@ -136,20 +136,12 @@ export class PlayerControls extends I18nLitElement {
 		}		
 	}
 
-	private onMuteMicrophone(event: CustomEvent): void {
+	private onMuteMicrophone(): void {
 		this.mutedMic = !this.mutedMic;
-
-		this.dispatchEvent(Utils.createEvent("player-mic", {
-			mutedMic: this.mutedMic
-		}));
 	}
 
-	private onMuteCamera(event: CustomEvent): void {
+	private onMuteCamera(): void {
 		this.mutedCam = !this.mutedCam;
-		
-		this.dispatchEvent(Utils.createEvent("player-cam", {
-			mutedCam: this.mutedCam,
-		}));
 	}
 
 	private onHand(): void {

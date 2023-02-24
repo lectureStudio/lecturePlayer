@@ -58,6 +58,7 @@ export class ParticipantView extends I18nLitElement {
 	@property({ type: Boolean, reflect: true })
 	isTalking: boolean = false;
 
+
 	constructor() {
 		super();
 

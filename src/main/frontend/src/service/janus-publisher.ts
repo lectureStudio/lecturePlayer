@@ -308,11 +308,10 @@ export class JanusPublisher extends JanusParticipant {
 		}
 	}
 
-	protected override onMuteAudio() {
-		super.onMuteAudio();
+	protected override onMuteAudio(mute: boolean) {
+		super.onMuteAudio(mute);
 
-		const muted = this.view.micMute;
-		const micMuteAction = new StreamMediaChangeAction(MediaType.Audio, !muted);
+		const micMuteAction = new StreamMediaChangeAction(MediaType.Audio, !mute);
 
 		this.handle.data({
 			data: micMuteAction.toBuffer(),
@@ -320,14 +319,12 @@ export class JanusPublisher extends JanusParticipant {
 		});
 	}
 
-	protected override onMuteVideo() {
-		super.onMuteVideo();
+	protected override onMuteVideo(mute: boolean) {
+		super.onMuteVideo(mute);
 
-		const muted = this.view.camMute;
-
-		this.enableTrack(this.streamMids.get("video"), !muted)
+		this.enableTrack(this.streamMids.get("video"), !mute)
 			.then(() => {
-				const camMuteAction = new StreamMediaChangeAction(MediaType.Camera, !muted);
+				const camMuteAction = new StreamMediaChangeAction(MediaType.Camera, !mute);
 
 				this.handle.data({
 					data: camMuteAction.toBuffer(),

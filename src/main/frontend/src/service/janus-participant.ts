@@ -53,8 +53,7 @@ export abstract class JanusParticipant extends EventTarget {
 
 		this.statsService = new RTCStatsService();
 
-		this.view.addEventListener("participant-mic-mute", this.onMuteAudio.bind(this));
-		this.view.addEventListener("participant-cam-mute", this.onMuteVideo.bind(this));
+		document.addEventListener("lect-device-mute", this.onMuteDevice.bind(this));
 	}
 
 	abstract connect(): void;
@@ -76,8 +75,19 @@ export abstract class JanusParticipant extends EventTarget {
 		this.statsService.getStats();
 	}
 
-	protected onMuteAudio() {
-		if (this.view.micMute) {
+	protected onMuteDevice(event: CustomEvent) {
+		const devSetting: MediaDeviceSetting = event.detail;
+
+		if (devSetting.kind === "audioinput") {
+			this.onMuteAudio(devSetting.muted);
+		}
+		else if (devSetting.kind === "videoinput") {
+			this.onMuteVideo(devSetting.muted);
+		}
+	}
+
+	protected onMuteAudio(mute: boolean) {
+		if (mute) {
 			this.handle.muteAudio();
 		}
 		else {
@@ -85,8 +95,8 @@ export abstract class JanusParticipant extends EventTarget {
 		}
 	}
 
-	protected onMuteVideo() {
-		if (this.view.camMute) {
+	protected onMuteVideo(mute: boolean) {
+		if (mute) {
 			this.handle.muteVideo();
 		}
 		else {
