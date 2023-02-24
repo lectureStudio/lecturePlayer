@@ -64,7 +64,7 @@ export class ConferenceView extends I18nLitElement {
 		participants.addEventListener("cleared", () => { this.requestUpdate() }, false);
 
         document.addEventListener("remove-grid-element", this.removeGridElement.bind(this));
-        document.addEventListener("publisher-talking", this.onTalkingPublisher.bind(this));
+        document.addEventListener("participant-talking", this.onTalkingPublisher.bind(this));
     }
 
     protected render() {
@@ -88,6 +88,8 @@ export class ConferenceView extends I18nLitElement {
     }
     
     private onTalkingPublisher(event: CustomEvent) {
+		// TODO: fix talking idicator
+		
         const gridElement = event.detail;
         if (!gridElement.isVisible) {
             if (this.gridCounter >= this.gridElementsLimit) {

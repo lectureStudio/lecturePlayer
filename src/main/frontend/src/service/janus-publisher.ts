@@ -178,12 +178,11 @@ export class JanusPublisher extends JanusParticipant {
 			}
 
 			if(event === "talking" || event === "stopped-talking") {
-				// console.log("talking", message)
 				const talking = {
 					id: message.id,
 					state: event
 				}
-				//const publisherId = message.id;
+
 				document.dispatchEvent(Utils.createEvent("participant-talking", talking));
 			}
 		}
