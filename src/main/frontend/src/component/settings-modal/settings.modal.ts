@@ -1,13 +1,14 @@
 import { html } from 'lit';
-import { customElement, query } from 'lit/decorators.js';
+import { customElement, property, query } from 'lit/decorators.js';
 import { t } from '../i18n-mixin';
 import { Modal } from '../modal/modal';
 import { Utils } from '../../utils/utils';
 import { settingsModalStyles } from './settings.modal.styles';
 import { Settings } from '../../utils/settings';
 import { JanusService } from '../../service/janus.service';
-import { SoundSettings } from '../sound-settings/sound-settings';
-import { CameraSettings } from '../camera-settings/camera-settings';
+import { SoundSettings } from '../media-settings/sound-settings';
+import { CameraSettings } from '../media-settings/camera-settings';
+import { SlTab } from '@shoelace-style/shoelace';
 
 @customElement("settings-modal")
 export class SettingsModal extends Modal {
@@ -18,6 +19,9 @@ export class SettingsModal extends Modal {
 	];
 
 	janusService: JanusService;
+
+	@property()
+	section: string = "audio";
 
 	@query('camera-settings')
 	cameraSettings: CameraSettings;
@@ -40,29 +44,44 @@ export class SettingsModal extends Modal {
 		this.close();
 	}
 
+	protected override firstUpdated(): void {
+		super.firstUpdated();
+
+		// Select and show the desired settings content/section.
+		if (this.section) {
+			const tab: SlTab = this.shadowRoot.querySelector(`sl-tab[panel=${this.section}]`);
+			const tabPanel: SlTab = this.shadowRoot.querySelector(`sl-tab-panel[name=${this.section}]`);
+
+			if (tab && tabPanel) {
+				tab.active = true;
+				tabPanel.active = true;
+			}
+		}
+	}
+
 	protected override render() {
 		return html`
-			<web-dialog @open="${this.opened}" ?open="${this.show}" @close="${this.closed}" @closing="${this.closing}">
-				<header>
-					<span>${t("settings.title")}</span>
-				</header>
-				<article>
-					<player-tabs>
-						<p slot="tab">${t("settings.audio")}</p>
-						<p slot="panel"><sound-settings></sound-settings></p>
+			<sl-dialog label="${t("settings.title")}">
+				<sl-tab-group>
+					<sl-tab slot="nav" panel="audio">${t("settings.audio")}</sl-tab>
+					<sl-tab slot="nav" panel="video">${t("settings.camera")}</sl-tab>
+					<sl-tab slot="nav" panel="stats">${t("settings.stats")}</sl-tab>
 
-						<p slot="tab">${t("settings.camera")}</p>
-						<p slot="panel"><camera-settings></camera-settings></p>
-
-						<p slot="tab">${t("settings.stats")}</p>
-						<p slot="panel"><stream-stats .janusService="${this.janusService}"></stream-stats></p>
-					</player-tabs>
-				</article>
-				<footer>
-					<button type="button" @click="${this.cancel}" class="btn btn-outline-secondary btn-sm">${t("settings.close")}</button>
-					<button type="button" @click="${this.save}" class="btn btn-outline-primary btn-sm" id="save-button">${t("settings.save")}</button>
-				</footer>
-			</web-dialog>
+					<sl-tab-panel name="audio">
+						<sound-settings></sound-settings>
+					</sl-tab-panel>
+					<sl-tab-panel name="video">
+						<camera-settings></camera-settings>
+					</sl-tab-panel>
+					<sl-tab-panel name="stats">
+						<stream-stats .janusService="${this.janusService}"></stream-stats>
+					</sl-tab-panel>
+				</sl-tab-group>
+				<div slot="footer">
+					<sl-button @click="${this.cancel}" variant="default" size="small">${t("settings.close")}</sl-button>
+					<sl-button @click="${this.save}" variant="primary" size="small" id="save-button">${t("settings.save")}</sl-button>
+				</div>
+			</sl-dialog>
 		`;
 	}
 }

@@ -35,6 +35,19 @@ export class JanusSubscriber extends JanusParticipant {
 		return this.publisherId;
 	}
 
+	updateStreams(streams: any[]) {
+		if (!streams) {
+			return;
+		}
+
+		for (let stream of streams) {
+			if (!this.streamIds.get(stream.mid)) {
+				// Not subscribed to this stream yet.
+				this.subscribeStream(stream);
+			}
+		}
+	}
+
 	override connect() {
 		this.janus.attach({
 			plugin: "janus.plugin.videoroom",
@@ -70,6 +83,8 @@ export class JanusSubscriber extends JanusParticipant {
 	}
 
 	private onMessage(message: any, jsep?: JSEP) {
+		console.log("message sub", message);
+
 		const event = message["videoroom"];
 
 		if (message["error"]) {
@@ -82,18 +97,14 @@ export class JanusSubscriber extends JanusParticipant {
 				// Subscriber created and attached.
 				const streams = message["streams"];
 
-				if (streams) {
-					for (const stream of streams) {
-						const mid: string = stream["mid"];
-						const description: string = stream["feed_description"];
-
-						if (mid && description) {
-							this.streamIds.set(mid, description);
-						}
-					}
-				}
+				this.setStreamIds(streams);
 
 				this.setState(State.CONNECTING);
+			}
+			if (event === "updated") {
+				const streams = message["streams"];
+
+				this.setStreamIds(streams);
 			}
 			if (event === "event") {
 				const started = message.started;
@@ -106,6 +117,19 @@ export class JanusSubscriber extends JanusParticipant {
 
 		if (jsep) {
 			this.createAnswer(jsep, this.isPrimary);
+		}
+	}
+
+	private setStreamIds(streams: any) {
+		if (streams) {
+			for (const stream of streams) {
+				const mid: string = stream["mid"];
+				const description: string = stream["feed_description"];
+
+				if (mid) {
+					this.streamIds.set(mid, description ? description : stream["type"]);
+				}
+			}
 		}
 	}
 
@@ -173,6 +197,38 @@ export class JanusSubscriber extends JanusParticipant {
 				this.onError(error);
 			}
 		});
+	}
+
+	private subscribeStream(stream: any) {
+		console.log("subscribe to stream", stream);
+
+		const message = {
+			request: "subscribe",
+			streams: [
+				{
+					feed: this.publisherId,
+					mid: stream.mid
+				}
+			]
+		};
+
+		this.handle.send({ message: message });
+	}
+
+	private unsubscribeStream(stream: any) {
+		console.log("unsubscribe from stream", stream);
+
+		const message = {
+			request: "unsubscribe",
+			streams: [
+				{
+					feed: this.publisherId,
+					mid: stream.mid
+				}
+			]
+		};
+
+		this.handle.send({ message: message });
 	}
 
 	private addTrack(mid: string, track: MediaStreamTrack) {

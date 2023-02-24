@@ -8,19 +8,16 @@ export class EntryModal extends Modal {
 
 	protected render() {
 		return html`
-			<web-dialog @open="${this.opened}" ?open="${this.show}" @close="${this.closed}" @closing="${this.closing}">
-				<header>
-					<span>${t("entry.modal.title")}</span>
-				</header>
+			<sl-dialog label="${t("entry.modal.title")}">
 				<article>
-				<span>${t("entry.modal.description")}</span>
+					<span>${t("entry.modal.description")}</span>
 				</article>
-				<footer>
+				<div slot="footer">
 					<button type="button" @click="${this.close}" class="btn btn-outline-primary btn-sm">
 						${t("entry.modal.start")}
 					</button>
-				</footer>
-			</web-dialog>
+				</div>
+			</sl-dialog>
 		`;
 	}
 }

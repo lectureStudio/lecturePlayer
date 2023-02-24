@@ -1,6 +1,11 @@
 import { css } from 'lit';
 
-export const cameraSettingsStyles = css`
+export const mediaSettingsStyles = css`
+	:host {
+		display: flex;
+		flex-direction: column;
+		gap: 1.0em;
+	}
 	:host(:not([enabled])) {
 		pointer-events: none;
 		opacity: 0.4;

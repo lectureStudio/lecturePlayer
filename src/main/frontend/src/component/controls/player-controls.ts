@@ -5,7 +5,6 @@ import { Utils } from '../../utils/utils';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { playerControlsStyles } from './player-controls.styles';
 import { course } from '../../model/course';
-import { participants } from '../../model/participants';
 
 @customElement('player-controls')
 export class PlayerControls extends I18nLitElement {
@@ -74,6 +73,7 @@ export class PlayerControls extends I18nLitElement {
 	@property({ type: Boolean, reflect: true })
 	isConference: boolean = false;
 
+
 	override connectedCallback() {
 		super.connectedCallback()
 
@@ -85,9 +85,6 @@ export class PlayerControls extends I18nLitElement {
 
 		this.hasChat = course.chatFeature != null && course.chatFeature.featureId != null;
 		this.hasQuiz = course.quizFeature != null && course.quizFeature.featureId != null;
-
-		//this.mutedMic = course.mediaState.microphoneActive;
-		//this.mutedCam = !course.mediaState.cameraActive;
 
 		this.isConference = course.conference;
 	}
@@ -139,16 +136,20 @@ export class PlayerControls extends I18nLitElement {
 		}		
 	}
 
-	private onMuteMic(): void {
+	private onMuteMicrophone(event: CustomEvent): void {
 		this.mutedMic = !this.mutedMic;
 
-		this.dispatchEvent(Utils.createEvent("controls-mic-mute"));
+		this.dispatchEvent(Utils.createEvent("player-mic", {
+			mutedMic: this.mutedMic
+		}));
 	}
 
-	private onMuteVideo(): void {
+	private onMuteCamera(event: CustomEvent): void {
 		this.mutedCam = !this.mutedCam;
 		
-		this.dispatchEvent(Utils.createEvent("controls-cam-mute"));
+		this.dispatchEvent(Utils.createEvent("player-cam", {
+			mutedCam: this.mutedCam,
+		}));
 	}
 
 	private onHand(): void {
@@ -213,59 +214,84 @@ export class PlayerControls extends I18nLitElement {
 	render() {
 		return html`
 			<div class="col nav-left">
-				<button @click="${this.onMuteMic}" class="conference-control" id="mic-button">
-					<span class="icon-mic"></span>
-					<span class="icon-mic-muted"></span>
-					<ui-tooltip for="mic-button" .text="${this.mutedMic ? t("controls.mic.unmute") : t("controls.mic.mute")}"></ui-tooltip>
-				</button>
-				<button @click="${this.onMuteVideo}" class="conference-control" id="cam-button">
-					<span class="icon-cam"></span>
-					<span class="icon-cam-muted"></span>
-					<ui-tooltip for="cam-button" .text="${this.mutedCam ? t("controls.cam.unmute") : t("controls.cam.mute")}"></ui-tooltip>
-				</button>
-				<button id="volumeIndicator" @click="${this.onMuteAudio}">
-					<span class="icon-audio-mute"></span>
-					<span class="icon-audio-off"></span>
-					<span class="icon-audio-low"></span>
-					<span class="icon-audio-up"></span>
-					<span class="icon-audio-high"></span>
-					<ui-tooltip for="volumeIndicator" .text="${this.mutedVolume ? t("controls.audio.unmute") : t("controls.audio.mute")}"></ui-tooltip>
-				</button>
+				<media-device-button
+					class="conference-control"
+					type="audio"
+					@lect-device-mute="${this.onMuteMicrophone}"
+					.muted="${this.mutedMic}"
+					.tooltip="${this.mutedMic ? t("controls.mic.unmute") : t("controls.mic.mute")}"
+				>
+					<span slot="icon" class="icon-mic"></span>
+					<span slot="icon" class="icon-mic-muted"></span>
+				</media-device-button>
+
+				<media-device-button
+					class="conference-control"
+					type="video"
+					@lect-device-mute="${this.onMuteCamera}"
+					.muted="${this.mutedCam}"
+					.tooltip="${this.mutedCam ? t("controls.cam.unmute") : t("controls.cam.mute")}"
+				>
+					<span slot="icon" class="icon-cam"></span>
+					<span slot="icon" class="icon-cam-muted"></span>
+				</media-device-button>
+
+				<sl-tooltip content="${this.mutedVolume ? t("controls.audio.unmute") : t("controls.audio.mute")}">
+					<button id="volumeIndicator" @click="${this.onMuteAudio}">
+						<span class="icon-audio-mute"></span>
+						<span class="icon-audio-off"></span>
+						<span class="icon-audio-low"></span>
+						<span class="icon-audio-up"></span>
+						<span class="icon-audio-high"></span>
+					</button>
+				</sl-tooltip>
 				<input type="range" id="volumeSlider" min="0" max="1" value="1" step="0.01" .value="${this.volume}" @input="${this.onVolume}">
 				<span id="duration">${this.getFormattedDuration()}</span>
 			</div>
 			<div class="col nav-center">
 				${this.privilegeService.canContributeBySpeech() ? html`
-				<button @click="${this.onHand}" class="icon-speech" id="hand-button">
-					<ui-tooltip for="hand-button" .text="${this.handUp ? t("controls.speech.abort") : t("controls.speech.start")}"></ui-tooltip>
-				</button>
+				<sl-tooltip content="${this.handUp ? t("controls.speech.abort") : t("controls.speech.start")}">
+					<button @click="${this.onHand}" class="icon-speech" id="hand-button"></button>
+				</sl-tooltip>
 				` : ''}
 
 				${this.privilegeService.canParticipateInQuiz() ? html`
-				<button @click="${this.onQuiz}" class="icon-quiz" id="quiz-button">
-					<ui-tooltip for="quiz-button" .text="${t("controls.quiz.show")}"></ui-tooltip>
-				</button>
+				<sl-tooltip content="${t("controls.quiz.show")}">
+					<button @click="${this.onQuiz}" class="icon-quiz" id="quiz-button"></button>
+				</sl-tooltip>
 				` : ''}
+
+				<sl-tooltip content="Share Screen">
+					<button class="icon-share conference-control"></button>
+				</sl-tooltip>
+
+				<sl-tooltip content="Documents">
+					<button class="icon-collection conference-control"></button>
+				</sl-tooltip>
+
+				<sl-tooltip content="Tools">
+					<button class="icon-pen conference-control"></button>
+				</sl-tooltip>
 			</div>
 			<div class="col nav-right">
-				<button @click="${this.onParticipantsVisibility}" class="icon-participants" id="participants-button">
-					<ui-tooltip for="participants-button" .text="${t(this.participantsVisible ? "controls.participants.hide" : "controls.participants.show")}" sticky="true"></ui-tooltip>
-				</button>
+				<sl-tooltip content="${t(this.participantsVisible ? "controls.participants.hide" : "controls.participants.show")}">
+					<button @click="${this.onParticipantsVisibility}" class="icon-participants" id="participants-button"></button>
+				</sl-tooltip>
 
-				${this.privilegeService.canUseChat() ? html`
-				<button @click="${this.onChatVisibility}" class="icon-chat" id="chat-button">
-					<ui-tooltip for="chat-button" .text="${this.chatVisible ? t("controls.chat.hide") : t("controls.chat.show")}" sticky="true"></ui-tooltip>
-				</button>
-				` : ''}
+				<sl-tooltip content="${this.chatVisible ? t("controls.chat.hide") : t("controls.chat.show")}">
+					<button @click="${this.onChatVisibility}" class="icon-chat" id="chat-button"></button>
+				</sl-tooltip>
 
-				<button @click="${this.onSettings}" class="icon-settings" id="settings-button">
-					<ui-tooltip for="settings-button" .text="${t("controls.settings")}"></ui-tooltip>
-				</button>
-				<button @click="${this.onFullscreen}" id="fullscreen-button">
-					<span class="icon-fullscreen"></span>
-					<span class="icon-fullscreen-exit"></span>
-					<ui-tooltip for="fullscreen-button" .text="${this.fullscreen ? t("controls.fullscreen.off") : t("controls.fullscreen.on")}"></ui-tooltip>
-				</button>
+				<sl-tooltip content="${t("controls.settings")}">
+					<button @click="${this.onSettings}" class="icon-settings" id="settings-button"></button>
+				</sl-tooltip>
+
+				<sl-tooltip content="${this.fullscreen ? t("controls.fullscreen.off") : t("controls.fullscreen.on")}">
+					<button @click="${this.onFullscreen}" id="fullscreen-button">
+						<span class="icon-fullscreen"></span>
+						<span class="icon-fullscreen-exit"></span>
+					</button>
+				</sl-tooltip>
 			</div>
 		`;
 	}

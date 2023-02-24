@@ -1,7 +1,7 @@
 [class^="icon-"],
 [class*=" icon-"] {
 	/* use !important to prevent issues with browser extensions that change fonts */
-	font-family: 'player' !important;
+	font-family: 'lect-player' !important;
 	font-style: normal;
 	font-weight: normal;
 	font-variant: normal;
@@ -14,65 +14,77 @@
 }
 
 .icon-cam:before {
-	content: "\e90f";
-}
-.icon-cam-muted:before {
 	content: "\e910";
 }
-.icon-mic:before {
+.icon-cam-muted:before {
 	content: "\e911";
 }
-.icon-mic-muted:before {
+.icon-mic:before {
 	content: "\e912";
 }
-.icon-audio-mute:before {
-	content: "\e900";
-}
-.icon-audio-off:before {
-	content: "\e901";
-}
-.icon-audio-low:before {
-	content: "\e902";
-}
-.icon-audio-up:before {
-	content: "\e903";
-}
-.icon-audio-high:before {
-	content: "\e904";
-}
-.icon-chat:before {
-	content: "\e905";
-}
-.icon-speech:before {
-	content: "\e906";
-}
-.icon-quiz:before {
-	content: "\e90e";
-}
-.icon-fullscreen-exit:before {
-	content: "\e907";
-}
-.icon-fullscreen:before {
-	content: "\e908";
-}
-.icon-settings:before {
-	content: "\e909";
-}
-.icon-send:before {
-	content: "\e90a";
-}
-.icon-participants:before {
-	content: "\e90b";
-}
-.icon-co_organisator:before {
-	content: "\e90c";
-}
-.icon-organisator:before {
-	content: "\e90d";
-}
-.icon-unavailable:before {
+.icon-mic-muted:before {
 	content: "\e913";
 }
-.icon-close:before {
+.icon-audio-mute:before {
+	content: "\e901";
+}
+.icon-audio-off:before {
+	content: "\e902";
+}
+.icon-audio-low:before {
+	content: "\e903";
+}
+.icon-audio-up:before {
+	content: "\e904";
+}
+.icon-audio-high:before {
+	content: "\e905";
+}
+.icon-chat:before {
+	content: "\e906";
+}
+.icon-speech:before {
+	content: "\e907";
+}
+.icon-quiz:before {
+	content: "\e90f";
+}
+.icon-fullscreen-exit:before {
+	content: "\e908";
+}
+.icon-fullscreen:before {
+	content: "\e909";
+}
+.icon-settings:before {
+	content: "\e90a";
+}
+.icon-send:before {
+	content: "\e90b";
+}
+.icon-participants:before {
+	content: "\e90c";
+}
+.icon-co_organisator:before {
+	content: "\e90d";
+}
+.icon-organisator:before {
+	content: "\e90e";
+}
+.icon-unavailable:before {
 	content: "\e914";
+}
+.icon-close:before {
+	content: "\e915";
+}
+.icon-share:before {
+	content: "\e900";
+}
+.icon-layout:before {
+	content: "\e916";
+}
+.icon-collection:before {
+	content: "\e917";
+}
+.icon-pen:before {
+	content: "\e918";
 }

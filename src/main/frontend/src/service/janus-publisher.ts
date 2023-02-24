@@ -20,18 +20,53 @@ export class JanusPublisher extends JanusParticipant {
 	private streamMids: Map<string, string>;
 
 
-	constructor(janus: Janus, roomId: number, opaqueId: string, publisherName: string) {
+	constructor(janus: Janus, roomId: number, opaqueId: string, userName: string) {
 		super(janus);
 
 		this.roomId = roomId;
 		this.opaqueId = opaqueId;
 		this.view.isLocal = true;
-		this.publisherName = publisherName;
-		this.view.name = publisherName;
+		this.publisherName = userName;
+		this.view.name = userName;
 		this.streamMids = new Map();
 
-		//document.addEventListener("controls-mic-mute", this.onControlsMuteMic.bind(this));
-		//document.addEventListener("controls-cam-mute", this.onControlsMuteCam.bind(this));
+		document.addEventListener("lect-device-change", (event: CustomEvent) => {
+			const deviceSetting: MediaDeviceSetting = event.detail;
+			const muted = deviceSetting.muted;
+
+			if (muted) {
+				return;
+			}
+
+			const deviceId = deviceSetting.deviceId;
+			const kind = deviceSetting.kind;
+			const type = kind === "audioinput" ? "audio" : (kind === "videoinput" ? "video" : null);
+			const captureSettings: MediaTrackConstraints = {
+				deviceId: deviceId
+			};
+
+			if (type === "video") {
+				captureSettings.width = { ideal: 1280 };
+				captureSettings.height = { ideal: 720 };
+			}
+
+			if (this.streamMids.get(type)) {
+				// There is already an active track that can be replaced.
+				this.replaceTrack(type, captureSettings);
+			}
+			else {
+				// A new track needs to be added and other participants notified of its existence.
+				this.addNewTrack(type, captureSettings);
+			}
+		});
+		document.addEventListener("lect-device-mute", (event: CustomEvent) => {
+			const deviceSetting: MediaDeviceSetting = event.detail;
+			const deviceId = deviceSetting.deviceId;
+			const kind = deviceSetting.kind;
+			const muted = deviceSetting.muted;
+
+			console.log("device mute", kind, muted, deviceId);
+		});
 	}
 
 	override connect() {
@@ -64,9 +99,6 @@ export class JanusPublisher extends JanusParticipant {
 	}
 
 	private onConnected(handle: PluginHandle) {
-		
-		console.log("joining")
-	
 		this.handle = handle;
 
 		const subscribe = {
@@ -79,7 +111,17 @@ export class JanusPublisher extends JanusParticipant {
 		this.handle.send({ message: subscribe });
 	}
 
+	protected onWebRtcState(isConnected: boolean) {
+		Janus.log("Janus says our WebRTC PeerConnection is " + (isConnected ? "up" : "down") + " now");
+
+		if (!isConnected) {
+			this.setState(State.DISCONNECTED);
+		}
+	}
+
 	private onMessage(message: any, jsep?: JSEP) {
+		// console.log("message pub", message);
+
 		const event = message["videoroom"];
 
 		if (message["error"]) {
@@ -122,7 +164,6 @@ export class JanusPublisher extends JanusParticipant {
 				}
 
 				if (leaving) {
-					console.log(leaving)
 					document.dispatchEvent(Utils.createEvent("leaving-room", leaving));
 				}
 
@@ -136,12 +177,14 @@ export class JanusPublisher extends JanusParticipant {
 				}
 			}
 
-			if (event === "talking") {
-				this.view.isTalking = true;
-				document.dispatchEvent(Utils.createEvent("publisher-talking", this.gridElement));
-			}
-			else if (event === "stopped-talking") {
-				this.view.isTalking = false;
+			if(event === "talking" || event === "stopped-talking") {
+				// console.log("talking", message)
+				const talking = {
+					id: message.id,
+					state: event
+				}
+				//const publisherId = message.id;
+				document.dispatchEvent(Utils.createEvent("participant-talking", talking));
 			}
 		}
 
@@ -153,10 +196,6 @@ export class JanusPublisher extends JanusParticipant {
 			const audio = message["audio_codec"];
 			const video = message["video_codec"];
 		}
-	}
-
-	private getTrackId(track: MediaStreamTrack) {
-		return track.id.replace(/[{}]/g, "");
 	}
 
 	private onLocalTrack(track: MediaStreamTrack, active: boolean) {
@@ -171,8 +210,16 @@ export class JanusPublisher extends JanusParticipant {
 		this.addTrack(trackId, track);
 	}
 
+	private getTrackId(track: MediaStreamTrack) {
+		return track.id.replace(/[{}]/g, "");
+	}
+
 	private createOffer() {
-		const useVideo = this.deviceSettings.videoInput != null;
+		const captureVideo = (this.deviceSettings.videoInput != null) ? {
+			deviceId: this.deviceSettings.videoInput,
+			width: { ideal: 1280 },
+			height: { ideal: 720 },
+		} : false;
 
 		// Publish our stream.
 		this.handle.createOffer({
@@ -187,11 +234,7 @@ export class JanusPublisher extends JanusParticipant {
 				},
 				{
 					type: "video",
-					capture: {
-						deviceId: this.deviceSettings.videoInput,
-						width: 1280,
-						height: 720,
-					},
+					capture: captureVideo,
 					recv: false
 				},
 				{
@@ -202,20 +245,14 @@ export class JanusPublisher extends JanusParticipant {
 				Janus.debug("Got publisher SDP!", jsep);
 
 				var publish = {
-					request: "configure",
-					audio: true,
-					video: useVideo
+					request: "configure"
 				};
-
-				// if(acodec)
-				// 	publish["audiocodec"] = acodec;
-				// if(vcodec)
-				// 	publish["videocodec"] = vcodec;
 
 				this.handle.send({ message: publish, jsep: jsep });
 			},
 			error: (error: any) => {
 				Janus.error("WebRTC error:", error);
+				console.log("error  " + error);
 				this.onError(error);
 			}
 		});
@@ -270,45 +307,16 @@ export class JanusPublisher extends JanusParticipant {
 			this.view.removeVideo();
 		}
 	}
-/*
-	protected onControlsMuteCam(): void {
-		this.view.setMediaChange(MediaType.Camera, this.view.camMute);
-		this.onMuteVideo();
 
-		const camMuteAction = new StreamMediaChangeAction(MediaType.Camera, !this.view.camMute);
-		
-		this.handle.data({
-			data: camMuteAction.toBuffer(),
-			error: function (error: any) { console.log(error) },
-			success: function () { console.log("camera state changed") },
-		});
-	}
-
-	protected onControlsMuteMic(): void {
-		this.view.setMediaChange(MediaType.Audio, this.view.micMute);
-		this.onMuteAudio();
-
-		const micMuteAction = new StreamMediaChangeAction(MediaType.Audio, !this.view.micMute);
-		
-		this.handle.data({
-			data: micMuteAction.toBuffer(),
-			error: function (error: any) { console.log(error) },
-			success: function () { console.log("microphone state changed") },
-		});
-	}
-*/
 	protected override onMuteAudio() {
 		super.onMuteAudio();
 
 		const muted = this.view.micMute;
 		const micMuteAction = new StreamMediaChangeAction(MediaType.Audio, !muted);
 
-		this.view.setMediaChange(MediaType.Audio, muted);
-
 		this.handle.data({
 			data: micMuteAction.toBuffer(),
-			error: function (error: any) { console.error(error) },
-			success: function () { console.log("data send") },
+			error: function (error: any) { console.error(error) }
 		});
 	}
 
@@ -317,22 +325,93 @@ export class JanusPublisher extends JanusParticipant {
 
 		const muted = this.view.camMute;
 
-		this.view.setMediaChange(MediaType.Camera, muted);
-
-		this.enableStream(this.streamMids.get("video"), !muted)
+		this.enableTrack(this.streamMids.get("video"), !muted)
 			.then(() => {
 				const camMuteAction = new StreamMediaChangeAction(MediaType.Camera, !muted);
 
 				this.handle.data({
 					data: camMuteAction.toBuffer(),
-					error: function (error: any) { console.error(error) },
-					success: function () { console.log("data send") },
+					error: function (error: any) { console.error(error) }
 				});
 			})
 			.catch(console.error);
 	}
 
-	private async enableStream(mid: string, enable: boolean) {
+	private addNewTrack(type: "audio" | "video" | "screen" | "data", captureSettings: MediaTrackConstraints) {
+		this.handle.createOffer({
+			tracks: [
+				{
+					type: type,
+					add: true,
+					capture: captureSettings,
+				}
+			],
+			success: (jsep: JSEP) => {
+				// Got new SDP, send it to the gateway.
+				const configure = {
+					request: "configure"
+				};
+
+				this.handle.send({ message: configure, jsep: jsep });
+			},
+			error: (error: any) => {
+				console.error("Add track error", error);
+			}
+		});
+	}
+
+	private replaceTrack(type: "audio" | "video" | "screen" | "data", captureSettings: MediaTrackConstraints) {
+		// Before we replace the track, we stop and remove the active track.
+		const mid = this.streamMids.get(type);
+
+		for (let transceiver of this.handle.webrtcStuff.pc.getTransceivers()) {
+			if (transceiver.mid === mid) {
+				this.removeSenderTrack(transceiver);
+				break;
+			}
+		}
+
+		this.handle.replaceTracks({
+			tracks: [
+				{
+					type: type,
+					replace: true,
+					capture: captureSettings,
+				}
+			],
+			error: (error: any) => {
+				console.error("Replace track error", error);
+			}
+		});
+	}
+
+	private async replaceSenderTrack(transceiver: RTCRtpTransceiver) {
+		// Query video device to get a new video stream.
+		const stream = await Devices.getVideoStream();
+		const track = stream.getVideoTracks()[0];
+		const trackId = this.getTrackId(track);
+
+		// Set the new active video track.
+		await transceiver.sender.replaceTrack(track);
+
+		// Notification of new track.
+		this.addTrack(trackId, track);
+	}
+
+	private removeSenderTrack(transceiver: RTCRtpTransceiver) {
+		const track = transceiver.sender.track;
+		const trackId = this.getTrackId(track);
+
+		// Stopping the video track will turn off the active device.
+		track.stop();
+		// Remove the current video track since we are not sending anything as of now.
+		transceiver.sender.replaceTrack(null);
+
+		// Notification of track removal.
+		this.removeTrack(trackId, track.kind);
+	}
+
+	private async enableTrack(mid: string, enable: boolean) {
 		for (let transceiver of this.handle.webrtcStuff.pc.getTransceivers()) {
 			if (transceiver.mid === mid) {
 				// Toggle transceiver direction in order to tell the gateway whether video
@@ -340,28 +419,10 @@ export class JanusPublisher extends JanusParticipant {
 				transceiver.direction = enable ? "sendonly" : "inactive";
 
 				if (enable) {
-					// Query video device to get a new video stream.
-					const stream = await Devices.getVideoStream();
-					const track = stream.getVideoTracks()[0];
-					const trackId = this.getTrackId(track);
-
-					// Set the new active video track.
-					await transceiver.sender.replaceTrack(track);
-
-					// Notification of new track.
-					this.addTrack(trackId, track);
+					this.replaceSenderTrack(transceiver);
 				}
 				else {
-					const track = transceiver.sender.track;
-					const trackId = this.getTrackId(track);
-
-					// Stopping the video track will turn off the active device.
-					track.stop();
-					// Remove the current video track since we are not sending anything as of now.
-					transceiver.sender.replaceTrack(null);
-
-					// Notification of track removal.
-					this.removeTrack(trackId, track.kind);
+					this.removeSenderTrack(transceiver);
 				}
 				break;
 			}

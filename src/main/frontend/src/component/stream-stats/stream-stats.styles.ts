@@ -1,26 +1,8 @@
 import { css } from 'lit';
 
 export const streamStatsStyles = css`
-	:host article {
-		padding: 1em;
-	}
-
-	player-tabs::part(nav) {
-		background: #F3F4F699;
-		border: 0;
-		border-radius: 99px;
-		padding: 0.25rem;
-		margin-bottom: 0.5em;
-	}
-	player-tabs p[slot="tab"] {
-		border: 0;
-		border-radius: 99px;
-		padding: 0.25em;
-		margin: 0;
-	}
-	player-tabs p[slot="tab"][selected] {
-		background: #e6eef9;
-		color: #185ee0;
+	sl-tab::part(base) {
+		padding: var(--sl-spacing-x-small);
 	}
 
 	.col-metric {

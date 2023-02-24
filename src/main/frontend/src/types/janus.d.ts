@@ -129,6 +129,12 @@ declare module "janus-gateway" {
 		};
 	}
 
+	interface ReplaceTrackParams {
+		tracks: Array<OfferTrackParams>,
+		success?: Function;
+		error: (error: any) => void;
+	}
+
 	interface OfferParams {
 		tracks?: Array<OfferTrackParams>,
 		media?: {
@@ -226,6 +232,7 @@ declare module "janus-gateway" {
 		send(message: PluginMessage): void;
 		createOffer(params: OfferParams): void;
 		createAnswer(params: any): void;
+		replaceTracks(params: ReplaceTrackParams): void;
 		handleRemoteJsep(params: { jsep: JSEP }): void;
 		dtmf(params: any): void;
 		data(params: any): void;
@@ -245,6 +252,9 @@ declare module "janus-gateway" {
 		id?: number;
 		publisher?: boolean;
 		talking?: boolean;
+		audio_codec?: string;
+		video_codec?: string;
+		streams?: any[];
 	}
 
 	class Janus {

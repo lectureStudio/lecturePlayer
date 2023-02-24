@@ -261,6 +261,10 @@ export const playerControlsStyles = css`
 		display: inherit;
 	}
 
+	media-device-button {
+		margin-right: 0.75em;
+	}
+
 
 	@keyframes button-pulse {
 		0% {

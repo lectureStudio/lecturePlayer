@@ -13,16 +13,16 @@ export class ParticipantsModal extends Modal {
 
 	protected render() {
 		return html`
-			<web-dialog @open="${this.opened}" ?open="${this.show}" @close="${this.closed}" @closing="${this.closing}">
+			<sl-dialog label="${t("settings.title")}" noHeader>
 				<article>
 					<participants-box .privilegeService="${this.privilegeService}"></participants-box>
 				</article>
-				<footer>
+				<div slot="footer">
 					<button type="button" @click="${this.close}" class="btn btn-outline-secondary btn-sm">
 						${t("course.feature.close")}
 					</button>
-				</footer>
-			</web-dialog>
+				</div>
+			</sl-dialog>
 		`;
 	}
 }

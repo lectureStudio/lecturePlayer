@@ -8,44 +8,20 @@ export const playerViewStyles = css`
 		width: 100%;
 		height: 100%;
 	}
-	:host button {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 0;
-		border: 0;
-		background: transparent;
-		border-radius: 0.25em;
-		cursor: pointer;
-		outline: none;
-		min-width: 24px;
-		width: 24px;
-		min-height: 24px;
-		height: 24px;
-		font-size: 1.25em;
-	}
-	:host button:hover {
-		color: rgba(0, 125, 181, 1);
-		background-color: rgba(222, 226, 230, 0.9);
-	}
-	:host button.selected {
-		background-color: rgba(0, 125, 181, 1);
-	}
-	:host button.selected:hover {
-		background-color: rgba(0, 125, 181, 0.8);
-	}
-	:host button.active {
-		color: rgba(0, 125, 181, 1);
-	}
-	:host button.active:hover {
-		color: rgba(0, 125, 181, 0.8);
-	}
-	:host > div {
-		display: flex;
+
+	sl-split-panel {
 		width: 100%;
 		height: 100%;
-		flex-direction: column;
 	}
+	:host #outer-split-panel {
+		--min: 175px;
+		--max: 350px;
+	}
+	:host #inner-split-panel {
+		--min: calc(100% - 350px);
+		--max: calc(100% - 175px);
+	}
+
 	:host .center-container {
 		display: flex;
 		flex-direction: column;
@@ -104,20 +80,17 @@ export const playerViewStyles = css`
 	:host chat-box {
 		height: 100%;
 	}
-	:host .bottom-left {
-		display: flex;
-		position: absolute;
-		bottom: 0;
-		background: #F3F4F6;
-		border-radius: 0.25em;
-		z-index: 10;
-	}
+
 	:host participants-box {
 		height: 100%;
 	}
 	:host(:not([chatVisible])) chat-box {
 		display: none;
 	}
+	:host(:not([participantsVisible])) #outer-split-panel {
+		--min: 0;
+	}
+	:host(:not([participantsVisible])) #outer-split-panel::part(divider),
 	:host(:not([participantsVisible])) .left-container {
 		display: none;
 	}

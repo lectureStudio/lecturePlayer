@@ -1,6 +1,11 @@
 declare module '*.css';
 declare module '*.scss';
 
+interface MediaDeviceSetting {
+	deviceId: string,
+	kind: MediaDeviceKind;
+	muted: boolean;
+}
 
 interface HTMLMediaElement {
 

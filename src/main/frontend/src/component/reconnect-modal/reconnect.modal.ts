@@ -15,20 +15,16 @@ export class ReconnectModal extends Modal {
 
 	protected render() {
 		return html`
-			<web-dialog @open="${this.opened}" ?open="${this.show}" @close="${this.closed}" @closing="${this.closing}">
-				<header>
-					<span>${t("reconnect.title")}</span>
-				</header>
+			<sl-dialog label="${t("reconnect.title")}">
 				<article>
 					<span>${t("reconnect.description")}</span>
 				</article>
-				<footer>
+				<div slot="footer">
 					<button type="button" @click="${this.abort}" class="btn btn-outline-primary btn-sm">
 						${t("reconnect.abort")}
 					</button>
-				</footer>
-			</web-dialog>
+				</div>
+			</sl-dialog>
 		`;
 	}
-
 }

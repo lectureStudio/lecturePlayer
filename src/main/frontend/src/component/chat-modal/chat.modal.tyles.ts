@@ -7,9 +7,7 @@ export const chatModalStyles = css`
 	chat-box {
 		height: 100%;
 	}
-	web-dialog {
-		--dialog-height: 100%;
-	}
+
 	:host chat-box {
 		--send-button-display: none;
 	}

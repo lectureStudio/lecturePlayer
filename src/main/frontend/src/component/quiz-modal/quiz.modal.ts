@@ -4,7 +4,7 @@ import { customElement, property } from "lit/decorators.js";
 import { t } from '../i18n-mixin';
 import { QuizFeature } from "../../model/course-feature";
 import { QuizService } from "../../service/quiz.service";
-import { Toaster } from "../toast/toaster";
+import { Toaster } from "../../utils/toaster";
 
 @customElement("quiz-modal")
 export class QuizModal extends Modal {
@@ -40,22 +40,19 @@ export class QuizModal extends Modal {
 
 	protected render() {
 		return html`
-			<web-dialog @open="${this.opened}" ?open="${this.show}" @close="${this.closed}" @closing="${this.closing}">
-				<header>
-					<span>${t("course.feature.quiz")}</span>
-				</header>
+			<sl-dialog label="${t("course.feature.quiz")}">
 				<article>
 					<quiz-form .feature="${this.feature}"></quiz-form>
 				</article>
-				<footer>
+				<div slot="footer">
 					<button type="button" @click="${this.close}" class="btn btn-outline-secondary btn-sm">
 						${t("course.feature.close")}
 					</button>
 					<button type="button" @click="${this.post}" class="btn btn-outline-primary btn-sm" id="quiz-submit" form="quiz-form">
 						${t("course.feature.quiz.send")}
 					</button>
-				</footer>
-			</web-dialog>
+				</div>
+			</sl-dialog>
 		`;
 	}
 }

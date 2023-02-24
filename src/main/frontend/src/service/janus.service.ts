@@ -140,7 +140,6 @@ export class JanusService extends EventTarget {
 			server: this.serverUrl,
 			destroyOnUnload: true,
 			success: () => {
-				console.log("createSession success");
 				if (this.janus.getSessionId()) {
 					this.attach();
 				}
@@ -226,8 +225,12 @@ export class JanusService extends EventTarget {
 	}
 
 	private attachToPublisher(publisher: JanusRoomParticipant, isPrimary: boolean) {
-		if (this.subscribers.some(sub => sub.getPublisherId() === publisher.id)) {
+		const foundSubscriber = this.subscribers.find(sub => sub.getPublisherId() === publisher.id);
+
+		if (foundSubscriber) {
 			// Do not subscribe to already subscribed publisher.
+			// Update subscribed streams.
+			foundSubscriber.updateStreams(publisher.streams);
 			return;
 		}
 

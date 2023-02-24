@@ -8,21 +8,16 @@ export class RecordedModal extends Modal {
 
 	render() {
 		return html`
-			<web-dialog @open="${this.opened}" ?open="${this.show}" @close="${this.closed}" @closing="${this.closing}">
-				<header>
-					<span>${t("course.recorded.modal.title")}</span>
-				</header>
+			<sl-dialog label="${t("course.recorded.modal.title")}">
 				<article>
-					<label class="form-label">
-						${t("course.recorded.modal.message")}
-					</label>
+					<label class="form-label">${t("course.recorded.modal.message")}</label>
 				</article>
-				<footer>
+				<div slot="footer">
 					<button type="button" @click="${this.close}" class="btn btn-outline-primary btn-sm">
 						${t("course.recorded.modal.accept")}
 					</button>
-				</footer>
-			</web-dialog>
+				</div>
+			</sl-dialog>
 		`;
 	}
 }

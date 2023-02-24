@@ -34,6 +34,7 @@ export class ParticipantsBox extends I18nLitElement {
 		const templates = [];
 
 		for (const participant of participants.participants) {
+			console.log('participants', participant, participants.participants)
 			let name = `${participant.firstName} ${participant.familyName}`;
 			let type;
 
@@ -47,9 +48,9 @@ export class ParticipantsBox extends I18nLitElement {
 					const lower = participant.participantType.toLowerCase();
 
 					type = html`
-						<span class="icon-${lower}" id="participant-type">
-							<ui-tooltip for="participant-type">${t("course.role." + lower)}</ui-tooltip>
-						</span>
+						<sl-tooltip content="${t("course.role." + lower)}">
+							<span class="icon-${lower}" id="participant-type"></span>
+						</sl-tooltip>
 					`;
 					break;
 			}

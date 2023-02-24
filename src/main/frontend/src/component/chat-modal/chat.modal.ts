@@ -29,11 +29,11 @@ export class ChatModal extends Modal {
 
 	protected render() {
 		return html`
-			<web-dialog @open="${this.opened}" ?open="${this.show}" @close="${this.closed}" @closing="${this.closing}">
+			<sl-dialog noHeader>
 				<article>
 					<chat-box .messageService="${this.messageService}" .privilegeService="${this.privilegeService}"></chat-box>
 				</article>
-				<footer>
+				<div slot="footer">
 					<button type="button" @click="${this.close}" class="btn btn-outline-secondary btn-sm">
 						${t("course.feature.close")}
 					</button>
@@ -41,8 +41,8 @@ export class ChatModal extends Modal {
 						${t("course.feature.message.send")}
 						<span class="icon-send"></span>
 					</button>
-				</footer>
-			</web-dialog>
+				</div>
+			</sl-dialog>
 		`;
 	}
 }

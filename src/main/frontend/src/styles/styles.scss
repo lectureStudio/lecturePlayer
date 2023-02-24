@@ -20,5 +20,14 @@
 
 
 @import "icons";
-@import "split";
-@import "tooltip";
+
+
+form {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75em;
+}
+
+sl-option::part(base) {
+	font-size: var(--sl-font-size-small);
+}

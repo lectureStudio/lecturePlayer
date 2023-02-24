@@ -56,10 +56,7 @@ export class SpeechAcceptedModal extends Modal {
 
 	protected render() {
 		return html`
-			<web-dialog @open="${this.opened}" ?open="${this.show}" @close="${this.closed}" @closing="${this.closing}">
-				<header>
-					<span>${t("course.speech.request.accepted")}</span>
-				</header>
+			<wsl-dialog label="${t("course.speech.request.accepted")}">
 				<article>
 					<label class="form-label pb-2">
 						${t("course.speech.request.accepted.description")}
@@ -75,15 +72,15 @@ export class SpeechAcceptedModal extends Modal {
 						<canvas id="meter" width="220" height="5"></canvas>
 					</div>
 				</article>
-				<footer>
+				<div slot="footer">
 					<button type="button" @click="${this.cancel}" class="btn btn-outline-secondary btn-sm">
 						${t("course.speech.request.cancel")}
 					</button>
 					<button type="button" @click="${this.start}" class="btn btn-outline-primary btn-sm">
 						${t("course.speech.request.start")}
 					</button>
-				</footer>
-			</web-dialog>
+				</div>
+			</wsl-dialog>
 		`;
 	}
 }

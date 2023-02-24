@@ -36,8 +36,11 @@
 		"babel-loader": "^8.2.2",
 		"clean-webpack-plugin": "^1.0.1",
 		"concurrently": "^6.0.0",
+		"copy-webpack-plugin": "^11.0.0",
+		"css-loader": "^6.7.3",
 		"exports-loader": "^3.0.0",
 		"lit-css-loader": "^2.0.0",
+		"mini-css-extract-plugin": "^2.7.2",
 		"resize-observer-polyfill": "^1.5.1",
 		"sass": "^1.53.0",
 		"sass-loader": "^13.0.1",
@@ -51,15 +54,13 @@
 		"worker-loader": "^3.0.8"
 	},
 	"dependencies": {
+		"@shoelace-style/shoelace": "^2.1.0",
 		"@stomp/stompjs": "^6.1.2",
 		"bootstrap": "^5.2.1",
 		"i18next": "^21.8.12",
 		"i18next-browser-languagedetector": "^6.1.4",
 		"janus-gateway": "git://github.com/meetecho/janus-gateway.git",
 		"lit": "^2.2.7",
-		"pdfjs-dist": "^2.16.105",
-		"split.js": "^1.6.5",
-		"tippy.js": "^6.3.7",
-		"web-dialog": "^0.0.11"
+		"pdfjs-dist": "^2.16.105"
 	}
 }

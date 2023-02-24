@@ -25,8 +25,7 @@ import { ReconnectModal } from '../reconnect-modal/reconnect.modal';
 import { RecordedModal } from '../recorded-modal/recorded.modal';
 import { SettingsModal } from '../settings-modal/settings.modal';
 import { SpeechAcceptedModal } from '../speech-accepted-modal/speech-accepted.modal';
-import { ToastGravity, ToastPosition } from '../toast/toast';
-import { Toaster } from '../toast/toaster';
+import { Toaster } from '../../utils/toaster';
 import { LecturePlayer } from './player';
 import { course } from '../../model/course';
 import { participants } from '../../model/participants';
@@ -106,6 +105,8 @@ export class PlayerController implements ReactiveController {
 		this.host.addEventListener("player-participants-visibility", this.onParticipantsVisibility.bind(this), false);
 		this.host.addEventListener("participant-video-play-error", this.onMediaPlayError.bind(this), false);
 
+		this.host.addEventListener("lect-device-settings", this.onSettings.bind(this));
+
 		this.eventService.addEventListener("event-service-state", this.onEventServiceState.bind(this));
 		this.eventService.addEventListener("chat-state", this.onChatState.bind(this));
 		this.eventService.addEventListener("quiz-state", this.onQuizState.bind(this));
@@ -117,8 +118,6 @@ export class PlayerController implements ReactiveController {
 		this.janusService.addEventListener("janus-connection-established", this.onJanusConnectionEstablished.bind(this));
 		this.janusService.addEventListener("janus-connection-failure", this.onJanusConnectionFailure.bind(this));
 		this.janusService.addEventListener("janus-session-error", this.onJanusSessionError.bind(this));
-
-		this.initToaster();
 	}
 
 	setPlayerViewController(viewController: PlayerViewController) {
@@ -164,17 +163,6 @@ export class PlayerController implements ReactiveController {
 		course.documentMap = state.documentMap;
 		course.activeDocument = state.activeDocument;
 		course.mediaState = state.mediaState;
-	}
-
-	private initToaster() {
-		Toaster.init({
-			duration: 5000,
-			gravity: ToastGravity.Top,
-			position: ToastPosition.Center,
-			closeable: false,
-			stopOnFocus: true,
-			selector: this.host.renderRoot
-		});
 	}
 
 	private connect() {
@@ -360,9 +348,15 @@ export class PlayerController implements ReactiveController {
 		this.setFullscreen(event.detail.fullscreen === true);
 	}
 
-	private onSettings() {
+	private onSettings(event: CustomEvent) {
+		const section = event.detail?.type;
+
 		const settingsModal = new SettingsModal();
 		settingsModal.janusService = this.janusService;
+
+		if (section) {
+			settingsModal.section = section;
+		}
 
 		this.registerModal("SettingsModal", settingsModal);
 	}
@@ -606,8 +600,8 @@ export class PlayerController implements ReactiveController {
 			},
 			video: {
 				deviceId: speechConstraints.videoInput ? { exact: speechConstraints.videoInput } : undefined,
-				width: 1280,
-				height: 720,
+				width: { ideal: 1280 },
+				height: { ideal: 720 },
 				facingMode: "user"
 			}
 		};

@@ -1,5 +1,5 @@
 import { t } from "i18next";
-import { Toaster } from "../component/toast/toaster";
+import { Toaster } from "../utils/toaster";
 import { CourseFeatureResponse, QuizAnswer } from "../model/course-feature";
 
 export class QuizService {

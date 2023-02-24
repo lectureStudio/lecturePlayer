@@ -1,11 +1,40 @@
+import '@shoelace-style/shoelace/dist/themes/light.css';
+import '@shoelace-style/shoelace/dist/themes/dark.css';
+import '@shoelace-style/shoelace/dist/components/alert/alert.js';
+import '@shoelace-style/shoelace/dist/components/button/button';
+import '@shoelace-style/shoelace/dist/components/button-group/button-group';
+import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
+import '@shoelace-style/shoelace/dist/components/divider/divider';
+import '@shoelace-style/shoelace/dist/components/icon/icon';
+import '@shoelace-style/shoelace/dist/components/checkbox/checkbox';
+import '@shoelace-style/shoelace/dist/components/dropdown/dropdown';
+import '@shoelace-style/shoelace/dist/components/menu/menu';
+import '@shoelace-style/shoelace/dist/components/menu-item/menu-item';
+import '@shoelace-style/shoelace/dist/components/menu-label/menu-label';
+import '@shoelace-style/shoelace/dist/components/option/option.js';
+import '@shoelace-style/shoelace/dist/components/select/select.js';
+import '@shoelace-style/shoelace/dist/components/split-panel/split-panel.js';
+import '@shoelace-style/shoelace/dist/components/tab/tab.js';
+import '@shoelace-style/shoelace/dist/components/tab-panel/tab-panel.js';
+import '@shoelace-style/shoelace/dist/components/tab-group/tab-group.js';
+import '@shoelace-style/shoelace/dist/components/tooltip/tooltip';
+import '@shoelace-style/shoelace/dist/components/visually-hidden/visually-hidden';
+
+import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path';
+
+setBasePath('/js/shoelace');
+
+
+
+
 export * from './extension';
 
 import './component/player/player';
 import './component/slide-view/slide-view';
 import './component/player-view/player-view';
 import './component/conference-view/conference-view';
-import './component/grid-element/grid-element';
 import './component/controls/player-controls';
+import './component/controls/media-device-button';
 import './component/loading/player-loading';
 import './component/offline/player-offline';
 import './component/feature-view/feature-view';
@@ -17,11 +46,8 @@ import './component/quiz-form/quiz-form';
 import './component/modal/modal';
 import './component/screen-view/screen-view';
 import './component/stream-stats/stream-stats';
-import './component/camera-settings/camera-settings';
-import './component/sound-settings/sound-settings';
-import './component/tabs/tabs';
-import './component/toast/toast';
-import './component/tooltip/tooltip';
+import './component/media-settings/camera-settings';
+import './component/media-settings/sound-settings';
 
 import i18next from 'i18next';
 import LanguageDetector from "i18next-browser-languagedetector";

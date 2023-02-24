@@ -48,22 +48,29 @@ export class StreamStats extends I18nLitElement {
 
 	protected render() {
 		return html`
-			<player-tabs>
-				<p slot="tab">${t("stats.audio")}</p>
-				<p slot="panel">${this.renderStatsTable(this.getAudioStats(course.streamStats.audioStats))}</p>
+			<sl-tab-group noScrollControls="true">
+				<sl-tab slot="nav" panel="audio">${t("stats.audio")}</sl-tab>
+				<sl-tab slot="nav" panel="camera">${t("stats.camera")}</sl-tab>
+				<sl-tab slot="nav" panel="screen">${t("stats.screen")}</sl-tab>
+				<sl-tab slot="nav" panel="documents">${t("stats.documents")}</sl-tab>
+				<sl-tab slot="nav" panel="events">${t("stats.events")}</sl-tab>
 
-				<p slot="tab">${t("stats.camera")}</p>
-				<p slot="panel">${this.renderStatsTable(this.getVideoStats(course.streamStats.cameraStats))}</p>
-
-				<p slot="tab">${t("stats.screen")}</p>
-				<p slot="panel">${this.renderStatsTable(this.getVideoStats(course.streamStats.screenStats))}</p>
-
-				<p slot="tab">${t("stats.documents")}</p>
-				<p slot="panel">${this.renderStatsTable(this.getDocumentStats(course.streamStats.documentStats))}</p>
-
-				<p slot="tab">${t("stats.events")}</p>
-				<p slot="panel">${this.renderStatsTable(this.getDataStats(course.streamStats.dataStats))}</p>
-			</player-tabs>
+				<sl-tab-panel name="audio">
+					${this.renderStatsTable(this.getAudioStats(course.streamStats.audioStats))}
+				</sl-tab-panel>
+				<sl-tab-panel name="camera">
+					${this.renderStatsTable(this.getVideoStats(course.streamStats.cameraStats))}
+				</sl-tab-panel>
+				<sl-tab-panel name="screen">
+					${this.renderStatsTable(this.getVideoStats(course.streamStats.screenStats))}
+				</sl-tab-panel>
+				<sl-tab-panel name="documents">
+					${this.renderStatsTable(this.getDocumentStats(course.streamStats.documentStats))}
+				</sl-tab-panel>
+				<sl-tab-panel name="events">
+					${this.renderStatsTable(this.getDataStats(course.streamStats.dataStats))}
+				</sl-tab-panel>
+			</sl-tab-group>
 		`;
 	}
 

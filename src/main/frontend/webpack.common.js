@@ -1,6 +1,8 @@
 const path = require('path');
 const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
 	entry: {
@@ -11,6 +13,18 @@ module.exports = {
 	},
 	plugins: [
 		new CleanWebpackPlugin(['dist']),
+
+		new MiniCssExtractPlugin(),
+
+		new CopyPlugin({
+			patterns: [
+				// Copy Shoelace assets to dist/shoelace
+				{
+					from: path.resolve(__dirname, 'node_modules/@shoelace-style/shoelace/dist/assets'),
+					to: path.resolve(__dirname, '/home/feil/workspace/lectureStreaming/src/main/resources/static/js/shoelace/assets')
+				}
+			]
+		}),
 
 		// janus.js does not use 'import' to access to the functionality of webrtc-adapter,
 		// instead it expects a global object called 'adapter' for that.
@@ -44,6 +58,10 @@ module.exports = {
 				options: {
 					specifier: 'lit' // defaults to `lit`
 				}
+			},
+			{
+				test: /\.css$/i,
+				use: [MiniCssExtractPlugin.loader, 'css-loader']
 			},
 			{
 				test: /\.scss$/,

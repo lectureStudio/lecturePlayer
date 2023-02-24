@@ -3,7 +3,7 @@ import { customElement, property } from 'lit/decorators.js';
 import { QuizFeature } from '../../model/course-feature';
 import { QuizService } from '../../service/quiz.service';
 import { I18nLitElement, t } from '../i18n-mixin';
-import { Toaster } from '../toast/toaster';
+import { Toaster } from '../../utils/toaster';
 import { quizBoxStyles } from './quiz-box.styles';
 
 @customElement('quiz-box')

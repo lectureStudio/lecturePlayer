@@ -16,6 +16,8 @@
 	"devices.camera": "Camera",
 	"devices.camera.activate": "Activate camera (optional)",
 	"devices.camera.blocked": "Access to camera not possible. Make sure that no other application is accessing this camera.",
+	"devices.microphone": "Microphone",
+	"devices.speaker": "Speaker",
 	"devices.audio.input": "Audio Input",
 	"devices.audio.input.init": "For a speech, you need to select a microphone and give the browser permission to use it.",
 	"devices.audio.output": "Audio Output",

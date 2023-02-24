@@ -15,8 +15,8 @@ export class Devices {
 		const constraints = {
 			video: {
 				deviceId: videoSource ? { exact: videoSource } : undefined,
-				width: 1280,
-				height: 720,
+				width: { ideal: 1280 },
+				height: { ideal: 720 },
 				facingMode: "user"
 			}
 		};
@@ -37,8 +37,8 @@ export class Devices {
 				},
 				video: {
 					deviceId: videoSource ? { exact: videoSource } : undefined,
-					width: 1280,
-					height: 720,
+					width: { ideal: 1280 },
+					height: { ideal: 720 },
 					facingMode: "user"
 				}
 			};
@@ -51,8 +51,8 @@ export class Devices {
 			constraints = {
 				audio: true,
 				video: {
-					width: 1280,
-					height: 720
+					width: { ideal: 1280 },
+					height: { ideal: 720 }
 				}
 			};
 		}

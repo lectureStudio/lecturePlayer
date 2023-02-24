@@ -2,7 +2,7 @@ import { html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { chatBoxStyles } from './chat-box.styles';
-import { Toaster } from '../../component/toast/toaster';
+import { Toaster } from '../../utils/toaster';
 import { MessageService, MessageServiceDirectMessage, MessageServiceMessage } from '../../service/message.service';
 import { ChatMessage } from './chat-message';
 import { PrivilegeService } from '../../service/privilege.service';

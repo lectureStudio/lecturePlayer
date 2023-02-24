@@ -8,10 +8,7 @@ export class VpnModal extends Modal {
 
 	protected render() {
 		return html`
-			<web-dialog @open="${this.opened}" ?open="${this.show}" @close="${this.closed}" @closing="${this.closing}">
-				<header>
-					<span>${t("vpn.modal.title")}</span>
-				</header>
+			<sl-dialog label="${t("vpn.modal.title")}">
 				<article>
 					<p>${t("vpn.modal.description")}</p>
 					<ul>
@@ -20,7 +17,7 @@ export class VpnModal extends Modal {
 					</ul>
 					<p>${t("vpn.modal.reconnect")}</p>
 				</article>
-			</web-dialog>
+			</sl-dialog>
 		`;
 	}
 }
