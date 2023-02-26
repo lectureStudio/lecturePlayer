@@ -36,6 +36,7 @@
 	"controls.cam.unmute": "Kamera einschalten",
 	"controls.mic.mute": "Mikrofon ausschalten",
 	"controls.mic.unmute": "Mikrofon einschalten",
+	"controls.volume": "Lautstärke",
 	"controls.fullscreen.on": "Vollbild",
 	"controls.fullscreen.off": "Vollbildmodus beenden",
 	"controls.chat.show": "Chat anzeigen",

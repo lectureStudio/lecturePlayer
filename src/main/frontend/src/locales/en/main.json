@@ -36,6 +36,7 @@
 	"controls.cam.unmute": "Unmute Camera",
 	"controls.mic.mute": "Mute Microphone",
 	"controls.mic.unmute": "Unmute Microphone",
+	"controls.volume": "Volume",
 	"controls.fullscreen.on": "Fullscreen",
 	"controls.fullscreen.off": "Exit Fullscreen Mode",
 	"controls.chat.show": "Show Chat",

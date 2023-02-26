@@ -5,6 +5,7 @@ import { Utils } from '../../utils/utils';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { playerControlsStyles } from './player-controls.styles';
 import { course } from '../../model/course';
+import { SlTooltip } from '@shoelace-style/shoelace';
 
 @customElement('player-controls')
 export class PlayerControls extends I18nLitElement {
@@ -26,16 +27,11 @@ export class PlayerControls extends I18nLitElement {
 	@query('.volatile-canvas')
 	volatileCanvas: HTMLCanvasElement;
 
-	@query('#volumeIndicator')
-	volumeIndicator: HTMLElement;
-
 	@query('.text-layer')
 	textLayer: HTMLElement;
 
-	@property({ type: Number, reflect: true })
-	volume: number = 1;
-
-	mutedVolume: number = null;
+	@query('#volume-tooltip')
+	volumeTooltip: SlTooltip;
 
 	@property({ type: Number, reflect: true })
 	volumeState: number;
@@ -97,43 +93,6 @@ export class PlayerControls extends I18nLitElement {
 		document.addEventListener("speech-canceled", (e: CustomEvent) => {
 			this.handUp = false;
 		});
-
-		this.setVolume(this.volume);
-	}
-
-	private setVolume(volume: number) {
-		this.volume = volume;
-
-		if (this.volume === 0) {
-			this.volumeState = 0;
-		}
-		else if (this.volume <= 0.1) {
-			this.volumeState = 1;
-		}
-		else if (this.volume <= 0.5) {
-			this.volumeState = 2;
-		}
-		else if (this.volume > 0.5 && this.volume < 0.7) {
-			this.volumeState = 3;
-		}
-		else if (this.volume >= 0.7) {
-			this.volumeState = 4;
-		}
-
-		this.dispatchEvent(Utils.createEvent("player-volume", {
-			volume: this.volume
-		}));
-	}
-
-	private onMuteAudio(): void {
-		if (!this.mutedVolume) {
-			this.mutedVolume = this.volume;
-			this.setVolume(0);
-		}
-		else {
-			this.setVolume(this.mutedVolume);
-			this.mutedVolume = null;
-		}		
 	}
 
 	private onMuteMicrophone(): void {
@@ -186,15 +145,15 @@ export class PlayerControls extends I18nLitElement {
 		this.dispatchEvent(Utils.createEvent("player-settings"));
 	}
 
-	private onVolume(e: InputEvent): void {
-		this.setVolume(parseFloat((e.target as HTMLInputElement).value));
+	private onVolume(): void {
+		this.volumeTooltip.hide();
 	}
 
 	private getFormattedDuration(): string {
 		if (!this.duration) {
 			return "";
 		}
-		
+
 		const date = new Date(this.duration);
 		const hours = date.getUTCHours();
 		const minutes = "0" + date.getUTCMinutes();
@@ -228,16 +187,10 @@ export class PlayerControls extends I18nLitElement {
 					<span slot="icon" class="icon-cam-muted"></span>
 				</media-device-button>
 
-				<sl-tooltip content="${this.mutedVolume ? t("controls.audio.unmute") : t("controls.audio.mute")}">
-					<button id="volumeIndicator" @click="${this.onMuteAudio}">
-						<span class="icon-audio-mute"></span>
-						<span class="icon-audio-off"></span>
-						<span class="icon-audio-low"></span>
-						<span class="icon-audio-up"></span>
-						<span class="icon-audio-high"></span>
-					</button>
+				<sl-tooltip content="${t("controls.volume")}" id="volume-tooltip">
+					<audio-volume-button @click="${this.onVolume}"></audio-volume-button>
 				</sl-tooltip>
-				<input type="range" id="volumeSlider" min="0" max="1" value="1" step="0.01" .value="${this.volume}" @input="${this.onVolume}">
+
 				<span id="duration">${this.getFormattedDuration()}</span>
 			</div>
 			<div class="col nav-center">

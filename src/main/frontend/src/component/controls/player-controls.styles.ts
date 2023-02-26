@@ -76,126 +76,6 @@ export const playerControlsStyles = css`
 		justify-content: flex-end;
 	}
 
-	:host #volumeSlider {
-		display: none;
-		margin: 10px 2.5%;
-		width: 150px;
-	}
-	:host #volumeSlider::-webkit-slider-runnable-track {
-		background: rgba(0, 125, 181, 0.6);
-	}
-	:host #volumeSlider::-moz-range-track {
-		background: rgba(0, 125, 181, 0.6);
-	}
-	:host #volumeSlider::-ms-fill-upper {
-		background: rgba(0, 125, 181, 0.6);
-	}
-	:host #volumeSlider::before {
-		width: var(--volume-before-width);
-	}
-	:host #volumeIndicator {
-		margin: 0 0;
-	}
-	:host input[type="range"] {
-		position: relative;
-		-webkit-appearance: none;
-		width: 48%;
-		margin: 0;
-		padding: 0;
-		height: 19px;
-		margin: 30px 2.5% 20px 2.5%;
-		float: left;
-		outline: none;
-		background: transparent;
-	}
-	:host input[type="range"]::-webkit-slider-runnable-track {
-		width: 100%;
-		height: 3px;
-		cursor: pointer;
-		background: linear-gradient(to right, rgba(0, 125, 181, 0.6) var(--buffered-width), rgba(0, 125, 181, 0.2) var(--buffered-width));
-	}
-	:host input[type="range"]::before {
-		position: absolute;
-		content: "";
-		top: 8px;
-		left: 0;
-		width: var(--seek-before-width);
-		height: 3px;
-		background-color: #007db5;
-		cursor: pointer;
-	}
-	:host input[type="range"]::-webkit-slider-thumb {
-		position: relative;
-		-webkit-appearance: none;
-		box-sizing: content-box;
-		border: 1px solid #007db5;
-		height: 15px;
-		width: 15px;
-		border-radius: 50%;
-		background-color: #fff;
-		cursor: pointer;
-		margin: -7px 0 0 0;
-	}
-	:host input[type="range"]:active::-webkit-slider-thumb {
-		transform: scale(1.2);
-		background: #007db5;
-	}
-	:host input[type="range"]::-moz-range-track {
-		width: 100%;
-		height: 3px;
-		cursor: pointer;
-		background: linear-gradient(to right, rgba(0, 125, 181, 0.6) var(--buffered-width), rgba(0, 125, 181, 0.2) var(--buffered-width));
-	}
-	:host input[type="range"]::-moz-range-progress {
-		background-color: #007db5;
-	}
-	:host input[type="range"]::-moz-focus-outer {
-		border: 0;
-	}
-	:host input[type="range"]::-moz-range-thumb {
-		box-sizing: content-box;
-		border: 1px solid #007db5;
-		height: 15px;
-		width: 15px;
-		border-radius: 50%;
-		background-color: #fff;
-		cursor: pointer;
-	}
-	:host input[type="range"]:active::-moz-range-thumb {
-		transform: scale(1.2);
-		background: #007db5;
-	}
-	:host input[type="range"]::-ms-track {
-		width: 100%;
-		height: 3px;
-		cursor: pointer;
-		background: transparent;
-		border: solid transparent;
-		color: transparent;
-	}
-	:host input[type="range"]::-ms-fill-lower {
-		background-color: #007db5;
-	}
-	:host input[type="range"]::-ms-fill-upper {
-		background: linear-gradient(to right, rgba(0, 125, 181, 0.6) var(--buffered-width), rgba(0, 125, 181, 0.2) var(--buffered-width));
-	}
-	:host input[type="range"]::-ms-thumb {
-		box-sizing: content-box;
-		border: 1px solid #007db5;
-		height: 15px;
-		width: 15px;
-		border-radius: 50%;
-		background-color: #fff;
-		cursor: pointer;
-	}
-	:host input[type="range"]:active::-ms-thumb {
-		transform: scale(1.2);
-		background: #007db5;
-	}
-
-	:host .hidden {
-		display: none;
-	}
 
 	:host([fullscreen]) .icon-fullscreen,
 	:not([fullscreen]) .icon-fullscreen-exit {
@@ -250,16 +130,6 @@ export const playerControlsStyles = css`
 		display: none;
 	}
 
-	#volumeIndicator > span {
-		display: none;
-	}
-	:host([volumeState="0"]) #volumeIndicator span:nth-child(1),
-	:host([volumeState="1"]) #volumeIndicator span:nth-child(2),
-	:host([volumeState="2"]) #volumeIndicator span:nth-child(3),
-	:host([volumeState="3"]) #volumeIndicator span:nth-child(4),
-	:host([volumeState="4"]) #volumeIndicator span:nth-child(5) {
-		display: inherit;
-	}
 
 	media-device-button {
 		margin-right: 0.75em;
@@ -276,12 +146,6 @@ export const playerControlsStyles = css`
 		}
 		100% {
 			background: rgba(21, 128, 61, 0.0);
-		}
-	}
-
-	@media (min-width: 576px) {
-		:host #volumeSlider {
-			display: block;
 		}
 	}
 `;

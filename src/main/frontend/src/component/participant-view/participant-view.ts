@@ -62,7 +62,7 @@ export class ParticipantView extends I18nLitElement {
 	constructor() {
 		super();
 
-		document.addEventListener("player-volume", this.onAudioVolume.bind(this));
+		document.addEventListener("lect-speaker-volume", this.onAudioVolume.bind(this));
 		document.addEventListener("player-start-media", this.onStartMediaPlayback.bind(this));
 		document.addEventListener("speaker-setting-changed", this.onSpeakerSetting.bind(this));
 
