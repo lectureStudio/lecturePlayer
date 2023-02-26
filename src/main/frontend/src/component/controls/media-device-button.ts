@@ -27,10 +27,10 @@ export class MediaDeviceButton extends I18nLitElement {
 	@query('sl-menu')
 	menu: SlMenu;
 
-	selectedMenuItem: SlMenuItem;
-
 	@property({ type: Boolean, reflect: true })
 	muted: boolean = false;
+
+	selectedDevice: MediaDeviceInfo;
 
 
 	override connectedCallback() {
@@ -95,14 +95,20 @@ export class MediaDeviceButton extends I18nLitElement {
 
 		for (const device of this.devices.values()) {
 			if (device.kind === kind) {
+				const selected = this.getSettingsDeviceId(device) === device.deviceId;
+
+				if (selected && device.kind !== "audiooutput") {
+					this.selectedDevice = device;
+				}
+
 				itemTemplates.push(html`
-				<sl-menu-item type="checkbox"
-					value="${device.deviceId}"
-					?checked="${this.getSettingsDeviceId(device) === device.deviceId}"
-				>
-					${Devices.removeHwId(device.label)}
-				</sl-menu-item>
-			`);
+					<sl-menu-item type="checkbox"
+						value="${device.deviceId}"
+						?checked="${selected}"
+					>
+						${Devices.removeHwId(device.label)}
+					</sl-menu-item>
+				`);
 			}
 		}
 
@@ -121,7 +127,7 @@ export class MediaDeviceButton extends I18nLitElement {
 		// Keep selected item checked, e.g. when double-checked.
 		selectedItem.checked = true;
 
-		if (this.selectedMenuItem?.value === selectedItem.value) {
+		if (this.selectedDevice?.deviceId === selectedItem.value) {
 			// Same item selected.
 			return;
 		}
@@ -135,8 +141,6 @@ export class MediaDeviceButton extends I18nLitElement {
 			}
 		}
 
-		this.selectedMenuItem = selectedItem;
-
 		this.dispatchEvent(Utils.createEvent<MediaDeviceSetting>("lect-device-change", {
 			deviceId: device.deviceId,
 			kind: device.kind,
@@ -145,9 +149,7 @@ export class MediaDeviceButton extends I18nLitElement {
 	}
 
 	private onMute() {
-		const device: MediaDeviceInfo = this.devices.get(this.selectedMenuItem.value);
-
-		if (device && device.kind === "audiooutput") {
+		if (this.selectedDevice && this.selectedDevice.kind === "audiooutput") {
 			// Mute only input devices.
 			return;
 		}
@@ -155,8 +157,8 @@ export class MediaDeviceButton extends I18nLitElement {
 		this.muted = !this.muted;
 
 		this.dispatchEvent(Utils.createEvent<MediaDeviceSetting>("lect-device-mute", {
-			deviceId: device.deviceId,
-			kind: device.kind,
+			deviceId: this.selectedDevice.deviceId,
+			kind: this.selectedDevice.kind,
 			muted: this.muted
 		}));
 	}
