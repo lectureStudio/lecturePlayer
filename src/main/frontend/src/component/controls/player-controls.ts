@@ -33,9 +33,6 @@ export class PlayerControls extends I18nLitElement {
 	@query('#volume-tooltip')
 	volumeTooltip: SlTooltip;
 
-	@property({ type: Number, reflect: true })
-	volumeState: number;
-
 	@property({ type: Number, reflect: true, attribute: false })
 	duration: number;
 
@@ -196,46 +193,62 @@ export class PlayerControls extends I18nLitElement {
 			<div class="col nav-center">
 				${this.privilegeService.canContributeBySpeech() ? html`
 				<sl-tooltip content="${this.handUp ? t("controls.speech.abort") : t("controls.speech.start")}">
-					<button @click="${this.onHand}" class="icon-speech" id="hand-button"></button>
+					<sl-button @click="${this.onHand}" class="icon-speech" id="hand-button">
+						<span slot="prefix" class="icon-speech"></span>
+					</sl-button>
 				</sl-tooltip>
 				` : ''}
 
 				${this.privilegeService.canParticipateInQuiz() ? html`
 				<sl-tooltip content="${t("controls.quiz.show")}">
-					<button @click="${this.onQuiz}" class="icon-quiz" id="quiz-button"></button>
+					<sl-button @click="${this.onQuiz}" id="quiz-button">
+						<span slot="prefix" class="icon-quiz"></span>
+					</sl-button>
 				</sl-tooltip>
 				` : ''}
 
-				<sl-tooltip content="Share Screen">
-					<button class="icon-share conference-control"></button>
+				<sl-tooltip content="${t("controls.screenshare")}">
+					<sl-button class="conference-control">
+						<span slot="prefix" class="icon-share"></span>
+					</sl-button>
 				</sl-tooltip>
 
-				<sl-tooltip content="Documents">
-					<button class="icon-collection conference-control"></button>
+				<sl-tooltip content="${t("controls.documents")}">
+					<sl-button class="conference-control">
+						<span slot="prefix" class="icon-collection"></span>
+					</sl-button>
 				</sl-tooltip>
 
-				<sl-tooltip content="Tools">
-					<button class="icon-pen conference-control"></button>
+				<sl-tooltip content="${t("controls.tools")}">
+					<sl-button class="conference-control">
+						<span slot="prefix" class="icon-pen"></span>
+					</sl-button>
 				</sl-tooltip>
 			</div>
 			<div class="col nav-right">
 				<sl-tooltip content="${t(this.participantsVisible ? "controls.participants.hide" : "controls.participants.show")}">
-					<button @click="${this.onParticipantsVisibility}" class="icon-participants" id="participants-button"></button>
+					<sl-button @click="${this.onParticipantsVisibility}" id="participants-button">
+						<span slot="prefix" class="icon-participants"></span>
+					</sl-button>
 				</sl-tooltip>
 
 				<sl-tooltip content="${this.chatVisible ? t("controls.chat.hide") : t("controls.chat.show")}">
-					<button @click="${this.onChatVisibility}" class="icon-chat" id="chat-button"></button>
+					<sl-button @click="${this.onChatVisibility}" id="chat-button">
+						<span slot="prefix" class="icon-chat"></span>
+					</sl-button>
 				</sl-tooltip>
 
 				<sl-tooltip content="${t("controls.settings")}">
-					<button @click="${this.onSettings}" class="icon-settings" id="settings-button"></button>
+					<sl-button @click="${this.onSettings}" id="settings-button">
+						<span slot="prefix" class="icon-settings"></span>
+					</sl-button>
 				</sl-tooltip>
 
 				<sl-tooltip content="${this.fullscreen ? t("controls.fullscreen.off") : t("controls.fullscreen.on")}">
-					<button @click="${this.onFullscreen}" id="fullscreen-button">
-						<span class="icon-fullscreen"></span>
-						<span class="icon-fullscreen-exit"></span>
-					</button>
+					<sl-button @click="${this.onFullscreen}" id="fullscreen-button">
+						<span slot="prefix" class="icon-fullscreen"></span>
+						<span slot="prefix" class="icon-fullscreen-exit"></span>
+					</sl-button>
 				</sl-tooltip>
 			</div>
 		`;

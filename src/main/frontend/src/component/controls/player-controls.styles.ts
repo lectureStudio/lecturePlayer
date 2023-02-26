@@ -19,44 +19,6 @@ export const playerControlsStyles = css`
 		content: '';
 		z-index: -1;
 	}
-	:host .invisible {
-		display: none;
-	}
-	:host button {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 0;
-		border: 0;
-		background: transparent;
-		border-radius: 0.333em;
-		cursor: pointer;
-		outline: none;
-		min-width: 40px;
-		width: 40px;
-		min-height: 40px;
-		height: 40px;
-		font-size: 1.65em;
-	}
-	:host button:hover {
-		color: rgba(0, 125, 181, 1);
-		background-color: rgba(222, 226, 230, 0.9);
-	}
-	:host button.selected {
-		background-color: rgba(0, 125, 181, 1);
-	}
-	:host button.selected:hover {
-		background-color: rgba(0, 125, 181, 0.8);
-	}
-	:host button.active {
-		color: rgba(0, 125, 181, 1);
-	}
-	:host button.active:hover {
-		color: rgba(0, 125, 181, 0.8);
-	}
-	:host #quiz-button {
-		color: #15803D;
-	}
 
 	:host .col {
 		flex: 1;
@@ -76,6 +38,22 @@ export const playerControlsStyles = css`
 		justify-content: flex-end;
 	}
 
+	.col sl-button::part(base),
+	.col sl-button::part(label) {
+		padding-inline-start: var(--sl-spacing-x-small);
+	}
+	.col sl-button::part(prefix) {
+		font-size: 2em;
+	}
+	sl-button::part(base) {
+		background-color: transparent;
+		border: 0;
+		border-radius: 0.333em;
+	}
+	sl-button::part(base):hover {
+		background-color: rgba(222, 226, 230, 0.9);
+		color: rgba(0, 125, 181, 1);
+	}
 
 	:host([fullscreen]) .icon-fullscreen,
 	:not([fullscreen]) .icon-fullscreen-exit {
@@ -131,6 +109,9 @@ export const playerControlsStyles = css`
 	}
 
 
+	#quiz-button {
+		color: #15803D;
+	}
 	media-device-button {
 		margin-right: 0.75em;
 	}

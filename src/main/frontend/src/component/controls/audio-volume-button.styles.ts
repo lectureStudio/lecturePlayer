@@ -27,6 +27,10 @@ export const audioVolumeButtonStyles = css`
 		justify-content: end;
 	}
 
+	.volume-controls #volumeIndicator::part(base),
+	.volume-controls #volumeIndicator::part(label) {
+		padding-inline-start: var(--sl-spacing-2x-small);
+	}
 	#volumeIndicator::part(prefix) {
 		font-size: 2em;
 	}
