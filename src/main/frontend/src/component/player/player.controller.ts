@@ -105,6 +105,7 @@ export class PlayerController implements ReactiveController {
 		this.host.addEventListener("player-participants-visibility", this.onParticipantsVisibility.bind(this), false);
 		this.host.addEventListener("participant-video-play-error", this.onMediaPlayError.bind(this), false);
 
+		this.host.addEventListener("lect-device-change", this.onDeviceChange.bind(this));
 		this.host.addEventListener("lect-device-settings", this.onSettings.bind(this));
 
 		this.eventService.addEventListener("event-service-state", this.onEventServiceState.bind(this));
@@ -127,8 +128,6 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private setConnectionState(state: State) {
-		console.log("set connection state", this.host.state, state);
-
 		if (this.host.state === state) {
 			return;
 		}
@@ -348,6 +347,20 @@ export class PlayerController implements ReactiveController {
 		this.setFullscreen(event.detail.fullscreen === true);
 	}
 
+	private onDeviceChange(event: CustomEvent) {
+		const deviceConfig: MediaDeviceSetting = event.detail;
+
+		if (deviceConfig.kind === "audioinput") {
+			Settings.setMicrophoneId(deviceConfig.deviceId);
+		}
+		else if (deviceConfig.kind === "audiooutput") {
+			Settings.setSpeakerId(deviceConfig.deviceId);
+		}
+		else if (deviceConfig.kind === "videoinput") {
+			Settings.setCameraId(deviceConfig.deviceId);
+		}
+	}
+
 	private onSettings(event: CustomEvent) {
 		const section = event.detail?.type;
 
@@ -420,8 +433,6 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private fetchState() {
-		console.log("fetch state");
-
 		const promises = new Array<Promise<any>>();
 
 		promises.push(this.getParticipants());
