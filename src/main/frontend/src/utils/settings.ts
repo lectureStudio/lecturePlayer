@@ -3,8 +3,10 @@ import { Utils } from "./utils";
 export interface DeviceSettings {
 
 	audioInput: string;
+	audioInputMuteOnEntry: boolean;
 	audioOutput: string;
 	videoInput: string;
+	videoInputMuteOnEntry: boolean;
 
 }
 
@@ -27,6 +29,14 @@ export class Settings {
 
 	static setMicrophoneId(deviceId: string): void {
 		localStorage.setItem("audio.input", deviceId);
+	}
+
+	static getMicrophoneMuteOnEntry(): boolean {
+		return localStorage.getItem("audio.input.entry.mute") === "true";
+	}
+
+	static setMicrophoneMuteOnEntry(mute: boolean): void {
+		localStorage.setItem("audio.input.entry.mute", JSON.stringify(mute));
 	}
 
 	static clearMicrophoneId() {
@@ -53,6 +63,14 @@ export class Settings {
 		localStorage.setItem("video.input", deviceId);
 	}
 
+	static getCameraMuteOnEntry(): boolean {
+		return localStorage.getItem("video.input.entry.mute") === "true";
+	}
+
+	static setCameraMuteOnEntry(mute: boolean): void {
+		localStorage.setItem("video.input.entry.mute", JSON.stringify(mute));
+	}
+
 	static clearCameraId() {
 		localStorage.removeItem("video.input");
 	}
@@ -66,12 +84,17 @@ export class Settings {
 	static getDeviceSettings(): DeviceSettings {
 		return {
 			audioInput: this.getMicrophoneId(),
+			audioInputMuteOnEntry: this.getMicrophoneMuteOnEntry(),
 			audioOutput: this.getSpeakerId(),
-			videoInput: this.getCameraId()
+			videoInput: this.getCameraId(),
+			videoInputMuteOnEntry: this.getCameraMuteOnEntry()
 		};
 	}
 
 	static saveDeviceChoice(devices: DeviceSettings) {
+		Settings.setCameraMuteOnEntry(devices.videoInputMuteOnEntry ? true : false);
+		Settings.setMicrophoneMuteOnEntry(devices.audioInputMuteOnEntry ? true : false);
+
 		if (devices.audioInput) {
 			if (devices.audioInput === "none") {
 				Settings.clearMicrophoneId();

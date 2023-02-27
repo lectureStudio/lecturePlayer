@@ -7,6 +7,15 @@ import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
 import { RTCStatsService } from "./rtc-stats.service";
 
+export enum JanusStreamType {
+
+	audio = "audio",
+	video = "video",
+	screen = "screen",
+	data = "data"
+
+}
+
 export abstract class JanusParticipant extends EventTarget {
 
 	private readonly reconnectState = {

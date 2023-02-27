@@ -3,7 +3,7 @@ import { customElement, property, query } from 'lit/decorators.js';
 import { t } from '../i18n-mixin';
 import { DeviceInfo, Devices } from '../../utils/devices';
 import { DeviceSettings, Settings } from '../../utils/settings';
-import { SlSelect } from '@shoelace-style/shoelace';
+import { SlSelect, SlSwitch } from '@shoelace-style/shoelace';
 import { MediaSettings } from './media-settings';
 
 @customElement("sound-settings")
@@ -18,6 +18,9 @@ export class SoundSettings extends MediaSettings {
 	@query('#audio')
 	audio: HTMLAudioElement;
 
+	@query('#microphoneMuteOnEntry')
+	microphoneMuteSwitch: SlSwitch;
+
 	@query('#microphoneSelect')
 	microphoneSelect: SlSelect;
 
@@ -29,7 +32,7 @@ export class SoundSettings extends MediaSettings {
 
 
 	getDeviceSettings(): DeviceSettings {
-		const deviceForm: HTMLFormElement = this.renderRoot?.querySelector('#deviceSelectForm') ?? null;
+		const deviceForm: HTMLFormElement = this.renderRoot?.querySelector('#device-select-form') ?? null;
 		const data = new FormData(deviceForm);
 
 		return <DeviceSettings> <unknown> Object.fromEntries(data.entries());
@@ -47,6 +50,12 @@ export class SoundSettings extends MediaSettings {
 		this.audio.srcObject = null;
 
 		super.disconnectedCallback();
+	}
+
+	override firstUpdated() {
+		super.firstUpdated();
+
+		this.microphoneMuteSwitch.checked = Settings.getMicrophoneMuteOnEntry();
 	}
 
 	protected override setEnabled(enabled: boolean) {
@@ -116,7 +125,8 @@ export class SoundSettings extends MediaSettings {
 				<strong>${t("devices.permission")}</strong>
 			</sl-alert>
 
-			<form id="deviceSelectForm">
+			<form id="device-select-form">
+				<sl-switch id="microphoneMuteOnEntry" name="audioInputMuteOnEntry" size="small">${t("devices.microphone.mute.on.entry")}</sl-switch>
 				${this.renderDevices(this.audioInputDevices, this.onMicrophoneChange, "audioInput", "microphoneSelect", t("devices.microphone"))}
 				${this.renderDevices(this.audioOutputDevices, this.onSpeakerChange, "audioOutput", "speakerSelect", t("devices.speaker"))}
 			</form>

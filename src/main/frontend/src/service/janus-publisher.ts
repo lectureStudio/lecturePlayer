@@ -3,9 +3,10 @@ import { StreamMediaChangeAction } from "../action/stream.media.change.action";
 import { course } from "../model/course";
 import { MediaType } from "../model/media-type";
 import { Devices } from "../utils/devices";
+import { Settings } from "../utils/settings";
 import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
-import { JanusParticipant } from "./janus-participant";
+import { JanusParticipant, JanusStreamType } from "./janus-participant";
 
 export class JanusPublisher extends JanusParticipant {
 
@@ -190,7 +191,7 @@ export class JanusPublisher extends JanusParticipant {
 
 		const deviceId = deviceSetting.deviceId;
 		const kind = deviceSetting.kind;
-		const type = kind === "audioinput" ? "audio" : (kind === "videoinput" ? "video" : null);
+		const type = kind === "audioinput" ? JanusStreamType.audio : (kind === "videoinput" ? JanusStreamType.video : null);
 
 		if (!type) {
 			// Neither camera nor microfone, speaker probably. Nothing to do for publisher in this case.
@@ -201,12 +202,12 @@ export class JanusPublisher extends JanusParticipant {
 			deviceId: deviceId
 		};
 
-		if (type === "video") {
+		if (type === JanusStreamType.video) {
 			captureSettings.width = { ideal: 1280 };
 			captureSettings.height = { ideal: 720 };
 		}
 
-		if (this.streamMids.get(type)) {
+		if (this.getStreamMid(type)) {
 			// There is already an active track that can be replaced.
 			this.replaceTrack(type, captureSettings);
 		}
@@ -216,39 +217,51 @@ export class JanusPublisher extends JanusParticipant {
 		}
 	}
 
+	private getStreamMid(type: JanusStreamType) {
+		return this.streamMids.get(type);
+	}
+
 	private getTrackId(track: MediaStreamTrack) {
 		return track.id.replace(/[{}]/g, "");
 	}
 
 	private createOffer() {
-		const captureVideo = (this.deviceSettings.videoInput != null) ? {
-			deviceId: this.deviceSettings.videoInput,
-			width: { ideal: 1280 },
-			height: { ideal: 720 },
-		} : false;
+		const videoEnable = this.deviceSettings.videoInput != null && !this.deviceSettings.videoInputMuteOnEntry;
+		const videoCapture = videoEnable
+			? {
+				deviceId: this.deviceSettings.videoInput,
+				width: { ideal: 1280 },
+				height: { ideal: 720 },
+			}
+			: false;
 
 		// Publish our stream.
 		this.handle.createOffer({
 			// Publishers are sendonly.
 			tracks: [
 				{
-					type: "audio",
+					type: JanusStreamType.audio,
 					capture: {
 						deviceId: this.deviceSettings.audioInput
 					},
 					recv: false
 				},
 				{
-					type: "video",
-					capture: captureVideo,
+					type: JanusStreamType.video,
+					capture: videoCapture,
 					recv: false
 				},
 				{
-					type: "data",
+					type: JanusStreamType.data,
 				}
 			],
 			success: (jsep: JSEP) => {
 				Janus.debug("Got publisher SDP!", jsep);
+
+				// Muting microphone is handled differently as the camera, since the audio track is always present.
+				if (Settings.getMicrophoneMuteOnEntry()) {
+					this.handle.muteAudio();
+				}
 
 				var publish = {
 					request: "configure"
@@ -328,19 +341,32 @@ export class JanusPublisher extends JanusParticipant {
 	protected override onMuteVideo(mute: boolean) {
 		super.onMuteVideo(mute);
 
-		this.enableTrack(this.streamMids.get("video"), !mute)
-			.then(() => {
-				const camMuteAction = new StreamMediaChangeAction(MediaType.Camera, !mute);
+		if (this.getStreamMid(JanusStreamType.video)) {
+			// There is already an active track that can be muted.
+			this.enableTrack(this.getStreamMid(JanusStreamType.video), !mute)
+				.then(() => {
+					const camMuteAction = new StreamMediaChangeAction(MediaType.Camera, !mute);
 
-				this.handle.data({
-					data: camMuteAction.toBuffer(),
-					error: function (error: any) { console.error(error) }
-				});
-			})
-			.catch(console.error);
+					this.handle.data({
+						data: camMuteAction.toBuffer(),
+						error: function (error: any) { console.error(error) }
+					});
+				})
+				.catch(console.error);
+		}
+		else {
+			// A new track needs to be added and other participants notified of its existence.
+			const captureSettings: MediaTrackConstraints = {
+				deviceId: Settings.getCameraId(),
+				width: { ideal: 1280 },
+				height: { ideal: 720 }
+			};
+
+			this.addNewTrack(JanusStreamType.video, captureSettings);
+		}
 	}
 
-	private addNewTrack(type: "audio" | "video" | "screen" | "data", captureSettings: MediaTrackConstraints) {
+	private addNewTrack(type: JanusStreamType, captureSettings: MediaTrackConstraints) {
 		this.handle.createOffer({
 			tracks: [
 				{
@@ -363,9 +389,9 @@ export class JanusPublisher extends JanusParticipant {
 		});
 	}
 
-	private replaceTrack(type: "audio" | "video" | "screen" | "data", captureSettings: MediaTrackConstraints) {
+	private replaceTrack(type: JanusStreamType, captureSettings: MediaTrackConstraints) {
 		// Before we replace the track, we stop and remove the active track.
-		const mid = this.streamMids.get(type);
+		const mid = this.getStreamMid(type);
 
 		for (let transceiver of this.handle.webrtcStuff.pc.getTransceivers()) {
 			if (transceiver.mid === mid) {

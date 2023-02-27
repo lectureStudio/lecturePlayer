@@ -6,6 +6,7 @@ import { I18nLitElement, t } from '../i18n-mixin';
 import { playerControlsStyles } from './player-controls.styles';
 import { course } from '../../model/course';
 import { SlTooltip } from '@shoelace-style/shoelace';
+import { Settings } from '../../utils/settings';
 
 @customElement('player-controls')
 export class PlayerControls extends I18nLitElement {
@@ -76,6 +77,8 @@ export class PlayerControls extends I18nLitElement {
 			this.hasParticipants = this.privilegeService.canViewParticipants();
 		});
 
+		this.mutedCam = Settings.getCameraMuteOnEntry();
+		this.mutedMic = Settings.getMicrophoneMuteOnEntry();
 		this.hasChat = course.chatFeature != null && course.chatFeature.featureId != null;
 		this.hasQuiz = course.quizFeature != null && course.quizFeature.featureId != null;
 

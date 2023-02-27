@@ -4,7 +4,7 @@ import { t } from '../i18n-mixin';
 import { DeviceInfo, Devices } from '../../utils/devices';
 import { DeviceSettings, Settings } from '../../utils/settings';
 import { cameraSettingsStyles } from './camera-settings.styles';
-import { SlSelect } from '@shoelace-style/shoelace';
+import { SlSelect, SlSwitch } from '@shoelace-style/shoelace';
 import { MediaSettings } from './media-settings';
 
 @customElement("camera-settings")
@@ -24,12 +24,15 @@ export class CameraSettings extends MediaSettings {
 	@query('#cameraPreview')
 	video: HTMLVideoElement;
 
+	@query('#cameraMuteOnEntry')
+	cameraMuteSwitch: SlSwitch;
+
 	@query('#cameraSelect')
 	cameraSelect: SlSelect;
 
 
 	getDeviceSettings(): DeviceSettings {
-		const deviceForm: HTMLFormElement = this.renderRoot?.querySelector('#deviceSelectForm') ?? null;
+		const deviceForm: HTMLFormElement = this.renderRoot?.querySelector('#device-select-form') ?? null;
 		const data = new FormData(deviceForm);
 
 		return <DeviceSettings> <unknown> Object.fromEntries(data.entries());
@@ -47,6 +50,12 @@ export class CameraSettings extends MediaSettings {
 		this.video.srcObject = null;
 
 		super.disconnectedCallback();
+	}
+
+	override firstUpdated() {
+		super.firstUpdated();
+
+		this.cameraMuteSwitch.checked = Settings.getCameraMuteOnEntry();
 	}
 
 	protected override setEnabled(enabled: boolean) {
@@ -129,7 +138,8 @@ export class CameraSettings extends MediaSettings {
 				<strong>${t("devices.camera.blocked")}</strong>
 			</sl-alert>
 
-			<form id="deviceSelectForm">
+			<form id="device-select-form">
+				<sl-switch id="cameraMuteOnEntry" name="videoInputMuteOnEntry" size="small">${t("devices.camera.mute.on.entry")}</sl-switch>
 				<div class="container2">
 					<video id="cameraPreview" class="video" playsinline autoplay muted></video>
 					<div class="controls">
