@@ -6,7 +6,6 @@ import { ProgressiveDataView } from "../action/parser/progressive-data-view";
 import { StreamActionParser } from "../action/parser/stream.action.parser";
 import { StreamMediaChangeAction } from "../action/stream.media.change.action";
 import { Devices } from "../utils/devices";
-import { GridElement } from "../component/grid-element/grid-element";
 
 export class JanusSubscriber extends JanusParticipant {
 
@@ -15,8 +14,6 @@ export class JanusSubscriber extends JanusParticipant {
 	private readonly roomId: number;
 
 	private readonly opaqueId: string;
-
-	isPrimary = true;
 
 
 	constructor(janus: Janus, publisherId: any, publisherName: string, roomId: number, opaqueId: string) {
@@ -27,8 +24,6 @@ export class JanusSubscriber extends JanusParticipant {
 		this.opaqueId = opaqueId;
 
 		this.view.name = publisherName;
-		
-		document.addEventListener("leaving-room", this.removeGridElement.bind(this));
 	}
 
 	getPublisherId() {
@@ -65,6 +60,14 @@ export class JanusSubscriber extends JanusParticipant {
 			oncleanup: this.onCleanUp.bind(this),
 			ondetached: this.onDetached.bind(this)
 		});
+	}
+
+	override disconnect() {
+		super.disconnect();
+
+		document.dispatchEvent(Utils.createEvent("remove-grid-element", {
+			gridElement: this.gridElement
+		}));
 	}
 
 	private onConnected(handle: PluginHandle) {
@@ -116,7 +119,7 @@ export class JanusSubscriber extends JanusParticipant {
 		}
 
 		if (jsep) {
-			this.createAnswer(jsep, this.isPrimary);
+			this.createAnswer(jsep, true);
 		}
 	}
 
@@ -312,14 +315,5 @@ export class JanusSubscriber extends JanusParticipant {
 	private isScreenTrack(mid: string): boolean {
 		const streamDescription = this.streamIds.get(mid);
 		return streamDescription && streamDescription === "screen";
-	}
-
-	private removeGridElement(e: CustomEvent) {
-		const removingId = this.publisherId;
-		if (removingId === this.publisherId) {
-			document.dispatchEvent(Utils.createEvent("remove-grid-element", {
-				gridElement: this.gridElement
-			}))
-		}
 	}
 }

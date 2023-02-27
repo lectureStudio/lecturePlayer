@@ -87,7 +87,7 @@ export class JanusService extends EventTarget {
 			return;
 		}
 
-		this.attachToPublisher({ id: Number(peerId) }, false);
+		this.attachToPublisher({ id: Number(peerId) });
 	}
 
 	startSpeech(deviceSettings: DeviceSettings) {
@@ -105,7 +105,8 @@ export class JanusService extends EventTarget {
 		publisher.addEventListener("janus-participant-error", this.onPublisherError.bind(this));
 		publisher.addEventListener("janus-participant-state", this.onPublisherState.bind(this));
 		publisher.addEventListener("janus-participant-destroyed", this.onPublisherDestroyed.bind(this));
-		publisher.addEventListener("publisher-room", this.onPublisherRoom.bind(this));
+		publisher.addEventListener("janus-participant-joined", this.onPublisherJoined.bind(this));
+		publisher.addEventListener("janus-participant-left", this.onPublisherLeft.bind(this));
 		publisher.connect();
 	}
 
@@ -184,7 +185,7 @@ export class JanusService extends EventTarget {
 				if (canJoin) {
 					for (let i in res.participants) {
 						const publisher: JanusRoomParticipant = res.participants[i];
-						this.attachToPublisher(publisher, true);
+						this.attachToPublisher(publisher);
 					}
 				}
 				else {
@@ -210,8 +211,6 @@ export class JanusService extends EventTarget {
 			this.publishers.push(publisher);
 		}
 		else if (state === State.DISCONNECTED) {
-			console.log("publisher disconnected");
-
 			document.dispatchEvent(Utils.createEvent("speech-canceled"));
 		}
 
@@ -224,7 +223,7 @@ export class JanusService extends EventTarget {
 		this.publishers = this.publishers.filter(pub => pub !== publisher);
 	}
 
-	private attachToPublisher(publisher: JanusRoomParticipant, isPrimary: boolean) {
+	private attachToPublisher(publisher: JanusRoomParticipant) {
 		const foundSubscriber = this.subscribers.find(sub => sub.getPublisherId() === publisher.id);
 
 		if (foundSubscriber) {
@@ -243,32 +242,25 @@ export class JanusService extends EventTarget {
 		subscriber.addEventListener("janus-participant-state", this.onSubscriberState.bind(this));
 		subscriber.addEventListener("janus-participant-destroyed", this.onSubscriberDestroyed.bind(this));
 		subscriber.addEventListener("janus-participant-data", this.onSubscriberData.bind(this));
-		subscriber.isPrimary = isPrimary;
 		subscriber.connect();
 	}
 
 	private onParticipantConnectionConnected(event: CustomEvent) {
 		const subscriber: JanusSubscriber = event.detail.participant;
 
-		if (subscriber.isPrimary) {
-			this.dispatchEvent(Utils.createEvent("janus-connection-established"));
-		}
+		this.dispatchEvent(Utils.createEvent("janus-connection-established"));
 	}
 
 	private onParticipantConnectionDisconnected(event: CustomEvent) {
 		const subscriber: JanusSubscriber = event.detail.participant;
 
-		if (subscriber.isPrimary) {
-			this.dispatchEvent(Utils.createEvent("janus-connection-failure"));
-		}
+		this.dispatchEvent(Utils.createEvent("janus-connection-failure"));
 	}
 
 	private onParticipantConnectionFailure(event: CustomEvent) {
 		const subscriber: JanusSubscriber = event.detail.participant;
 
-		if (subscriber.isPrimary) {
-			this.dispatchEvent(Utils.createEvent("janus-connection-failure"));
-		}
+		this.dispatchEvent(Utils.createEvent("janus-connection-failure"));
 	}
 
 	private onSubscriberError(event: CustomEvent) {
@@ -276,9 +268,7 @@ export class JanusService extends EventTarget {
 
 		const subscriber: JanusSubscriber = event.detail.participant;
 
-		if (subscriber.isPrimary) {
-			this.stopSpeech();
-		}
+		this.stopSpeech();
 	}
 
 	private onSubscriberState(event: CustomEvent) {
@@ -288,8 +278,9 @@ export class JanusService extends EventTarget {
 		if (state === State.CONNECTED) {
 			this.subscribers.push(subscriber);
 		}
-		if (subscriber.isPrimary && state === State.DISCONNECTED) {
-			this.stopSpeech();
+		if (state === State.DISCONNECTED) {
+			// Remove subscriber from registry.
+			this.subscribers = this.subscribers.filter(sub => sub !== subscriber);
 		}
 
 		document.dispatchEvent(Utils.createEvent("participant-state", event.detail));
@@ -299,27 +290,26 @@ export class JanusService extends EventTarget {
 		const subscriber: JanusSubscriber = event.detail.participant;
 
 		this.subscribers = this.subscribers.filter(sub => sub !== subscriber);
-
-		if (subscriber.isPrimary) {
-			this.stopSpeech();
-			this.janus.destroy({
-				cleanupHandles: false,
-				unload: false,
-				notifyDestroyed: false
-			});
-		}
 	}
 
 	private onSubscriberData(event: CustomEvent) {
 		const subscriber: JanusSubscriber = event.detail.participant;
 
-		if (subscriber.isPrimary) {
-			this.actionProcessor.processData(event.detail.data);
-		}
+		this.actionProcessor.processData(event.detail.data);
 	}
 
-	private onPublisherRoom(event: CustomEvent) {
+	private onPublisherJoined(event: CustomEvent) {
 		const publisher: JanusRoomParticipant = event.detail;
-		this.attachToPublisher(publisher, true);
+
+		this.attachToPublisher(publisher);
+	}
+
+	private onPublisherLeft(event: CustomEvent) {
+		const publisher: JanusRoomParticipant = event.detail;
+		const subscriber = this.subscribers.find(sub => sub.getPublisherId() === publisher.id);
+
+		if (subscriber) {
+			subscriber.disconnect();
+		}
 	}
 }

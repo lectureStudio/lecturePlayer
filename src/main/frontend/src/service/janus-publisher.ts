@@ -1,4 +1,4 @@
-import { Janus, JSEP, PluginHandle } from "janus-gateway";
+import { Janus, JanusRoomParticipant, JSEP, PluginHandle } from "janus-gateway";
 import { StreamMediaChangeAction } from "../action/stream.media.change.action";
 import { course } from "../model/course";
 import { MediaType } from "../model/media-type";
@@ -120,7 +120,7 @@ export class JanusPublisher extends JanusParticipant {
 	}
 
 	private onMessage(message: any, jsep?: JSEP) {
-		// console.log("message pub", message);
+		console.log("message pub", message);
 
 		const event = message["videoroom"];
 
@@ -129,13 +129,14 @@ export class JanusPublisher extends JanusParticipant {
 			return;
 		}
 		if (message["unpublished"]) {
-			var unpublished = message["unpublished"];
+			const unpublished = message["unpublished"];
 
 			if (unpublished === "ok") {
 				// That's us.
 				this.handle.hangup();
 				return;
 			}
+			return;
 		}
 
 		if (event) {
@@ -159,12 +160,18 @@ export class JanusPublisher extends JanusParticipant {
 
 						this.publishers.push(publisher);
 
-						this.dispatchEvent(Utils.createEvent("publisher-room", publisher));
+						this.dispatchEvent(Utils.createEvent("janus-participant-joined", publisher));
 					}
 				}
 
 				if (leaving) {
-					document.dispatchEvent(Utils.createEvent("leaving-room", leaving));
+					// 'leaving' is here the unique identifier of the publisher who left.
+					const publisher: JanusRoomParticipant = {
+						id: leaving
+					};
+
+					this.dispatchEvent(Utils.createEvent("janus-participant-left", publisher));
+					return;
 				}
 
 				if (configured === "ok") {
