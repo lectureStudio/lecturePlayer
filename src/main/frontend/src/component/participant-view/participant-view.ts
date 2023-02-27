@@ -65,6 +65,7 @@ export class ParticipantView extends I18nLitElement {
 		document.addEventListener("lect-speaker-volume", this.onAudioVolume.bind(this));
 		document.addEventListener("player-start-media", this.onStartMediaPlayback.bind(this));
 		document.addEventListener("speaker-setting-changed", this.onSpeakerSetting.bind(this));
+		document.addEventListener("lect-device-change", this.onDeviceChange.bind(this));
 
 		this.micActive = course.mediaState.microphoneActive;
 		this.camActive = course.mediaState.cameraActive;
@@ -188,6 +189,20 @@ export class ParticipantView extends I18nLitElement {
 	private onSpeakerSetting(e: CustomEvent) {
 		if (this.audio) {
 			Devices.setAudioSink(this.audio, Settings.getSpeakerId());
+		}
+	}
+
+	private onDeviceChange(event: CustomEvent) {
+		if (this.audio) {
+			const deviceSetting: MediaDeviceSetting = event.detail;
+			const deviceId = deviceSetting.deviceId;
+
+			if (deviceSetting.kind !== "audiooutput") {
+				// As subscriber we are interested only in speaker devices.
+				return;
+			}
+
+			Devices.setAudioSink(this.audio, deviceId);
 		}
 	}
 

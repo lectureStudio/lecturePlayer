@@ -220,6 +220,7 @@ export class Devices {
 	
 	static setAudioSink(mediaElement: HTMLMediaElement, sinkId: string) {
 		if (!('sinkId' in HTMLMediaElement.prototype)) {
+			// In firefox this feature is behind the 'media.setsinkid.enabled' preferences (needs to be set to true).
 			return;
 		}
 

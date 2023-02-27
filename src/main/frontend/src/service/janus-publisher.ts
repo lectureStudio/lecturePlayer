@@ -30,43 +30,7 @@ export class JanusPublisher extends JanusParticipant {
 		this.view.name = userName;
 		this.streamMids = new Map();
 
-		document.addEventListener("lect-device-change", (event: CustomEvent) => {
-			const deviceSetting: MediaDeviceSetting = event.detail;
-			const muted = deviceSetting.muted;
-
-			if (muted) {
-				return;
-			}
-
-			const deviceId = deviceSetting.deviceId;
-			const kind = deviceSetting.kind;
-			const type = kind === "audioinput" ? "audio" : (kind === "videoinput" ? "video" : null);
-			const captureSettings: MediaTrackConstraints = {
-				deviceId: deviceId
-			};
-
-			if (type === "video") {
-				captureSettings.width = { ideal: 1280 };
-				captureSettings.height = { ideal: 720 };
-			}
-
-			if (this.streamMids.get(type)) {
-				// There is already an active track that can be replaced.
-				this.replaceTrack(type, captureSettings);
-			}
-			else {
-				// A new track needs to be added and other participants notified of its existence.
-				this.addNewTrack(type, captureSettings);
-			}
-		});
-		document.addEventListener("lect-device-mute", (event: CustomEvent) => {
-			const deviceSetting: MediaDeviceSetting = event.detail;
-			const deviceId = deviceSetting.deviceId;
-			const kind = deviceSetting.kind;
-			const muted = deviceSetting.muted;
-
-			console.log("device mute", kind, muted, deviceId);
-		});
+		document.addEventListener("lect-device-change", this.onDeviceChange.bind(this));
 	}
 
 	override connect() {
@@ -120,7 +84,7 @@ export class JanusPublisher extends JanusParticipant {
 	}
 
 	private onMessage(message: any, jsep?: JSEP) {
-		console.log("message pub", message);
+		// console.log("message pub", message);
 
 		const event = message["videoroom"];
 
@@ -214,6 +178,42 @@ export class JanusPublisher extends JanusParticipant {
 		}
 
 		this.addTrack(trackId, track);
+	}
+
+	private onDeviceChange(event: CustomEvent) {
+		const deviceSetting: MediaDeviceSetting = event.detail;
+		const muted = deviceSetting.muted;
+
+		if (muted) {
+			return;
+		}
+
+		const deviceId = deviceSetting.deviceId;
+		const kind = deviceSetting.kind;
+		const type = kind === "audioinput" ? "audio" : (kind === "videoinput" ? "video" : null);
+
+		if (!type) {
+			// Neither camera nor microfone, speaker probably. Nothing to do for publisher in this case.
+			return;
+		}
+
+		const captureSettings: MediaTrackConstraints = {
+			deviceId: deviceId
+		};
+
+		if (type === "video") {
+			captureSettings.width = { ideal: 1280 };
+			captureSettings.height = { ideal: 720 };
+		}
+
+		if (this.streamMids.get(type)) {
+			// There is already an active track that can be replaced.
+			this.replaceTrack(type, captureSettings);
+		}
+		else {
+			// A new track needs to be added and other participants notified of its existence.
+			this.addNewTrack(type, captureSettings);
+		}
 	}
 
 	private getTrackId(track: MediaStreamTrack) {

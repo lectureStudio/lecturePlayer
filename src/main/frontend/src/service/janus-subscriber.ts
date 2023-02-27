@@ -86,7 +86,7 @@ export class JanusSubscriber extends JanusParticipant {
 	}
 
 	private onMessage(message: any, jsep?: JSEP) {
-		console.log("message sub", message);
+		// console.log("message sub", message);
 
 		const event = message["videoroom"];
 
@@ -145,7 +145,7 @@ export class JanusSubscriber extends JanusParticipant {
 		this.addTrack(mid, track);
 	}
 
-	private onData(data: ArrayBuffer | Blob) {		
+	private onData(data: ArrayBuffer | Blob) {
 		if (data instanceof Blob) {
 			// Firefox...
 			data.arrayBuffer().then(buffer => {

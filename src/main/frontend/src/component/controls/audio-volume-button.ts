@@ -81,7 +81,7 @@ export class AudioVolumeButton extends I18nLitElement {
 		}
 
 		this.dispatchEvent(Utils.createEvent("lect-speaker-volume", {
-			muted: this.muted
+			volume: (this.volume / 100.0)
 		}));
 	}
 
