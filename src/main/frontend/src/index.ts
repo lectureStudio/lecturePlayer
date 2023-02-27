@@ -31,6 +31,7 @@ setBasePath('/js/shoelace');
 
 export * from './extension';
 
+import './component/player/player-styles';
 import './component/player/player';
 import './component/slide-view/slide-view';
 import './component/player-view/player-view';
@@ -62,6 +63,10 @@ class lectPlayer {
 	constructor() {
 		this.initPDF();
 		this.initI18n();
+
+		window.onload = function () {
+			document.body.appendChild(document.createElement("lecture-player-styles"));
+		}
 	}
 
 	initPDF() {
