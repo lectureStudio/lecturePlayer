@@ -118,11 +118,11 @@ export class JanusPublisher extends JanusParticipant {
 
 				if (publishers) {
 					for (let publisher of publishers) {
-						if (this.publishers.find(p => p.id === publisher.id)) {
-							continue;
-						}
+						const found = this.publishers.find(p => p.id === publisher.id);
 
-						this.publishers.push(publisher);
+						if (!found) {
+							this.publishers.push(publisher);
+						}
 
 						this.dispatchEvent(Utils.createEvent("janus-participant-joined", publisher));
 					}

@@ -141,6 +141,8 @@ export class MediaDeviceButton extends I18nLitElement {
 			}
 		}
 
+		this.selectedDevice = device;
+
 		this.dispatchEvent(Utils.createEvent<MediaDeviceSetting>("lect-device-change", {
 			deviceId: device.deviceId,
 			kind: device.kind,

@@ -34,7 +34,6 @@ export class ParticipantsBox extends I18nLitElement {
 		const templates = [];
 
 		for (const participant of participants.participants) {
-			console.log('participants', participant, participants.participants)
 			let name = `${participant.firstName} ${participant.familyName}`;
 			let type;
 
