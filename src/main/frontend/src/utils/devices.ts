@@ -10,6 +10,15 @@ export interface DeviceInfo {
 
 export class Devices {
 
+	static async getScreenStream() {
+		const constraints = {
+			video: true,
+			audio: false
+		};
+
+		return await navigator.mediaDevices.getDisplayMedia(constraints);
+	}
+
 	static async getVideoStream() {
 		const videoSource = Settings.getCameraId();
 		const constraints = {

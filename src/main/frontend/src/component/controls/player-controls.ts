@@ -65,6 +65,9 @@ export class PlayerControls extends I18nLitElement {
 	mutedCam: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
+	shareScreen: boolean = false;
+
+	@property({ type: Boolean, reflect: true })
 	isConference: boolean = false;
 
 
@@ -101,6 +104,14 @@ export class PlayerControls extends I18nLitElement {
 
 	private onMuteCamera(): void {
 		this.mutedCam = !this.mutedCam;
+	}
+
+	private onShareScreen(): void {
+		this.shareScreen = !this.shareScreen;
+
+		this.dispatchEvent(Utils.createEvent("lect-share-screen", {
+			shareScreen: this.shareScreen
+		}));
 	}
 
 	private onHand(): void {
@@ -211,7 +222,7 @@ export class PlayerControls extends I18nLitElement {
 				` : ''}
 
 				<sl-tooltip content="${t("controls.screenshare")}">
-					<sl-button class="conference-control">
+					<sl-button @click="${this.onShareScreen}" class="conference-control" id="share-screen-button">
 						<span slot="prefix" class="icon-share"></span>
 					</sl-button>
 				</sl-tooltip>

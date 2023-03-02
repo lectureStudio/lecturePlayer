@@ -90,7 +90,11 @@ export class ConferenceView extends I18nLitElement {
     private onTalkingPublisher(event: CustomEvent) {
 		// TODO: fix talking idicator
 		
-        const gridElement = event.detail;
+		const talkingConfig = event.detail;
+        const gridElement = talkingConfig.gridElement;
+		const publisherId = talkingConfig.id;
+		const state = talkingConfig.state;
+
         if (!gridElement.isVisible) {
             if (this.gridCounter >= this.gridElementsLimit) {
                 this.gridContainer.children[this.gridElementsLimit - 1].remove();
@@ -99,6 +103,8 @@ export class ConferenceView extends I18nLitElement {
                 this.gridContainer.insertBefore(gridElement, secondGridElement);
                 gridElement.isVisible = true;
             }
+
+			
         }
     }
 }

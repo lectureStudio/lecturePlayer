@@ -18,6 +18,7 @@ export class JanusPublisher extends JanusParticipant {
 
 	private publisherName: string;
 
+	// Janus stream type to mid mapping.
 	private streamMids: Map<string, string>;
 
 
@@ -32,6 +33,7 @@ export class JanusPublisher extends JanusParticipant {
 		this.streamMids = new Map();
 
 		document.addEventListener("lect-device-change", this.onDeviceChange.bind(this));
+		document.addEventListener("lect-share-screen", this.onShareScreen.bind(this));
 	}
 
 	override connect() {
@@ -85,7 +87,7 @@ export class JanusPublisher extends JanusParticipant {
 	}
 
 	private onMessage(message: any, jsep?: JSEP) {
-		// console.log("message pub", message);
+		console.log("message pub", message);
 
 		const event = message["videoroom"];
 
@@ -107,6 +109,8 @@ export class JanusPublisher extends JanusParticipant {
 		if (event) {
 			if (event === "joined") {
 				this.publisherId = BigInt(message["id"]);
+
+				this.gridElement.publisherId = this.publisherId;
 
 				this.createOffer();
 				this.setState(State.CONNECTING);
@@ -142,17 +146,21 @@ export class JanusPublisher extends JanusParticipant {
 				if (configured === "ok") {
 					// Map stream types to their mid.
 					for (let stream of message.streams) {
-						this.streamMids.set(stream.type, stream.mid);
+						this.setStream(stream);
 					}
+
+					console.log(this.streamMids);
 
 					this.setState(State.CONNECTED);
 				}
 			}
 
-			if(event === "talking" || event === "stopped-talking") {
+			if (event === "talking" || event === "stopped-talking") {
+				// The 'message.id' is the id of the publisher who is talking right now.
 				const talking = {
 					id: message.id,
-					state: event
+					state: event,
+					gridElement: this.gridElement
 				}
 
 				document.dispatchEvent(Utils.createEvent("participant-talking", talking));
@@ -179,6 +187,30 @@ export class JanusPublisher extends JanusParticipant {
 		}
 
 		this.addTrack(trackId, track);
+	}
+
+	private onShareScreen(event: CustomEvent) {
+		const shareConfig = event.detail;
+		const share = shareConfig.shareScreen;
+		const screenMid = this.getStreamMid(JanusStreamType.screen);
+
+		if (screenMid) {
+			// There is already an active track that can be removed.
+			this.enableTrack(screenMid, share)
+				.then(() => {
+					const screenMuteAction = new StreamMediaChangeAction(MediaType.Screen, share);
+
+					this.handle.data({
+						data: screenMuteAction.toBuffer(),
+						error: function (error: any) { console.error(error) }
+					});
+				})
+				.catch(console.error);
+		}
+		else if (share) {
+			// A new track needs to be added and other participants notified of its existence.
+			this.addNewTrack(JanusStreamType.screen, true);
+		}
 	}
 
 	private onDeviceChange(event: CustomEvent) {
@@ -219,6 +251,46 @@ export class JanusPublisher extends JanusParticipant {
 
 	private getStreamMid(type: JanusStreamType) {
 		return this.streamMids.get(type);
+	}
+
+	private setStream(stream: any) {
+		const type = this.getStreamTypeForMid(stream.mid);
+
+		// Do not add stream types with same 'mid', e.g. type 'screen' becomes type 'video' when deactivated.
+		if (!type) {
+			this.streamMids.set(this.getStreamTypeForStream(stream), stream.mid);
+		}
+	}
+
+	private getStreamTypeForMid(mid: string) {
+		for (const [k, v] of this.streamMids) {
+			if (v === mid) {
+				return k;
+			}
+		}
+		return null;
+	}
+
+	private getStreamTypeForStream(stream: any) {
+		const type: string = stream.type;
+
+		if (type === JanusStreamType.audio || type === JanusStreamType.data) {
+			return type;
+		}
+		else if (type === JanusStreamType.video) {
+			// This may be ambiguous, since camera and screen-share are videos.
+			// Check the description.
+			const description: string = stream.description;
+
+			if (description && description.includes(JanusStreamType.screen)) {
+				return JanusStreamType.screen;
+			}
+			else {
+				return JanusStreamType.video;
+			}
+		}
+
+		return type;
 	}
 
 	private getTrackId(track: MediaStreamTrack) {
@@ -305,6 +377,8 @@ export class JanusPublisher extends JanusParticipant {
 	}
 
 	private removeTrack(id: string, kind: string) {
+		console.log("remove track", id, kind);
+
 		const stream = this.streams.get(id);
 
 		if (!stream) {
@@ -341,9 +415,11 @@ export class JanusPublisher extends JanusParticipant {
 	protected override onMuteVideo(mute: boolean) {
 		super.onMuteVideo(mute);
 
-		if (this.getStreamMid(JanusStreamType.video)) {
+		const cameraMid = this.getStreamMid(JanusStreamType.video);
+
+		if (cameraMid) {
 			// There is already an active track that can be muted.
-			this.enableTrack(this.getStreamMid(JanusStreamType.video), !mute)
+			this.enableTrack(cameraMid, !mute)
 				.then(() => {
 					const camMuteAction = new StreamMediaChangeAction(MediaType.Camera, !mute);
 
@@ -366,7 +442,7 @@ export class JanusPublisher extends JanusParticipant {
 		}
 	}
 
-	private addNewTrack(type: JanusStreamType, captureSettings: MediaTrackConstraints) {
+	private addNewTrack(type: JanusStreamType, captureSettings: boolean | MediaTrackConstraints) {
 		this.handle.createOffer({
 			tracks: [
 				{
@@ -377,19 +453,38 @@ export class JanusPublisher extends JanusParticipant {
 			],
 			success: (jsep: JSEP) => {
 				// Got new SDP, send it to the gateway.
-				const configure = {
+				const configure: any = {
 					request: "configure"
 				};
+
+				// Find the new 'mid' of the newly added track.
+				const mids = [...this.streamMids.values()];
+
+				for (let transceiver of this.handle.webrtcStuff.pc.getTransceivers()) {
+					if (!mids.find(mid => mid === transceiver.mid)) {
+						// Found new 'mid', attach description to it, so subscribers know what to do with it,
+						// e.g. where to display the track.
+						if (type === JanusStreamType.screen) {
+							configure.descriptions = [
+								{
+									mid: transceiver.mid,
+									description: "screen-share"
+								}
+							];
+						}
+						break;
+					}
+				}
 
 				this.handle.send({ message: configure, jsep: jsep });
 			},
 			error: (error: any) => {
-				console.error("Add track error", error);
+				console.error("Add track error", error.name, error);
 			}
 		});
 	}
 
-	private replaceTrack(type: JanusStreamType, captureSettings: MediaTrackConstraints) {
+	private replaceTrack(type: JanusStreamType, captureSettings: boolean | MediaTrackConstraints) {
 		// Before we replace the track, we stop and remove the active track.
 		const mid = this.getStreamMid(type);
 
@@ -415,9 +510,28 @@ export class JanusPublisher extends JanusParticipant {
 	}
 
 	private async replaceSenderTrack(transceiver: RTCRtpTransceiver) {
-		// Query video device to get a new video stream.
-		const stream = await Devices.getVideoStream();
-		const track = stream.getVideoTracks()[0];
+		// Find the Janus track type.
+		const type = this.getStreamTypeForMid(transceiver.mid);
+		let track;
+
+		if (!type) {
+			console.error("No track to replace for mid", transceiver.mid);
+		}
+		else if (type === JanusStreamType.video) {
+			// Query video device to get a new video stream.
+			const stream = await Devices.getVideoStream();
+			track = stream.getVideoTracks()[0];
+		}
+		else if (type === JanusStreamType.screen) {
+			// Query screen to get a new video stream.
+			const stream = await Devices.getScreenStream();
+			track = stream.getVideoTracks()[0];
+		}
+
+		if (!track) {
+			console.error("No track to replace, track is null");
+		}
+
 		const trackId = this.getTrackId(track);
 
 		// Set the new active video track.
@@ -448,7 +562,7 @@ export class JanusPublisher extends JanusParticipant {
 				transceiver.direction = enable ? "sendonly" : "inactive";
 
 				if (enable) {
-					this.replaceSenderTrack(transceiver);
+					await this.replaceSenderTrack(transceiver);
 				}
 				else {
 					this.removeSenderTrack(transceiver);

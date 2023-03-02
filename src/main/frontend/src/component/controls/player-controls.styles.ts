@@ -2,9 +2,6 @@ import { css } from 'lit';
 
 export const playerControlsStyles = css`
 	:host {
-		--seek-before-width: 0%;
-		--volume-before-width: 100%;
-		--buffered-width: 0%;
 		width: 100%;
 		position: relative;
 		display: flex;
@@ -100,8 +97,9 @@ export const playerControlsStyles = css`
 	:host([mutedCam]) .icon-cam-muted {
 		color: #DC2626;
 	}
-	:host([handUp]) #hand-button {
-		background: rgba(21, 128, 61, 0.2);
+	:host([handUp]) #hand-button::part(base),
+	:host([shareScreen]) #share-screen-button::part(base) {
+		background-color: rgba(21, 128, 61, 0.2);
 		color: #166534;
 	}
 	:host(:not([isConference])) .conference-control {
