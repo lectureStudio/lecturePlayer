@@ -135,7 +135,4 @@ export const participantViewStyles = css`
 	:host([camMute]) video {
 		display: none;
 	}
-	:host([isTalking]) {
-		border: 4px solid rgb(60, 217, 60);
-	}
 `;

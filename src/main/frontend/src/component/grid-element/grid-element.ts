@@ -18,6 +18,9 @@ export class GridElement extends I18nLitElement {
     @property({ type: Boolean, reflect: true })
 	isVisible: boolean = false;
 
+    @property({ type: Boolean, reflect: true })
+	isTalking: boolean = false;
+
 	publisherId: bigint;
 
     addView(view: ParticipantView) {

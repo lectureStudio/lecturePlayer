@@ -160,7 +160,6 @@ export class JanusPublisher extends JanusParticipant {
 				const talking = {
 					id: message.id,
 					state: event,
-					gridElement: this.gridElement
 				}
 
 				document.dispatchEvent(Utils.createEvent("participant-talking", talking));

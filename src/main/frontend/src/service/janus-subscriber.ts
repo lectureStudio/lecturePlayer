@@ -24,6 +24,7 @@ export class JanusSubscriber extends JanusParticipant {
 		this.opaqueId = opaqueId;
 
 		this.view.name = publisherName;
+		this.gridElement.publisherId = publisherId;
 	}
 
 	getPublisherId() {
