@@ -236,8 +236,6 @@ export class JanusSubscriber extends JanusParticipant {
 	}
 
 	private addTrack(mid: string, track: MediaStreamTrack) {
-		console.log("---- sub add track", mid);
-
 		if (this.streams.has(mid)) {
 			// Do not add duplicate tracks.
 			return;

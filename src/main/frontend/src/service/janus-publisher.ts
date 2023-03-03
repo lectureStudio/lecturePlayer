@@ -195,11 +195,11 @@ export class JanusPublisher extends JanusParticipant {
 
 		if (screenMid) {
 			// There is already an active track that can be removed.
-			this.muteTrack(screenMid, share, MediaType.Screen);
+			this.muteTrack(screenMid, share, MediaType.Screen, Devices.screenErrorHandler);
 		}
 		else if (share) {
 			// A new track needs to be added and other participants notified of its existence.
-			this.addNewTrack(JanusStreamType.screen, true);
+			this.addNewTrack(JanusStreamType.screen, true, Devices.screenErrorHandler);
 		}
 	}
 
@@ -231,11 +231,11 @@ export class JanusPublisher extends JanusParticipant {
 
 		if (this.getStreamMid(type)) {
 			// There is already an active track that can be replaced.
-			this.replaceTrack(type, captureSettings);
+			this.replaceTrack(type, captureSettings, Devices.cameraErrorHandler);
 		}
 		else {
 			// A new track needs to be added and other participants notified of its existence.
-			this.addNewTrack(type, captureSettings);
+			this.addNewTrack(type, captureSettings, Devices.cameraErrorHandler);
 		}
 	}
 
@@ -437,7 +437,7 @@ export class JanusPublisher extends JanusParticipant {
 
 		if (cameraMid) {
 			// There is already an active track that can be muted.
-			this.muteTrack(cameraMid, !mute, MediaType.Camera);
+			this.muteTrack(cameraMid, !mute, MediaType.Camera, Devices.cameraErrorHandler);
 		}
 		else {
 			// A new track needs to be added and other participants notified of its existence.
@@ -447,11 +447,11 @@ export class JanusPublisher extends JanusParticipant {
 				height: { ideal: 720 }
 			};
 
-			this.addNewTrack(JanusStreamType.video, captureSettings);
+			this.addNewTrack(JanusStreamType.video, captureSettings, Devices.cameraErrorHandler);
 		}
 	}
 
-	private addNewTrack(type: JanusStreamType, captureSettings: boolean | MediaTrackConstraints) {
+	private async addNewTrack(type: JanusStreamType, captureSettings: boolean | MediaTrackConstraints, onError: (error: any) => void) {
 		this.handle.createOffer({
 			tracks: [
 				{
@@ -487,13 +487,11 @@ export class JanusPublisher extends JanusParticipant {
 
 				this.handle.send({ message: configure, jsep: jsep });
 			},
-			error: (error: any) => {
-				console.error("Add track error", error.name, error);
-			}
+			error: onError
 		});
 	}
 
-	private replaceTrack(type: JanusStreamType, captureSettings: boolean | MediaTrackConstraints) {
+	private replaceTrack(type: JanusStreamType, captureSettings: boolean | MediaTrackConstraints, onError: (error: any) => void) {
 		// Before we replace the track, we stop and remove the active track.
 		const mid = this.getStreamMid(type);
 
@@ -512,9 +510,7 @@ export class JanusPublisher extends JanusParticipant {
 					capture: captureSettings,
 				}
 			],
-			error: (error: any) => {
-				console.error("Replace track error", error);
-			}
+			error: onError
 		});
 	}
 
@@ -538,7 +534,9 @@ export class JanusPublisher extends JanusParticipant {
 
 			// Listen to the 'end screen-share' browser button event.
 			track.onended = () => {
-				this.muteTrack(this.getStreamMid(type), false, MediaType.Screen);
+				this.muteTrack(this.getStreamMid(type), false, MediaType.Screen, (error) => {
+					console.error("Mute screen failed", error);
+				});
 			}
 		}
 
@@ -602,7 +600,7 @@ export class JanusPublisher extends JanusParticipant {
 		});
 	}
 
-	private async muteTrack(mid: string, enable: boolean, mediaType: MediaType) {
+	private async muteTrack(mid: string, enable: boolean, mediaType: MediaType, onError: (error: any) => void) {
 		this.enableTrack(mid, enable)
 			.then(() => {
 				const muteAction = new StreamMediaChangeAction(mediaType, enable);
@@ -612,6 +610,6 @@ export class JanusPublisher extends JanusParticipant {
 					error: function (error: any) { console.error(error) }
 				});
 			})
-			.catch(console.error);
+			.catch(onError);
 	}
 }

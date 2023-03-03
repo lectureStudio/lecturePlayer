@@ -108,6 +108,16 @@ export class PlayerController implements ReactiveController {
 		this.host.addEventListener("lect-device-change", this.onDeviceChange.bind(this));
 		this.host.addEventListener("lect-device-settings", this.onSettings.bind(this));
 
+		document.addEventListener("lect-screen-share-not-allowed", () => {
+			Toaster.showWarning(t("screenshare.error.not.allowed.title"), t("screenshare.error.not.allowed.message"));
+		});
+		document.addEventListener("lect-camera-not-allowed", () => {
+			Toaster.showWarning(t("camera.error.not.allowed.title"), t("camera.error.not.allowed.message"));
+		});
+		document.addEventListener("lect-camera-not-readable", () => {
+			Toaster.showWarning(t("camera.error.not.readable.title"), t("camera.error.not.readable.message"));
+		});
+
 		this.eventService.addEventListener("event-service-state", this.onEventServiceState.bind(this));
 		this.eventService.addEventListener("chat-state", this.onChatState.bind(this));
 		this.eventService.addEventListener("quiz-state", this.onQuizState.bind(this));
@@ -165,46 +175,45 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private connect() {
-
 		participants.clear();
 		chatHistory.clear();
 
-		new HttpRequest().get("/course/user").then((userObject: any) => {
-			// init courseState
-		const courseState: CourseState = {
-			courseId: this.host.courseId,
-			activeDocument: null,
-			documentMap: null,
-			timeStarted: 0,
-			userId: userObject.userId,
-			title: "saasd",
-			description: "asds",
-			messageFeature: null,
-			quizFeature: null,
-			protected: false,
-			recorded: false,
-			userPrivileges: [],
-			mediaState: {microphoneActive: false, cameraActive: false, screenActive: false}
-		}
-		this.setCourseState(courseState);
+		new HttpRequest().get("/course/user")
+			.then((userObject: any) => {
+				// init courseState
+				const courseState: CourseState = {
+					courseId: this.host.courseId,
+					activeDocument: null,
+					documentMap: null,
+					timeStarted: 0,
+					userId: userObject.userId,
+					title: "saasd",
+					description: "asds",
+					messageFeature: null,
+					quizFeature: null,
+					protected: false,
+					recorded: false,
+					userPrivileges: [],
+					mediaState: { microphoneActive: false, cameraActive: false, screenActive: false }
+				}
+				this.setCourseState(courseState);
 
-		const userName = userObject.firstName + " " + userObject.familyName
+				const userName = userObject.firstName + " " + userObject.familyName
 
-		this.janusService.setRoomId(this.host.courseId);
-		this.janusService.setUserId(courseState.userId);
-		this.janusService.setUserName(userName);
-		this.janusService.connect();
+				this.janusService.setRoomId(this.host.courseId);
+				this.janusService.setUserId(courseState.userId);
+				this.janusService.setUserName(userName);
+				this.janusService.connect();
 
-		//this.updateCourseState();
-		this.setConnectionState(State.CONNECTED);
-
-			console.log(userObject);
-		})
-		.catch(error => {
-			console.log(error)
-		})
-
-		/*this.getCourseState()
+				//this.updateCourseState();
+				this.setConnectionState(State.CONNECTED);
+				console.log(userObject);
+			})
+			.catch(error => {
+				console.log(error)
+			});
+/*
+		this.getCourseState()
 			.then(courseState => {
 				this.setCourseState(courseState);
 
@@ -247,7 +256,8 @@ export class PlayerController implements ReactiveController {
 				else {
 					this.setConnectionState(State.DISCONNECTED);
 				}
-			});*/
+			});
+*/
 	}
 
 	private reconnect() {

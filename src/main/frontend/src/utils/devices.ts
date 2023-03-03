@@ -1,4 +1,5 @@
 import { Settings } from "./settings";
+import { Utils } from "./utils";
 
 export interface DeviceInfo {
 
@@ -9,6 +10,28 @@ export interface DeviceInfo {
 }
 
 export class Devices {
+
+	static cameraErrorHandler(error: Error) {
+		if (error.name === "NotAllowedError") {
+			document.dispatchEvent(Utils.createEvent("lect-camera-not-allowed"));
+		}
+		else if (error.name === "NotReadableError") {
+			document.dispatchEvent(Utils.createEvent("lect-camera-not-readable"));
+		}
+		else {
+			console.error("Camera error", error.name, error);
+		}
+	}
+
+	static screenErrorHandler(error: Error) {
+		if (error.name === "NotAllowedError") {
+			// User aborted the dialog or permission not granted.
+			document.dispatchEvent(Utils.createEvent("lect-screen-share-not-allowed"));
+		}
+		else {
+			console.error("Screen error", error.name, error);
+		}
+	}
 
 	static async getScreenStream() {
 		const constraints = {

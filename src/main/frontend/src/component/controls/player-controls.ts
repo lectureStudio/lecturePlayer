@@ -100,6 +100,15 @@ export class PlayerControls extends I18nLitElement {
 		document.addEventListener("participant-screen-stream", (e: CustomEvent) => {
 			this.shareScreen = e.detail.state === State.CONNECTED;
 		});
+		document.addEventListener("lect-screen-share-not-allowed", () => {
+			this.shareScreen = false;
+		});
+		document.addEventListener("lect-camera-not-allowed", () => {
+			this.mutedCam = true;
+		});
+		document.addEventListener("lect-camera-not-readable", () => {
+			this.mutedCam = true;
+		});
 	}
 
 	private onMuteMicrophone(): void {
