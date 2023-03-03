@@ -13,4 +13,8 @@ export const gridElementStyles = css`
 	:host(:not([isVisible])) {
 		display: none;
 	}
+
+	:host([isTalking]) {
+		border: 3px solid rgb(60, 217, 60);
+	}
 `;

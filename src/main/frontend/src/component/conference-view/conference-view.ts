@@ -94,6 +94,23 @@ export class ConferenceView extends I18nLitElement {
         const gridElement = talkingConfig.gridElement;
 		const publisherId = talkingConfig.id;
 		const state = talkingConfig.state;
+        let isTalking = false;
+
+        if (talkingConfig.state === "talking") {
+            isTalking = true;
+        }
+        else if (talkingConfig.state === "stopped-talking") {
+            isTalking = false;
+        }
+
+        for (const grid of this.gridContainer.querySelectorAll("grid-element")) {
+            const gridElement: GridElement = grid as GridElement;
+            console.log(gridElement)
+            if (gridElement.publisherId == publisherId) {
+                console.log("gridPub", gridElement.publisherId, publisherId)
+                gridElement.isTalking = isTalking;
+            }
+        }
 
         if (!gridElement.isVisible) {
             if (this.gridCounter >= this.gridElementsLimit) {
@@ -105,6 +122,13 @@ export class ConferenceView extends I18nLitElement {
             }
 
 			
+        }
+    }
+
+    private setTalkingGrid(isTalking:boolean, id: number) {
+        for (const grid of this.gridContainer.querySelectorAll("grid-element")) {
+            const gridElement:GridElement = grid as GridElement;
+            console.log(gridElement)
         }
     }
 }

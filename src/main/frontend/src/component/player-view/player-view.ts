@@ -129,7 +129,8 @@ export class PlayerView extends I18nLitElement {
 						<participants-box .privilegeService="${this.privilegeService}"></participants-box>
 						` : ''}
 					</div>
-					<button @click=${this.addDummyViews}>Add Dummy!</button>
+					<button @click=${this.addDummyViews}>Add Grid!</button>
+					<button @click=${this.addDummyScreen}>Add Screen!</button>
 				</div>
 				<div slot="end">
 					<sl-split-panel position="100" id="inner-split-panel">
@@ -169,6 +170,18 @@ export class PlayerView extends I18nLitElement {
 		const gridElement: GridElement = new GridElement();
 		gridElement.addView(view);
 		this.conferenceView.addGridElement(gridElement);
+	}
+
+	private addDummyScreen() {
+		const view: ParticipantView = new ParticipantView;
+		view.addVideo
+		view.setState(State.CONNECTED);
+		view.hasVideo = true;
+		view.name = "speaker";
+		const gridElement: GridElement = new GridElement();
+		gridElement.addView(view);
+		this.conferenceView.addScreenElement(gridElement);
+		this.conferenceView.setConferenceLayout("sideRight")
 	}
 
 	private onParticipantState(event: CustomEvent) {
