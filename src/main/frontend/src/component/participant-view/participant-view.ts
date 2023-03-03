@@ -55,10 +55,6 @@ export class ParticipantView extends I18nLitElement {
 	@property({ type: Boolean, reflect: true })
 	isConference: boolean = false;
 
-	@property({ type: Boolean, reflect: true })
-	isTalking: boolean = false;
-
-
 	constructor() {
 		super();
 

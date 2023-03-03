@@ -15,10 +15,10 @@ export class ConferenceView extends I18nLitElement {
     
 
     @property()
-    gridCounter = 0;
+    gridCounter: number = 0;
 
     @property()
-    gridElementsLimit = 20;
+    gridElementsLimit: number = 20;
 
     @property()
     columnLimit: number = 5;
@@ -46,13 +46,14 @@ export class ConferenceView extends I18nLitElement {
             } 
         }
     }
+    
 
     addGridElement(gridElement: GridElement) {
-        if (this.gridCounter < 20) {
-            gridElement.isVisible = true;
+        this.gridCounter += 1;
+        if (this.gridCounter <= this.gridElementsLimit) {
+           gridElement.isVisible = true;
         }
         this.gridContainer.appendChild(gridElement);
-        this.gridCounter += 1;
         this.setAlignment(true);
     }
 
@@ -87,14 +88,13 @@ export class ConferenceView extends I18nLitElement {
         this.setAlignment(false);
     }
     
-    private onTalkingPublisher(event: CustomEvent) {
-		// TODO: fix talking idicator
-		
+    private onTalkingPublisher(event: CustomEvent) {		
 		const talkingConfig = event.detail;
         const gridElement = talkingConfig.gridElement;
 		const publisherId = talkingConfig.id;
 		const state = talkingConfig.state;
         let isTalking = false;
+        let counter = 0;
 
         if (talkingConfig.state === "talking") {
             isTalking = true;
@@ -104,31 +104,19 @@ export class ConferenceView extends I18nLitElement {
         }
 
         for (const grid of this.gridContainer.querySelectorAll("grid-element")) {
+            counter += 1;
             const gridElement: GridElement = grid as GridElement;
-            console.log(gridElement)
             if (gridElement.publisherId == publisherId) {
-                console.log("gridPub", gridElement.publisherId, publisherId)
                 gridElement.isTalking = isTalking;
+                // make talking participant visible
+                if (isTalking && counter > this.gridElementsLimit) {
+                    const lastGridElement: GridElement = this.gridContainer.children[this.gridElementsLimit - 1] as GridElement;
+                    lastGridElement.isVisible = false;
+                    const secondGridElement: GridElement = this.gridContainer.children[1] as GridElement;
+                    gridElement.isVisible = true;
+                    this.gridContainer.insertBefore(gridElement, secondGridElement);
+                }
             }
-        }
-
-        if (!gridElement.isVisible) {
-            if (this.gridCounter >= this.gridElementsLimit) {
-                this.gridContainer.children[this.gridElementsLimit - 1].remove();
-
-                const secondGridElement = this.gridContainer.children[1];
-                this.gridContainer.insertBefore(gridElement, secondGridElement);
-                gridElement.isVisible = true;
-            }
-
-			
-        }
-    }
-
-    private setTalkingGrid(isTalking:boolean, id: number) {
-        for (const grid of this.gridContainer.querySelectorAll("grid-element")) {
-            const gridElement:GridElement = grid as GridElement;
-            console.log(gridElement)
         }
     }
 }
