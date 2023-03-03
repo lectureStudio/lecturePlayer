@@ -90,16 +90,15 @@ export class ConferenceView extends I18nLitElement {
     
     private onTalkingPublisher(event: CustomEvent) {		
 		const talkingConfig = event.detail;
-        const gridElement = talkingConfig.gridElement;
 		const publisherId = talkingConfig.id;
 		const state = talkingConfig.state;
         let isTalking = false;
         let counter = 0;
 
-        if (talkingConfig.state === "talking") {
+        if (state === "talking") {
             isTalking = true;
         }
-        else if (talkingConfig.state === "stopped-talking") {
+        else if (state === "stopped-talking") {
             isTalking = false;
         }
 
