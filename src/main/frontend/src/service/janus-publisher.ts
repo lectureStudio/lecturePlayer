@@ -196,16 +196,7 @@ export class JanusPublisher extends JanusParticipant {
 
 		if (screenMid) {
 			// There is already an active track that can be removed.
-			this.enableTrack(screenMid, share)
-				.then(() => {
-					const screenMuteAction = new StreamMediaChangeAction(MediaType.Screen, share);
-
-					this.handle.data({
-						data: screenMuteAction.toBuffer(),
-						error: function (error: any) { console.error(error) }
-					});
-				})
-				.catch(console.error);
+			this.muteTrack(screenMid, share, MediaType.Screen);
 		}
 		else if (share) {
 			// A new track needs to be added and other participants notified of its existence.
@@ -372,22 +363,38 @@ export class JanusPublisher extends JanusParticipant {
 
 			Janus.attachMediaStream(mediaElement, stream);
 
-			this.view.addVideo(mediaElement);
+			const constraints = track.getConstraints();
+
+			if (constraints.deviceId) {
+
+				console.log("---- add video");
+
+				// Must be a camera device.
+				this.view.addVideo(mediaElement);
+			}
+			else {
+
+				console.log("---- add screen");
+
+				this.view.addScreenVideo(mediaElement);
+			}
 		}
 	}
 
 	private removeTrack(id: string, kind: string) {
-		console.log("remove track", id, kind);
-
 		const stream = this.streams.get(id);
+		let deviceId;
 
 		if (!stream) {
 			return;
 		}
 
-		for (const track of stream.getTracks()) {
-			if (track.kind === kind) {
-				track.stop();
+		for (const t of stream.getTracks()) {
+			if (t.kind === kind) {
+				deviceId = t.getConstraints().deviceId;
+
+				t.stop();
+				break;
 			}
 		}
 
@@ -397,7 +404,19 @@ export class JanusPublisher extends JanusParticipant {
 			this.view.removeAudio();
 		}
 		else if (kind === "video") {
-			this.view.removeVideo();
+			if (deviceId) {
+
+				console.log("---- remove video");
+
+				// Must be a camera device.
+				this.view.removeVideo();
+			}
+			else {
+
+				console.log("---- remove screen");
+
+				this.view.removeScreenVideo();
+			}
 		}
 	}
 
@@ -419,16 +438,7 @@ export class JanusPublisher extends JanusParticipant {
 
 		if (cameraMid) {
 			// There is already an active track that can be muted.
-			this.enableTrack(cameraMid, !mute)
-				.then(() => {
-					const camMuteAction = new StreamMediaChangeAction(MediaType.Camera, !mute);
-
-					this.handle.data({
-						data: camMuteAction.toBuffer(),
-						error: function (error: any) { console.error(error) }
-					});
-				})
-				.catch(console.error);
+			this.muteTrack(cameraMid, !mute, MediaType.Camera);
 		}
 		else {
 			// A new track needs to be added and other participants notified of its existence.
@@ -526,6 +536,11 @@ export class JanusPublisher extends JanusParticipant {
 			// Query screen to get a new video stream.
 			const stream = await Devices.getScreenStream();
 			track = stream.getVideoTracks()[0];
+
+			// Listen to the 'end screen-share' browser button event.
+			track.onended = () => {
+				this.muteTrack(this.getStreamMid(type), false, MediaType.Screen);
+			}
 		}
 
 		if (!track) {
@@ -586,5 +601,18 @@ export class JanusPublisher extends JanusParticipant {
 				console.error("Create offer error", error);
 			}
 		});
+	}
+
+	private async muteTrack(mid: string, enable: boolean, mediaType: MediaType) {
+		this.enableTrack(mid, enable)
+			.then(() => {
+				const muteAction = new StreamMediaChangeAction(mediaType, enable);
+
+				this.handle.data({
+					data: muteAction.toBuffer(),
+					error: function (error: any) { console.error(error) }
+				});
+			})
+			.catch(console.error);
 	}
 }

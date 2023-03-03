@@ -7,6 +7,7 @@ import { playerControlsStyles } from './player-controls.styles';
 import { course } from '../../model/course';
 import { SlTooltip } from '@shoelace-style/shoelace';
 import { Settings } from '../../utils/settings';
+import { State } from '../../utils/state';
 
 @customElement('player-controls')
 export class PlayerControls extends I18nLitElement {
@@ -95,6 +96,9 @@ export class PlayerControls extends I18nLitElement {
 		});
 		document.addEventListener("speech-canceled", (e: CustomEvent) => {
 			this.handUp = false;
+		});
+		document.addEventListener("participant-screen-stream", (e: CustomEvent) => {
+			this.shareScreen = e.detail.state === State.CONNECTED;
 		});
 	}
 
