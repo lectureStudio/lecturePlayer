@@ -40,7 +40,10 @@ export class PlayerView extends I18nLitElement {
 	chatVisible: boolean = true;
 
 	@property({ type: Boolean, reflect: true })
-	participantsVisible: boolean = true;
+	participantsVisible: boolean = false;
+
+	@property({ type: Boolean, reflect: true })
+	rightContainerVisible: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
 	screenVisible: boolean = false;
@@ -59,6 +62,9 @@ export class PlayerView extends I18nLitElement {
 
 	@query(".video-conference")
 	videoConferenceContainer: HTMLElement;
+
+	@query("#inner-split-panel")
+	innterSplitPanel: SlSplitPanel;
 
 	@query("#outer-split-panel")
 	outerSplitPanel: SlSplitPanel;
@@ -112,11 +118,15 @@ export class PlayerView extends I18nLitElement {
 		super.connectedCallback()
 
 		course.addEventListener("course-user-privileges", () => {
-			this.participantsVisible = this.privilegeService.canViewParticipants();
+			this.updateContainerVisibility();
 		});
 
 		this.addEventListener("screen-view-video", (event: CustomEvent) => {
 			this.screenVisible = event.detail.hasVideo;
+		});
+		this.addEventListener("player-chat-visibility", (event: CustomEvent) => {
+			this.chatVisible = event.detail.visible;
+			this.updateContainerVisibility();
 		});
 	}
 
@@ -159,6 +169,11 @@ export class PlayerView extends I18nLitElement {
 				</div>
 			</sl-split-panel>
 		`;
+	}
+
+	private updateContainerVisibility() {
+		this.rightContainerVisible = this.chatVisible && this.privilegeService.canUseChat();
+		this.participantsVisible = this.privilegeService.canViewParticipants();
 	}
 
 	private addDummyViews() {

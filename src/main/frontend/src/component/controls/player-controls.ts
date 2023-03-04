@@ -150,7 +150,9 @@ export class PlayerControls extends I18nLitElement {
 	}
 
 	private onChatVisibility(): void {
-		this.dispatchEvent(Utils.createEvent("player-chat-visibility"));
+		this.dispatchEvent(Utils.createEvent("player-chat-visibility", {
+			visible: this.chatVisible
+		}));
 	}
 
 	private onParticipantsVisibility(): void {
