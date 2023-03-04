@@ -72,7 +72,7 @@ export class MediaDeviceButton extends I18nLitElement {
 		}
 
 		return html`
-			<sl-tooltip content="${this.tooltip}">
+			<sl-tooltip content="${this.tooltip}" trigger="hover">
 				<sl-button id="enable-button" @click="${this.onMute}">
 					<slot slot="prefix" name="icon"></slot>
 				</sl-button>

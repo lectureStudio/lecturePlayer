@@ -213,7 +213,7 @@ export class PlayerControls extends I18nLitElement {
 					<span slot="icon" class="icon-cam-muted"></span>
 				</media-device-button>
 
-				<sl-tooltip content="${t("controls.volume")}" id="volume-tooltip">
+				<sl-tooltip content="${t("controls.volume")}" id="volume-tooltip" trigger="hover">
 					<audio-volume-button @click="${this.onVolume}"></audio-volume-button>
 				</sl-tooltip>
 
@@ -221,7 +221,7 @@ export class PlayerControls extends I18nLitElement {
 			</div>
 			<div class="col nav-center">
 				${this.privilegeService.canContributeBySpeech() ? html`
-				<sl-tooltip content="${this.handUp ? t("controls.speech.abort") : t("controls.speech.start")}">
+				<sl-tooltip content="${this.handUp ? t("controls.speech.abort") : t("controls.speech.start")}" trigger="hover">
 					<sl-button @click="${this.onHand}" class="icon-speech" id="hand-button">
 						<span slot="prefix" class="icon-speech"></span>
 					</sl-button>
@@ -229,51 +229,51 @@ export class PlayerControls extends I18nLitElement {
 				` : ''}
 
 				${this.privilegeService.canParticipateInQuiz() ? html`
-				<sl-tooltip content="${t("controls.quiz.show")}">
+				<sl-tooltip content="${t("controls.quiz.show")}" trigger="hover">
 					<sl-button @click="${this.onQuiz}" id="quiz-button">
 						<span slot="prefix" class="icon-quiz"></span>
 					</sl-button>
 				</sl-tooltip>
 				` : ''}
 
-				<sl-tooltip content="${t("controls.screenshare")}">
+				<sl-tooltip content="${t("controls.screenshare")}" trigger="hover">
 					<sl-button @click="${this.onShareScreen}" class="conference-control" id="share-screen-button">
 						<span slot="prefix" class="icon-share"></span>
 					</sl-button>
 				</sl-tooltip>
 
-				<sl-tooltip content="${t("controls.documents")}">
+				<sl-tooltip content="${t("controls.documents")}" trigger="hover">
 					<sl-button class="conference-control">
 						<span slot="prefix" class="icon-collection"></span>
 					</sl-button>
 				</sl-tooltip>
 
-				<sl-tooltip content="${t("controls.tools")}">
+				<sl-tooltip content="${t("controls.tools")}" trigger="hover">
 					<sl-button class="conference-control">
 						<span slot="prefix" class="icon-pen"></span>
 					</sl-button>
 				</sl-tooltip>
 			</div>
 			<div class="col nav-right">
-				<sl-tooltip content="${t(this.participantsVisible ? "controls.participants.hide" : "controls.participants.show")}">
+				<sl-tooltip content="${t(this.participantsVisible ? "controls.participants.hide" : "controls.participants.show")}" trigger="hover">
 					<sl-button @click="${this.onParticipantsVisibility}" id="participants-button">
 						<span slot="prefix" class="icon-participants"></span>
 					</sl-button>
 				</sl-tooltip>
 
-				<sl-tooltip content="${this.chatVisible ? t("controls.chat.hide") : t("controls.chat.show")}">
+				<sl-tooltip content="${this.chatVisible ? t("controls.chat.hide") : t("controls.chat.show")}" trigger="hover">
 					<sl-button @click="${this.onChatVisibility}" id="chat-button">
 						<span slot="prefix" class="icon-chat"></span>
 					</sl-button>
 				</sl-tooltip>
 
-				<sl-tooltip content="${t("controls.settings")}">
+				<sl-tooltip content="${t("controls.settings")}" trigger="hover">
 					<sl-button @click="${this.onSettings}" id="settings-button">
 						<span slot="prefix" class="icon-settings"></span>
 					</sl-button>
 				</sl-tooltip>
 
-				<sl-tooltip content="${this.fullscreen ? t("controls.fullscreen.off") : t("controls.fullscreen.on")}">
+				<sl-tooltip content="${this.fullscreen ? t("controls.fullscreen.off") : t("controls.fullscreen.on")}" trigger="hover">
 					<sl-button @click="${this.onFullscreen}" id="fullscreen-button">
 						<span slot="prefix" class="icon-fullscreen"></span>
 						<span slot="prefix" class="icon-fullscreen-exit"></span>

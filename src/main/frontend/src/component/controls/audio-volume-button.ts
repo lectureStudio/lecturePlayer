@@ -44,7 +44,7 @@ export class AudioVolumeButton extends I18nLitElement {
 				</sl-button>
 				<sl-menu>
 					<div class="volume-controls">
-						<sl-tooltip content="${this.mutedVolume ? t("controls.audio.unmute") : t("controls.audio.mute")}" hoist>
+						<sl-tooltip content="${this.mutedVolume ? t("controls.audio.unmute") : t("controls.audio.mute")}" trigger="hover" hoist>
 							<sl-button @click="${this.onMute}" id="volumeIndicator" size="small">
 								<span slot="prefix" class="icon-audio-mute"></span>
 								<span slot="prefix" class="icon-audio-off"></span>
