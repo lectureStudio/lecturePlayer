@@ -42,6 +42,7 @@ import './component/conference-view/conference-view';
 import './component/controls/player-controls';
 import './component/controls/audio-volume-button';
 import './component/controls/media-device-button';
+import './component/controls/documents-button';
 import './component/loading/player-loading';
 import './component/offline/player-offline';
 import './component/feature-view/feature-view';

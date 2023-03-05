@@ -17,6 +17,7 @@ import { participants } from '../../model/participants';
 import { Utils } from '../../utils/utils';
 import { GridElement } from '../grid-element/grid-element';
 import { SlSplitPanel } from '@shoelace-style/shoelace';
+import { RenderController } from '../../render/render-controller';
 
 @customElement('player-view')
 export class PlayerView extends I18nLitElement {
@@ -128,6 +129,10 @@ export class PlayerView extends I18nLitElement {
 			this.chatVisible = event.detail.visible;
 			this.updateContainerVisibility();
 		});
+	}
+
+	protected firstUpdated() {
+		//this.controller.getPlayerController().setRenderController(new RenderController(this.getSlideView()));
 	}
 
 	protected render() {

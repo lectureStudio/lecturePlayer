@@ -1,10 +1,21 @@
 declare module '*.css';
 declare module '*.scss';
 
+interface OpenFileOptions {
+
+	extensions?: string[];
+	description?: string;
+	mimeTypes?: string[];
+	multiple?: boolean;
+
+}
+
 interface MediaDeviceSetting {
+
 	deviceId: string,
 	kind: MediaDeviceKind;
 	muted: boolean;
+
 }
 
 interface HTMLMediaElement {

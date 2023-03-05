@@ -2,7 +2,7 @@ import { html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { audioVolumeButtonStyles } from './audio-volume-button.styles';
-import { SlMenu, SlRange } from '@shoelace-style/shoelace';
+import { SlMenu, SlRange, SlTooltip } from '@shoelace-style/shoelace';
 import { Utils } from '../../utils/utils';
 
 @customElement('audio-volume-button')
@@ -27,6 +27,9 @@ export class AudioVolumeButton extends I18nLitElement {
 	@query('sl-menu')
 	menu: SlMenu;
 
+	@query('#button-tooltip')
+	tooltip: SlTooltip;
+
 
 	protected override firstUpdated(): void {
 		this.setVolume(this.volume);
@@ -35,13 +38,17 @@ export class AudioVolumeButton extends I18nLitElement {
 	protected render() {
 		return html`
 			<sl-dropdown placement="top-start">
-				<sl-button slot="trigger" id="volumeIndicator">
-					<span slot="prefix" class="icon-audio-mute"></span>
-					<span slot="prefix" class="icon-audio-off"></span>
-					<span slot="prefix" class="icon-audio-low"></span>
-					<span slot="prefix" class="icon-audio-up"></span>
-					<span slot="prefix" class="icon-audio-high"></span>
-				</sl-button>
+				<div slot="trigger">
+					<sl-tooltip id="button-tooltip" content="${t("controls.volume")}" trigger="hover">
+						<sl-button @click="${this.onButton}" id="volumeIndicator">
+							<span slot="prefix" class="icon-audio-mute"></span>
+							<span slot="prefix" class="icon-audio-off"></span>
+							<span slot="prefix" class="icon-audio-low"></span>
+							<span slot="prefix" class="icon-audio-up"></span>
+							<span slot="prefix" class="icon-audio-high"></span>
+						</sl-button>
+					</sl-tooltip>
+				</div>
 				<sl-menu>
 					<div class="volume-controls">
 						<sl-tooltip content="${this.mutedVolume ? t("controls.audio.unmute") : t("controls.audio.mute")}" trigger="hover" hoist>
@@ -106,5 +113,9 @@ export class AudioVolumeButton extends I18nLitElement {
 		this.dispatchEvent(Utils.createEvent("lect-speaker-mute", {
 			muted: this.muted
 		}));
+	}
+
+	private onButton() {
+		this.tooltip.hide();
 	}
 }

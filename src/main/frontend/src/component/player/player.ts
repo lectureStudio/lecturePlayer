@@ -49,6 +49,7 @@ export class LecturePlayer extends I18nLitElement {
 		}
 
 		const playerView: PlayerView = this.renderRoot.querySelector("player-view");
+		playerView.getController().setPlayerController(this.controller);
 
 		this.controller.setPlayerViewController(playerView.getController());
 	}

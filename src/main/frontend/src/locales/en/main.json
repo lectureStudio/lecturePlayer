@@ -91,6 +91,8 @@
 	"course.recorded.modal.title": "This course is being recorded",
 	"course.recorded.modal.message": "The recording can be published later. As a digital event, this affects your contributions during active requests to speak.",
 	"course.recorded.modal.accept": "Got it",
+	"documents.open.document": "Open PDF Document",
+	"documents.open.whiteboard": "Open Whiteboard",
 	"entry.modal.title": "Start media playback",
 	"entry.modal.description": "To play audio and video, click Start.",
 	"entry.modal.start": "Start",

@@ -5,7 +5,6 @@ import { Utils } from '../../utils/utils';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { playerControlsStyles } from './player-controls.styles';
 import { course } from '../../model/course';
-import { SlTooltip } from '@shoelace-style/shoelace';
 import { Settings } from '../../utils/settings';
 import { State } from '../../utils/state';
 
@@ -31,9 +30,6 @@ export class PlayerControls extends I18nLitElement {
 
 	@query('.text-layer')
 	textLayer: HTMLElement;
-
-	@query('#volume-tooltip')
-	volumeTooltip: SlTooltip;
 
 	@property({ type: Number, reflect: true, attribute: false })
 	duration: number;
@@ -171,10 +167,6 @@ export class PlayerControls extends I18nLitElement {
 		this.dispatchEvent(Utils.createEvent("player-settings"));
 	}
 
-	private onVolume(): void {
-		this.volumeTooltip.hide();
-	}
-
 	private getFormattedDuration(): string {
 		if (!this.duration) {
 			return "";
@@ -213,9 +205,7 @@ export class PlayerControls extends I18nLitElement {
 					<span slot="icon" class="icon-cam-muted"></span>
 				</media-device-button>
 
-				<sl-tooltip content="${t("controls.volume")}" id="volume-tooltip" trigger="hover">
-					<audio-volume-button @click="${this.onVolume}"></audio-volume-button>
-				</sl-tooltip>
+				<audio-volume-button></audio-volume-button>
 
 				<span id="duration">${this.getFormattedDuration()}</span>
 			</div>
@@ -242,11 +232,7 @@ export class PlayerControls extends I18nLitElement {
 					</sl-button>
 				</sl-tooltip>
 
-				<sl-tooltip content="${t("controls.documents")}" trigger="hover">
-					<sl-button class="conference-control">
-						<span slot="prefix" class="icon-collection"></span>
-					</sl-button>
-				</sl-tooltip>
+				<documents-button></documents-button>
 
 				<sl-tooltip content="${t("controls.tools")}" trigger="hover">
 					<sl-button class="conference-control">

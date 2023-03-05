@@ -100,6 +100,25 @@ export class CourseStateService {
 		});
 	}
 
+	uploadDocument(file: File): Promise<string> {
+		const formData = new FormData();
+		formData.append("file", file);
+
+		return new Promise<string>((resolve, reject) => {
+			return new HttpRequest({
+				returnType: "body",
+				responseType: "text",
+			})
+			.post<any>(this.host + "/course/file/upload", formData)
+				.then((url: string) => {
+					resolve(url);
+				})
+				.catch((error: any) => {
+					reject(error);
+				});
+		});
+	}
+
 	private getStateDocumentActions(courseId: number, stateDoc: CourseStateDocument): Promise<RecordedPage[]> {
 		return new Promise<RecordedPage[]>((resolve, reject) => {
 			return new HttpRequest().setResponseType("arraybuffer").get<ArrayBuffer>(this.getFullPath("/" + courseId + "/pages/" + stateDoc.documentId))
