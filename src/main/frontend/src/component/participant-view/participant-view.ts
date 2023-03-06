@@ -41,6 +41,14 @@ export class ParticipantView extends I18nLitElement {
 	@property({ type: Boolean, reflect: true })
 	isLocal: boolean = false;
 
+	@property({ type: Boolean, reflect: true })
+	isVisible: boolean = false;
+
+	@property({ type: Boolean, reflect: true })
+	isTalking: boolean = false;
+
+	publisherId: bigint;
+
 	@query(".container")
 	container: HTMLElement;
 

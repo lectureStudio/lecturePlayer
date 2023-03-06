@@ -24,7 +24,7 @@ export class JanusSubscriber extends JanusParticipant {
 		this.opaqueId = opaqueId;
 
 		this.view.name = publisherName;
-		this.gridElement.publisherId = publisherId;
+		this.view.publisherId = publisherId;
 	}
 
 	getPublisherId() {
@@ -67,7 +67,7 @@ export class JanusSubscriber extends JanusParticipant {
 		super.disconnect();
 
 		document.dispatchEvent(Utils.createEvent("remove-grid-element", {
-			gridElement: this.gridElement
+			gridElement: this.view
 		}));
 	}
 

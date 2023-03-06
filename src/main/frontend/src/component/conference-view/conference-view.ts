@@ -1,9 +1,9 @@
-import { html, PropertyValueMap } from "lit";
+import { html } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import { participants } from '../../model/participants';
 import { I18nLitElement } from "../i18n-mixin";
 import { conferenceViewStyles } from "./conference-view.styles";
-import { GridElement } from '../grid-element/grid-element';
+import { ParticipantView } from "../participant-view/participant-view";
 
 @customElement('conference-view')
 export class ConferenceView extends I18nLitElement {
@@ -84,21 +84,22 @@ export class ConferenceView extends I18nLitElement {
 		}
 	}
 
-	addGridElement(gridElement: GridElement) {
+	addGridElement(view: ParticipantView) {
 		this.gridCounter += 1;
 		this.gridColumns = Math.min(this.gridCounter, this.columnLimit);
 		this.gridRows = Math.ceil(this.gridCounter / this.columnLimit);
 
 		if (this.gridCounter <= this.gridElementsLimit) {
-			gridElement.isVisible = true;
+			view.isVisible = true;
 		}
 
-		this.gridContainer.appendChild(gridElement);
+		this.gridContainer.appendChild(view);
 	}
 
-	addScreenElement(gridElement: GridElement) {
-		gridElement.isVisible = true;
-		this.screenContainer.appendChild(gridElement);
+	addScreenElement(view: ParticipantView) {
+		view.isVisible = true;
+
+		this.screenContainer.appendChild(view);
 	}
 
 	override connectedCallback() {
@@ -129,7 +130,7 @@ export class ConferenceView extends I18nLitElement {
 	protected render() {
 		return html`
 			<style>
-				:host grid-element {
+				:host participant-view {
 					width: ${this.calculateSize().width}px;
 					max-height: ${this.calculateSize().height}px;
 				}
@@ -184,16 +185,16 @@ export class ConferenceView extends I18nLitElement {
 			isTalking = false;
 		}
 
-		for (const grid of this.gridContainer.querySelectorAll("grid-element")) {
+		for (const grid of this.gridContainer.querySelectorAll("participant-view")) {
 			counter += 1;
-			const gridElement: GridElement = grid as GridElement;
+			const gridElement = grid as ParticipantView;
 			if (gridElement.publisherId == publisherId) {
 				gridElement.isTalking = isTalking;
 				// make talking participant visible
 				if (isTalking && counter > this.gridElementsLimit) {
-					const lastGridElement: GridElement = this.gridContainer.children[this.gridElementsLimit - 1] as GridElement;
+					const lastGridElement = this.gridContainer.children[this.gridElementsLimit - 1] as ParticipantView;
 					lastGridElement.isVisible = false;
-					const secondGridElement: GridElement = this.gridContainer.children[1] as GridElement;
+					const secondGridElement = this.gridContainer.children[1] as ParticipantView;
 					gridElement.isVisible = true;
 					this.gridContainer.insertBefore(gridElement, secondGridElement);
 				}

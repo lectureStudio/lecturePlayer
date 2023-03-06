@@ -87,6 +87,14 @@ export const participantViewStyles = css`
 		color: #334155;
 	}
 
+	:host(:not([isVisible])) {
+		display: none;
+	}
+
+	:host([isTalking]) {
+		border: 2px solid rgb(60, 217, 60);
+	}
+
 	:host(:not([hasVideo])) video {
 		display: none;
 	}

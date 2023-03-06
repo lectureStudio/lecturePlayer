@@ -51,6 +51,11 @@ export const conferenceViewStyles = css`
 		overflow-x: auto;
 		height: calc(100vh - 20%);
 	}
+
+	:host participant-view::part(base) {
+		height: inherit;
+		padding: 0;
+	}
 	
 	:host .hide-grid {
 		display: none;

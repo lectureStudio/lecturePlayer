@@ -1,5 +1,4 @@
 import { Janus, JanusRoomParticipant, PluginHandle } from "janus-gateway";
-import { GridElement } from "../component/grid-element/grid-element";
 import { ParticipantView } from "../component/participant-view/participant-view";
 import { Devices } from "../utils/devices";
 import { DeviceSettings } from "../utils/settings";
@@ -40,8 +39,6 @@ export abstract class JanusParticipant extends EventTarget {
 
 	protected view: ParticipantView;
 
-	protected gridElement: GridElement;
-
 	protected publishers: Array<JanusRoomParticipant>;
 
 	protected streams: Map<string, MediaStream>;
@@ -55,8 +52,6 @@ export abstract class JanusParticipant extends EventTarget {
 		this.janus = janus;
 		this.state = State.DISCONNECTED;
 		this.view = new ParticipantView();
-		this.gridElement = new GridElement();
-		this.gridElement.addView(this.view);
 		this.streams = new Map();
 		this.publishers = [];
 
@@ -219,7 +214,6 @@ export abstract class JanusParticipant extends EventTarget {
 		this.dispatchEvent(Utils.createEvent("janus-participant-state", {
 			participant: this,
 			view: this.view,
-			gridElement: this.gridElement,
 			state: state
 		}));
 	}
