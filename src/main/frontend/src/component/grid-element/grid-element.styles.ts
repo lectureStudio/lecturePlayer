@@ -1,6 +1,11 @@
 import { css } from 'lit';
 
 export const gridElementStyles = css`
+	:host {
+		height: 100%;
+		width: 100%;
+	}
+
 	:host .inner-container {
 		display: flex;
 		align-items: center;

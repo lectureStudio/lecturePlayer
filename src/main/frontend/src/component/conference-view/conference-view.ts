@@ -13,7 +13,6 @@ export class ConferenceView extends I18nLitElement {
 		conferenceViewStyles, 
 	];
     
-
     @property()
     gridCounter: number = 0;
 
@@ -23,30 +22,57 @@ export class ConferenceView extends I18nLitElement {
     @property()
     columnLimit: number = 5;
 
+    @property()
+    rowsLimit: number = 3;
+
     @property({ reflect: true })
     gridColumns: number = 0;
 
     @property({ reflect: true })
     gridRows: number = 0;
 
+    @property({ type: Boolean, reflect: true })
+    galleryView: boolean = true;
+
+    @property({ type: Boolean, reflect: true })
+    screenRightView: boolean = false;
+
+    @property({ type: Boolean, reflect: true })
+    screenTopView: boolean = false;
+
+    @property({ reflect: true })
+    screenSharing: boolean = false;
+
     @query('.grid-container')
     gridContainer: HTMLElement;
+
+    @query('.screen-container')
+    screenContainer: HTMLElement;
 
     getGridContainer(): HTMLElement {
 		return this.renderRoot.querySelector('.grid-container');
 	}
 
     setAlignment(add: boolean) {
-        if (this.gridCounter <= this.columnLimit) {
-            add ? this.gridColumns += 1 : this.gridColumns -= 1;
-        } 
-        else {
-            if ((this.gridCounter % this.columnLimit) == 0) {
+        if (this.galleryView) {
+            if (this.gridCounter <= this.columnLimit) {
+                add ? this.gridColumns += 1 : this.gridColumns -= 1;
+            } 
+            else {
+                if ((this.gridCounter % this.columnLimit) == 0) {
+                    add ? this.gridRows += 1 : this.gridRows -= 1;
+                } 
+            }
+        }
+        else if (this.screenRightView) {
+            if (this.gridCounter <= this.rowsLimit) {
                 add ? this.gridRows += 1 : this.gridRows -= 1;
+            }
+            else if (this.gridColumns < this.columnLimit) {
+                this.gridColumns += 1;
             } 
         }
     }
-    
 
     addGridElement(gridElement: GridElement) {
         this.gridCounter += 1;
@@ -56,6 +82,10 @@ export class ConferenceView extends I18nLitElement {
         this.gridContainer.appendChild(gridElement);
         this.setAlignment(true);
     }
+
+    addScreenElement(gridElement: GridElement) {
+        gridElement.isVisible = true;
+        this.screenContainer.appendChild(gridElement);    }
 
     override connectedCallback() {
 		super.connectedCallback()
@@ -77,6 +107,8 @@ export class ConferenceView extends I18nLitElement {
         grid-template-rows: repeat(${this.gridRows}, 1fr);
             }
             </style>
+            <div class="screen-container">
+            </div>
             <div class="grid-container">
             </div>
         `;
@@ -116,6 +148,24 @@ export class ConferenceView extends I18nLitElement {
                     this.gridContainer.insertBefore(gridElement, secondGridElement);
                 }
             }
+        }
+    }
+
+    public setConferenceLayout(layout: string) {
+        switch (layout) {
+            case "gallery":
+                return;
+            case "sideRight":
+                this.galleryView = false;
+                this.screenRightView = true;
+                this.columnLimit = 2;
+                this.gridCounter > 1 ? this.gridColumns = 2 : this.gridColumns = 1;
+                this.gridRows = 3;
+            case "screenTop":
+                this.galleryView = false;
+                this.screenRightView = false;
+                this.screenTopView = true;
+                this.gridRows = 1;
         }
     }
 }

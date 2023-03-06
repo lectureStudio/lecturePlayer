@@ -181,7 +181,7 @@ export class PlayerView extends I18nLitElement {
 		const gridElement: GridElement = new GridElement();
 		gridElement.addView(view);
 		this.conferenceView.addScreenElement(gridElement);
-		this.conferenceView.setConferenceLayout("sideRight")
+		this.conferenceView.setConferenceLayout("screenTop")
 	}
 
 	private onParticipantState(event: CustomEvent) {
