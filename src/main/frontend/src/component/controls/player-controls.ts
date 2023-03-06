@@ -81,8 +81,6 @@ export class PlayerControls extends I18nLitElement {
 		this.mutedMic = Settings.getMicrophoneMuteOnEntry();
 		this.hasChat = course.chatFeature != null && course.chatFeature.featureId != null;
 		this.hasQuiz = course.quizFeature != null && course.quizFeature.featureId != null;
-
-		this.isConference = course.conference;
 	}
 
 	protected firstUpdated(): void {
@@ -212,7 +210,7 @@ export class PlayerControls extends I18nLitElement {
 			<div class="col nav-center">
 				${this.privilegeService.canContributeBySpeech() ? html`
 				<sl-tooltip content="${this.handUp ? t("controls.speech.abort") : t("controls.speech.start")}" trigger="hover">
-					<sl-button @click="${this.onHand}" class="icon-speech" id="hand-button">
+					<sl-button @click="${this.onHand}" id="hand-button">
 						<span slot="prefix" class="icon-speech"></span>
 					</sl-button>
 				</sl-tooltip>
@@ -232,7 +230,7 @@ export class PlayerControls extends I18nLitElement {
 					</sl-button>
 				</sl-tooltip>
 
-				<documents-button></documents-button>
+				<documents-button class="conference-control"></documents-button>
 
 				<sl-tooltip content="${t("controls.tools")}" trigger="hover">
 					<sl-button class="conference-control">

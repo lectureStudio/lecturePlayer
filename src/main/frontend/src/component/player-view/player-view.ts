@@ -83,7 +83,6 @@ export class PlayerView extends I18nLitElement {
 		view.addEventListener("participant-state", this.onParticipantState.bind(this));
 		view.addEventListener("participant-screen-stream", this.onParticipantScreenStream.bind(this));
 		view.addEventListener("participant-screen-visibility", this.onParticipantScreenVisibility.bind(this));
-		view.setVolume(this.controls.volume);
 
 		if (course.conference) {
 			this.conferenceView.addGridElement(gridElement);
@@ -158,7 +157,7 @@ export class PlayerView extends I18nLitElement {
 								<screen-view></screen-view>
 							</div>
 							<div class="controls-container">
-								<player-controls .chatVisible="${this.chatVisible}" .participantsVisible="${this.participantsVisible}" .privilegeService="${this.privilegeService}"></player-controls>
+								<player-controls .isConference="${course.conference}" .chatVisible="${this.chatVisible}" .participantsVisible="${this.participantsVisible}" .privilegeService="${this.privilegeService}"></player-controls>
 							</div>
 						</div>
 						<div slot="end" class="right-container">

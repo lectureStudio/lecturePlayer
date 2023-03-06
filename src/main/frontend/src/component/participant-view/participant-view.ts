@@ -55,6 +55,7 @@ export class ParticipantView extends I18nLitElement {
 	@property({ type: Boolean, reflect: true })
 	isConference: boolean = false;
 
+
 	constructor() {
 		super();
 
@@ -63,8 +64,8 @@ export class ParticipantView extends I18nLitElement {
 		document.addEventListener("speaker-setting-changed", this.onSpeakerSetting.bind(this));
 		document.addEventListener("lect-device-change", this.onDeviceChange.bind(this));
 
-		this.micActive = course.mediaState.microphoneActive;
-		this.camActive = course.mediaState.cameraActive;
+		this.micActive = course.mediaState?.microphoneActive;
+		this.camActive = course.mediaState?.cameraActive;
 
 		this.isConference = course.conference;
 	}
