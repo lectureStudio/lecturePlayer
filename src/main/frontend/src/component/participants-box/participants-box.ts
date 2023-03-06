@@ -47,7 +47,7 @@ export class ParticipantsBox extends I18nLitElement {
 					const lower = participant.participantType.toLowerCase();
 
 					type = html`
-						<sl-tooltip content="${t("course.role." + lower)}">
+						<sl-tooltip content="${t("course.role." + lower)}" trigger="hover">
 							<span class="icon-${lower}" id="participant-type"></span>
 						</sl-tooltip>
 					`;

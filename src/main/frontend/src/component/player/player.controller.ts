@@ -32,7 +32,8 @@ import { participants } from '../../model/participants';
 import { chatHistory } from '../../model/chat-history';
 import { ParticipantsModal } from '../participants-modal/participants.modal';
 import { VpnModal } from '../vpn-modal/vpn.modal';
-import { WhiteboardDocument } from '../../model/whiteboard.document';
+import { DocumentService } from '../../service/document.service';
+import { RenderController } from '../../render/render-controller';
 
 export class PlayerController implements ReactiveController {
 
@@ -105,8 +106,22 @@ export class PlayerController implements ReactiveController {
 		this.host.addEventListener("player-participants-visibility", this.onParticipantsVisibility.bind(this), false);
 		this.host.addEventListener("participant-video-play-error", this.onMediaPlayError.bind(this), false);
 
+		this.host.addEventListener("lect-open-new-document", this.onOpenNewDocument.bind(this));
+		this.host.addEventListener("lect-open-new-whiteboard", this.onOpenNewWhiteboard.bind(this));
+		this.host.addEventListener("lect-select-document", this.onSelectDocument.bind(this));
+
 		this.host.addEventListener("lect-device-change", this.onDeviceChange.bind(this));
 		this.host.addEventListener("lect-device-settings", this.onSettings.bind(this));
+
+		document.addEventListener("lect-screen-share-not-allowed", () => {
+			Toaster.showWarning(t("screenshare.error.not.allowed.title"), t("screenshare.error.not.allowed.message"));
+		});
+		document.addEventListener("lect-camera-not-allowed", () => {
+			Toaster.showWarning(t("camera.error.not.allowed.title"), t("camera.error.not.allowed.message"));
+		});
+		document.addEventListener("lect-camera-not-readable", () => {
+			Toaster.showWarning(t("camera.error.not.readable.title"), t("camera.error.not.readable.message"));
+		});
 
 		this.eventService.addEventListener("event-service-state", this.onEventServiceState.bind(this));
 		this.eventService.addEventListener("chat-state", this.onChatState.bind(this));
@@ -121,8 +136,12 @@ export class PlayerController implements ReactiveController {
 		this.janusService.addEventListener("janus-session-error", this.onJanusSessionError.bind(this));
 	}
 
-	setPlayerViewController(viewController: PlayerViewController) {
-		this.viewController = viewController;
+	setRenderController(controller: RenderController) {
+		this.playbackService.setRenderController(controller);
+	}
+
+	setPlayerViewController(controller: PlayerViewController) {
+		this.viewController = controller;
 
 		this.connect();
 	}
@@ -165,46 +184,45 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private connect() {
-
 		participants.clear();
 		chatHistory.clear();
 
-		new HttpRequest().get("/course/user").then((userObject: any) => {
-			// init courseState
-		const courseState: CourseState = {
-			courseId: this.host.courseId,
-			activeDocument: null,
-			documentMap: null,
-			timeStarted: 0,
-			userId: userObject.userId,
-			title: "saasd",
-			description: "asds",
-			messageFeature: null,
-			quizFeature: null,
-			protected: false,
-			recorded: false,
-			userPrivileges: [],
-			mediaState: {microphoneActive: false, cameraActive: false, screenActive: false}
-		}
-		this.setCourseState(courseState);
+		new HttpRequest().get("/course/user")
+			.then((userObject: any) => {
+				// init courseState
+				const courseState: CourseState = {
+					courseId: this.host.courseId,
+					activeDocument: null,
+					documentMap: new Map(),
+					timeStarted: 0,
+					userId: userObject.userId,
+					title: "saasd",
+					description: "asds",
+					messageFeature: null,
+					quizFeature: null,
+					protected: false,
+					recorded: false,
+					userPrivileges: [],
+					mediaState: { microphoneActive: false, cameraActive: false, screenActive: false }
+				}
+				this.setCourseState(courseState);
 
-		const userName = userObject.firstName + " " + userObject.familyName
+				const userName = userObject.firstName + " " + userObject.familyName
 
-		this.janusService.setRoomId(this.host.courseId);
-		this.janusService.setUserId(courseState.userId);
-		this.janusService.setUserName(userName);
-		this.janusService.connect();
+				this.janusService.setRoomId(this.host.courseId);
+				this.janusService.setUserId(courseState.userId);
+				this.janusService.setUserName(userName);
+				this.janusService.connect();
 
-		//this.updateCourseState();
-		this.setConnectionState(State.CONNECTED);
-
-			console.log(userObject);
-		})
-		.catch(error => {
-			console.log(error)
-		})
-
-		/*this.getCourseState()
+				//this.updateCourseState();
+				this.setConnectionState(State.CONNECTED);
+				console.log(userObject);
+			})
+			.catch(error => {
+				console.log(error)
+			});
+/*
+		this.getCourseState()
 			.then(courseState => {
 				this.setCourseState(courseState);
 
@@ -247,7 +265,8 @@ export class PlayerController implements ReactiveController {
 				else {
 					this.setConnectionState(State.DISCONNECTED);
 				}
-			});*/
+			});
+*/
 	}
 
 	private reconnect() {
@@ -322,6 +341,61 @@ export class PlayerController implements ReactiveController {
 
 	private getChatHistory(): Promise<MessageServiceHistory> {
 		return new HttpRequest().get("/course/chat/history/" + this.host.courseId);
+	}
+
+	private onSelectDocument(event: CustomEvent) {
+		console.log("selected document", event.detail.id);
+	}
+
+	private onOpenNewDocument() {
+		Utils.openFile({
+			description: 'PDF files',
+			mimeTypes: ['application/pdf'],
+			extensions: ['.pdf']
+		})
+		.then((file: File) => {
+			this.courseStateService.uploadDocument(file)
+				.then((url: string) => {
+					console.log("document url", url);
+
+					return Utils.readFile(file);
+				})
+				.then((fileBuffer: Uint8Array) => {
+					const docService = new DocumentService();
+
+					return docService.loadDocument(fileBuffer);
+				})
+				.then((document: SlideDocument) => {
+					console.log("document", document);
+
+					// TODO
+					// this.playbackService.addDocument(document);
+					// this.playbackService.selectActiveDocument();
+
+					document.setDocumentId(BigInt(123));
+
+					course.documentMap.set(document.getDocumentId(), {
+						activePage: null,
+						documentFile: "test.pdf",
+						documentId: document.getDocumentId(),
+						documentName: "Test Document",
+						pages: null,
+						type: "pdf"
+					});
+
+					this.host.dispatchEvent(Utils.createEvent("course-new-document"));
+				})
+				.catch(error => {
+					console.error(error);
+				});
+		})
+		.catch(error => {
+			console.error(error);
+		});
+	}
+
+	private onOpenNewWhiteboard() {
+
 	}
 
 	private onPeerConnected(peerId: bigint) {

@@ -65,8 +65,8 @@ export const playerControlsStyles = css`
 	:host(:not([hasParticipants])) #participants-button {
 		display: none;
 	}
-	:host([chatVisible]) #chat-button,
-	:host([participantsVisible]) #participants-button {
+	:host([chatVisible]) #chat-button::part(base),
+	:host([participantsVisible]) #participants-button::part(base) {
 		color: #007db5;
 	}
 	:host([hasQuiz]) #quiz-button {

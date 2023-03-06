@@ -276,15 +276,24 @@ export class JanusSubscriber extends JanusParticipant {
 		}
 		else if (isVideo) {
 			if (this.isScreenTrack(mid)) {
+
+				console.log("---- sub add video");
+
 				this.view.addScreenVideo(mediaElement as HTMLVideoElement);
 			}
 			else {
+
+				console.log("---- sub add screen");
+
 				this.view.addVideo(mediaElement as HTMLVideoElement);
 			}
 		}
 	}
 
 	private removeTrack(mid: string, kind: string) {
+		console.log("---- sub remove track", mid);
+
+
 		const stream = this.streams.get(mid);
 
 		if (!stream) {
@@ -305,9 +314,15 @@ export class JanusSubscriber extends JanusParticipant {
 		}
 		else if (kind === "video") {
 			if (this.isScreenTrack(mid)) {
+
+				console.log("---- sub remove screen");
+
 				this.view.removeScreenVideo();
 			}
 			else {
+
+				console.log("---- sub remove video");
+
 				this.view.removeVideo();
 			}
 		}

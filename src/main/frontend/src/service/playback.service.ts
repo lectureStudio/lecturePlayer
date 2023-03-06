@@ -1,7 +1,6 @@
 import { Action } from "../action/action";
 import { StreamActionExecutor } from "../action/action.executor";
 import { StreamActionPlayer } from "../action/stream-action-player";
-import { PlayerView } from "../component/player-view/player-view";
 import { SlideDocument } from "../model/document";
 import { RenderController } from "../render/render-controller";
 import { course } from '../model/course';
@@ -15,29 +14,10 @@ export class PlaybackService {
 	private renderController: RenderController;
 
 
-	initialize(playerView: PlayerView, documents: SlideDocument[]) {
+	initialize() {
 		this.documents = new Map();
 
-		documents.forEach((doc: SlideDocument) => {
-			this.addDocument(doc);
-		});
-
-		// Select active document.
-		const activeStateDoc = course.activeDocument;
-		let activeDoc: SlideDocument = null;
-
-		for (const doc of documents) {
-			if (doc.getDocumentId() == activeStateDoc.documentId) {
-				activeDoc = doc;
-				break;
-			}
-		}
-
-		this.renderController = new RenderController(playerView.getSlideView());
-
 		const executor = new StreamActionExecutor(this.renderController);
-		executor.setDocument(activeDoc);
-		executor.setPageNumber(activeStateDoc.activePage.pageNumber);
 
 		this.actionPlayer = new StreamActionPlayer(executor);
 		this.actionPlayer.start();
@@ -52,12 +32,22 @@ export class PlaybackService {
 		}
 	}
 
+	setRenderController(controller: RenderController) {
+		this.renderController = controller;
+	}
+
 	addAction(action: Action): void {
 		this.actionPlayer.addAction(action);
 	}
 
 	addDocument(document: SlideDocument): void {
 		this.documents.set(BigInt(document.getDocumentId()), document);
+	}
+
+	addDocuments(documents: SlideDocument[]): void {
+		documents.forEach((doc: SlideDocument) => {
+			this.addDocument(doc);
+		});
 	}
 
 	removeDocument(docId: bigint): void {
@@ -69,6 +59,16 @@ export class PlaybackService {
 
 		if (document) {
 			this.actionPlayer.setDocument(document);
+		}
+	}
+
+	selectActiveDocument() {
+		const activeStateDoc = course.activeDocument;
+		const activeDoc: SlideDocument = this.documents.get(activeStateDoc.documentId);
+
+		if (activeDoc) {
+			this.actionPlayer.setDocument(activeDoc);
+			this.actionPlayer.setPageNumber(activeStateDoc.activePage.pageNumber);
 		}
 	}
 }

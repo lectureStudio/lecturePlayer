@@ -54,7 +54,7 @@
 		"worker-loader": "^3.0.8"
 	},
 	"dependencies": {
-		"@shoelace-style/shoelace": "^2.1.0",
+		"@shoelace-style/shoelace": "^2.2.0",
 		"@stomp/stompjs": "^6.1.2",
 		"bootstrap": "^5.2.1",
 		"i18next": "^21.8.12",

@@ -57,6 +57,10 @@ export class StreamActionPlayer extends ActionPlayer {
 		this.executor.setDocument(document);
 	}
 
+	setPageNumber(pageNumber: number) {
+		this.executor.setPageNumber(pageNumber);
+	}
+
 	seekByTime(time: number): number {
 		throw new Error("Method not implemented.");
 	}

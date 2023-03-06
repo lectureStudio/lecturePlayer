@@ -4,6 +4,7 @@ import { ParticipantView } from "../participant-view/participant-view";
 import { PlayerView } from "./player-view";
 import { course } from '../../model/course';
 import { GridElement } from "../grid-element/grid-element";
+import { PlayerController } from "../player/player.controller";
 
 interface BreakpointConfig {
 
@@ -15,6 +16,8 @@ interface BreakpointConfig {
 export class PlayerViewController implements ReactiveController {
 
 	private readonly maxWidth576Query: MediaQueryList;
+
+	private playerController: PlayerController;
 
 	private breakpointConfig: BreakpointConfig;
 
@@ -63,6 +66,14 @@ export class PlayerViewController implements ReactiveController {
 				window.clearInterval(this.clockIntervalId);
 			}
 		}, 500);
+	}
+
+	getPlayerController() {
+		return this.playerController;
+	}
+
+	setPlayerController(controller: PlayerController) {
+		this.playerController = controller;
 	}
 
 	setDisconnected() {

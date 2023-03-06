@@ -87,6 +87,13 @@ export const playerViewStyles = css`
 	:host(:not([chatVisible])) chat-box {
 		display: none;
 	}
+	:host(:not([rightContainerVisible])) #inner-split-panel {
+		--min: 100;
+	}
+	:host(:not([rightContainerVisible])) #inner-split-panel::part(divider),
+	:host(:not([rightContainerVisible])) .right-container {
+		display: none;
+	}
 	:host(:not([participantsVisible])) #outer-split-panel {
 		--min: 0;
 	}

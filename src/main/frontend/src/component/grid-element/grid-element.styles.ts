@@ -19,7 +19,7 @@ export const gridElementStyles = css`
 		display: none;
 	}
 
-	:host([isTalking]) {
-		border: 3px solid rgb(60, 217, 60);
+	:host([isTalking]) participant-view {
+		border: 2px solid rgb(60, 217, 60);
 	}
 `;
