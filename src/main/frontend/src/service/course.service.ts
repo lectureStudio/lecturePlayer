@@ -2,7 +2,7 @@ import { ProgressiveDataView } from "../action/parser/progressive-data-view";
 import { RecordedPageParser } from "../action/parser/recorded-page.parser";
 import { SimpleActionExecutor } from "../action/simple-action-executor";
 import { course } from "../model/course";
-import { CourseState } from "../model/course-state";
+import { CourseParticipant, CourseState } from "../model/course-state";
 import { CourseStateDocument } from "../model/course-state-document";
 import { SlideDocument } from "../model/document";
 import { RecordedPage } from "../model/recorded-page";
@@ -23,6 +23,10 @@ export class CourseStateService {
 
 	getCourseState(courseId: number): Promise<CourseState> {
 		return new HttpRequest().get(this.getFullPath("/" + courseId));
+	}
+
+	getCourseParticipant(): Promise<CourseParticipant> {
+		return new HttpRequest().get<CourseParticipant>("/course/user");
 	}
 
 	getStateDocument(courseId: number, stateDoc: CourseStateDocument): Promise<SlideDocument> {

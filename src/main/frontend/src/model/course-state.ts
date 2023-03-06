@@ -75,6 +75,8 @@ export interface CourseState {
 
 	quizFeature: QuizFeature;
 
+	readonly conference: boolean;
+
 	readonly protected: boolean;
 
 	readonly recorded: boolean;

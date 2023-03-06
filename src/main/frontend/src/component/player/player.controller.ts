@@ -133,7 +133,6 @@ export class PlayerController implements ReactiveController {
 
 		this.janusService.addEventListener("janus-connection-established", this.onJanusConnectionEstablished.bind(this));
 		this.janusService.addEventListener("janus-connection-failure", this.onJanusConnectionFailure.bind(this));
-		this.janusService.addEventListener("janus-session-error", this.onJanusSessionError.bind(this));
 	}
 
 	setRenderController(controller: RenderController) {
@@ -171,6 +170,8 @@ export class PlayerController implements ReactiveController {
 
 	private setCourseState(state: CourseState) {
 		course.courseId = state.courseId;
+		course.conference = state.conference;
+		course.recorded = state.recorded;
 		course.timeStarted = state.timeStarted;
 		course.title = state.title;
 		course.description = state.description;
@@ -183,90 +184,76 @@ export class PlayerController implements ReactiveController {
 		course.mediaState = state.mediaState;
 	}
 
+	private onCourseState(courseState: CourseState) {
+		console.log("~ course state", courseState);
+
+		this.setCourseState(courseState);
+
+		return this.courseStateService.getCourseParticipant();
+	}
+
+	private onCourseParticipant(courseUser: CourseParticipant) {
+		console.log("~ course user", courseUser);
+
+		this.janusService.setRoomId(this.host.courseId);
+		this.janusService.setUserId(courseUser.userId);
+		this.janusService.setUserName(`${courseUser.firstName} ${courseUser.familyName}`);
+
+		return this.janusService.connect(course.conference);
+	}
+
+	private onConnected() {
+		console.log("~ janus connected");
+
+		if (course.activeDocument == null && !course.conference) {
+			// Update early, if not streaming.
+			this.updateCourseState();
+			return;
+		}
+		if (this.isClassroomProfile()) {
+			this.updateCourseState();
+			return;
+		}
+
+		if (course.activeDocument) {
+			this.getDocuments(course.documentMap)
+				.then(documents => {
+					this.registerModal("RecordedModal", new RecordedModal(), false, false);
+
+					this.playbackService.initialize();
+
+					this.viewController.update();
+
+					if (course.recorded) {
+						this.openModal("RecordedModal");
+					}
+
+					// Update UI
+
+				});
+		}
+
+		this.updateCourseState();
+	}
+
+	private onConnectionError(cause: any) {
+		// If any of the previous executions fail, panic.
+		console.error(cause);
+
+		this.setConnectionState(State.DISCONNECTED);
+
+		this.onJanusSessionError();
+	}
+
 	private connect() {
 		participants.clear();
 		chatHistory.clear();
 
-		new HttpRequest().get("/course/user")
-			.then((userObject: any) => {
-				// init courseState
-				const courseState: CourseState = {
-					courseId: this.host.courseId,
-					activeDocument: null,
-					documentMap: new Map(),
-					timeStarted: 0,
-					userId: userObject.userId,
-					title: "saasd",
-					description: "asds",
-					messageFeature: null,
-					quizFeature: null,
-					protected: false,
-					recorded: false,
-					userPrivileges: [],
-					mediaState: { microphoneActive: false, cameraActive: false, screenActive: false }
-				}
-				this.setCourseState(courseState);
-
-				const userName = userObject.firstName + " " + userObject.familyName
-
-				this.janusService.setRoomId(this.host.courseId);
-				this.janusService.setUserId(courseState.userId);
-				this.janusService.setUserName(userName);
-				this.janusService.connect();
-
-				//this.updateCourseState();
-				this.setConnectionState(State.CONNECTED);
-				console.log(userObject);
-			})
-			.catch(error => {
-				console.log(error)
-			});
-/*
-		this.getCourseState()
-			.then(courseState => {
-				this.setCourseState(courseState);
-
-				if (courseState.activeDocument == null) {
-					// Update early, if not streaming.
-					this.updateCourseState();
-				}
-				if (this.isClassroomProfile()) {
-					this.updateCourseState();
-					return;
-				}
-
-				this.getDocuments(courseState.documentMap)
-					.then(documents => {
-						if (courseState.activeDocument) {
-							this.registerModal("RecordedModal", new RecordedModal(), false, false);
-
-							this.playbackService.initialize(this.viewController.host, documents);
-
-							this.viewController.update();
-
-							this.janusService.setRoomId(this.host.courseId);
-							this.janusService.setUserId(courseState.userId);
-							this.janusService.connect();
-
-							if (courseState.recorded) {
-								this.openModal("RecordedModal");
-							}
-
-							this.updateCourseState();
-						}
-					});
-			})
-			.catch(error => {
-				console.error(error);
-
-				if (this.host.state === State.RECONNECTING) {
-					this.reconnect();
-				}
-				else {
-					this.setConnectionState(State.DISCONNECTED);
-				}
-			});
-*/
+		this.courseStateService.getCourseState(this.host.courseId)
+			.then(this.onCourseState.bind(this))
+			.then(this.onCourseParticipant.bind(this))
+			.then(this.onConnected.bind(this))
+			.catch(this.onConnectionError.bind(this));
 	}
 
 	private reconnect() {
@@ -329,10 +316,6 @@ export class PlayerController implements ReactiveController {
 					reject(error);
 				});
 		});
-	}
-
-	private getCourseState(): Promise<CourseState> {
-		return this.courseStateService.getCourseState(this.host.courseId);
 	}
 
 	private getParticipants(): Promise<CourseParticipant[]> {
@@ -634,7 +617,7 @@ export class PlayerController implements ReactiveController {
 	private updateCourseState() {
 		const isClassroom = this.isClassroomProfile();
 		const hasFeatures = course.chatFeature != null || course.quizFeature != null;
-		const hasStream = course.activeDocument != null;
+		const hasStream = course.activeDocument != null || course.conference;
 
 		if (hasStream && !isClassroom) {
 			this.setConnectionState(State.CONNECTED);

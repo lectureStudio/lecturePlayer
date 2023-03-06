@@ -53,19 +53,21 @@ export class JanusService extends EventTarget {
 		this.userName = userName;
 	}
 
-	connect() {
-		// Initialize the library (all console debuggers enabled).
-		Janus.init({
-			// debug: "all",
-			callback: () => {
-				// Make sure the browser supports WebRTC.
-				if (!Janus.isWebrtcSupported()) {
-					console.error("No WebRTC support...");
-					return;
-				}
+	connect(isConference: boolean) {
+		return new Promise<void>((resolve, reject) => {
+			// Initialize the library (all console debuggers enabled).
+			Janus.init({
+				// debug: "all",
+				callback: () => {
+					// Make sure the browser supports WebRTC.
+					if (!Janus.isWebrtcSupported()) {
+						console.error("No WebRTC support...");
+						return;
+					}
 
-				this.createSession();
-			}
+					this.createSession(isConference, resolve, reject);
+				}
+			});
 		});
 	}
 
@@ -136,38 +138,42 @@ export class JanusService extends EventTarget {
 		}
 	}
 
-	private createSession() {
+	private createSession(isConference: boolean, resolve: () => void, reject: (reason?: any) => void) {
 		this.janus = new Janus({
 			server: this.serverUrl,
 			destroyOnUnload: true,
 			success: () => {
 				if (this.janus.getSessionId()) {
-					this.attach();
+					this.attach(isConference, resolve, reject);
 				}
 			},
-			error: (cause: any) => {
-				console.error(cause);
-
-				this.dispatchEvent(Utils.createEvent("janus-session-error"));
-			},
+			error: reject,
 			destroyed: () => {
 				Janus.log("Janus destroyed");
 			}
 		});
 	}
 
-	private attach() {
+	private attach(isConference: boolean, resolve: () => void, reject: (reason?: any) => void) {
 		this.janus.attach({
 			plugin: "janus.plugin.videoroom",
 			opaqueId: this.opaqueId,
 			success: (pluginHandle: PluginHandle) => {
-				Janus.log("Plugin attached! (" + pluginHandle.getPlugin() + ", id=" + pluginHandle.getId() + ")");
-				this.attachAsPublisher();
-				this.getParticipants(pluginHandle);
+				try {
+					if (isConference) {
+						this.attachAsPublisher();
+					}
+
+					this.getParticipants(pluginHandle);
+				}
+				catch (cause) {
+					reject(cause);
+					return;
+				}
+
+				resolve();
 			},
-			error: (cause: any) => {
-				console.error("Error attaching plugin", cause);
-			}
+			error: reject
 		});
 	}
 

@@ -32,6 +32,8 @@ class Course extends EventTarget {
 
 	private _conference: boolean;
 
+	private _recorded: boolean;
+
 
 	get courseId() {
 		return this._courseId;
@@ -154,7 +156,19 @@ class Course extends EventTarget {
 	}
 
 	get conference() {
-		return true;
+		return this._conference;
+	}
+
+	set conference(conference: boolean) {
+		this._conference = conference;
+	}
+
+	get recorded() {
+		return this._recorded;
+	}
+
+	set recorded(recorded: boolean) {
+		this._recorded = recorded;
 	}
 }
 
