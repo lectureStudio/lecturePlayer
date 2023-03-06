@@ -4,14 +4,21 @@ export const conferenceViewStyles = css`
 	:host {
 		margin: auto;
 		width: 100%;
-		max-heigth: calc(100vh - 56px);
-		min-height: 0;
+		height: 100%;
 		position: relative;
 	}
 
 	:host .grid-container {
-		display: grid;
-		grid-gap: 5px;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 5px;
+		width: 100%;
+		height: 100%;
+		align-content: center;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		vertical-align: middle;
 	}
 
 	:host([galleryView]) .screen-container {

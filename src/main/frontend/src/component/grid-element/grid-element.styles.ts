@@ -2,17 +2,17 @@ import { css } from 'lit';
 
 export const gridElementStyles = css`
 	:host {
-		height: 100%;
-		width: 100%;
-	}
-
-	:host .inner-container {
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		text-align: center;
 		width: 100%;
 		height: 100%;
+	}
+
+	:host participant-view::part(base) {
+		height: inherit;
+		padding: 0;
 	}
 
 	:host(:not([isVisible])) {

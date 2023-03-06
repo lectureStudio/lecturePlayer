@@ -228,7 +228,7 @@ export class ParticipantView extends I18nLitElement {
 
 	render() {
 		return html`
-			<div class="container">
+			<div part="base" class="container">
 				<span class="name">${this.name}</span>
 				<div class="controls">
 					<div class="media-state">

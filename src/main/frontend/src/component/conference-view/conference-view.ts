@@ -1,171 +1,221 @@
-import { html } from "lit";
+import { html, PropertyValueMap } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import { participants } from '../../model/participants';
 import { I18nLitElement } from "../i18n-mixin";
 import { conferenceViewStyles } from "./conference-view.styles";
-import { GridElement } from  '../grid-element/grid-element';
+import { GridElement } from '../grid-element/grid-element';
 
 @customElement('conference-view')
 export class ConferenceView extends I18nLitElement {
 
 	static styles = [
 		I18nLitElement.styles,
-		conferenceViewStyles, 
+		conferenceViewStyles,
 	];
-    
-    @property()
-    gridCounter: number = 0;
 
-    @property()
-    gridElementsLimit: number = 20;
+	contentRect: DOMRectReadOnly;
 
-    @property()
-    columnLimit: number = 5;
+	aspectRatio = {
+		x: 16 / 9,
+		y: 9 / 16
+	};
 
-    @property()
-    rowsLimit: number = 3;
+	gridGap: number = 5;
 
-    @property({ reflect: true })
-    gridColumns: number = 0;
+	@property()
+	gridCounter: number = 0;
 
-    @property({ reflect: true })
-    gridRows: number = 0;
+	@property()
+	gridElementsLimit: number = 20;
 
-    @property({ type: Boolean, reflect: true })
-    galleryView: boolean = true;
+	@property()
+	columnLimit: number = 5;
 
-    @property({ type: Boolean, reflect: true })
-    screenRightView: boolean = false;
+	@property()
+	rowsLimit: number = 3;
 
-    @property({ type: Boolean, reflect: true })
-    screenTopView: boolean = false;
+	@property({ reflect: true })
+	gridColumns: number = 0;
 
-    @property({ reflect: true })
-    screenSharing: boolean = false;
+	@property({ reflect: true })
+	gridRows: number = 0;
 
-    @query('.grid-container')
-    gridContainer: HTMLElement;
+	@property({ type: Boolean, reflect: true })
+	galleryView: boolean = true;
 
-    @query('.screen-container')
-    screenContainer: HTMLElement;
+	@property({ type: Boolean, reflect: true })
+	screenRightView: boolean = false;
 
-    getGridContainer(): HTMLElement {
+	@property({ type: Boolean, reflect: true })
+	screenTopView: boolean = false;
+
+	@property({ reflect: true })
+	screenSharing: boolean = false;
+
+	@query('.grid-container')
+	gridContainer: HTMLElement;
+
+	@query('.screen-container')
+	screenContainer: HTMLElement;
+
+
+	getGridContainer(): HTMLElement {
 		return this.renderRoot.querySelector('.grid-container');
 	}
 
-    setAlignment(add: boolean) {
-        if (this.galleryView) {
-            if (this.gridCounter <= this.columnLimit) {
-                add ? this.gridColumns += 1 : this.gridColumns -= 1;
-            } 
-            else {
-                if ((this.gridCounter % this.columnLimit) == 0) {
-                    add ? this.gridRows += 1 : this.gridRows -= 1;
-                } 
-            }
-        }
-        else if (this.screenRightView) {
-            if (this.gridCounter <= this.rowsLimit) {
-                add ? this.gridRows += 1 : this.gridRows -= 1;
-            }
-            else if (this.gridColumns < this.columnLimit) {
-                this.gridColumns += 1;
-            } 
-        }
-    }
+	setAlignment(add: boolean) {
+		if (this.galleryView) {
+			if (this.gridCounter <= this.columnLimit) {
+				add ? this.gridColumns += 1 : this.gridColumns -= 1;
+			}
+			else {
+				if ((this.gridCounter % this.columnLimit) == 0) {
+					add ? this.gridRows += 1 : this.gridRows -= 1;
+				}
+			}
+		}
+		else if (this.screenRightView) {
+			if (this.gridCounter <= this.rowsLimit) {
+				add ? this.gridRows += 1 : this.gridRows -= 1;
+			}
+			else if (this.gridColumns < this.columnLimit) {
+				this.gridColumns += 1;
+			}
+		}
+	}
 
-    addGridElement(gridElement: GridElement) {
-        this.gridCounter += 1;
-        if (this.gridCounter <= this.gridElementsLimit) {
-           gridElement.isVisible = true;
-        }
-        this.gridContainer.appendChild(gridElement);
-        this.setAlignment(true);
-    }
+	addGridElement(gridElement: GridElement) {
+		this.gridCounter += 1;
+		this.gridColumns = Math.min(this.gridCounter, this.columnLimit);
+		this.gridRows = Math.ceil(this.gridCounter / this.columnLimit);
 
-    addScreenElement(gridElement: GridElement) {
-        gridElement.isVisible = true;
-        this.screenContainer.appendChild(gridElement);    }
+		if (this.gridCounter <= this.gridElementsLimit) {
+			gridElement.isVisible = true;
+		}
 
-    override connectedCallback() {
+		this.gridContainer.appendChild(gridElement);
+	}
+
+	addScreenElement(gridElement: GridElement) {
+		gridElement.isVisible = true;
+		this.screenContainer.appendChild(gridElement);
+	}
+
+	override connectedCallback() {
 		super.connectedCallback()
 		participants.addEventListener("all", () => { this.requestUpdate() }, false);
 		participants.addEventListener("added", () => { this.requestUpdate() }, false);
 		participants.addEventListener("removed", () => { this.requestUpdate() }, false);
 		participants.addEventListener("cleared", () => { this.requestUpdate() }, false);
 
-        document.addEventListener("remove-grid-element", this.removeGridElement.bind(this));
-        document.addEventListener("participant-talking", this.onTalkingPublisher.bind(this));
-    }
+		document.addEventListener("remove-grid-element", this.removeGridElement.bind(this));
+		document.addEventListener("participant-talking", this.onTalkingPublisher.bind(this));
+	}
 
-    protected render() {
+	protected firstUpdated() {
+		const resizeObserver = this.renderRoot.querySelector("sl-resize-observer");
 
-        return html`
-        <style>
-        :host .grid-container {
-        grid-template-columns: repeat(${this.gridColumns}, 1fr);
-        grid-template-rows: repeat(${this.gridRows}, 1fr);
-            }
-            </style>
-            <div class="screen-container">
-            </div>
-            <div class="grid-container">
-            </div>
-        `;
-    }
+		resizeObserver.addEventListener("sl-resize", event => {
+			const entries = event.detail.entries;
 
-    private removeGridElement(event: CustomEvent) {
-        event.detail.gridElement.remove();
-        this.gridCounter -= 1;
-        this.setAlignment(false);
-    }
-    
-    private onTalkingPublisher(event: CustomEvent) {		
+			if (entries.length > 0) {
+				this.contentRect = entries[0].contentRect;
+
+				this.requestUpdate();
+			}
+		});
+	}
+
+	protected render() {
+		return html`
+			<style>
+				:host grid-element {
+					width: ${this.calculateSize().width}px;
+					max-height: ${this.calculateSize().height}px;
+				}
+			</style>
+			<sl-resize-observer>
+				<div class="screen-container"></div>
+				<div class="grid-container"></div>
+			</sl-resize-observer>
+		`;
+	}
+
+	private calculateSize() {
+		if (!this.contentRect) {
+			return new DOMRect(0, 0, 0, 0);
+		}
+
+		// Calculate based on available height.
+		let height = this.contentRect.height / this.gridRows - (this.gridRows - 1) * this.gridGap;
+		let width = height * this.aspectRatio.x;
+		const totalWidth = width * this.gridColumns;
+
+		if (totalWidth > this.contentRect.width) {
+			// Calculate in reverse direction based on available width.
+			width = this.contentRect.width / this.gridColumns - (this.gridColumns - 1) * this.gridGap;
+			height = width * this.aspectRatio.y;
+		}
+
+		console.log(this.gridColumns, this.gridRows, ":", this.contentRect.width, this.contentRect.height, width, height);
+
+		return new DOMRect(0, 0, width, height);
+	}
+
+	private removeGridElement(event: CustomEvent) {
+		event.detail.gridElement.remove();
+
+		this.gridCounter -= 1;
+		this.gridColumns = Math.min(this.gridCounter, this.columnLimit);
+		this.gridRows = Math.ceil(this.gridCounter / this.columnLimit);
+	}
+
+	private onTalkingPublisher(event: CustomEvent) {
 		const talkingConfig = event.detail;
 		const publisherId = talkingConfig.id;
 		const state = talkingConfig.state;
-        let isTalking = false;
-        let counter = 0;
+		let isTalking = false;
+		let counter = 0;
 
-        if (state === "talking") {
-            isTalking = true;
-        }
-        else if (state === "stopped-talking") {
-            isTalking = false;
-        }
+		if (state === "talking") {
+			isTalking = true;
+		}
+		else if (state === "stopped-talking") {
+			isTalking = false;
+		}
 
-        for (const grid of this.gridContainer.querySelectorAll("grid-element")) {
-            counter += 1;
-            const gridElement: GridElement = grid as GridElement;
-            if (gridElement.publisherId == publisherId) {
-                gridElement.isTalking = isTalking;
-                // make talking participant visible
-                if (isTalking && counter > this.gridElementsLimit) {
-                    const lastGridElement: GridElement = this.gridContainer.children[this.gridElementsLimit - 1] as GridElement;
-                    lastGridElement.isVisible = false;
-                    const secondGridElement: GridElement = this.gridContainer.children[1] as GridElement;
-                    gridElement.isVisible = true;
-                    this.gridContainer.insertBefore(gridElement, secondGridElement);
-                }
-            }
-        }
-    }
+		for (const grid of this.gridContainer.querySelectorAll("grid-element")) {
+			counter += 1;
+			const gridElement: GridElement = grid as GridElement;
+			if (gridElement.publisherId == publisherId) {
+				gridElement.isTalking = isTalking;
+				// make talking participant visible
+				if (isTalking && counter > this.gridElementsLimit) {
+					const lastGridElement: GridElement = this.gridContainer.children[this.gridElementsLimit - 1] as GridElement;
+					lastGridElement.isVisible = false;
+					const secondGridElement: GridElement = this.gridContainer.children[1] as GridElement;
+					gridElement.isVisible = true;
+					this.gridContainer.insertBefore(gridElement, secondGridElement);
+				}
+			}
+		}
+	}
 
-    public setConferenceLayout(layout: string) {
-        switch (layout) {
-            case "gallery":
-                return;
-            case "sideRight":
-                this.galleryView = false;
-                this.screenRightView = true;
-                this.columnLimit = 2;
-                this.gridCounter > 1 ? this.gridColumns = 2 : this.gridColumns = 1;
-                this.gridRows = 3;
-            case "screenTop":
-                this.galleryView = false;
-                this.screenRightView = false;
-                this.screenTopView = true;
-                this.gridRows = 1;
-        }
-    }
+	public setConferenceLayout(layout: string) {
+		switch (layout) {
+			case "gallery":
+				return;
+			case "sideRight":
+				this.galleryView = false;
+				this.screenRightView = true;
+				this.columnLimit = 2;
+				this.gridCounter > 1 ? this.gridColumns = 2 : this.gridColumns = 1;
+				this.gridRows = 3;
+			case "screenTop":
+				this.galleryView = false;
+				this.screenRightView = false;
+				this.screenTopView = true;
+				this.gridRows = 1;
+		}
+	}
 }
