@@ -78,6 +78,7 @@ export class ConferenceView extends I18nLitElement {
 		}
 
 		view.addEventListener("participant-screen-stream", this.onParticipantScreenStream.bind(this));
+		view.addEventListener("participant-screen-visibility", this.onParticipantScreenVisibility.bind(this));
 
 		this.gridContainer.appendChild(view);
 	}
@@ -95,7 +96,8 @@ export class ConferenceView extends I18nLitElement {
 	}
 
 	override connectedCallback() {
-		super.connectedCallback()
+		super.connectedCallback();
+
 		participants.addEventListener("all", () => { this.requestUpdate() }, false);
 		participants.addEventListener("added", () => { this.requestUpdate() }, false);
 		participants.addEventListener("removed", () => { this.requestUpdate() }, false);
@@ -191,6 +193,14 @@ export class ConferenceView extends I18nLitElement {
 
 			this.setConferenceLayout(ConferenceLayout.Gallery);
 		}
+	}
+
+	private onParticipantScreenVisibility(event: CustomEvent) {
+		const visible: boolean = event.detail.visible;
+
+		this.screenView.setVideoVisible(visible);
+
+		this.setConferenceLayout(ConferenceLayout.Gallery);
 	}
 
 	private onTalkingPublisher(event: CustomEvent) {
