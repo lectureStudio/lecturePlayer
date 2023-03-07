@@ -12,7 +12,7 @@ import { course } from '../../model/course';
 import { ScreenView } from '../screen-view/screen-view';
 import { SlideLayout } from '../../model/slide-layout';
 import { State } from '../../utils/state';
-import { ConferenceView } from '../conference-view/conference-view';
+import { ConferenceLayout, ConferenceView } from '../conference-view/conference-view';
 import { participants } from '../../model/participants';
 import { Utils } from '../../utils/utils';
 import { SlSplitPanel } from '@shoelace-style/shoelace';
@@ -79,14 +79,14 @@ export class PlayerView extends I18nLitElement {
 	}
 
 	addParticipant(view: ParticipantView) {
-		view.addEventListener("participant-state", this.onParticipantState.bind(this));
-		view.addEventListener("participant-screen-stream", this.onParticipantScreenStream.bind(this));
-		view.addEventListener("participant-screen-visibility", this.onParticipantScreenVisibility.bind(this));
-
 		if (course.conference) {
 			this.conferenceView.addGridElement(view);
 		}
 		else {
+			view.addEventListener("participant-state", this.onParticipantState.bind(this));
+			view.addEventListener("participant-screen-stream", this.onParticipantScreenStream.bind(this));
+			view.addEventListener("participant-screen-visibility", this.onParticipantScreenVisibility.bind(this));
+
 			this.videoFeedContainer.appendChild(view);
 		}
 	}
@@ -191,13 +191,12 @@ export class PlayerView extends I18nLitElement {
 
 	private addDummyScreen() {
 		const view: ParticipantView = new ParticipantView;
-		view.addVideo
 		view.setState(State.CONNECTED);
 		view.hasVideo = true;
 		view.name = "speaker";
 
 		this.conferenceView.addScreenElement(view);
-		this.conferenceView.setConferenceLayout("screenTop")
+		this.conferenceView.setConferenceLayout(ConferenceLayout.PresentationBottom);
 	}
 
 	private onParticipantState(event: CustomEvent) {

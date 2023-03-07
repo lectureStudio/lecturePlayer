@@ -76,6 +76,8 @@ export class ScreenView extends I18nLitElement {
 			this.removeMedia("video");
 		}
 
+		this.removeMedia("video");
+
 		this.setHasVideo(false);
 	}
 

@@ -1,9 +1,21 @@
 import { html } from "lit";
-import { customElement, property, query } from "lit/decorators.js";
+import { customElement, property, query, state } from "lit/decorators.js";
 import { participants } from '../../model/participants';
 import { I18nLitElement } from "../i18n-mixin";
 import { conferenceViewStyles } from "./conference-view.styles";
 import { ParticipantView } from "../participant-view/participant-view";
+import { State } from "../../utils/state";
+import { ScreenView } from "../screen-view/screen-view";
+
+export enum ConferenceLayout {
+
+	Gallery,
+	PresentationTop,
+	PresentationRight,
+	PresentationBottom,
+	PresentationLeft
+
+}
 
 @customElement('conference-view')
 export class ConferenceView extends I18nLitElement {
@@ -22,8 +34,17 @@ export class ConferenceView extends I18nLitElement {
 
 	gridGap: number = 5;
 
-	@property()
+	@property({ reflect: true })
+	layout: ConferenceLayout = ConferenceLayout.Gallery;
+
+	@state()
 	gridCounter: number = 0;
+
+	@state()
+	gridColumns: number = 0;
+
+	@state()
+	gridRows: number = 0;
 
 	@property()
 	gridElementsLimit: number = 20;
@@ -35,21 +56,6 @@ export class ConferenceView extends I18nLitElement {
 	rowsLimit: number = 3;
 
 	@property({ reflect: true })
-	gridColumns: number = 0;
-
-	@property({ reflect: true })
-	gridRows: number = 0;
-
-	@property({ type: Boolean, reflect: true })
-	galleryView: boolean = true;
-
-	@property({ type: Boolean, reflect: true })
-	screenRightView: boolean = false;
-
-	@property({ type: Boolean, reflect: true })
-	screenTopView: boolean = false;
-
-	@property({ reflect: true })
 	screenSharing: boolean = false;
 
 	@query('.grid-container')
@@ -58,48 +64,34 @@ export class ConferenceView extends I18nLitElement {
 	@query('.screen-container')
 	screenContainer: HTMLElement;
 
+	@query("screen-view")
+	screenView: ScreenView;
 
-	getGridContainer(): HTMLElement {
-		return this.renderRoot.querySelector('.grid-container');
-	}
 
-	setAlignment(add: boolean) {
-		if (this.galleryView) {
-			if (this.gridCounter <= this.columnLimit) {
-				add ? this.gridColumns += 1 : this.gridColumns -= 1;
-			}
-			else {
-				if ((this.gridCounter % this.columnLimit) == 0) {
-					add ? this.gridRows += 1 : this.gridRows -= 1;
-				}
-			}
-		}
-		else if (this.screenRightView) {
-			if (this.gridCounter <= this.rowsLimit) {
-				add ? this.gridRows += 1 : this.gridRows -= 1;
-			}
-			else if (this.gridColumns < this.columnLimit) {
-				this.gridColumns += 1;
-			}
-		}
-	}
-
-	addGridElement(view: ParticipantView) {
+	public addGridElement(view: ParticipantView) {
 		this.gridCounter += 1;
-		this.gridColumns = Math.min(this.gridCounter, this.columnLimit);
-		this.gridRows = Math.ceil(this.gridCounter / this.columnLimit);
+
+		this.updateGridState();
 
 		if (this.gridCounter <= this.gridElementsLimit) {
 			view.isVisible = true;
 		}
 
+		view.addEventListener("participant-screen-stream", this.onParticipantScreenStream.bind(this));
+
 		this.gridContainer.appendChild(view);
 	}
 
-	addScreenElement(view: ParticipantView) {
+	public addScreenElement(view: ParticipantView) {
 		view.isVisible = true;
 
 		this.screenContainer.appendChild(view);
+	}
+
+	public setConferenceLayout(layout: ConferenceLayout) {
+		this.layout = layout;
+
+		this.updateGridState();
 	}
 
 	override connectedCallback() {
@@ -130,13 +122,15 @@ export class ConferenceView extends I18nLitElement {
 	protected render() {
 		return html`
 			<style>
-				:host participant-view {
+				:host .grid-container participant-view {
 					width: ${this.calculateSize().width}px;
 					max-height: ${this.calculateSize().height}px;
 				}
 			</style>
+			<div class="screen-container">
+				<screen-view></screen-view>
+			</div>
 			<sl-resize-observer>
-				<div class="screen-container"></div>
 				<div class="grid-container"></div>
 			</sl-resize-observer>
 		`;
@@ -158,17 +152,45 @@ export class ConferenceView extends I18nLitElement {
 			height = width * this.aspectRatio.y;
 		}
 
-		console.log(this.gridColumns, this.gridRows, ":", this.contentRect.width, this.contentRect.height, width, height);
+		// console.log(this.gridColumns, this.gridRows, ":", this.contentRect.width, this.contentRect.height, width, height);
 
 		return new DOMRect(0, 0, width, height);
+	}
+
+	private updateGridState() {
+		if (this.layout === ConferenceLayout.Gallery) {
+			this.gridColumns = Math.min(this.gridCounter, this.columnLimit);
+			this.gridRows = Math.ceil(this.gridCounter / this.columnLimit);
+		}
+		else {
+			this.gridColumns = 1;
+			this.gridRows = 1;
+		}
 	}
 
 	private removeGridElement(event: CustomEvent) {
 		event.detail.gridElement.remove();
 
 		this.gridCounter -= 1;
-		this.gridColumns = Math.min(this.gridCounter, this.columnLimit);
-		this.gridRows = Math.ceil(this.gridCounter / this.columnLimit);
+
+		this.updateGridState();
+	}
+
+	private onParticipantScreenStream(event: CustomEvent) {
+		const state: State = event.detail.state;
+
+		if (state === State.CONNECTED) {
+			this.screenView.setState(State.CONNECTED);
+			this.screenView.addVideo(event.detail.video);
+
+			this.setConferenceLayout(ConferenceLayout.PresentationBottom);
+		}
+		else if (state === State.DISCONNECTED) {
+			this.screenView.setState(State.DISCONNECTED);
+			this.screenView.removeVideo();
+
+			this.setConferenceLayout(ConferenceLayout.Gallery);
+		}
 	}
 
 	private onTalkingPublisher(event: CustomEvent) {
@@ -199,24 +221,6 @@ export class ConferenceView extends I18nLitElement {
 					this.gridContainer.insertBefore(gridElement, secondGridElement);
 				}
 			}
-		}
-	}
-
-	public setConferenceLayout(layout: string) {
-		switch (layout) {
-			case "gallery":
-				return;
-			case "sideRight":
-				this.galleryView = false;
-				this.screenRightView = true;
-				this.columnLimit = 2;
-				this.gridCounter > 1 ? this.gridColumns = 2 : this.gridColumns = 1;
-				this.gridRows = 3;
-			case "screenTop":
-				this.galleryView = false;
-				this.screenRightView = false;
-				this.screenTopView = true;
-				this.gridRows = 1;
 		}
 	}
 }
