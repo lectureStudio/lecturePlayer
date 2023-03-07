@@ -10,6 +10,13 @@ export const conferenceViewStyles = css`
 		flex-direction: row;
 	}
 
+	:host .grid-parent {
+		display: grid;
+		width: 100%;
+		height: 100%;
+		padding: 0.5em;
+	}
+
 	:host .grid-container {
 		display: flex;
 		flex-wrap: wrap;
@@ -21,7 +28,6 @@ export const conferenceViewStyles = css`
 		align-items: center;
 		justify-content: center;
 		vertical-align: middle;
-		padding: 0.5em;
 	}
 
 	:host .screen-container {
@@ -40,12 +46,26 @@ export const conferenceViewStyles = css`
 	:host([layout="3"]) .screen-container {
 		height: 85%;
 	}
+	:host([layout="1"]) .grid-parent,
+	:host([layout="3"]) .grid-parent {
+		height: 15%;
+	}
 	:host([layout="1"]) .grid-container,
 	:host([layout="3"]) .grid-container {
-		height: 15%;
-		flex-direction: column;
-		padding-bottom: 1em;
+		display: inline-block;
+		white-space: nowrap;
 		overflow-x: auto;
+		overflow-y: hidden;
+		padding-bottom: 1em;
+	}
+	:host([layout="1"]) .grid-container participant-view,
+	:host([layout="3"]) .grid-container participant-view {
+		display: inline-block;
+		margin-right: 0.25em;
+	}
+	:host([layout="1"]) .grid-container participant-view:last-child,
+	:host([layout="3"]) .grid-container participant-view:last-child {
+		margin-right: 0;
 	}
 
 	:host([layout="2"]) .screen-container {
@@ -64,16 +84,19 @@ export const conferenceViewStyles = css`
 	:host([layout="4"]) .screen-container {
 		width: 80%;
 	}
+	:host([layout="2"]) .grid-parent,
+	:host([layout="4"]) .grid-parent {
+		width: 15%;
+	}
 	:host([layout="2"]) .grid-container,
 	:host([layout="4"]) .grid-container {
-		width: 20%;
 		display: block;
 		padding-right: 1em;
 		overflow-y: auto;
 	}
-
 	:host([layout="2"]) .grid-container participant-view,
 	:host([layout="4"]) .grid-container participant-view {
+		display: inline-block;
 		margin-bottom: 0.25em;
 	}
 	:host([layout="2"]) .grid-container participant-view:last-child,

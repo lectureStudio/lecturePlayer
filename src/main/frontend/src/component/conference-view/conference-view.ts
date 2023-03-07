@@ -129,12 +129,15 @@ export class ConferenceView extends I18nLitElement {
 					max-height: ${this.calculateSize().height}px;
 				}
 			</style>
+
 			<div class="screen-container">
 				<screen-view></screen-view>
 			</div>
-			<sl-resize-observer>
-				<div class="grid-container"></div>
-			</sl-resize-observer>
+			<div class="grid-parent">
+				<sl-resize-observer>
+					<div class="grid-container"></div>
+				</sl-resize-observer>
+			</div>
 		`;
 	}
 
