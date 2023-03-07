@@ -13,9 +13,9 @@ export class EntryModal extends Modal {
 					<span>${t("entry.modal.description")}</span>
 				</article>
 				<div slot="footer">
-					<button type="button" @click="${this.close}" class="btn btn-outline-primary btn-sm">
+					<sl-button @click="${this.close}" variant="primary" size="small">
 						${t("entry.modal.start")}
-					</button>
+					</sl-button>
 				</div>
 			</sl-dialog>
 		`;

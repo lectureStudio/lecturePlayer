@@ -142,8 +142,8 @@ export class PlayerView extends I18nLitElement {
 						<participants-box .privilegeService="${this.privilegeService}"></participants-box>
 						` : ''}
 					</div>
-					<button @click=${this.addDummyViews}>Add Grid!</button>
-					<button @click=${this.addDummyScreen}>Add Screen!</button>
+					<sl-button @click=${this.addDummyViews}>Add Grid!</sl-button>
+					<sl-button @click=${this.addDummyScreen}>Add Screen!</sl-button>
 				</div>
 				<div slot="end">
 					<sl-split-panel position="100" id="inner-split-panel">

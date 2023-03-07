@@ -45,12 +45,12 @@ export class QuizModal extends Modal {
 					<quiz-form .feature="${this.feature}"></quiz-form>
 				</article>
 				<div slot="footer">
-					<button type="button" @click="${this.close}" class="btn btn-outline-secondary btn-sm">
+					<sl-button type="button" @click="${this.close}" size="small">
 						${t("course.feature.close")}
-					</button>
-					<button type="button" @click="${this.post}" class="btn btn-outline-primary btn-sm" id="quiz-submit" form="quiz-form">
+					</sl-button>
+					<sl-button type="button" @click="${this.post}" variant="primary" size="small" id="quiz-submit" form="quiz-form">
 						${t("course.feature.quiz.send")}
-					</button>
+					</sl-button>
 				</div>
 			</sl-dialog>
 		`;

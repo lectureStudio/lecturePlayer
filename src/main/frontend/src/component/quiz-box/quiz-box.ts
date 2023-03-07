@@ -51,9 +51,9 @@ export class QuizBox extends I18nLitElement {
 					<quiz-form .feature="${this.feature}"></quiz-form>
 				</section>
 				<footer>
-					<button type="button" @click="${this.post}" class="btn btn-outline-primary btn-sm" id="quiz-submit" form="quiz-form">
+					<sl-button @click="${this.post}" variant="primary" size="small" id="quiz-submit" form="quiz-form">
 						${t("course.feature.quiz.send")}
-					</button>
+					</sl-button>
 				</footer>
 			</article>
 		`;

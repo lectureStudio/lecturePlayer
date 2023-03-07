@@ -20,9 +20,9 @@ export class ReconnectModal extends Modal {
 					<span>${t("reconnect.description")}</span>
 				</article>
 				<div slot="footer">
-					<button type="button" @click="${this.abort}" class="btn btn-outline-primary btn-sm">
+					<sl-button type="button" @click="${this.abort}" variant="primary" size="small">
 						${t("reconnect.abort")}
-					</button>
+					</sl-button>
 				</div>
 			</sl-dialog>
 		`;

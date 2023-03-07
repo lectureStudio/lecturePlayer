@@ -34,13 +34,13 @@ export class ChatModal extends Modal {
 					<chat-box .messageService="${this.messageService}" .privilegeService="${this.privilegeService}"></chat-box>
 				</article>
 				<div slot="footer">
-					<button type="button" @click="${this.close}" class="btn btn-outline-secondary btn-sm">
+					<sl-button @click="${this.close}" size="small">
 						${t("course.feature.close")}
-					</button>
-					<button type="button" @click="${this.post}" class="btn btn-outline-primary btn-sm" id="message-submit" form="course-message-form">
+					</sl-button>
+					<sl-button @click="${this.post}" variant="primary" size="small" id="message-submit" form="course-message-form">
 						${t("course.feature.message.send")}
 						<span class="icon-send"></span>
-					</button>
+					</sl-button>
 				</div>
 			</sl-dialog>
 		`;

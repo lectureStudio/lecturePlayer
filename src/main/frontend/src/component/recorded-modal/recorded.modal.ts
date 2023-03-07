@@ -13,9 +13,9 @@ export class RecordedModal extends Modal {
 					<label class="form-label">${t("course.recorded.modal.message")}</label>
 				</article>
 				<div slot="footer">
-					<button type="button" @click="${this.close}" class="btn btn-outline-primary btn-sm">
+					<sl-button @click="${this.close}" variant="primary" size="small">
 						${t("course.recorded.modal.accept")}
-					</button>
+					</sl-button>
 				</div>
 			</sl-dialog>
 		`;

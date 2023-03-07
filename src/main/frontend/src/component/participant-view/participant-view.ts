@@ -246,14 +246,14 @@ export class ParticipantView extends I18nLitElement {
 						</div>
 					</div>
 					<div class="buttons">
-						<button @click="${this.onAudioMute}" class="conference-control">
+						<sl-button @click="${this.onAudioMute}" class="conference-control">
 							<span class="icon-mic" id="mic-local"></span>
 							<span class="icon-mic-muted" id="mic-local-muted"></span>
-						</button>
-						<button @click="${this.onVideoMute}" class="conference-control">
+						</sl-button>
+						<sl-button @click="${this.onVideoMute}" class="conference-control">
 							<span class="icon-cam" id="cam-local"></span>
 							<span class="icon-cam-muted" id="cam-local-muted"></span>
-						</button>
+						</sl-button>
 					</div>
 				</div>
 			</div>

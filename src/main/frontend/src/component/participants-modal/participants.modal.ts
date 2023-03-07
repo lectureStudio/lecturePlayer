@@ -18,9 +18,9 @@ export class ParticipantsModal extends Modal {
 					<participants-box .privilegeService="${this.privilegeService}"></participants-box>
 				</article>
 				<div slot="footer">
-					<button type="button" @click="${this.close}" class="btn btn-outline-secondary btn-sm">
+					<sl-button @click="${this.close}" size="small">
 						${t("course.feature.close")}
-					</button>
+					</sl-button>
 				</div>
 			</sl-dialog>
 		`;

@@ -73,12 +73,12 @@ export class SpeechAcceptedModal extends Modal {
 					</div>
 				</article>
 				<div slot="footer">
-					<button type="button" @click="${this.cancel}" class="btn btn-outline-secondary btn-sm">
+					<sl-button @click="${this.cancel}" size="small">
 						${t("course.speech.request.cancel")}
-					</button>
-					<button type="button" @click="${this.start}" class="btn btn-outline-primary btn-sm">
+					</sl-button>
+					<sl-button @click="${this.start}" variant="primary" size="small">
 						${t("course.speech.request.start")}
-					</button>
+					</sl-button>
 				</div>
 			</wsl-dialog>
 		`;
