@@ -1,5 +1,5 @@
 import { Janus, JSEP, PluginHandle } from "janus-gateway";
-import { JanusParticipant } from "./janus-participant";
+import { JanusParticipant, JanusStreamType } from "./janus-participant";
 import { Utils } from "../utils/utils";
 import { State } from "../utils/state";
 import { ProgressiveDataView } from "../action/parser/progressive-data-view";
@@ -37,7 +37,7 @@ export class JanusSubscriber extends JanusParticipant {
 		}
 
 		for (let stream of streams) {
-			if (!this.streamIds.get(stream.mid)) {
+			if (!this.getStreamTypeForMid(stream.mid)) {
 				// Not subscribed to this stream yet.
 				this.subscribeStream(stream);
 			}
@@ -109,6 +109,8 @@ export class JanusSubscriber extends JanusParticipant {
 				const streams = message["streams"];
 
 				this.setStreamIds(streams);
+				
+				console.log("streamMids sub", this.streamMids);
 			}
 			if (event === "event") {
 				const started = message.started;
@@ -127,12 +129,7 @@ export class JanusSubscriber extends JanusParticipant {
 	private setStreamIds(streams: any) {
 		if (streams) {
 			for (const stream of streams) {
-				const mid: string = stream["mid"];
-				const description: string = stream["feed_description"];
-
-				if (mid) {
-					this.streamIds.set(mid, description ? description : stream["type"]);
-				}
+				this.setStream(stream);
 			}
 		}
 	}
@@ -275,15 +272,17 @@ export class JanusSubscriber extends JanusParticipant {
 			this.view.addAudio(mediaElement);
 		}
 		else if (isVideo) {
-			if (this.isScreenTrack(mid)) {
+			const type = this.getStreamTypeForMid(mid);
 
-				console.log("---- sub add video");
+			if (type === JanusStreamType.screen) {
+
+				console.log("---- sub add screen");
 
 				this.view.addScreenVideo(mediaElement as HTMLVideoElement);
 			}
-			else {
+			else if (type === JanusStreamType.video) {
 
-				console.log("---- sub add screen");
+				console.log("---- sub add video");
 
 				this.view.addVideo(mediaElement as HTMLVideoElement);
 			}
@@ -313,23 +312,20 @@ export class JanusSubscriber extends JanusParticipant {
 			this.view.removeAudio();
 		}
 		else if (kind === "video") {
-			if (this.isScreenTrack(mid)) {
+			const type = this.getStreamTypeForMid(mid);
+
+			if (type === JanusStreamType.screen) {
 
 				console.log("---- sub remove screen");
 
 				this.view.removeScreenVideo();
 			}
-			else {
+			else if (type === JanusStreamType.video) {
 
 				console.log("---- sub remove video");
 
 				this.view.removeVideo();
 			}
 		}
-	}
-
-	private isScreenTrack(mid: string): boolean {
-		const streamDescription = this.streamIds.get(mid);
-		return streamDescription && streamDescription === "screen";
 	}
 }

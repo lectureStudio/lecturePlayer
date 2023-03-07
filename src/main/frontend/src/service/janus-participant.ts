@@ -27,7 +27,8 @@ export abstract class JanusParticipant extends EventTarget {
 
 	private iceConnectionState: RTCIceConnectionState;
 
-	protected readonly streamIds: Map<string, string>;
+	// Janus stream type to mid mapping.
+	protected readonly streamMids: Map<string, string>;
 
 	protected readonly janus: Janus;
 
@@ -47,7 +48,7 @@ export abstract class JanusParticipant extends EventTarget {
 	constructor(janus: Janus) {
 		super();
 
-		this.streamIds = new Map();
+		this.streamMids = new Map();
 
 		this.janus = janus;
 		this.state = State.DISCONNECTED;
@@ -75,7 +76,7 @@ export abstract class JanusParticipant extends EventTarget {
 
 	getStats() {
 		this.statsService.pc = this.handle.webrtcStuff.pc;
-		this.statsService.streamIds = this.streamIds;
+		this.statsService.streamIds = this.streamMids;
 		this.statsService.getStats();
 	}
 
@@ -216,5 +217,49 @@ export abstract class JanusParticipant extends EventTarget {
 			view: this.view,
 			state: state
 		}));
+	}
+
+	protected setStream(stream: any) {
+		const type = this.getStreamTypeForMid(stream.mid);
+
+		// Do not add stream types with same 'mid', e.g. type 'screen' becomes type 'video' when deactivated.
+		if (!type) {
+			this.streamMids.set(this.getStreamTypeForStream(stream), stream.mid);
+		}
+	}
+
+	protected getStreamMid(type: JanusStreamType) {
+		return this.streamMids.get(type);
+	}
+
+	protected getStreamTypeForMid(mid: string) {
+		for (const [k, v] of this.streamMids) {
+			if (v === mid) {
+				return k;
+			}
+		}
+		return null;
+	}
+
+	protected getStreamTypeForStream(stream: any) {
+		const type: string = stream.type;
+
+		if (type === JanusStreamType.audio || type === JanusStreamType.data) {
+			return type;
+		}
+		else if (type === JanusStreamType.video) {
+			// This may be ambiguous, since camera and screen-share are videos.
+			// Check the description (publishers), feed_description (subscribers).
+			const description: string = stream.description ? stream.description : stream.feed_description;
+
+			if (description && description.includes(JanusStreamType.screen)) {
+				return JanusStreamType.screen;
+			}
+			else {
+				return JanusStreamType.video;
+			}
+		}
+
+		return type;
 	}
 }

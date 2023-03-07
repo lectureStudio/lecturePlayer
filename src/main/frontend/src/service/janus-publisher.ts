@@ -18,9 +18,6 @@ export class JanusPublisher extends JanusParticipant {
 
 	private publisherName: string;
 
-	// Janus stream type to mid mapping.
-	private streamMids: Map<string, string>;
-
 
 	constructor(janus: Janus, roomId: number, opaqueId: string, userName: string) {
 		super(janus);
@@ -30,7 +27,6 @@ export class JanusPublisher extends JanusParticipant {
 		this.view.isLocal = true;
 		this.publisherName = userName;
 		this.view.name = userName;
-		this.streamMids = new Map();
 
 		document.addEventListener("lect-device-change", this.onDeviceChange.bind(this));
 		document.addEventListener("lect-share-screen", this.onShareScreen.bind(this));
@@ -149,7 +145,7 @@ export class JanusPublisher extends JanusParticipant {
 						this.setStream(stream);
 					}
 
-					console.log(this.streamMids);
+					console.log("pub streamMids", this.streamMids);
 
 					this.setState(State.CONNECTED);
 				}
@@ -237,50 +233,6 @@ export class JanusPublisher extends JanusParticipant {
 			// A new track needs to be added and other participants notified of its existence.
 			this.addNewTrack(type, captureSettings, Devices.cameraErrorHandler);
 		}
-	}
-
-	private getStreamMid(type: JanusStreamType) {
-		return this.streamMids.get(type);
-	}
-
-	private setStream(stream: any) {
-		const type = this.getStreamTypeForMid(stream.mid);
-
-		// Do not add stream types with same 'mid', e.g. type 'screen' becomes type 'video' when deactivated.
-		if (!type) {
-			this.streamMids.set(this.getStreamTypeForStream(stream), stream.mid);
-		}
-	}
-
-	private getStreamTypeForMid(mid: string) {
-		for (const [k, v] of this.streamMids) {
-			if (v === mid) {
-				return k;
-			}
-		}
-		return null;
-	}
-
-	private getStreamTypeForStream(stream: any) {
-		const type: string = stream.type;
-
-		if (type === JanusStreamType.audio || type === JanusStreamType.data) {
-			return type;
-		}
-		else if (type === JanusStreamType.video) {
-			// This may be ambiguous, since camera and screen-share are videos.
-			// Check the description.
-			const description: string = stream.description;
-
-			if (description && description.includes(JanusStreamType.screen)) {
-				return JanusStreamType.screen;
-			}
-			else {
-				return JanusStreamType.video;
-			}
-		}
-
-		return type;
 	}
 
 	private getTrackId(track: MediaStreamTrack) {
