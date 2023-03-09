@@ -133,12 +133,56 @@ export class ConferenceView extends I18nLitElement {
 			<div class="screen-container">
 				<screen-view></screen-view>
 			</div>
-			<div class="grid-parent">
+
+			<div class="carousel">
+				<sl-icon-button @click="${this.onScroll}" name="${this.getIconName(true)}" label="Scroll Up" data-step="-1" class="vertical-scroll-button" id="top-left-button"></sl-icon-button>
+
 				<sl-resize-observer>
-					<div class="grid-container"></div>
+					<div class="grid-parent">
+						<div class="grid-container"></div>
+					</div>
 				</sl-resize-observer>
+
+				<sl-icon-button @click="${this.onScroll}" name="${this.getIconName(false)}" label="Scroll Down" data-step="1" class="vertical-scroll-button" id="bottom-right-button"></sl-icon-button>
 			</div>
 		`;
+	}
+
+	private getIconName(topLeft: boolean) {
+		switch (this.layout) {
+			case ConferenceLayout.PresentationBottom:
+			case ConferenceLayout.PresentationTop:
+				return topLeft ? "chevron-left" : "chevron-right";
+
+			case ConferenceLayout.PresentationLeft:
+			case ConferenceLayout.PresentationRight:
+				return topLeft ? "chevron-up" : "chevron-down";
+
+			default:
+				return "";
+		}
+	}
+
+	private onScroll(event: Event) {
+		const step = parseInt((event.target as HTMLElement).dataset.step);
+
+		switch (this.layout) {
+			case ConferenceLayout.PresentationBottom:
+			case ConferenceLayout.PresentationTop:
+				this.gridContainer.scrollTo({
+					left: this.gridContainer.scrollLeft + this.calculateSize().width * step,
+					behavior: "smooth"
+				});
+				break;
+
+			case ConferenceLayout.PresentationLeft:
+			case ConferenceLayout.PresentationRight:
+				this.gridContainer.scrollTo({
+					top: this.gridContainer.scrollTop + this.calculateSize().height * step,
+					behavior: "smooth"
+				});
+				break;
+		}
 	}
 
 	private calculateSize() {
@@ -157,7 +201,7 @@ export class ConferenceView extends I18nLitElement {
 			height = width * this.aspectRatio.y;
 		}
 
-		// console.log(this.gridColumns, this.gridRows, ":", this.contentRect.width, this.contentRect.height, width, height);
+		//console.log(this.contentRect.height, this.gridCounter * height);
 
 		return new DOMRect(0, 0, width, height);
 	}

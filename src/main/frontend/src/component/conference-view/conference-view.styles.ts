@@ -14,26 +14,63 @@ export const conferenceViewStyles = css`
 		display: grid;
 		width: 100%;
 		height: 100%;
-		padding: 0.5em;
+		justify-content: center;
+		position: relative;
 	}
 
 	:host .grid-container {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 5px;
+		gap: 0.25em;
 		width: 100%;
 		height: 100%;
 		align-content: center;
-		flex-wrap: wrap;
 		align-items: center;
 		justify-content: center;
 		vertical-align: middle;
+	}
+
+	:host .grid-container::-webkit-scrollbar {
+		display: none;
+	}
+	:host .grid-container {
+		scrollbar-width: none;
 	}
 
 	:host .screen-container {
 		padding: 2em;
 	}
 
+	:host .carousel {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		width: 100%;
+		height: 100%;
+	}
+
+	:host .carousel sl-icon-button {
+		
+	}
+
+	:host .carousel .vertical-scroll-button {
+		margin: 0.25em 0;
+	}
+
+	:host .carousel #top-left-button {
+		
+	}
+
+	:host .carousel #bottom-right-button {
+		bottom: 0;
+	}
+
+	:host([layout="0"]) .carousel sl-icon-button {
+		display: none;
+	}
+	:host([layout="0"]) .grid-parent {
+		display: flex;
+	}
 	:host([layout="0"]) .screen-container {
 		display: none;
 	}
@@ -46,9 +83,12 @@ export const conferenceViewStyles = css`
 	:host([layout="3"]) .screen-container {
 		height: 85%;
 	}
-	:host([layout="1"]) .grid-parent,
-	:host([layout="3"]) .grid-parent {
+	:host([layout="1"]) .carousel,
+	:host([layout="3"]) .carousel {
 		height: 15%;
+		flex-direction: row;
+		justify-content: center;
+		padding: 0.5em 0;
 	}
 	:host([layout="1"]) .grid-container,
 	:host([layout="3"]) .grid-container {
@@ -56,12 +96,11 @@ export const conferenceViewStyles = css`
 		white-space: nowrap;
 		overflow-x: auto;
 		overflow-y: hidden;
-		padding-bottom: 1em;
 	}
 	:host([layout="1"]) .grid-container participant-view,
 	:host([layout="3"]) .grid-container participant-view {
 		display: inline-block;
-		margin-right: 0.25em;
+		margin-right: 0.15em;
 	}
 	:host([layout="1"]) .grid-container participant-view:last-child,
 	:host([layout="3"]) .grid-container participant-view:last-child {
@@ -82,22 +121,21 @@ export const conferenceViewStyles = css`
 	}
 	:host([layout="2"]) .screen-container,
 	:host([layout="4"]) .screen-container {
-		width: 80%;
+		width: 85%;
 	}
-	:host([layout="2"]) .grid-parent,
-	:host([layout="4"]) .grid-parent {
+	:host([layout="2"]) .carousel,
+	:host([layout="4"]) .carousel {
 		width: 15%;
+		padding: 0 0.5em;
 	}
 	:host([layout="2"]) .grid-container,
 	:host([layout="4"]) .grid-container {
 		display: block;
-		padding-right: 1em;
 		overflow-y: auto;
 	}
 	:host([layout="2"]) .grid-container participant-view,
 	:host([layout="4"]) .grid-container participant-view {
-		display: inline-block;
-		margin-bottom: 0.25em;
+		margin-bottom: 0.15em;
 	}
 	:host([layout="2"]) .grid-container participant-view:last-child,
 	:host([layout="4"]) .grid-container participant-view:last-child {
