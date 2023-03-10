@@ -239,6 +239,8 @@ export class PlayerControls extends I18nLitElement {
 				</sl-tooltip>
 			</div>
 			<div class="col nav-right">
+				<layout-button class="conference-control"></layout-button>
+
 				<sl-tooltip content="${t(this.participantsVisible ? "controls.participants.hide" : "controls.participants.show")}" trigger="hover">
 					<sl-button @click="${this.onParticipantsVisibility}" id="participants-button">
 						<span slot="prefix" class="icon-participants"></span>

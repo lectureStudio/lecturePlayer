@@ -7,6 +7,7 @@ export * from './controls/player-controls';
 export * from './controls/audio-volume-button';
 export * from './controls/media-device-button';
 export * from './controls/documents-button';
+export * from './controls/layout-button';
 export * from './loading/player-loading';
 export * from './offline/player-offline';
 export * from './feature-view/feature-view';

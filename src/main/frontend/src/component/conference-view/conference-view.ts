@@ -120,6 +120,8 @@ export class ConferenceView extends I18nLitElement {
 
 		document.addEventListener("remove-grid-element", this.removeGridElement.bind(this));
 		document.addEventListener("participant-talking", this.onTalkingPublisher.bind(this));
+	
+		document.addEventListener("lect-select-layout", this.onSelectLayout.bind(this));	
 	}
 
 	protected firstUpdated() {
@@ -342,6 +344,18 @@ export class ConferenceView extends I18nLitElement {
 					this.gridContainer.insertBefore(gridElement, secondGridElement);
 				}
 			}
+		}
+	}
+
+	protected onSelectLayout(e: CustomEvent) {
+		const selectedLayout: ConferenceLayout = ConferenceLayout[e.detail.layout as keyof typeof ConferenceLayout];
+		
+		if (this.layout !== selectedLayout) {
+			this.setConferenceLayout(selectedLayout);
+			console.log("Change conference layout to " + selectedLayout)
+		}
+		else {
+			console.log("same")
 		}
 	}
 }
