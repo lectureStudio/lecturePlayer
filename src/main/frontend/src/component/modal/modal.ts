@@ -43,7 +43,7 @@ export abstract class Modal extends I18nLitElement {
 		}
 	}
 
-	private closed(event: Event) {
+	protected closed(event: Event) {
 		// Events may come from other components, like sl-dropdown.
 		if (event.target !== this.dialog) {
 			event.preventDefault();
@@ -57,7 +57,7 @@ export abstract class Modal extends I18nLitElement {
 		this.dispatchEvent(Utils.createEvent("modal-closed"));
 	}
 
-	private opened() {
+	protected opened() {
 		this.dispatchEvent(Utils.createEvent("modal-opened"));
 	}
 }

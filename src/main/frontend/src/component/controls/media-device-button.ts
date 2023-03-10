@@ -48,6 +48,7 @@ export class MediaDeviceButton extends I18nLitElement {
 	protected override firstUpdated(): void {
 		// Register listeners.
 		this.menu.addEventListener('sl-select', this.onItemSelected.bind(this));
+		document.addEventListener('start-modal-abort', this.initDevices.bind(this));
 	}
 
 	protected render() {
@@ -210,5 +211,9 @@ export class MediaDeviceButton extends I18nLitElement {
 			default:
 				throw new Error("Kind of media device not supported");
 		}
+	}
+
+	private initDevices(): void {
+		this.getDevices();
 	}
 }

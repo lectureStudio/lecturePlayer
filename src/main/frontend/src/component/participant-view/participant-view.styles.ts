@@ -92,7 +92,7 @@ export const participantViewStyles = css`
 	}
 
 	:host([isTalking]) {
-		border: 2px solid rgb(60, 217, 60);
+		border: 3px solid rgb(60, 217, 60);
 	}
 
 	:host(:not([hasVideo])) video {

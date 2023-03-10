@@ -8,6 +8,7 @@ import { PlayerView } from '../player-view/player-view';
 import { MediaProfile, Settings } from '../../utils/settings';
 import { MessageService } from '../../service/message.service';
 import { PrivilegeService } from '../../service/privilege.service';
+import { startModal } from '../start-modal/start.modal';
 
 @customElement('lecture-player')
 export class LecturePlayer extends I18nLitElement {
@@ -52,6 +53,9 @@ export class LecturePlayer extends I18nLitElement {
 		playerView.getController().setPlayerController(this.controller);
 
 		this.controller.setPlayerViewController(playerView.getController());
+
+		const startDialog = new startModal();
+		startDialog.open();
 	}
 
 	protected render() {
