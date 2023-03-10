@@ -2,6 +2,10 @@ import { css } from 'lit';
 
 export const conferenceViewStyles = css`
 	:host {
+		--tile-gap: 0.125em;
+		--scroll-hint: 0px;
+		--tiles-padding: 0.25em;
+
 		display: flex;
 		margin: auto;
 		width: 100%;
@@ -11,6 +15,8 @@ export const conferenceViewStyles = css`
 	}
 
 	:host .grid-parent {
+		--tile-size: calc((100% - (var(--tiles-per-page) - 1) * var(--tile-gap)) / var(--tiles-per-page));
+
 		display: grid;
 		width: 100%;
 		height: 100%;
@@ -21,51 +27,50 @@ export const conferenceViewStyles = css`
 	:host .grid-container {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.25em;
+		gap: var(--tile-gap);
 		width: 100%;
-		height: 100%;
 		align-content: center;
 		align-items: center;
 		justify-content: center;
 		vertical-align: middle;
+		scrollbar-width: none;
+		overscroll-behavior-x: contain;
+		overflow: auto;
 	}
-
+	:host .grid-container participant-view {
+		width: calc(var(--tile-width) * 1px);
+		max-height: calc(var(--tile-height) * 1px);
+	}
 	:host .grid-container::-webkit-scrollbar {
 		display: none;
-	}
-	:host .grid-container {
-		scrollbar-width: none;
 	}
 
 	:host .screen-container {
 		padding: 2em;
 	}
 
-	:host .carousel {
+	.tiles {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		justify-content: center;
 		width: 100%;
 		height: 100%;
 	}
 
-	:host .carousel sl-icon-button {
-		
+	.conference-navigation-button {
+		visibility: hidden;
 	}
 
-	:host .carousel .vertical-scroll-button {
-		margin: 0.25em 0;
+	.conference-navigation-button--visible {
+		visibility: visible;
 	}
 
-	:host .carousel #top-left-button {
-		
-	}
-
-	:host .carousel #bottom-right-button {
+	.tiles #bottom-right-button {
 		bottom: 0;
 	}
 
-	:host([layout="0"]) .carousel sl-icon-button {
+	:host([layout="0"]) .conference-navigation-button {
 		display: none;
 	}
 	:host([layout="0"]) .grid-parent {
@@ -73,6 +78,22 @@ export const conferenceViewStyles = css`
 	}
 	:host([layout="0"]) .screen-container {
 		display: none;
+	}
+
+	:host([layout="0"]) .tiles {
+		padding: 1em;
+	}
+	:host([layout="1"]) .tiles {
+		padding: 0 0 var(--tiles-padding) 0;
+	}
+	:host([layout="2"]) .tiles {
+		padding: 0 0 0 var(--tiles-padding);
+	}
+	:host([layout="3"]) .tiles {
+		padding: var(--tiles-padding) 0 0 0;
+	}
+	:host([layout="4"]) .tiles {
+		padding: 0 var(--tiles-padding) 0 0;
 	}
 
 	:host([layout="1"]),
@@ -83,24 +104,33 @@ export const conferenceViewStyles = css`
 	:host([layout="3"]) .screen-container {
 		height: 85%;
 	}
-	:host([layout="1"]) .carousel,
-	:host([layout="3"]) .carousel {
+	:host([layout="1"]) .tiles,
+	:host([layout="3"]) .tiles {
 		height: 15%;
 		flex-direction: row;
 		justify-content: center;
-		padding: 0.5em 0;
+	}
+	:host([layout="1"]) .grid-parent,
+	:host([layout="3"]) .grid-parent {
+		max-width: calc((calc(var(--tile-width) * 1px) * var(--tiles-per-page)) + (var(--tiles-per-page) - 1) * var(--tile-gap));
 	}
 	:host([layout="1"]) .grid-container,
 	:host([layout="3"]) .grid-container {
-		display: inline-block;
-		white-space: nowrap;
-		overflow-x: auto;
+		display: grid;
+		grid-auto-flow: column;
+		grid-auto-rows: 100%;
+		grid-auto-columns: var(--tile-size);
+		column-gap: var(--tile-gap);
+		scroll-snap-type: x mandatory;
+		scroll-padding-inline: var(--scroll-hint);
+		padding-inline: var(--scroll-hint);
 		overflow-y: hidden;
+		justify-content: start;
 	}
 	:host([layout="1"]) .grid-container participant-view,
 	:host([layout="3"]) .grid-container participant-view {
 		display: inline-block;
-		margin-right: 0.15em;
+		margin-right: var(--tile-gap);
 	}
 	:host([layout="1"]) .grid-container participant-view:last-child,
 	:host([layout="3"]) .grid-container participant-view:last-child {
@@ -123,23 +153,30 @@ export const conferenceViewStyles = css`
 	:host([layout="4"]) .screen-container {
 		width: 85%;
 	}
-	:host([layout="2"]) .carousel,
-	:host([layout="4"]) .carousel {
+	:host([layout="2"]) .tiles,
+	:host([layout="4"]) .tiles {
 		width: 15%;
-		padding: 0 0.5em;
+	}
+	:host([layout="2"]) .grid-parent,
+	:host([layout="4"]) .grid-parent {
+		max-height: calc((calc(var(--tile-height) * 1px) * var(--tiles-per-page)) + (var(--tiles-per-page) - 1) * var(--tile-gap));
 	}
 	:host([layout="2"]) .grid-container,
 	:host([layout="4"]) .grid-container {
-		display: block;
-		overflow-y: auto;
-	}
-	:host([layout="2"]) .grid-container participant-view,
-	:host([layout="4"]) .grid-container participant-view {
-		margin-bottom: 0.15em;
-	}
-	:host([layout="2"]) .grid-container participant-view:last-child,
-	:host([layout="4"]) .grid-container participant-view:last-child {
-		margin-bottom: 0;
+		display: grid;
+		grid-auto-flow: row;
+		grid-auto-columns: 100%;
+		grid-auto-rows: var(--tile-size);
+		row-gap: var(--tile-gap);
+		scroll-snap-type: y mandatory;
+		scroll-padding-block: var(--scroll-hint);
+		padding-block: var(--scroll-hint);
+		overflow-x: hidden;
+		min-height: 100%;
+		height: 100%;
+		width: 100%;
+		place-items: center;
+		align-content: start;
 	}
 
 	:host participant-view::part(base) {

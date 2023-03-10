@@ -1,5 +1,6 @@
 import { html } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
+import { classMap } from "lit/directives/class-map.js";
 import { participants } from '../../model/participants';
 import { I18nLitElement } from "../i18n-mixin";
 import { conferenceViewStyles } from "./conference-view.styles";
@@ -33,6 +34,18 @@ export class ConferenceView extends I18nLitElement {
 	};
 
 	gridGap: number = 5;
+
+	viewIndex: number = 0;
+
+	/** Specifies how many tiles should be shown at a given time.  */
+	@property({ type: Number, attribute: 'tiles-per-page' })
+	tilesPerPage = 1;
+
+	@property({ type: Number, attribute: 'tile-height' })
+	tileHeight: number;
+
+	@property({ type: Number, attribute: 'tile-width' })
+	tileWidth: number;
 
 	@property({ reflect: true })
 	layout: ConferenceLayout = ConferenceLayout.Gallery;
@@ -71,8 +84,6 @@ export class ConferenceView extends I18nLitElement {
 	public addGridElement(view: ParticipantView) {
 		this.gridCounter += 1;
 
-		this.updateGridState();
-
 		if (this.gridCounter <= this.gridElementsLimit) {
 			view.isVisible = true;
 		}
@@ -81,6 +92,10 @@ export class ConferenceView extends I18nLitElement {
 		view.addEventListener("participant-screen-visibility", this.onParticipantScreenVisibility.bind(this));
 
 		this.gridContainer.appendChild(view);
+
+		this.updateGridState();
+		this.calculateSize();
+		
 	}
 
 	public addScreenElement(view: ParticipantView) {
@@ -116,35 +131,51 @@ export class ConferenceView extends I18nLitElement {
 			if (entries.length > 0) {
 				this.contentRect = entries[0].contentRect;
 
-				this.requestUpdate();
+				this.calculateSize();
 			}
 		});
 	}
 
 	protected render() {
-		return html`
-			<style>
-				:host .grid-container participant-view {
-					width: ${this.calculateSize().width}px;
-					max-height: ${this.calculateSize().height}px;
-				}
-			</style>
+		const prevEnabled = this.viewIndex > 0;
+		const nextEnabled = this.viewIndex + this.tilesPerPage < this.gridCounter;
 
+		return html`
 			<div class="screen-container">
 				<screen-view></screen-view>
 			</div>
 
-			<div class="carousel">
-				<sl-icon-button @click="${this.onScroll}" name="${this.getIconName(true)}" label="Scroll Up" data-step="-1" class="vertical-scroll-button" id="top-left-button"></sl-icon-button>
-
-				<sl-resize-observer>
-					<div class="grid-parent">
+			<sl-resize-observer>
+				<div class="tiles">
+					<sl-icon-button
+						@click="${this.onScroll}"
+						?disabled="${!prevEnabled}"
+						name="${this.getIconName(true)}"
+						data-step="-1"
+						class="${classMap({
+							'conference-navigation-button': true,
+							'conference-navigation-button--visible': prevEnabled
+						})}"
+						id="top-left-button"
+					>
+					</sl-icon-button>
+					<div class="grid-parent" style="--tiles-per-page: ${this.tilesPerPage}; --tile-width: ${this.tileWidth}; --tile-height: ${this.tileHeight};">
 						<div class="grid-container"></div>
 					</div>
-				</sl-resize-observer>
-
-				<sl-icon-button @click="${this.onScroll}" name="${this.getIconName(false)}" label="Scroll Down" data-step="1" class="vertical-scroll-button" id="bottom-right-button"></sl-icon-button>
-			</div>
+					<sl-icon-button
+						@click="${this.onScroll}"
+						?disabled="${!nextEnabled}"
+						name="${this.getIconName(false)}"
+						data-step="1"
+						class="${classMap({
+							'conference-navigation-button': true,
+							'conference-navigation-button--visible': nextEnabled
+						})}"
+						id="bottom-right-button"
+					>
+					</sl-icon-button>
+				</div>
+			</sl-resize-observer>
 		`;
 	}
 
@@ -166,44 +197,76 @@ export class ConferenceView extends I18nLitElement {
 	private onScroll(event: Event) {
 		const step = parseInt((event.target as HTMLElement).dataset.step);
 
-		switch (this.layout) {
-			case ConferenceLayout.PresentationBottom:
-			case ConferenceLayout.PresentationTop:
-				this.gridContainer.scrollTo({
-					left: this.gridContainer.scrollLeft + this.calculateSize().width * step,
-					behavior: "smooth"
-				});
-				break;
-
-			case ConferenceLayout.PresentationLeft:
-			case ConferenceLayout.PresentationRight:
-				this.gridContainer.scrollTo({
-					top: this.gridContainer.scrollTop + this.calculateSize().height * step,
-					behavior: "smooth"
-				});
-				break;
+		// Check scroll index constraints.
+		if (this.viewIndex + step < 0 || this.viewIndex + this.tilesPerPage + step > this.gridCounter) {
+			return;
 		}
+
+		this.viewIndex += step;
+
+		const views = this.gridContainer.getElementsByTagName("participant-view");
+		const view = views[this.viewIndex] as HTMLElement;
+
+		this.gridContainer.scrollTo({
+			left: view.offsetLeft,
+			top: view.offsetTop,
+			behavior: "smooth"
+		});
+
+		this.requestUpdate();
 	}
 
 	private calculateSize() {
 		if (!this.contentRect) {
-			return new DOMRect(0, 0, 0, 0);
+			return;
 		}
 
-		// Calculate based on available height.
-		let height = this.contentRect.height / this.gridRows - (this.gridRows - 1) * this.gridGap;
-		let width = height * this.aspectRatio.x;
-		const totalWidth = width * this.gridColumns;
+		// Calculate tile size based on available height.
+		let contentHeight = this.contentRect.height;
+		let contentWidth = this.contentRect.width;
 
-		if (totalWidth > this.contentRect.width) {
+		switch (this.layout) {
+			case ConferenceLayout.PresentationBottom:
+			case ConferenceLayout.PresentationTop:
+				contentWidth -= 80; // Size of navigation buttons.
+				break;
+
+			case ConferenceLayout.PresentationLeft:
+			case ConferenceLayout.PresentationRight:
+				contentHeight -= 80; // Size of navigation buttons.
+				break;
+		}
+
+		let height = contentHeight / this.gridRows - (this.gridRows - 1) * this.gridGap;
+		let width = height * this.aspectRatio.x;
+
+		if (width * this.gridColumns > this.contentRect.width) {
 			// Calculate in reverse direction based on available width.
 			width = this.contentRect.width / this.gridColumns - (this.gridColumns - 1) * this.gridGap;
 			height = width * this.aspectRatio.y;
 		}
 
-		//console.log(this.contentRect.height, this.gridCounter * height);
+		this.tileWidth = width;
+		this.tileHeight = height;
 
-		return new DOMRect(0, 0, width, height);
+		switch (this.layout) {
+			case ConferenceLayout.PresentationBottom:
+			case ConferenceLayout.PresentationTop:
+				this.tilesPerPage = Math.min(this.gridCounter, Math.floor(contentWidth / width));
+				break;
+
+			case ConferenceLayout.PresentationLeft:
+			case ConferenceLayout.PresentationRight:
+				this.tilesPerPage = Math.min(this.gridCounter, Math.floor(contentHeight / height));
+				break;
+		}
+
+		if (this.tilesPerPage === this.gridCounter) {
+			// All views are visible.
+			this.viewIndex = 0;
+		}
+
+		this.requestUpdate();
 	}
 
 	private updateGridState() {
@@ -223,6 +286,7 @@ export class ConferenceView extends I18nLitElement {
 		this.gridCounter -= 1;
 
 		this.updateGridState();
+		this.calculateSize();
 	}
 
 	private onParticipantScreenStream(event: CustomEvent) {
