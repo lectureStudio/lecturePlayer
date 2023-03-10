@@ -195,7 +195,15 @@ export class JanusPublisher extends JanusParticipant {
 		}
 		else if (share) {
 			// A new track needs to be added and other participants notified of its existence.
-			this.addNewTrack(JanusStreamType.screen, true, Devices.screenErrorHandler);
+			this.addNewTrack(JanusStreamType.screen, true, Devices.screenErrorHandler)
+				.then(() => {
+					const muteAction = new StreamMediaChangeAction(MediaType.Screen, true);
+
+					this.handle.data({
+						data: muteAction.toBuffer(),
+						error: function (error: any) { console.error(error) }
+					});
+				});
 		}
 	}
 
@@ -399,7 +407,15 @@ export class JanusPublisher extends JanusParticipant {
 				height: { ideal: 720 }
 			};
 
-			this.addNewTrack(JanusStreamType.video, captureSettings, Devices.cameraErrorHandler);
+			this.addNewTrack(JanusStreamType.video, captureSettings, Devices.cameraErrorHandler)
+				.then(() => {
+					const muteAction = new StreamMediaChangeAction(MediaType.Camera, true);
+
+					this.handle.data({
+						data: muteAction.toBuffer(),
+						error: function (error: any) { console.error(error) }
+					});
+				});
 		}
 	}
 
