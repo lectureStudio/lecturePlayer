@@ -74,8 +74,8 @@ export class ConferenceView extends I18nLitElement {
 	@query('.grid-container')
 	gridContainer: HTMLElement;
 
-	@query('.screen-container')
-	screenContainer: HTMLElement;
+	@query('.presentation-container')
+	presentationContainer: HTMLElement;
 
 	@query("screen-view")
 	screenView: ScreenView;
@@ -101,7 +101,7 @@ export class ConferenceView extends I18nLitElement {
 	public addScreenElement(view: ParticipantView) {
 		view.isVisible = true;
 
-		this.screenContainer.appendChild(view);
+		this.presentationContainer.appendChild(view);
 	}
 
 	public setConferenceLayout(layout: ConferenceLayout) {
@@ -143,7 +143,8 @@ export class ConferenceView extends I18nLitElement {
 		const nextEnabled = this.viewIndex + this.tilesPerPage < this.gridCounter;
 
 		return html`
-			<div class="screen-container">
+			<div class="presentation-container">
+				<slide-view class="conference-slides"></slide-view>
 				<screen-view></screen-view>
 			</div>
 

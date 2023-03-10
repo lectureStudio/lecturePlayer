@@ -33,7 +33,6 @@ import { chatHistory } from '../../model/chat-history';
 import { ParticipantsModal } from '../participants-modal/participants.modal';
 import { VpnModal } from '../vpn-modal/vpn.modal';
 import { DocumentService } from '../../service/document.service';
-import { RenderController } from '../../render/render-controller';
 
 export class PlayerController implements ReactiveController {
 
@@ -84,7 +83,7 @@ export class PlayerController implements ReactiveController {
 		actionProcessor.onPeerConnected = this.onPeerConnected.bind(this);
 
 		this.courseStateService = new CourseStateService("https://" + window.location.host);
-		this.janusService = new JanusService("https://" + window.location.hostname + "/janus", actionProcessor);
+		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus", actionProcessor);
 		this.modals = new Map();
 
 		this.maxWidth576Query = window.matchMedia("(max-width: 576px)");
@@ -113,6 +112,8 @@ export class PlayerController implements ReactiveController {
 		this.host.addEventListener("lect-device-change", this.onDeviceChange.bind(this));
 		this.host.addEventListener("lect-device-settings", this.onSettings.bind(this));
 
+		document.addEventListener("lect-render-controller-ready", this.onRenderControllerReady.bind(this));
+
 		document.addEventListener("lect-screen-share-not-allowed", () => {
 			Toaster.showWarning(t("screenshare.error.not.allowed.title"), t("screenshare.error.not.allowed.message"));
 		});
@@ -133,10 +134,6 @@ export class PlayerController implements ReactiveController {
 
 		this.janusService.addEventListener("janus-connection-established", this.onJanusConnectionEstablished.bind(this));
 		this.janusService.addEventListener("janus-connection-failure", this.onJanusConnectionFailure.bind(this));
-	}
-
-	setRenderController(controller: RenderController) {
-		this.playbackService.setRenderController(controller);
 	}
 
 	setPlayerViewController(controller: PlayerViewController) {
@@ -179,7 +176,7 @@ export class PlayerController implements ReactiveController {
 		course.userPrivileges = state.userPrivileges;
 		course.chatFeature = state.messageFeature;
 		course.quizFeature = state.quizFeature;
-		course.documentMap = state.documentMap;
+		course.documentMap = state.documentMap ?? new Map();
 		course.activeDocument = state.activeDocument;
 		course.mediaState = state.mediaState;
 	}
@@ -219,8 +216,6 @@ export class PlayerController implements ReactiveController {
 			this.getDocuments(course.documentMap)
 				.then(documents => {
 					this.registerModal("RecordedModal", new RecordedModal(), false, false);
-
-					this.playbackService.initialize();
 
 					this.viewController.update();
 
@@ -331,6 +326,8 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onOpenNewDocument() {
+		let uploadedDoc: CourseStateDocument;
+
 		Utils.openFile({
 			description: 'PDF files',
 			mimeTypes: ['application/pdf'],
@@ -338,35 +335,27 @@ export class PlayerController implements ReactiveController {
 		})
 		.then((file: File) => {
 			this.courseStateService.uploadDocument(file)
-				.then((url: string) => {
-					console.log("document url", url);
+				.then((stateDoc: CourseStateDocument) => {
+					console.log("document state", stateDoc);
+
+					uploadedDoc = stateDoc;
 
 					return Utils.readFile(file);
 				})
 				.then((fileBuffer: Uint8Array) => {
-					const docService = new DocumentService();
-
-					return docService.loadDocument(fileBuffer);
+					return new DocumentService().loadDocument(fileBuffer);
 				})
 				.then((document: SlideDocument) => {
-					console.log("document", document);
+					this.updateDocumentState(document, uploadedDoc);
 
-					// TODO
-					// this.playbackService.addDocument(document);
-					// this.playbackService.selectActiveDocument();
+					this.playbackService.addDocument(document);
+					this.playbackService.selectActiveDocument();
 
-					document.setDocumentId(BigInt(123));
+					this.janusService.sendDocumentCreatedEvent(uploadedDoc);
 
-					course.documentMap.set(document.getDocumentId(), {
-						activePage: null,
-						documentFile: "test.pdf",
-						documentId: document.getDocumentId(),
-						documentName: "Test Document",
-						pages: null,
-						type: "pdf"
-					});
-
-					this.host.dispatchEvent(Utils.createEvent("course-new-document"));
+					this.host.dispatchEvent(Utils.createEvent("lect-select-layout", {
+						layout: "PresentationBottom"
+					}));
 				})
 				.catch(error => {
 					console.error(error);
@@ -383,6 +372,20 @@ export class PlayerController implements ReactiveController {
 
 	private onPeerConnected(peerId: bigint) {
 		this.janusService.addPeer(peerId);
+	}
+
+	private updateDocumentState(document: SlideDocument, stateDoc: CourseStateDocument) {
+		document.setDocumentId(stateDoc.documentId);
+
+		// Add remote state to local state.
+		course.documentMap.set(stateDoc.documentId, stateDoc);
+
+		if (!course.activeDocument) {
+			// If this is the first document in use.
+			course.activeDocument = stateDoc;
+		}
+
+		this.host.dispatchEvent(Utils.createEvent("course-new-document"));
 	}
 
 	private setFullscreen(enable: boolean) {
@@ -469,6 +472,10 @@ export class PlayerController implements ReactiveController {
 
 			this.registerModal("ParticipantsModal", participantsModal);
 		}
+	}
+
+	private onRenderControllerReady(event: CustomEvent) {
+		this.playbackService.initialize(event.detail);
 	}
 
 	private onEventServiceState(event: CustomEvent) {

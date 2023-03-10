@@ -35,13 +35,11 @@ export class SlideView extends LitElement {
 		this.volatileRenderSurface = new RenderSurface(this, volatileCanvas);
 		this.textLayerSurface = new TextLayerSurface(this, textLayer);
 
+		this.renderController = new RenderController(this);
+
 		new ResizeObserver(this.resize.bind(this)).observe(this);
 
 		this.resize();
-	}
-
-	setRenderController(renderController: RenderController): void {
-		this.renderController = renderController;
 	}
 
 	getActionRenderSurface(): RenderSurface {
@@ -61,7 +59,7 @@ export class SlideView extends LitElement {
 	}
 
 	private resize() {
-		if (!this.renderController) {
+		if (!this.renderController || !this.renderController.getPage()) {
 			return;
 		}
 

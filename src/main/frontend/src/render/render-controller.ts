@@ -35,6 +35,7 @@ import { PenShape } from "../model/shape/pen.shape";
 import { PenRenderer } from "./pen.renderer";
 import { Brush } from "../paint/brush";
 import { SlideView } from "../component/slide-view/slide-view";
+import { Utils } from "../utils/utils";
 
 export class RenderController {
 
@@ -71,7 +72,8 @@ export class RenderController {
 		this.setVolatileRenderSurface(slideView.getVolatileRenderSurface());
 		this.setTextLayerSurface(slideView.getTextLayerSurface());
 
-		slideView.setRenderController(this);
+		// One time event used due to the highly decoupled nature of components.
+		document.dispatchEvent(Utils.createEvent("lect-render-controller-ready", this));
 	}
 
 	getPage(): Page {
@@ -274,7 +276,7 @@ export class RenderController {
 	private renderAllLayers(page: Page): void {
 		const size = this.slideRenderSurface.getSize();
 
-		if (!size) {
+		if (!size || size.width === 0 || size.height === 0) {
 			// Do not even try to render.
 			return;
 		}

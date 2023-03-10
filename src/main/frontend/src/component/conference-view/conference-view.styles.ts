@@ -45,7 +45,7 @@ export const conferenceViewStyles = css`
 		display: none;
 	}
 
-	:host .screen-container {
+	:host .presentation-container {
 		padding: 2em;
 	}
 
@@ -76,7 +76,7 @@ export const conferenceViewStyles = css`
 	:host([layout="0"]) .grid-parent {
 		display: flex;
 	}
-	:host([layout="0"]) .screen-container {
+	:host([layout="0"]) .presentation-container {
 		display: none;
 	}
 
@@ -100,8 +100,8 @@ export const conferenceViewStyles = css`
 	:host([layout="3"]) {
 		flex-direction: column;
 	}
-	:host([layout="1"]) .screen-container,
-	:host([layout="3"]) .screen-container {
+	:host([layout="1"]) .presentation-container,
+	:host([layout="3"]) .presentation-container {
 		height: 85%;
 	}
 	:host([layout="1"]) .tiles,
@@ -137,11 +137,11 @@ export const conferenceViewStyles = css`
 		margin-right: 0;
 	}
 
-	:host([layout="2"]) .screen-container {
+	:host([layout="2"]) .presentation-container {
 		order: 1;
 	}
 
-	:host([layout="3"]) .screen-container {
+	:host([layout="3"]) .presentation-container {
 		order: 1;
 	}
 
@@ -149,8 +149,8 @@ export const conferenceViewStyles = css`
 	:host([layout="4"]) {
 		flex-direction: row;
 	}
-	:host([layout="2"]) .screen-container,
-	:host([layout="4"]) .screen-container {
+	:host([layout="2"]) .presentation-container,
+	:host([layout="4"]) .presentation-container {
 		width: 85%;
 	}
 	:host([layout="2"]) .tiles,

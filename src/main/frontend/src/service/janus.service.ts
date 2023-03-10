@@ -5,6 +5,10 @@ import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
 import { StreamActionProcessor } from "../action/stream-action-processor";
 import { DeviceSettings, Settings } from "../utils/settings";
+import { DocumentType } from "../model/document.type";
+import { CourseStateDocument } from "../model/course-state-document";
+import { StreamDocumentCreatedAction } from "../action/stream.document.created.action";
+import { StreamDocumentSelectedAction } from "../action/stream.document.selected.action";
 
 export class JanusService extends EventTarget {
 
@@ -15,6 +19,8 @@ export class JanusService extends EventTarget {
 	private readonly actionProcessor: StreamActionProcessor;
 
 	private janus: Janus;
+
+	private myPublisher: JanusPublisher;
 
 	private publishers: JanusPublisher[];
 
@@ -101,6 +107,12 @@ export class JanusService extends EventTarget {
 		publisher.connect();
 	}
 
+	stopSpeech() {
+		this.publishers.forEach(publisher => {
+			publisher.disconnect();
+		});
+	}
+
 	attachAsPublisher() {
 		const publisher = new JanusPublisher(this.janus, this.roomId, this.opaqueId, this.userName);
 		publisher.setDeviceSettings(Settings.getDeviceSettings());
@@ -110,12 +122,18 @@ export class JanusService extends EventTarget {
 		publisher.addEventListener("janus-participant-joined", this.onPublisherJoined.bind(this));
 		publisher.addEventListener("janus-participant-left", this.onPublisherLeft.bind(this));
 		publisher.connect();
+
+		this.myPublisher = publisher;
 	}
 
-	stopSpeech() {
-		this.publishers.forEach(publisher => {
-			publisher.disconnect();
-		});
+	sendDocumentCreatedEvent(stateDoc: CourseStateDocument) {
+		if (this.myPublisher) {
+			const createAction = new StreamDocumentCreatedAction(stateDoc.documentId, DocumentType.PDF, stateDoc.documentName, stateDoc.documentFile);
+			const selectAction = new StreamDocumentSelectedAction(stateDoc.documentId, DocumentType.PDF, stateDoc.documentName, stateDoc.documentFile);
+
+			this.myPublisher.sendData(createAction.toBuffer());
+			this.myPublisher.sendData(selectAction.toBuffer());
+		}
 	}
 
 	startStatsCapture() {

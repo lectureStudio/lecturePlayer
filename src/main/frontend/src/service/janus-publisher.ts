@@ -61,6 +61,17 @@ export class JanusPublisher extends JanusParticipant {
 		return this.publisherId;
 	}
 
+	sendData(data: ArrayBuffer) {
+		if (this.state !== State.CONNECTED) {
+			return;
+		}
+
+		this.handle.data({
+			data: data,
+			error: function (error: any) { console.error(error) }
+		});
+	}
+
 	private onConnected(handle: PluginHandle) {
 		this.handle = handle;
 
@@ -199,10 +210,7 @@ export class JanusPublisher extends JanusParticipant {
 				.then(() => {
 					const muteAction = new StreamMediaChangeAction(MediaType.Screen, true);
 
-					this.handle.data({
-						data: muteAction.toBuffer(),
-						error: function (error: any) { console.error(error) }
-					});
+					this.sendData(muteAction.toBuffer());
 				});
 		}
 	}
@@ -384,10 +392,7 @@ export class JanusPublisher extends JanusParticipant {
 
 		const micMuteAction = new StreamMediaChangeAction(MediaType.Audio, !mute);
 
-		this.handle.data({
-			data: micMuteAction.toBuffer(),
-			error: function (error: any) { console.error(error) }
-		});
+		this.sendData(micMuteAction.toBuffer());
 	}
 
 	protected override onMuteVideo(mute: boolean) {
@@ -411,10 +416,7 @@ export class JanusPublisher extends JanusParticipant {
 				.then(() => {
 					const muteAction = new StreamMediaChangeAction(MediaType.Camera, true);
 
-					this.handle.data({
-						data: muteAction.toBuffer(),
-						error: function (error: any) { console.error(error) }
-					});
+					this.sendData(muteAction.toBuffer());
 				});
 		}
 	}
@@ -573,10 +575,7 @@ export class JanusPublisher extends JanusParticipant {
 			.then(() => {
 				const muteAction = new StreamMediaChangeAction(mediaType, enable);
 
-				this.handle.data({
-					data: muteAction.toBuffer(),
-					error: function (error: any) { console.error(error) }
-				});
+				this.sendData(muteAction.toBuffer());
 			})
 			.catch(onError);
 	}

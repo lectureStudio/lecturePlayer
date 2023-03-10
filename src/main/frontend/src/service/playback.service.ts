@@ -14,7 +14,8 @@ export class PlaybackService {
 	private renderController: RenderController;
 
 
-	initialize() {
+	initialize(controller: RenderController) {
+		this.renderController = controller;
 		this.documents = new Map();
 
 		const executor = new StreamActionExecutor(this.renderController);
@@ -32,16 +33,12 @@ export class PlaybackService {
 		}
 	}
 
-	setRenderController(controller: RenderController) {
-		this.renderController = controller;
-	}
-
 	addAction(action: Action): void {
 		this.actionPlayer.addAction(action);
 	}
 
 	addDocument(document: SlideDocument): void {
-		this.documents.set(BigInt(document.getDocumentId()), document);
+		this.documents.set(document.getDocumentId(), document);
 	}
 
 	addDocuments(documents: SlideDocument[]): void {

@@ -104,18 +104,18 @@ export class CourseStateService {
 		});
 	}
 
-	uploadDocument(file: File): Promise<string> {
+	uploadDocument(file: File): Promise<CourseStateDocument> {
 		const formData = new FormData();
 		formData.append("file", file);
 
-		return new Promise<string>((resolve, reject) => {
+		return new Promise<CourseStateDocument>((resolve, reject) => {
 			return new HttpRequest({
 				returnType: "body",
-				responseType: "text",
+				responseType: "json",
 			})
 			.post<any>(this.host + "/course/file/upload", formData)
-				.then((url: string) => {
-					resolve(url);
+				.then((stateDoc: CourseStateDocument) => {
+					resolve(stateDoc);
 				})
 				.catch((error: any) => {
 					reject(error);
