@@ -51,6 +51,10 @@ export class PlaybackService {
 		this.documents.delete(BigInt(docId));
 	}
 
+	getSelectedDocument(): SlideDocument {
+		return this.actionPlayer.getDocument();
+	}
+
 	selectDocument(docId: bigint): void {
 		const document = this.documents.get(BigInt(docId));
 
@@ -75,6 +79,33 @@ export class PlaybackService {
 		if (document) {
 			this.actionPlayer.setDocument(document);
 			this.actionPlayer.setPageNumber(pageNumber);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	selectPreviousDocumentPage(): boolean {
+		const activeStateDoc = course.activeDocument;
+
+		return this.setPageNumber(activeStateDoc.activePage.pageNumber - 1);
+	}
+
+	selectNextDocumentPage(): boolean {
+		const activeStateDoc = course.activeDocument;
+
+		return this.setPageNumber(activeStateDoc.activePage.pageNumber + 1);
+	}
+
+	private setPageNumber(pageNumber: number) {
+		const document = this.getSelectedDocument();
+
+		if (document && pageNumber > -1 && pageNumber < document.getPageCount()) {
+			this.actionPlayer.setPageNumber(pageNumber);
+
+			const activeStateDoc = course.activeDocument;
+			activeStateDoc.activePage.pageNumber = pageNumber;
 
 			return true;
 		}

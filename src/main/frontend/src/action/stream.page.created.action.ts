@@ -1,10 +1,11 @@
+import { StreamActionType } from "./stream.action-type";
 import { StreamPageAction } from "./stream.page.action";
 
-class StreamPageCreatedAction extends StreamPageAction {
+export class StreamPageCreatedAction extends StreamPageAction {
 
 	constructor(documentId: bigint, pageNumber: number) {
 		super(documentId, pageNumber);
+
+		this.actionType = StreamActionType.STREAM_PAGE_CREATED;
 	}
 }
-
-export { StreamPageCreatedAction };

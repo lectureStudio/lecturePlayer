@@ -1,6 +1,5 @@
 import { StreamAction } from "./stream.action";
 import { DocumentType } from "../model/document.type";
-import { StreamActionType } from "./stream.action-type";
 
 export class StreamDocumentAction extends StreamAction {
 
@@ -11,8 +10,6 @@ export class StreamDocumentAction extends StreamAction {
 	readonly documentTitle: string;
 
 	readonly documentFile: string;
-
-	protected actionType: StreamActionType;
 
 
 	constructor(documentId: bigint, documentType: DocumentType, documentTitle: string, documentFile: string) {

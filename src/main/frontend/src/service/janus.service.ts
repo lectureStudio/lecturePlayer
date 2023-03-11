@@ -9,6 +9,7 @@ import { DocumentType } from "../model/document.type";
 import { CourseStateDocument } from "../model/course-state-document";
 import { StreamDocumentCreatedAction } from "../action/stream.document.created.action";
 import { StreamDocumentSelectedAction } from "../action/stream.document.selected.action";
+import { StreamPageSelectedAction } from "../action/stream.page.selected.action";
 
 export class JanusService extends EventTarget {
 
@@ -137,6 +138,14 @@ export class JanusService extends EventTarget {
 	sendDocumentSelected(stateDoc: CourseStateDocument) {
 		if (this.myPublisher) {
 			const action = new StreamDocumentSelectedAction(stateDoc.documentId, DocumentType.PDF, stateDoc.documentName, stateDoc.documentFile);
+
+			this.myPublisher.sendData(action.toBuffer());
+		}
+	}
+
+	sendPageSelected(documentId: bigint, pageNumber: number) {
+		if (this.myPublisher) {
+			const action = new StreamPageSelectedAction(documentId, pageNumber);
 
 			this.myPublisher.sendData(action.toBuffer());
 		}

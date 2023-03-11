@@ -108,6 +108,8 @@ export class PlayerController implements ReactiveController {
 		this.host.addEventListener("lect-open-new-document", this.onOpenNewDocument.bind(this));
 		this.host.addEventListener("lect-open-new-whiteboard", this.onOpenNewWhiteboard.bind(this));
 		this.host.addEventListener("lect-select-document", this.onSelectDocument.bind(this));
+		this.host.addEventListener("lect-document-prev-page", this.onDocumentPrevPage.bind(this));
+		this.host.addEventListener("lect-document-next-page", this.onDocumentNextPage.bind(this));
 
 		this.host.addEventListener("lect-device-change", this.onDeviceChange.bind(this));
 		this.host.addEventListener("lect-device-settings", this.onSettings.bind(this));
@@ -326,6 +328,9 @@ export class PlayerController implements ReactiveController {
 		const docInfo = course.documentMap.get(docId);
 
 		if (this.playbackService.setActiveDocument(docId, docInfo.activePage.pageNumber)) {
+			// This is the document to be in use.
+			course.activeDocument = docInfo;
+
 			this.janusService.sendDocumentSelected(docInfo);
 		}
 	}
@@ -376,11 +381,29 @@ export class PlayerController implements ReactiveController {
 
 	}
 
+	private onDocumentPrevPage() {
+		if (this.playbackService.selectPreviousDocumentPage()) {
+			const stateDoc = course.activeDocument;
+
+			this.janusService.sendPageSelected(stateDoc.documentId, stateDoc.activePage.pageNumber);
+		}
+	}
+
+	private onDocumentNextPage() {
+		if (this.playbackService.selectNextDocumentPage()) {
+			const stateDoc = course.activeDocument;
+
+			this.janusService.sendPageSelected(stateDoc.documentId, stateDoc.activePage.pageNumber);
+		}
+	}
+
 	private onPeerConnected(peerId: bigint) {
 		this.janusService.addPeer(peerId);
 	}
 
 	private updateDocumentState(document: SlideDocument, stateDoc: CourseStateDocument) {
+		stateDoc.pageCount = document.getPageCount();
+
 		document.setDocumentId(stateDoc.documentId);
 
 		// Add remote state to local state.

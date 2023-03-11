@@ -14,4 +14,6 @@ export interface CourseStateDocument {
 
 	readonly pages: Map<number, CourseStatePage>;
 
+	pageCount: number;
+
 }

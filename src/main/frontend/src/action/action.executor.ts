@@ -32,6 +32,10 @@ export class StreamActionExecutor implements ActionExecutor {
 		this.renderController.setSeek(seek);
 	}
 
+	getDocument(): SlideDocument {
+		return this.document;
+	}
+
 	setDocument(document: SlideDocument) {
 		this.document = document;
 	}

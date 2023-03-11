@@ -9,6 +9,8 @@ export interface ActionExecutor {
 
 	setKeyEvent(keyEvent: KeyboardEvent): void;
 
+	getDocument(): SlideDocument;
+
 	setDocument(document: SlideDocument): void;
 
 	setPageNumber(pageNumber: number): void;

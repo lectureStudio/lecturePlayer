@@ -146,6 +146,8 @@ export class ConferenceView extends I18nLitElement {
 			<div class="presentation-container">
 				<slide-view class="conference-slides"></slide-view>
 				<screen-view></screen-view>
+
+				<document-navigation></document-navigation>
 			</div>
 
 			<sl-resize-observer>

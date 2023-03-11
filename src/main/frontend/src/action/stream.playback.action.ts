@@ -1,7 +1,7 @@
 import { Action } from "./action";
 import { StreamPageAction } from "./stream.page.action";
 
-class StreamPagePlaybackAction extends StreamPageAction {
+export class StreamPagePlaybackAction extends StreamPageAction {
 
 	readonly action: Action;
 
@@ -12,5 +12,3 @@ class StreamPagePlaybackAction extends StreamPageAction {
 		this.action = action;
 	}
 }
-
-export { StreamPagePlaybackAction };

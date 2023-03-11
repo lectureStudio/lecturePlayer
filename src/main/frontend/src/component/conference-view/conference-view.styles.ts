@@ -47,6 +47,7 @@ export const conferenceViewStyles = css`
 
 	:host .presentation-container {
 		padding: 2em;
+		position: relative;
 	}
 
 	.tiles {

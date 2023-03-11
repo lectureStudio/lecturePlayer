@@ -1,4 +1,9 @@
+import { StreamActionType } from "./stream.action-type";
+
 export abstract class StreamAction {
+
+	protected actionType: StreamActionType;
+
 
 	/**
 	 * Creates a new {@code ArrayBuffer} with the payload and inserts the required

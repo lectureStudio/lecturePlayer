@@ -1,6 +1,6 @@
 import { StreamAction } from "./stream.action";
 
-class StreamPageAction extends StreamAction {
+export class StreamPageAction extends StreamAction {
 
 	readonly documentId: bigint;
 
@@ -13,6 +13,18 @@ class StreamPageAction extends StreamAction {
 		this.documentId = documentId;
 		this.pageNumber = pageNumber;
 	}
-}
 
-export { StreamPageAction };
+	override toBuffer(): ArrayBuffer {
+		const buffer = new ArrayBuffer(17);
+
+		const view = new DataView(buffer);
+		// Write header
+		view.setInt32(0, 12);
+		view.setInt8(4, this.actionType);
+
+		view.setBigInt64(5, BigInt(this.documentId));
+		view.setInt32(13, this.pageNumber);
+
+		return buffer;
+	}
+}

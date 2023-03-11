@@ -53,6 +53,10 @@ export class StreamActionPlayer extends ActionPlayer {
 		}
 	}
 
+	getDocument(): SlideDocument {
+		return this.executor.getDocument();
+	}
+
 	setDocument(document: SlideDocument): void {
 		this.executor.setDocument(document);
 	}
