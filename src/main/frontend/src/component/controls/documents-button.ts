@@ -24,6 +24,8 @@ export class DocumentsButton extends I18nLitElement {
 	@property()
 	documents: Map<bigint, CourseStateDocument>;
 
+	selectedDocId: string;
+
 
 	override connectedCallback() {
 		super.connectedCallback()
@@ -63,6 +65,10 @@ export class DocumentsButton extends I18nLitElement {
 			for (const doc of course.documentMap.values()) {
 				const selected = activeDoc ? activeDoc.documentId === doc.documentId : false;
 
+				if (selected) {
+					this.selectedDocId = doc.documentId.toString();
+				}
+
 				itemTemplates.push(html`<sl-menu-item type="checkbox" value="${doc.documentId}" ?checked="${selected}">${doc.documentName}</sl-menu-item>`);
 			}
 		}
@@ -90,18 +96,30 @@ export class DocumentsButton extends I18nLitElement {
 		const selectedItem: SlMenuItem = event.detail.item;
 		const docId = selectedItem.value;
 
+		if (!docId) {
+			// Document control item selected.
+			return;
+		}
+
 		// Keep selected item checked, e.g. when double-checked.
 		selectedItem.checked = true;
 
+		if (this.selectedDocId === docId) {
+			// Same item selected.
+			return;
+		}
+
 		for (let item of this.menu.getAllItems()) {
 			// Uncheck all items, except the selected one.
-			if (item.value !== selectedItem.value) {
+			if (item.value !== docId) {
 				item.checked = false;
 			}
 		}
 
+		this.selectedDocId = docId;
+
 		this.dispatchEvent(Utils.createEvent("lect-select-document", {
-			id: docId
+			documentId: docId
 		}));
 	}
 }

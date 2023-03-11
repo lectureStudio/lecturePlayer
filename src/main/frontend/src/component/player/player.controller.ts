@@ -322,7 +322,12 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onSelectDocument(event: CustomEvent) {
-		console.log("selected document", event.detail.id);
+		const docId = BigInt(event.detail.documentId);
+		const docInfo = course.documentMap.get(docId);
+
+		if (this.playbackService.setActiveDocument(docId, docInfo.activePage.pageNumber)) {
+			this.janusService.sendDocumentSelected(docInfo);
+		}
 	}
 
 	private onOpenNewDocument() {
@@ -351,7 +356,8 @@ export class PlayerController implements ReactiveController {
 					this.playbackService.addDocument(document);
 					this.playbackService.selectActiveDocument();
 
-					this.janusService.sendDocumentCreatedEvent(uploadedDoc);
+					this.janusService.sendDocumentCreated(uploadedDoc);
+					this.janusService.sendDocumentSelected(uploadedDoc);
 
 					this.host.dispatchEvent(Utils.createEvent("lect-select-layout", {
 						layout: "PresentationBottom"
@@ -378,12 +384,9 @@ export class PlayerController implements ReactiveController {
 		document.setDocumentId(stateDoc.documentId);
 
 		// Add remote state to local state.
-		course.documentMap.set(stateDoc.documentId, stateDoc);
-
-		if (!course.activeDocument) {
-			// If this is the first document in use.
-			course.activeDocument = stateDoc;
-		}
+		course.documentMap.set(BigInt(stateDoc.documentId), stateDoc);
+		// This is the document to be in use.
+		course.activeDocument = stateDoc;
 
 		this.host.dispatchEvent(Utils.createEvent("course-new-document"));
 	}

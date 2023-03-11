@@ -38,7 +38,7 @@ export class PlaybackService {
 	}
 
 	addDocument(document: SlideDocument): void {
-		this.documents.set(document.getDocumentId(), document);
+		this.documents.set(BigInt(document.getDocumentId()), document);
 	}
 
 	addDocuments(documents: SlideDocument[]): void {
@@ -61,11 +61,24 @@ export class PlaybackService {
 
 	selectActiveDocument() {
 		const activeStateDoc = course.activeDocument;
-		const activeDoc: SlideDocument = this.documents.get(activeStateDoc.documentId);
+		const activeDoc: SlideDocument = this.documents.get(BigInt(activeStateDoc.documentId));
 
 		if (activeDoc) {
 			this.actionPlayer.setDocument(activeDoc);
 			this.actionPlayer.setPageNumber(activeStateDoc.activePage.pageNumber);
 		}
+	}
+
+	setActiveDocument(docId: bigint, pageNumber: number): boolean {
+		const document = this.documents.get(BigInt(docId));
+
+		if (document) {
+			this.actionPlayer.setDocument(document);
+			this.actionPlayer.setPageNumber(pageNumber);
+
+			return true;
+		}
+
+		return false;
 	}
 }

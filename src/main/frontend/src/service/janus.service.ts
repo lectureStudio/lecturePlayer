@@ -126,13 +126,19 @@ export class JanusService extends EventTarget {
 		this.myPublisher = publisher;
 	}
 
-	sendDocumentCreatedEvent(stateDoc: CourseStateDocument) {
+	sendDocumentCreated(stateDoc: CourseStateDocument) {
 		if (this.myPublisher) {
-			const createAction = new StreamDocumentCreatedAction(stateDoc.documentId, DocumentType.PDF, stateDoc.documentName, stateDoc.documentFile);
-			const selectAction = new StreamDocumentSelectedAction(stateDoc.documentId, DocumentType.PDF, stateDoc.documentName, stateDoc.documentFile);
+			const action = new StreamDocumentCreatedAction(stateDoc.documentId, DocumentType.PDF, stateDoc.documentName, stateDoc.documentFile);
 
-			this.myPublisher.sendData(createAction.toBuffer());
-			this.myPublisher.sendData(selectAction.toBuffer());
+			this.myPublisher.sendData(action.toBuffer());
+		}
+	}
+
+	sendDocumentSelected(stateDoc: CourseStateDocument) {
+		if (this.myPublisher) {
+			const action = new StreamDocumentSelectedAction(stateDoc.documentId, DocumentType.PDF, stateDoc.documentName, stateDoc.documentFile);
+
+			this.myPublisher.sendData(action.toBuffer());
 		}
 	}
 
