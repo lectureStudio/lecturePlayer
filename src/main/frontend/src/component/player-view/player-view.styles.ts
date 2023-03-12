@@ -3,49 +3,25 @@ import { css } from 'lit';
 export const playerViewStyles = css`
 	:host {
 		display: flex;
-		flex-direction: column;
+		flex-direction: row;
 		background-color: rgb(248, 249, 250);
 		width: 100%;
 		height: 100%;
 	}
-	:host button {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 0;
-		border: 0;
-		background: transparent;
-		border-radius: 0.25em;
-		cursor: pointer;
-		outline: none;
-		min-width: 24px;
-		width: 24px;
-		min-height: 24px;
-		height: 24px;
-		font-size: 1.25em;
-	}
-	:host button:hover {
-		color: rgba(0, 125, 181, 1);
-		background-color: rgba(222, 226, 230, 0.9);
-	}
-	:host button.selected {
-		background-color: rgba(0, 125, 181, 1);
-	}
-	:host button.selected:hover {
-		background-color: rgba(0, 125, 181, 0.8);
-	}
-	:host button.active {
-		color: rgba(0, 125, 181, 1);
-	}
-	:host button.active:hover {
-		color: rgba(0, 125, 181, 0.8);
-	}
-	:host > div {
-		display: flex;
+
+	sl-split-panel {
 		width: 100%;
 		height: 100%;
-		flex-direction: column;
 	}
+	:host #outer-split-panel {
+		--min: 350px;
+		--max: 550px;
+	}
+	:host #inner-split-panel {
+		--min: calc(100% - 350px);
+		--max: calc(100% - 300px);
+	}
+
 	:host .center-container {
 		display: flex;
 		flex-direction: column;
@@ -60,11 +36,6 @@ export const playerViewStyles = css`
 		height: 100%;
 		margin: 5px;
 	}
-	:host .controls-container {
-		display: flex;
-		align-items: flex-end;
-		width: 100%;
-	}
 	:host slide-view {
 		display: flex;
 		width: 100%;
@@ -77,17 +48,7 @@ export const playerViewStyles = css`
 		flex-direction: column;
 		flex-shrink: 0;
 		background-color: white;
-	}
-	:host .video-feeds {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: center;
-		padding: 0.25em;
-		order: 1;
-	}
-	:host .video-feeds > * {
-		max-width: 250px;
+		width: 20%
 	}
 	:host .feature-container {
 		display: none;
@@ -96,23 +57,37 @@ export const playerViewStyles = css`
 		order: 6;
 		height: 100%;
 	}
-	:host chat-box {
-		height: 100%;
-	}
-	:host .bottom-left {
+	:host .left-top {
 		display: flex;
-		position: absolute;
-		bottom: 0;
-		background: #F3F4F6;
-		border-radius: 0.25em;
-		z-index: 10;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		padding: 1em;
 	}
-	:host participants-box {
-		height: 100%;
+	:host .left-top > span {
+		padding-bottom: 0.5em;
 	}
-	:host(:not([chatVisible])) chat-box {
+	:host .controls {
+		padding: 1em;
+	}
+	:host .controls {
+		padding: 1em;
+	}
+	:host .controls form > * {
+		padding-bottom: 0.5em;
+	}
+
+	:host(:not([rightContainerVisible])) #inner-split-panel {
+		--min: 100;
+	}
+	:host(:not([rightContainerVisible])) #inner-split-panel::part(divider),
+	:host(:not([rightContainerVisible])) .right-container {
 		display: none;
 	}
+	:host(:not([participantsVisible])) #outer-split-panel {
+		--min: 0;
+	}
+	:host(:not([participantsVisible])) #outer-split-panel::part(divider),
 	:host(:not([participantsVisible])) .left-container {
 		display: none;
 	}
@@ -120,6 +95,22 @@ export const playerViewStyles = css`
 		display: none !important;
 	}
 
+	.selected-node {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25em;
+		padding: 1em;
+		font-size: var(--sl-input-label-font-size-small);
+	}
+	.selected-node sl-button {
+		width: fit-content;
+	}
+
+	#network-panel {
+		width: 100%;
+		height: 100%;
+		border: 1px solid lightgray;
+	}
 
 	@media (min-width: 576px) {
 		:host > div {

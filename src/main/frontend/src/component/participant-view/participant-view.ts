@@ -41,6 +41,14 @@ export class ParticipantView extends I18nLitElement {
 	@property({ type: Boolean, reflect: true })
 	isLocal: boolean = false;
 
+	@property({ type: Boolean, reflect: true })
+	isVisible: boolean = false;
+
+	@property({ type: Boolean, reflect: true })
+	isTalking: boolean = false;
+
+	publisherId: bigint;
+
 	@query(".container")
 	container: HTMLElement;
 
@@ -56,12 +64,10 @@ export class ParticipantView extends I18nLitElement {
 	constructor() {
 		super();
 
-		document.addEventListener("player-volume", this.onAudioVolume.bind(this));
 		document.addEventListener("player-start-media", this.onStartMediaPlayback.bind(this));
-		document.addEventListener("speaker-setting-changed", this.onSpeakerSetting.bind(this));
 
-		this.micActive = course.mediaState.microphoneActive;
-		this.camActive = course.mediaState.cameraActive;
+		this.micActive = course.mediaState?.microphoneActive;
+		this.camActive = course.mediaState?.cameraActive;
 	}
 
 	setState(state: State) {
@@ -177,24 +183,8 @@ export class ParticipantView extends I18nLitElement {
 		}
 	}
 
-	private onSpeakerSetting(e: CustomEvent) {
-		if (this.audio) {
-			Devices.setAudioSink(this.audio, Settings.getSpeakerId());
-		}
-	}
-
-	private onAudioVolume(e: CustomEvent) {
-		if (this.audio) {
-			const volume: number = e.detail.volume;
-
-			this.volume = volume;
-			this.audio.volume = volume;
-		}
-	}
-
-	private onAudioMute(): void {
+	private onAudioMute(e: CustomEvent) {
 		this.micMute = !this.micMute;
-
 		this.dispatchEvent(Utils.createEvent("participant-mic-mute", {
 			mute: this.micMute
 		}));
@@ -202,7 +192,6 @@ export class ParticipantView extends I18nLitElement {
 
 	private onVideoMute(): void {
 		this.camMute = !this.camMute;
-
 		this.dispatchEvent(Utils.createEvent("participant-cam-mute", {
 			camMute: this.camMute
 		}));
@@ -210,7 +199,7 @@ export class ParticipantView extends I18nLitElement {
 
 	render() {
 		return html`
-			<div class="container">
+			<div part="base" class="container">
 				<span class="name">${this.name}</span>
 				<div class="controls">
 					<div class="media-state">
@@ -220,14 +209,14 @@ export class ParticipantView extends I18nLitElement {
 						</div>
 					</div>
 					<div class="buttons">
-						<button @click="${this.onAudioMute}">
+						<sl-button @click="${this.onAudioMute}" class="conference-control">
 							<span class="icon-mic" id="mic-local"></span>
 							<span class="icon-mic-muted" id="mic-local-muted"></span>
-						</button>
-						<button @click="${this.onVideoMute}">
+						</sl-button>
+						<sl-button @click="${this.onVideoMute}" class="conference-control">
 							<span class="icon-cam" id="cam-local"></span>
 							<span class="icon-cam-muted" id="cam-local-muted"></span>
-						</button>
+						</sl-button>
 					</div>
 				</div>
 			</div>

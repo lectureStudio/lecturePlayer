@@ -1,18 +1,14 @@
-import { html, PropertyValues } from 'lit';
+import { html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
-import { MessageService } from '../../service/message.service';
-import { PrivilegeService } from '../../service/privilege.service';
-import { PlayerControls } from '../controls/player-controls';
+import { when } from 'lit/directives/when.js';
 import { I18nLitElement, t } from '../i18n-mixin';
-import { ParticipantView } from '../participant-view/participant-view';
 import { SlideView } from '../slide-view/slide-view';
 import { PlayerViewController } from './player-view.controller';
 import { playerViewStyles } from './player-view.styles';
-import { course } from '../../model/course';
-import { ScreenView } from '../screen-view/screen-view';
-import { SlideLayout } from '../../model/slide-layout';
-import { State } from '../../utils/state';
-import Split from 'split.js'
+import { SlSplitPanel } from '@shoelace-style/shoelace';
+import { Data, DataSet, Edge, Network, Node } from "vis-network/standalone";
+import { HttpRequest } from '../../utils/http-request';
+import { Toaster } from '../../utils/toaster';
 
 @customElement('player-view')
 export class PlayerView extends I18nLitElement {
@@ -24,35 +20,28 @@ export class PlayerView extends I18nLitElement {
 
 	private controller = new PlayerViewController(this);
 
-	private split: Split.Instance;
-
-	private splitSizes: number[];
-
-	private slideLayout: SlideLayout = SlideLayout.Card;
-
-	@property()
-	privilegeService: PrivilegeService;
-
-	@property()
-	messageService: MessageService;
-
-	@property({ type: Boolean, reflect: true })
-	chatVisible: boolean = true;
+	host = "https://" + window.location.host;
 
 	@property({ type: Boolean, reflect: true })
 	participantsVisible: boolean = true;
 
 	@property({ type: Boolean, reflect: true })
-	screenVisible: boolean = false;
+	rightContainerVisible: boolean = true;
 
-	@query("player-controls")
-	controls: PlayerControls;
+	@query("#inner-split-panel")
+	innterSplitPanel: SlSplitPanel;
 
-	@query(".video-feeds")
-	videoFeedContainer: HTMLElement;
+	@query("#outer-split-panel")
+	outerSplitPanel: SlSplitPanel;
 
-	@query("screen-view")
-	screenView: ScreenView;
+	@query("#network-panel")
+	networkPanel: HTMLElement;
+
+	network: Network;
+	nodes: DataSet<Node, "id">;
+	edges: DataSet<Edge, "id">;
+
+	selectedNode: Node;
 
 
 	getController(): PlayerViewController {
@@ -63,167 +52,233 @@ export class PlayerView extends I18nLitElement {
 		return this.renderRoot.querySelector("slide-view");
 	}
 
-	addParticipant(view: ParticipantView) {
-		view.addEventListener("participant-state", this.onParticipantState.bind(this));
-		view.addEventListener("participant-screen-stream", this.onParticipantScreenStream.bind(this));
-		view.addEventListener("participant-screen-visibility", this.onParticipantScreenVisibility.bind(this));
-		view.setVolume(this.controls.volume);
-
-		this.videoFeedContainer.appendChild(view);
-	}
-
-	removeParticipant(view: ParticipantView) {
-		if (this.videoFeedContainer.contains(view)) {
-			this.videoFeedContainer.removeChild(view);
-		}
-	}
-
 	cleanup() {
-		// Reset controls.
-		this.controls.handUp = false;
-		this.controls.fullscreen = false;
 
-		// Cleanup screen view.
-		this.screenVisible = false;
-		this.screenView.removeVideo();
-		this.screenView.setState(State.DISCONNECTED);
-
-		// Cleanup video feeds.
-		while (this.videoFeedContainer.firstChild) {
-			this.videoFeedContainer.removeChild(this.videoFeedContainer.firstChild);
-		}
 	}
 
 	override connectedCallback() {
-		super.connectedCallback()
+		super.connectedCallback();
 
-		course.addEventListener("course-user-privileges", () => {
-			this.participantsVisible = this.privilegeService.canViewParticipants();
+		document.addEventListener("p2p-peer-joined", (event: CustomEvent) => {
+			const peer = event.detail;
+
+			this.onJoined(peer);
 		});
+		document.addEventListener("p2p-peer-left", (event: CustomEvent) => {
+			const peer = event.detail;
 
-		this.addEventListener("screen-view-video", (event: CustomEvent) => {
-			this.screenVisible = event.detail.hasVideo;
+			this.onLeft(peer);
+		});
+		document.addEventListener("p2p-document-loaded", (event: CustomEvent) => {
+			const peer = event.detail;
+
+			this.onDocumentLoaded(peer);
 		});
 	}
 
-	protected firstUpdated(): void {
-		// Set up split-panes.
-		const elements: HTMLElement[] = [
-			this.shadowRoot.querySelector(".left-container"),
-			this.shadowRoot.querySelector(".center-container"),
-			this.shadowRoot.querySelector(".right-container")
-		];
+	protected firstUpdated() {
+		this.nodes = new DataSet([{
+			id: "19ba501f-cd70-42ad-855b-8423d0b5c4a2",
+			label: "S",
+			color: "#F472B6",
+			level: 0
+		}]);
 
-		// Minimum sizes in percent.
-		const minSizes = [0, 50, 0];
+		this.edges = new DataSet([]);
 
-		const splitOptions: Split.Options = {
-			sizes: [13, 72, 15],
-			minSize: minSizes,
-			maxSize: [400, Infinity, 500],
-			snapOffset: 0,
-			elementStyle: function (dimension, size, gutterSize, index) {
-				if (index !== 1 && size < minSizes[index]) {
-					// Min size for left and right panes.
-					size = minSizes[index];
-				}
-
-				return {
-					'flex-basis': 'calc(' + size + '% - ' + gutterSize + 'px)',
+		// Create a network
+		const data: Data = {
+			nodes: this.nodes,
+			edges: this.edges,
+		};
+		const options = {
+			height: "100%",
+			width: "100%",
+			autoResize: true,
+			nodes: {
+				shape: "dot",
+			},
+			layout: {
+				improvedLayout: true,
+				clusterThreshold: 150,
+				hierarchical: {
+					enabled: false,
+					levelSeparation: 150,
+					nodeSpacing: 100,
+					treeSpacing: 200,
+					blockShifting: true,
+					edgeMinimization: true,
+					parentCentralization: true,
+					sortMethod: 'hubsize',  // hubsize, directed
+					shakeTowards: 'leaves'  // roots, leaves
 				}
 			},
-			onDragEnd: (sizes) => {
-				// Minsize for the left pane.
-				if (sizes[0] < minSizes[0]) {
-					sizes[0] = this.participantsVisible ? minSizes[0] : 0;
-				}
-				// Minsize for the right pane.
-				if (sizes[2] < minSizes[2]) {
-					sizes[2] = minSizes[2];
-				}
-
-				// Center pane.
-				sizes[1] = 100 - sizes[0] - sizes[2];
-
-				this.split.setSizes(sizes);
+			interaction: {
+				hover: true,
+				dragNodes: true,
+				zoomView: true,
+				dragView: true
 			}
 		};
 
-		this.split = Split(elements, splitOptions);
-	}
+		this.network = new Network(this.networkPanel, data, options);
+		this.network.on("click", (properties) => {
+			const ids = properties.nodes;
+			const clickedNodes = this.nodes.get(ids);
 
-	protected updated(changedProperties: PropertyValues): void {
-		if (changedProperties.has("participantsVisible")) {
-			if (!this.participantsVisible) {
-				// Save pane sizes and collapse the participant pane.
-				this.splitSizes = this.split.getSizes();
+			if (clickedNodes && clickedNodes.length > 0) {
+				this.selectedNode = clickedNodes[0];
 
-				this.split.collapse(0);
-				this.split.setSizes([0, this.splitSizes[0] + this.splitSizes[1], this.splitSizes[2]]);
+				console.log("selected node", this.selectedNode);
 			}
 			else {
-				// Restore pane sizes.
-				if (this.splitSizes) {
-					const sizes = this.split.getSizes();
-					// Center pane size = current size - previous left pane size.
-					this.split.setSizes([this.splitSizes[0], sizes[1] + sizes[0] - this.splitSizes[0], sizes[2]]);
-
-					this.splitSizes = null;
-				}
+				this.selectedNode = null;
 			}
-		}
+
+			this.requestUpdate();
+		});
+		this.network.on("hoverNode", (params) => {
+			// this.showConnectedEdgeLabels(params.node, true);
+		});
+		this.network.on("blurNode", (params) => {
+			// this.showConnectedEdgeLabels(params.node, false);
+		});
+
+		// Center server node.
+		setInterval(() => {
+			this.network.fit();
+		}, 10);
 	}
 
 	protected render() {
 		return html`
-			<div>
-				<div class="left-container">
-					<div class="feature-container">
-						${this.privilegeService.canViewParticipants() ? html`
-						<participants-box .privilegeService="${this.privilegeService}"></participants-box>
-						` : ''}
-					</div>
+			<div class="left-container">
+				<div class="left-top">
+					<span>Join the demo on the web!</span>
+					<sl-qr-code value="https://lecturestudio.dek.e-technik.tu-darmstadt.de/" label="Scan this code to visit the demo on the web!"></sl-qr-code>
 				</div>
-				<div class="center-container">
-					<div class="slide-container">
-						<slide-view class="slides"></slide-view>
-						<screen-view></screen-view>
-					</div>
-					<div class="controls-container">
-						<player-controls .chatVisible="${this.chatVisible}" .participantsVisible="${this.participantsVisible}" .privilegeService="${this.privilegeService}"></player-controls>
-					</div>
+				<div class="slide-container">
+					<slide-view class="slides"></slide-view>
 				</div>
-				<div class="right-container">
-					<div class="video-feeds">
-					</div>
-					<div class="feature-container">
-						${this.privilegeService.canUseChat() ? html`
-						<chat-box .messageService="${this.messageService}" .privilegeService="${this.privilegeService}"></chat-box>
-						` : ''}
-					</div>
+			</div>
+			<div class="center-container">
+				<div id="network-panel"></div>
+			</div>
+			<div class="right-container">
+				<div class="controls">
+					<form id="demo-form">
+						<sl-input type="number" name="server-bandwidth" label="Server Bandwidth (MBit/s)" placeholder="Server Bandwidth" size="small" min="1" max="1000" value="10"></sl-input>
+						<sl-input type="number" name="peers-max" label="Peers" placeholder="Number of Peers" size="small" min="1" max="1000" value="10"></sl-input>
+						<sl-input type="number" name="super-peers-max" label="Super-Peers" placeholder="Number of Super-Peers" size="small" min="1" max="10"  value="2"></sl-input>
+						<sl-input type="number" name="super-peer-bandwidth-threshold" label="Super-Peer Bandwidth Threshold (MBit/s)" placeholder="Super-Peer Bandwidth Threshold" size="small" min="1" max="1000000" value="20"></sl-input>
+						<sl-button @click="${this.post}" variant="neutral" size="small" form="demo-form">Start</sl-button>
+					</form>
 				</div>
+				${when(this.selectedNode, () => html`
+					<div class="selected-node">
+						<dt>ID</dt>
+						<dd>${this.selectedNode.id}</dd>
+						<dt>Type</dt>
+						<dd>${this.getPeerDescription(this.selectedNode.label)}</dd>
+
+						<sl-button @click="${this.disconnectPeer}" ?disabled="${this.isServer(this.selectedNode)}" variant="warning" size="small">Disconnect</sl-button>
+					</div>
+				`)}
 			</div>
 		`;
 	}
 
-	private onParticipantState(event: CustomEvent) {
-		this.screenView.setState(event.detail.state);
+	private onJoined(client: any) {
+		console.log("joined", client);
+
+		this.nodes.add({
+			id: client.uid,
+			label: client.type === "SUPER_PEER" ? "SP" : "P",
+			level: client.type === "SUPER_PEER" ? 1 : 2,
+			color: {
+				border: client.type === "SUPER_PEER" ? "#A78BFA" : "#60A5FA",
+				background: client.type === "SUPER_PEER" ? "#A78BFA" : "#60A5FA",
+			}
+		});
+
+		for (const server of client.servers) {
+			const bandwidth = Math.min(client.bandwidth, server.bandwidth);
+
+			this.edges.add({
+				from: client.uid,
+				to: server.uid,
+				value: bandwidth,
+				title: "Bandwidth: " + bandwidth
+			});
+		}
 	}
 
-	private onParticipantScreenStream(event: CustomEvent) {
-		const state: State = event.detail.state;
+	private onLeft(client: any) {
+		console.log("left", client);
 
-		if (state === State.CONNECTED) {
-			this.screenView.addVideo(event.detail.video);
-		}
-		else if (state === State.DISCONNECTED) {
-			this.screenView.removeVideo();
+		this.nodes.remove(client.uid);
+	}
+
+	private onDocumentLoaded(client: any) {
+		console.log("loaded", this.nodes.get(client.uid));
+
+		const node = this.nodes.get(client.uid) as Node;
+		node.color = {
+			border: "#059669",
+		};
+
+		this.nodes.update(node);
+	}
+
+	private post(event: Event): void {
+		const demoForm: HTMLFormElement = this.renderRoot.querySelector("#demo-form");
+		const data = new FormData(demoForm);
+
+		const submitButton = <HTMLButtonElement> event.target;
+		// submitButton.disabled = true;
+
+		new HttpRequest().post(this.host + "/p2p/start", data)
+			.then(() => {
+
+			})
+			.catch(cause => {
+				console.error(cause);
+			});
+	}
+
+	private disconnectPeer() {
+		console.log("disconnect peer", this.selectedNode);
+
+		new HttpRequest().get(this.host + "/p2p/disconnect/" + this.selectedNode.id)
+			.then(() => {
+				Toaster.showSuccess("Peer disconnected successfully")
+			})
+			.catch(cause => {
+				console.error(cause);
+			});
+	}
+
+	private getPeerDescription(type: string) {
+		switch (type) {
+			case "S": return "Server";
+			case "SP": return "Super Peer";
+			case "P": return "Peer";
+			default: return "Unknown";
 		}
 	}
 
-	private onParticipantScreenVisibility(event: CustomEvent) {
-		const visible: boolean = event.detail.visible;
+	private isServer(node: Node) {
+		return node.label === "S";
+	}
 
-		this.screenView.setVideoVisible(visible);
+	private showConnectedEdgeLabels(nodeId: any, show: boolean) {
+		const connectedEdges = this.network.getConnectedEdges(nodeId);
+		const items = this.edges.get(connectedEdges);
+
+		items.forEach((value: Edge) => {
+			this.edges.update({ id: value.id, label: show ? value.title : null, title: show ? value.title : null });
+
+			console.log("update", value);
+		});
 	}
 }

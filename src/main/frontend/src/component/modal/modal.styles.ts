@@ -1,39 +1,36 @@
 import { css } from 'lit';
 
 export const modalStyles = css`
-	:host {
-		--dialog-backdrop-bg: rgba(0, 0, 0, 0.5);
-		--dialog-border-radius: 0.25em;
-		--dialog-padding: 0;
-		--dialog-z-index: 999;
+	sl-dialog {
+		--header-spacing: 0;
+		--body-spacing: 0.5em;
+		--footer-spacing: 0;
 	}
-	web-dialog::part(dialog) {
-		border-radius: 0.3333em;
-		border: 2px solid var(--dialog-bg, #fff);
+	sl-dialog::part(panel) {
+		position: relative;
 	}
-	header {
+	sl-dialog::part(header) {
 		background: #F3F4F6;
 		border-bottom: 1px solid #E5E7EB;
 		border-radius: 0.3333em 0.3333em 0 0;
-		margin: -2px;
-		padding: 0.5em 1em;
-		font-size: 1.17em;
-		font-weight: normal;
+		padding: 0.25em 0.75em;
 	}
-	header h4 {
-		padding: 0.15em 0;
+	sl-dialog::part(title) {
+		
 	}
-	article {
-		padding: 1em;
+	sl-dialog::part(body) {
+
 	}
-	footer {
+	sl-dialog::part(footer) {
 		display: flex;
 		justify-content: flex-end;
 		background: #F3F4F6;
 		border-top: 1px solid #E5E7EB;
 		border-radius: 0 0 0.3333em 0.3333em;
-		gap: 0.5em;
-		margin: -2px;
 		padding: 0.5em 1em;
+	}
+
+	sl-tab-panel::part(base) {
+		padding: var(--sl-spacing-medium) var(--sl-spacing-x-small);
 	}
 `;
