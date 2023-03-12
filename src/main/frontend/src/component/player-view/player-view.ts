@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import { customElement, property, query } from 'lit/decorators.js';
+import { customElement, property, query, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { SlideView } from '../slide-view/slide-view';
@@ -41,6 +41,7 @@ export class PlayerView extends I18nLitElement {
 	nodes: DataSet<Node, "id">;
 	edges: DataSet<Edge, "id">;
 
+	@state()
 	selectedNode: Node;
 
 
@@ -68,6 +69,11 @@ export class PlayerView extends I18nLitElement {
 			const peer = event.detail;
 
 			this.onLeft(peer);
+		});
+		document.addEventListener("p2p-peer-reorganize", (event: CustomEvent) => {
+			const peer = event.detail;
+
+			this.onReorganize(peer);
 		});
 		document.addEventListener("p2p-document-loaded", (event: CustomEvent) => {
 			const peer = event.detail;
@@ -134,8 +140,6 @@ export class PlayerView extends I18nLitElement {
 			else {
 				this.selectedNode = null;
 			}
-
-			this.requestUpdate();
 		});
 		this.network.on("hoverNode", (params) => {
 			// this.showConnectedEdgeLabels(params.node, true);
@@ -219,6 +223,21 @@ export class PlayerView extends I18nLitElement {
 		this.nodes.remove(client.uid);
 	}
 
+	private onReorganize(client: any) {
+		console.log("reorganize", client);
+
+		for (const server of client.servers) {
+			const bandwidth = Math.min(client.bandwidth, server.bandwidth);
+
+			this.edges.add({
+				from: client.uid,
+				to: server.uid,
+				value: bandwidth,
+				title: "Bandwidth: " + bandwidth
+			});
+		}
+	}
+
 	private onDocumentLoaded(client: any) {
 		console.log("loaded", this.nodes.get(client.uid));
 
@@ -251,7 +270,9 @@ export class PlayerView extends I18nLitElement {
 
 		new HttpRequest().get(this.host + "/p2p/disconnect/" + this.selectedNode.id)
 			.then(() => {
-				Toaster.showSuccess("Peer disconnected successfully")
+				this.selectedNode = null;
+
+				Toaster.showSuccess("Peer disconnected successfully");
 			})
 			.catch(cause => {
 				console.error(cause);
@@ -276,7 +297,7 @@ export class PlayerView extends I18nLitElement {
 		const items = this.edges.get(connectedEdges);
 
 		items.forEach((value: Edge) => {
-			this.edges.update({ id: value.id, label: show ? value.title : null, title: show ? value.title : null });
+			// this.edges.update({ id: value.id, label: show ? value.title : null, title: show ? value.title : null });
 
 			console.log("update", value);
 		});
