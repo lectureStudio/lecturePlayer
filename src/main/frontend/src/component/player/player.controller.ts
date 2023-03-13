@@ -19,6 +19,7 @@ import { participants } from '../../model/participants';
 import { chatHistory } from '../../model/chat-history';
 import { Modal } from '../modal/modal';
 import { P2PService } from '../../service/p2p.service';
+import { Utils } from '../../utils/utils';
 
 export class PlayerController implements ReactiveController {
 
@@ -395,6 +396,8 @@ export class PlayerController implements ReactiveController {
 		else if (participant.presence === "DISCONNECTED") {
 			participants.remove(participant);
 		}
+
+		document.dispatchEvent(Utils.createEvent("participant-presence", participant));
 	}
 
 	private updateCourseState() {

@@ -9,6 +9,8 @@ import { SlSplitPanel } from '@shoelace-style/shoelace';
 import { Data, DataSet, Edge, Network, Node } from "vis-network/standalone";
 import { HttpRequest } from '../../utils/http-request';
 import { Toaster } from '../../utils/toaster';
+import { CourseParticipantPresence } from '../../model/course-state';
+import { course } from '../../model/course';
 
 @customElement('player-view')
 export class PlayerView extends I18nLitElement {
@@ -79,6 +81,21 @@ export class PlayerView extends I18nLitElement {
 			const peer = event.detail;
 
 			this.onDocumentLoaded(peer);
+		});
+		document.addEventListener("participant-presence", (event: CustomEvent) => {
+			const participant: CourseParticipantPresence = event.detail;
+
+			// React only to events originated from other participants.
+			if (participant.userId === course.userId) {
+				return;
+			}
+
+			if (participant.presence === "CONNECTED") {
+				// console.log("CONNECTED");
+			}
+			else if (participant.presence === "DISCONNECTED") {
+				// console.log("DISCONNECTED");
+			}
 		});
 	}
 
@@ -171,11 +188,11 @@ export class PlayerView extends I18nLitElement {
 			<div class="right-container">
 				<div class="controls">
 					<form id="demo-form">
-						<sl-input type="number" name="server-bandwidth" label="Server Bandwidth (MBit/s)" placeholder="Server Bandwidth" size="small" min="1" max="1000" value="10"></sl-input>
+						<sl-input type="number" name="server-bandwidth" label="Server Bandwidth (MBit/s)" placeholder="Server Bandwidth" size="small" min="1" max="10000" value="1000"></sl-input>
 						<sl-input type="number" name="peers-max" label="Peers" placeholder="Number of Peers" size="small" min="1" max="1000" value="10"></sl-input>
 						<sl-input type="number" name="super-peers-max" label="Super-Peers" placeholder="Number of Super-Peers" size="small" min="1" max="10"  value="2"></sl-input>
-						<sl-input type="number" name="super-peer-bandwidth-threshold" label="Super-Peer Bandwidth Threshold (MBit/s)" placeholder="Super-Peer Bandwidth Threshold" size="small" min="1" max="1000000" value="20"></sl-input>
-						<sl-button @click="${this.post}" variant="neutral" size="small" form="demo-form">Start</sl-button>
+						<sl-input type="number" name="super-peer-bandwidth-threshold" label="Super-Peer Bandwidth Threshold (MBit/s)" placeholder="Super-Peer Bandwidth Threshold" size="small" min="1" max="1000" value="100"></sl-input>
+						<sl-button @click="${this.start}" variant="neutral" size="small" form="demo-form">Start</sl-button>
 					</form>
 				</div>
 				${when(this.selectedNode, () => html`
@@ -183,7 +200,7 @@ export class PlayerView extends I18nLitElement {
 						<dt>ID</dt>
 						<dd>${this.selectedNode.id}</dd>
 						<dt>Type</dt>
-						<dd>${this.getPeerDescription(this.selectedNode.label)}</dd>
+						<dd>${this.getPeerDescription(this.selectedNode)}</dd>
 
 						<sl-button @click="${this.disconnectPeer}" ?disabled="${this.isServer(this.selectedNode)}" variant="warning" size="small">Disconnect</sl-button>
 					</div>
@@ -197,22 +214,20 @@ export class PlayerView extends I18nLitElement {
 
 		this.nodes.add({
 			id: client.uid,
-			label: client.type === "SUPER_PEER" ? "SP" : "P",
+			label: client.name ? client.name : client.type === "SUPER_PEER" ? "SP" : "P",
 			level: client.type === "SUPER_PEER" ? 1 : 2,
 			color: {
-				border: client.type === "SUPER_PEER" ? "#A78BFA" : "#60A5FA",
-				background: client.type === "SUPER_PEER" ? "#A78BFA" : "#60A5FA",
+				border: client.name ? "#FB923C" : client.type === "SUPER_PEER" ? "#A78BFA" : "#60A5FA",
+				background: client.name ? "#FB923C" : client.type === "SUPER_PEER" ? "#A78BFA" : "#60A5FA",
 			}
 		});
 
 		for (const server of client.servers) {
-			const bandwidth = Math.min(client.bandwidth, server.bandwidth);
-
 			this.edges.add({
 				from: client.uid,
 				to: server.uid,
-				value: bandwidth,
-				title: "Bandwidth: " + bandwidth
+				value: client.bandwidth,
+				title: client.bandwidth + "Mbit/s"
 			});
 		}
 	}
@@ -226,14 +241,25 @@ export class PlayerView extends I18nLitElement {
 	private onReorganize(client: any) {
 		console.log("reorganize", client);
 
-		for (const server of client.servers) {
-			const bandwidth = Math.min(client.bandwidth, server.bandwidth);
+		const connectedEdges = this.network.getConnectedEdges(client.uid);
+		this.edges.remove(connectedEdges);
 
+		this.nodes.update({
+			id: client.uid,
+			label: client.name ? client.name : client.type === "SUPER_PEER" ? "SP" : "P",
+			level: client.type === "SUPER_PEER" ? 1 : 2,
+			color: {
+				border: "#059669",
+				background: client.name ? "#FB923C" : client.type === "SUPER_PEER" ? "#A78BFA" : "#60A5FA",
+			}
+		});
+
+		for (const server of client.servers) {
 			this.edges.add({
 				from: client.uid,
 				to: server.uid,
-				value: bandwidth,
-				title: "Bandwidth: " + bandwidth
+				value: client.bandwidth,
+				title: client.bandwidth + "Mbit/s"
 			});
 		}
 	}
@@ -249,7 +275,19 @@ export class PlayerView extends I18nLitElement {
 		this.nodes.update(node);
 	}
 
-	private post(event: Event): void {
+	private start(event: Event): void {
+		if (this.nodes.length > 2) {
+			this.edges.clear();
+			this.nodes.clear();
+	
+			this.nodes.add({
+				id: "19ba501f-cd70-42ad-855b-8423d0b5c4a2",
+				label: "S",
+				color: "#F472B6",
+				level: 0
+			});
+		}
+
 		const demoForm: HTMLFormElement = this.renderRoot.querySelector("#demo-form");
 		const data = new FormData(demoForm);
 
@@ -279,12 +317,12 @@ export class PlayerView extends I18nLitElement {
 			});
 	}
 
-	private getPeerDescription(type: string) {
-		switch (type) {
+	private getPeerDescription(node: Node) {
+		switch (node.label) {
 			case "S": return "Server";
 			case "SP": return "Super Peer";
 			case "P": return "Peer";
-			default: return "Unknown";
+			default: return node.label;
 		}
 	}
 
