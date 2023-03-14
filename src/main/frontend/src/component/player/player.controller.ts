@@ -402,14 +402,16 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private updateDocumentState(document: SlideDocument, stateDoc: CourseStateDocument) {
-		stateDoc.pageCount = document.getPageCount();
-
 		document.setDocumentId(stateDoc.documentId);
 
 		// Add remote state to local state.
 		course.documentMap.set(BigInt(stateDoc.documentId), stateDoc);
 		// This is the document to be in use.
 		course.activeDocument = stateDoc;
+		course.documentState = {
+			currentPage: stateDoc.activePage.pageNumber,
+			pageCount: document.getPageCount()
+		};
 
 		this.host.dispatchEvent(Utils.createEvent("course-new-document"));
 	}

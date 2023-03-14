@@ -80,6 +80,11 @@ export class PlaybackService {
 			this.actionPlayer.setDocument(document);
 			this.actionPlayer.setPageNumber(pageNumber);
 
+			course.documentState = {
+				currentPage: pageNumber,
+				pageCount: document.getPageCount()
+			};
+
 			return true;
 		}
 
@@ -106,6 +111,11 @@ export class PlaybackService {
 
 			const activeStateDoc = course.activeDocument;
 			activeStateDoc.activePage.pageNumber = pageNumber;
+
+			course.documentState = {
+				currentPage: pageNumber,
+				pageCount: document.getPageCount()
+			};
 
 			return true;
 		}

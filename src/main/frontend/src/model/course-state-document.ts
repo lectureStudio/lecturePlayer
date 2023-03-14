@@ -1,5 +1,12 @@
 import { CourseStatePage } from "./course-state-page";
 
+export interface CourseDocumentState {
+
+	currentPage: number;
+	pageCount: number;
+
+}
+
 export interface CourseStateDocument {
 
 	readonly documentId: bigint;
@@ -13,7 +20,5 @@ export interface CourseStateDocument {
 	readonly activePage: CourseStatePage;
 
 	readonly pages: Map<number, CourseStatePage>;
-
-	pageCount: number;
 
 }

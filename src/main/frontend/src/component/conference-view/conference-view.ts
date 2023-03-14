@@ -7,6 +7,7 @@ import { conferenceViewStyles } from "./conference-view.styles";
 import { ParticipantView } from "../participant-view/participant-view";
 import { State } from "../../utils/state";
 import { ScreenView } from "../screen-view/screen-view";
+import { course } from "../../model/course";
 
 export enum ConferenceLayout {
 
@@ -144,10 +145,12 @@ export class ConferenceView extends I18nLitElement {
 
 		return html`
 			<div class="presentation-container">
-				<slide-view class="conference-slides"></slide-view>
 				<screen-view></screen-view>
 
-				<document-navigation></document-navigation>
+				<div class="document-container ${classMap({ hidden: !course.activeDocument })}">
+					<slide-view class="conference-slides"></slide-view>
+					<document-navigation></document-navigation>
+				</div>
 			</div>
 
 			<sl-resize-observer>

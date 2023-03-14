@@ -50,6 +50,15 @@ export const conferenceViewStyles = css`
 		position: relative;
 	}
 
+	:host .document-container {
+		width: 100%;
+		height: 100%;
+	}
+
+	:host .hidden {
+		display: none;
+	}
+
 	.tiles {
 		display: flex;
 		flex-direction: column;
