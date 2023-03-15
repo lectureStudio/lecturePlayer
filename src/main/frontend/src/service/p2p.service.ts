@@ -20,6 +20,14 @@ export class P2PService extends EventTarget implements EventSubService {
 
 			document.dispatchEvent(Utils.createEvent("p2p-peer-reorganize", peer));
 		});
+		client.subscribe("/topic/p2p/stats", (message) => {
+			const stats = JSON.parse(message.body);
+
+			document.dispatchEvent(Utils.createEvent("p2p-stats", stats));
+		});
+		client.subscribe("/topic/p2p/document/added", (message) => {
+			document.dispatchEvent(Utils.createEvent("p2p-document-added"));
+		});
 		client.subscribe("/topic/p2p/document/done", (message) => {
 			const peer = JSON.parse(message.body);
 

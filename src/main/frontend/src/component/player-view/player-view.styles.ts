@@ -106,6 +106,10 @@ export const playerViewStyles = css`
 		width: fit-content;
 	}
 
+	#chart-container {
+		padding: 0.5em;
+	}
+
 	#network-panel {
 		width: 100%;
 		height: 100%;
