@@ -279,6 +279,11 @@ export class JanusSubscriber extends JanusParticipant {
 				console.log("---- sub add screen");
 
 				this.view.addScreenVideo(mediaElement as HTMLVideoElement);
+
+				document.dispatchEvent(Utils.createEvent("screen-share-state", {
+					screenSharing: true
+				}));
+
 			}
 			else if (type === JanusStreamType.video) {
 
@@ -319,6 +324,10 @@ export class JanusSubscriber extends JanusParticipant {
 				console.log("---- sub remove screen");
 
 				this.view.removeScreenVideo();
+
+				document.dispatchEvent(Utils.createEvent("screen-share-state", {
+					screenSharing: false
+				}));
 			}
 			else if (type === JanusStreamType.video) {
 

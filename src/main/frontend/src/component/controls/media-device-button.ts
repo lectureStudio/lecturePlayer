@@ -215,5 +215,6 @@ export class MediaDeviceButton extends I18nLitElement {
 
 	private initDevices(): void {
 		this.getDevices();
+		// toDO: select audioinput if no audioinput checked
 	}
 }

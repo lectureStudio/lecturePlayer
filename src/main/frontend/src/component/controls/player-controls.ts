@@ -67,6 +67,8 @@ export class PlayerControls extends I18nLitElement {
 	@property({ type: Boolean, reflect: true })
 	isConference: boolean = false;
 
+	@property({ type: Boolean, reflect: true })
+	shareScreenBlocked: boolean = false;
 
 	override connectedCallback() {
 		super.connectedCallback()
@@ -102,6 +104,12 @@ export class PlayerControls extends I18nLitElement {
 		});
 		document.addEventListener("lect-camera-not-readable", () => {
 			this.mutedCam = true;
+		});
+		document.addEventListener("lect-camera-not-readable", () => {
+			this.mutedCam = true;
+		});
+		document.addEventListener("screen-share-state", (e: CustomEvent) => {
+			this.shareScreenBlocked = e.detail.screenSharing;
 		});
 	}
 

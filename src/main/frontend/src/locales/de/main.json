@@ -124,7 +124,7 @@
 	"stats.resolution": "Auflösung",
 	"stats.frame.requency": "Bildfrequenz",
 	"stats.fps": "Bilder/s",
-	"start.title": "Mediafreigabe",
+	"start.title": "Medienfreigabe",
 	"start.description": "Erlaube die Freigabe für Mediengeräte...",
 	"start.permission": "Sie müssen die Berechtigung für den Zugriff auf Audio- und Videogeräte erteilen...",
 	"start.error.audioInput": "Sie müssen mindestens eine Audio Eingabe mit ihrem System verbunden haben...",

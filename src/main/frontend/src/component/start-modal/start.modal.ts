@@ -1,11 +1,17 @@
-import { html } from "lit";
+import { css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { Modal } from "../modal/modal";
+import { startModalStyles } from './start.modal.styles';
 import { t } from '../i18n-mixin';
 import { Utils } from "../../utils/utils";
 
 @customElement("start-modal")
 export class startModal extends Modal {
+	
+	static styles = [
+		Modal.styles,
+		startModalStyles
+	]
 
 	@property()
 	permissionBlocked: boolean;
