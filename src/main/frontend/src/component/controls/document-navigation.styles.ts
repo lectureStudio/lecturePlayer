@@ -6,12 +6,23 @@ export const documentNavigationStyles = css`
 		justify-content: center;
 		align-items: center;
 		gap: 1em;
+		padding: 0.15em 0;
 	}
 
-	.document-navigation-button {
-		font-size: 2rem;
+	.document-toolbar-button {
+		font-size: 1.5rem;
+		padding: 0.15em;
 	}
-	.document-navigation-button::part(base) {
+	.document-toolbar-button::part(base) {
 		padding: 0;
+	}
+
+	.tool-button-active {
+		background: var(--sl-color-neutral-300);
+		border-radius: var(--sl-border-radius-small);
+	}
+
+	sl-divider {
+		height: 1.25rem;
 	}
 `;

@@ -1,3 +1,5 @@
+import { ConferenceLayout } from "../component";
+import { course } from "../model/course";
 import { CourseStateDocument } from "../model/course-state-document";
 import { SlideDocument } from "../model/document";
 import { PlaybackService } from "../service/playback.service";
@@ -53,7 +55,7 @@ export class StreamActionProcessor {
 
 		if (action instanceof StreamDocumentSelectedAction) {
 			if (!this.bufferAction(action, action.documentId)) {
-				this.playbackService.selectDocument(action.documentId);
+				this.selectDocument(action.documentId);
 			}
 		}
 		else if (action instanceof StreamDocumentCreatedAction) {
@@ -85,10 +87,7 @@ export class StreamActionProcessor {
 		}
 		else if (action instanceof StreamPageSelectedAction) {
 			if (!this.bufferAction(action, action.documentId)) {
-				const pageAction = new PageAction(action.pageNumber);
-				pageAction.timestamp = 0;
-
-				this.playbackService.addAction(pageAction);
+				this.selectPage(action.pageNumber);
 			}
 		}
 		else if (action instanceof StreamPageDeletedAction) {
@@ -122,13 +121,10 @@ export class StreamActionProcessor {
 		if (this.streamActionBuffer && this.streamActionBuffer.docId === BigInt(docId)) {
 			this.streamActionBuffer.bufferedActions.forEach(action => {
 				if (action instanceof StreamDocumentSelectedAction) {
-					this.playbackService.selectDocument(action.documentId);
+					this.selectDocument(action.documentId);
 				}
 				else if (action instanceof StreamPageSelectedAction) {
-					const pageAction = new PageAction(action.pageNumber);
-					pageAction.timestamp = 0;
-
-					this.playbackService.addAction(pageAction);
+					this.selectPage(action.pageNumber);
 				}
 				else if (action instanceof StreamPagePlaybackAction) {
 					this.playbackService.addAction(action.action);
@@ -137,5 +133,18 @@ export class StreamActionProcessor {
 		}
 
 		this.streamActionBuffer = null;
+	}
+
+	private selectDocument(documentId: bigint) {
+		this.playbackService.selectDocument(documentId);
+
+		course.layout = ConferenceLayout.PresentationBottom;
+	}
+
+	private selectPage(pageNumber: number) {
+		const pageAction = new PageAction(pageNumber);
+		pageAction.timestamp = 0;
+
+		this.playbackService.addAction(pageAction);
 	}
 }

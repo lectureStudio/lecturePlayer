@@ -23,8 +23,12 @@ export class SimpleActionExecutor implements ActionExecutor {
 		this.toolContext = new ToolContext(null);
 	}
 
+	getDocument(): SlideDocument {
+		return this.document;
+	}
+
 	setSeek(seek: boolean): void {
-		
+
 	}
 
 	setKeyEvent(keyEvent: KeyboardEvent): void {
