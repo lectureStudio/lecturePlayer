@@ -63,16 +63,6 @@ export class PlaybackService {
 		}
 	}
 
-	selectActiveDocument() {
-		const activeStateDoc = course.activeDocument;
-		const activeDoc: SlideDocument = this.documents.get(BigInt(activeStateDoc.documentId));
-
-		if (activeDoc) {
-			this.actionPlayer.setDocument(activeDoc);
-			this.actionPlayer.setPageNumber(activeStateDoc.activePage.pageNumber);
-		}
-	}
-
 	setActiveDocument(docId: bigint, pageNumber: number): boolean {
 		const document = this.documents.get(BigInt(docId));
 
@@ -103,7 +93,7 @@ export class PlaybackService {
 		return this.setPageNumber(activeStateDoc.activePage.pageNumber + 1);
 	}
 
-	private setPageNumber(pageNumber: number) {
+	setPageNumber(pageNumber: number) {
 		const document = this.getSelectedDocument();
 
 		if (document && pageNumber > -1 && pageNumber < document.getPageCount()) {

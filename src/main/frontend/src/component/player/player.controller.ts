@@ -326,12 +326,14 @@ export class PlayerController implements ReactiveController {
 	private onSelectDocument(event: CustomEvent) {
 		const docId = BigInt(event.detail.documentId);
 		const docInfo = course.documentMap.get(docId);
+		const selectedPage = docInfo.activePage.pageNumber;
 
-		if (this.playbackService.setActiveDocument(docId, docInfo.activePage.pageNumber)) {
+		if (this.playbackService.setActiveDocument(docId, selectedPage)) {
 			// This is the document to be in use.
 			course.activeDocument = docInfo;
 
 			this.janusService.sendDocumentSelected(docInfo);
+			this.janusService.sendPageSelected(docInfo.documentId, selectedPage);
 		}
 	}
 
@@ -358,15 +360,17 @@ export class PlayerController implements ReactiveController {
 				.then((document: SlideDocument) => {
 					this.updateDocumentState(document, uploadedDoc);
 
+					const selectedPage = uploadedDoc.activePage.pageNumber;
+
 					this.playbackService.addDocument(document);
-					this.playbackService.selectActiveDocument();
+					this.playbackService.selectDocument(uploadedDoc.documentId);
+					this.playbackService.setPageNumber(selectedPage);
 
 					this.janusService.sendDocumentCreated(uploadedDoc);
 					this.janusService.sendDocumentSelected(uploadedDoc);
+					this.janusService.sendPageSelected(uploadedDoc.documentId, selectedPage);
 
-					this.host.dispatchEvent(Utils.createEvent("lect-select-layout", {
-						layout: "PresentationBottom"
-					}));
+					course.layout = ConferenceLayout.PresentationBottom;
 				})
 				.catch(error => {
 					console.error(error);
