@@ -8,6 +8,7 @@ import { ParticipantView } from "../participant-view/participant-view";
 import { State } from "../../utils/state";
 import { ScreenView } from "../screen-view/screen-view";
 import { course } from "../../model/course";
+import { SlideView } from "../slide-view/slide-view";
 
 export enum ConferenceLayout {
 
@@ -69,9 +70,6 @@ export class ConferenceView extends I18nLitElement {
 	@property()
 	rowsLimit: number = 3;
 
-	@property({ reflect: true })
-	screenSharing: boolean = false;
-
 	@query('.grid-container')
 	gridContainer: HTMLElement;
 
@@ -80,6 +78,9 @@ export class ConferenceView extends I18nLitElement {
 
 	@query("screen-view")
 	screenView: ScreenView;
+
+	@query("slide-view")
+	slideView: SlideView;
 
 
 	public addGridElement(view: ParticipantView) {
@@ -96,7 +97,6 @@ export class ConferenceView extends I18nLitElement {
 
 		this.updateGridState();
 		this.calculateSize();
-		
 	}
 
 	public addScreenElement(view: ParticipantView) {
@@ -121,8 +121,8 @@ export class ConferenceView extends I18nLitElement {
 
 		document.addEventListener("remove-grid-element", this.removeGridElement.bind(this));
 		document.addEventListener("participant-talking", this.onTalkingPublisher.bind(this));
-	
-		document.addEventListener("lect-select-layout", this.onSelectLayout.bind(this));	
+
+		course.addEventListener("course-layout", this.onSelectLayout.bind(this));
 	}
 
 	protected firstUpdated() {
@@ -353,15 +353,7 @@ export class ConferenceView extends I18nLitElement {
 		}
 	}
 
-	protected onSelectLayout(e: CustomEvent) {
-		const selectedLayout: ConferenceLayout = ConferenceLayout[e.detail.layout as keyof typeof ConferenceLayout];
-		
-		if (this.layout !== selectedLayout) {
-			this.setConferenceLayout(selectedLayout);
-			console.log("Change conference layout to " + selectedLayout)
-		}
-		else {
-			console.log("same")
-		}
+	protected onSelectLayout() {
+		this.setConferenceLayout(course.layout);
 	}
 }

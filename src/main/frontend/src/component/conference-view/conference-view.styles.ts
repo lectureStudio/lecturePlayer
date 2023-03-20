@@ -46,13 +46,14 @@ export const conferenceViewStyles = css`
 	}
 
 	:host .presentation-container {
-		padding: 2em;
+		padding: 0.5em;
 		position: relative;
 	}
 
 	:host .document-container {
 		width: 100%;
 		height: 100%;
+		padding-bottom: 2.25em;
 	}
 
 	:host .hidden {
