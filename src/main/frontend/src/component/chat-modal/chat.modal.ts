@@ -39,7 +39,7 @@ export class ChatModal extends Modal {
 					</sl-button>
 					<sl-button @click="${this.post}" variant="primary" size="small" id="message-submit" form="course-message-form">
 						${t("course.feature.message.send")}
-						<span class="icon-send"></span>
+						<sl-icon library="lect-icons" name="send-message"></sl-icon>
 					</sl-button>
 				</div>
 			</sl-dialog>

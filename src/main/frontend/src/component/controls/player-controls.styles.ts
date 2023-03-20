@@ -52,12 +52,12 @@ export const playerControlsStyles = css`
 		color: rgba(0, 125, 181, 1);
 	}
 
-	:host([fullscreen]) .icon-fullscreen,
-	:not([fullscreen]) .icon-fullscreen-exit {
+	:host([fullscreen]) #fullscreen,
+	:not([fullscreen]) #fullscreen-exit {
 		display: none;
 	}
-	:host([fullscreen]) .icon-fullscreen-exit,
-	:not([fullscreen]) .icon-fullscreen {
+	:host([fullscreen]) #fullscreen-exit,
+	:not([fullscreen]) #fullscreen {
 		display: initial;
 	}
 
@@ -75,26 +75,26 @@ export const playerControlsStyles = css`
 	:host(:not([hasQuiz])) #quiz-button {
 		display: none;
 	}
-	:host([mutedMic]) .icon-mic,
-	:not([mutedMic]) .icon-mic-muted {
+	:host([mutedMic]) #microphone,
+	:not([mutedMic]) #microphone-mute {
 		display: none;
 	}
-	:host([mutedMic]) .icon-mic-muted,
-	:not([mutedMic]) .icon-mic {
+	:host([mutedMic]) #microphone-mute,
+	:not([mutedMic]) #microphone {
 		display: initial;
 	}
-	:host([mutedMic]) .icon-mic-muted {
+	:host([mutedMic]) #microphone-mute {
 		color: #DC2626;
 	}
-	:host([mutedCam]) .icon-cam,
-	:not([mutedCam]) .icon-cam-muted {
+	:host([mutedCam]) #camera,
+	:not([mutedCam]) #camera-mute {
 		display: none;
 	}
-	:host([mutedCam]) .icon-cam-muted,
-	:not([mutedCam]) .icon-cam {
+	:host([mutedCam]) #camera-mute,
+	:not([mutedCam]) #camera {
 		display: initial;
 	}
-	:host([mutedCam]) .icon-cam-muted {
+	:host([mutedCam]) #camera-mute {
 		color: #DC2626;
 	}
 	:host([handUp]) #hand-button::part(base),

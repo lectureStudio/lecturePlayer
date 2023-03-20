@@ -43,7 +43,7 @@ export class DocumentsButton extends I18nLitElement {
 				<div slot="trigger">
 					<sl-tooltip content="${t("controls.documents")}" trigger="hover">
 						<sl-button @click="${this.onButton}">
-							<span slot="prefix" class="icon-collection"></span>
+							<sl-icon slot="prefix" library="lect-icons" name="document-collection"></sl-icon>
 						</sl-button>
 					</sl-tooltip>
 				</div>

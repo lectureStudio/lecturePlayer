@@ -44,14 +44,14 @@ export const audioVolumeButtonStyles = css`
 		color: rgba(0, 125, 181, 1);
 	}
 
-	#volumeIndicator > span {
+	#volumeIndicator > sl-icon {
 		display: none;
 	}
-	:host([volumeState="0"]) #volumeIndicator span:nth-child(1),
-	:host([volumeState="1"]) #volumeIndicator span:nth-child(2),
-	:host([volumeState="2"]) #volumeIndicator span:nth-child(3),
-	:host([volumeState="3"]) #volumeIndicator span:nth-child(4),
-	:host([volumeState="4"]) #volumeIndicator span:nth-child(5) {
+	:host([volumeState="0"]) #volumeIndicator sl-icon:nth-child(1),
+	:host([volumeState="1"]) #volumeIndicator sl-icon:nth-child(2),
+	:host([volumeState="2"]) #volumeIndicator sl-icon:nth-child(3),
+	:host([volumeState="3"]) #volumeIndicator sl-icon:nth-child(4),
+	:host([volumeState="4"]) #volumeIndicator sl-icon:nth-child(5) {
 		display: inherit;
 	}
 `;

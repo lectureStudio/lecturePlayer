@@ -241,18 +241,18 @@ export class ParticipantView extends I18nLitElement {
 				<div class="controls">
 					<div class="media-state">
 						<div class="mic-state">
-							<span class="icon-mic" id="mic-remote"></span>
-							<span class="icon-mic-muted" id="mic-remote-muted"></span>
+							<sl-icon library="lect-icons" name="microphone" id="mic-remote"></sl-icon>
+							<sl-icon library="lect-icons" name="microphone-mute" id="mic-remote-muted"></sl-icon>
 						</div>
 					</div>
 					<div class="buttons">
 						<sl-button @click="${this.onAudioMute}" class="conference-control">
-							<span class="icon-mic" id="mic-local"></span>
-							<span class="icon-mic-muted" id="mic-local-muted"></span>
+							<sl-icon library="lect-icons" name="microphone" id="mic-local"></sl-icon>
+							<sl-icon library="lect-icons" name="microphone-mute" id="mic-local-muted"></sl-icon>
 						</sl-button>
 						<sl-button @click="${this.onVideoMute}" class="conference-control">
-							<span class="icon-cam" id="cam-local"></span>
-							<span class="icon-cam-muted" id="cam-local-muted"></span>
+							<sl-icon library="lect-icons" name="camera" id="cam-local"></sl-icon>
+							<sl-icon library="lect-icons" name="camera-mute" id="cam-local-muted"></sl-icon>
 						</sl-button>
 					</div>
 				</div>

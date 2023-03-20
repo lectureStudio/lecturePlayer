@@ -48,7 +48,7 @@ export class ParticipantsBox extends I18nLitElement {
 
 					type = html`
 						<sl-tooltip content="${t("course.role." + lower)}" trigger="hover">
-							<span class="icon-${lower}" id="participant-type"></span>
+							<sl-icon library="lect-icons" name="${lower}" id="participant-type"></sl-icon>
 						</sl-tooltip>
 					`;
 					break;

@@ -41,11 +41,11 @@ export class AudioVolumeButton extends I18nLitElement {
 				<div slot="trigger">
 					<sl-tooltip id="button-tooltip" content="${t("controls.volume")}" trigger="hover">
 						<sl-button @click="${this.onButton}" id="volumeIndicator">
-							<span slot="prefix" class="icon-audio-mute"></span>
-							<span slot="prefix" class="icon-audio-off"></span>
-							<span slot="prefix" class="icon-audio-low"></span>
-							<span slot="prefix" class="icon-audio-up"></span>
-							<span slot="prefix" class="icon-audio-high"></span>
+							<sl-icon slot="prefix" library="lect-icons" name="audio-mute"></sl-icon>
+							<sl-icon slot="prefix" library="lect-icons" name="audio-silent"></sl-icon>
+							<sl-icon slot="prefix" library="lect-icons" name="audio-low"></sl-icon>
+							<sl-icon slot="prefix" library="lect-icons" name="audio-medium"></sl-icon>
+							<sl-icon slot="prefix" library="lect-icons" name="audio-loud"></sl-icon>
 						</sl-button>
 					</sl-tooltip>
 				</div>
@@ -53,11 +53,11 @@ export class AudioVolumeButton extends I18nLitElement {
 					<div class="volume-controls">
 						<sl-tooltip content="${this.mutedVolume ? t("controls.audio.unmute") : t("controls.audio.mute")}" trigger="hover" hoist>
 							<sl-button @click="${this.onMute}" id="volumeIndicator" size="small">
-								<span slot="prefix" class="icon-audio-mute"></span>
-								<span slot="prefix" class="icon-audio-off"></span>
-								<span slot="prefix" class="icon-audio-low"></span>
-								<span slot="prefix" class="icon-audio-up"></span>
-								<span slot="prefix" class="icon-audio-high"></span>
+								<sl-icon slot="prefix" library="lect-icons" name="audio-mute"></sl-icon>
+								<sl-icon slot="prefix" library="lect-icons" name="audio-silent"></sl-icon>
+								<sl-icon slot="prefix" library="lect-icons" name="audio-low"></sl-icon>
+								<sl-icon slot="prefix" library="lect-icons" name="audio-medium"></sl-icon>
+								<sl-icon slot="prefix" library="lect-icons" name="audio-loud"></sl-icon>
 							</sl-button>
 						</sl-tooltip>
 						<sl-range @sl-input="${this.onVolume}" .value="${this.volume}" id="volumeSlider" min="0" max="100" value="1" step="1" tooltip="none"></sl-range>

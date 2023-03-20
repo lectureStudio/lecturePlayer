@@ -19,7 +19,7 @@ export class PlayerOffline extends I18nLitElement {
 	protected render() {
 		return html`
 			<div>
-				<span class="icon-unavailable"></span>
+				<sl-icon library="lect-icons" name="course-not-available"></sl-icon>
 				<strong class="text-muted py-2">${t("course.unavailable")}</strong>
 				<hr>
 				<small>

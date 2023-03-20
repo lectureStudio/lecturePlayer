@@ -188,8 +188,8 @@ export class PlayerControls extends I18nLitElement {
 					.muted="${this.mutedMic}"
 					.tooltip="${this.mutedMic ? t("controls.mic.unmute") : t("controls.mic.mute")}"
 				>
-					<span slot="icon" class="icon-mic"></span>
-					<span slot="icon" class="icon-mic-muted"></span>
+					<sl-icon slot="icon" library="lect-icons" name="microphone" id="microphone"></sl-icon>
+					<sl-icon slot="icon" library="lect-icons" name="microphone-mute" id="microphone-mute"></sl-icon>
 				</media-device-button>
 
 				<media-device-button
@@ -199,8 +199,8 @@ export class PlayerControls extends I18nLitElement {
 					.muted="${this.mutedCam}"
 					.tooltip="${this.mutedCam ? t("controls.cam.unmute") : t("controls.cam.mute")}"
 				>
-					<span slot="icon" class="icon-cam"></span>
-					<span slot="icon" class="icon-cam-muted"></span>
+					<sl-icon slot="icon" library="lect-icons" name="camera" id="camera"></sl-icon>
+					<sl-icon slot="icon" library="lect-icons" name="camera-mute" id="camera-mute"></sl-icon>
 				</media-device-button>
 
 				<audio-volume-button></audio-volume-button>
@@ -211,7 +211,7 @@ export class PlayerControls extends I18nLitElement {
 				${this.privilegeService.canContributeBySpeech() ? html`
 				<sl-tooltip content="${this.handUp ? t("controls.speech.abort") : t("controls.speech.start")}" trigger="hover">
 					<sl-button @click="${this.onHand}" id="hand-button">
-						<span slot="prefix" class="icon-speech"></span>
+						<sl-icon slot="prefix" library="lect-icons" name="hand"></sl-icon>
 					</sl-button>
 				</sl-tooltip>
 				` : ''}
@@ -219,50 +219,44 @@ export class PlayerControls extends I18nLitElement {
 				${this.privilegeService.canParticipateInQuiz() ? html`
 				<sl-tooltip content="${t("controls.quiz.show")}" trigger="hover">
 					<sl-button @click="${this.onQuiz}" id="quiz-button">
-						<span slot="prefix" class="icon-quiz"></span>
+						<sl-icon slot="prefix" library="lect-icons" name="quiz"></sl-icon>
 					</sl-button>
 				</sl-tooltip>
 				` : ''}
 
 				<sl-tooltip content="${t("controls.screenshare")}" trigger="hover">
 					<sl-button @click="${this.onShareScreen}" class="conference-control" id="share-screen-button">
-						<span slot="prefix" class="icon-share"></span>
+						<sl-icon slot="prefix" library="lect-icons" name="share-screen"></sl-icon>
 					</sl-button>
 				</sl-tooltip>
 
 				<documents-button class="conference-control"></documents-button>
-
-				<sl-tooltip content="${t("controls.tools")}" trigger="hover">
-					<sl-button class="conference-control">
-						<span slot="prefix" class="icon-pen"></span>
-					</sl-button>
-				</sl-tooltip>
 			</div>
 			<div class="col nav-right">
 				<layout-button class="conference-control"></layout-button>
 
 				<sl-tooltip content="${t(this.participantsVisible ? "controls.participants.hide" : "controls.participants.show")}" trigger="hover">
 					<sl-button @click="${this.onParticipantsVisibility}" id="participants-button">
-						<span slot="prefix" class="icon-participants"></span>
+						<sl-icon slot="prefix" library="lect-icons" name="participants"></sl-icon>
 					</sl-button>
 				</sl-tooltip>
 
 				<sl-tooltip content="${this.chatVisible ? t("controls.chat.hide") : t("controls.chat.show")}" trigger="hover">
 					<sl-button @click="${this.onChatVisibility}" id="chat-button">
-						<span slot="prefix" class="icon-chat"></span>
+						<sl-icon slot="prefix" library="lect-icons" name="chat"></sl-icon>
 					</sl-button>
 				</sl-tooltip>
 
 				<sl-tooltip content="${t("controls.settings")}" trigger="hover">
 					<sl-button @click="${this.onSettings}" id="settings-button">
-						<span slot="prefix" class="icon-settings"></span>
+						<sl-icon slot="prefix" library="lect-icons" name="settings"></sl-icon>
 					</sl-button>
 				</sl-tooltip>
 
 				<sl-tooltip content="${this.fullscreen ? t("controls.fullscreen.off") : t("controls.fullscreen.on")}" trigger="hover">
 					<sl-button @click="${this.onFullscreen}" id="fullscreen-button">
-						<span slot="prefix" class="icon-fullscreen"></span>
-						<span slot="prefix" class="icon-fullscreen-exit"></span>
+						<sl-icon slot="prefix" library="lect-icons" name="fullscreen" id="fullscreen"></sl-icon>
+						<sl-icon slot="prefix" library="lect-icons" name="fullscreen-exit" id="fullscreen-exit"></sl-icon>
 					</sl-button>
 				</sl-tooltip>
 			</div>
