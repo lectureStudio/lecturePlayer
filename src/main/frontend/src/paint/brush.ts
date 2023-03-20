@@ -1,7 +1,7 @@
 import { Paint } from "./paint";
 import { Color } from "./color";
 
-class Brush extends Paint {
+export class Brush extends Paint {
 
 	width: number;
 
@@ -16,5 +16,3 @@ class Brush extends Paint {
 		return new Brush(this.color, this.width);
 	}
 }
-
-export { Brush };
