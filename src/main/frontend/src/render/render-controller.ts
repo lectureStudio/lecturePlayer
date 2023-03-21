@@ -36,12 +36,15 @@ import { PenRenderer } from "./pen.renderer";
 import { Brush } from "../paint/brush";
 import { SlideView } from "../component/slide-view/slide-view";
 import { Utils } from "../utils/utils";
+import { Dimension } from "../geometry/dimension";
 
 export class RenderController {
 
 	private readonly pageChangeListener: (event: PageEvent) => void;
 
 	private readonly visibilityChangeListener: () => void;
+
+	private readonly slideView: SlideView;
 
 	private slideRenderSurface: SlideRenderSurface;
 
@@ -61,6 +64,8 @@ export class RenderController {
 
 
 	constructor(slideView: SlideView) {
+		this.slideView = slideView;
+
 		this.pageChangeListener = this.pageChanged.bind(this);
 		this.visibilityChangeListener = this.visibilityChanged.bind(this);
 		this.lastTransform = new Transform();
@@ -74,6 +79,14 @@ export class RenderController {
 
 		// One time event used due to the highly decoupled nature of components.
 		document.dispatchEvent(Utils.createEvent("lect-render-controller-ready", this));
+	}
+
+	getSlideView(): SlideView {
+		return this.slideView;
+	}
+
+	getSlideSize(): Dimension {
+		return this.slideRenderSurface.getSize();
 	}
 
 	getPage(): Page {

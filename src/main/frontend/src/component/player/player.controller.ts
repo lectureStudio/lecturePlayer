@@ -33,6 +33,10 @@ import { chatHistory } from '../../model/chat-history';
 import { ParticipantsModal } from '../participants-modal/participants.modal';
 import { VpnModal } from '../vpn-modal/vpn.modal';
 import { DocumentService } from '../../service/document.service';
+import { ConferenceLayout } from '../conference-view/conference-view';
+import { RenderController } from '../../render/render-controller';
+import { ToolController } from '../../tool/tool-controller';
+import { MouseListener } from '../../event/mouse-listener';
 
 export class PlayerController implements ReactiveController {
 
@@ -507,7 +511,14 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onRenderControllerReady(event: CustomEvent) {
-		this.playbackService.initialize(event.detail);
+		const renderController: RenderController = event.detail;
+
+		const toolController = new ToolController(renderController);
+		const mouseListener = new MouseListener(toolController);
+
+		this.playbackService.initialize(renderController, toolController);
+
+		renderController.getSlideView().addMouseListener(mouseListener);
 	}
 
 	private onEventServiceState(event: CustomEvent) {

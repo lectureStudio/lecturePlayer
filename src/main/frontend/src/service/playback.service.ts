@@ -4,6 +4,7 @@ import { StreamActionPlayer } from "../action/stream-action-player";
 import { SlideDocument } from "../model/document";
 import { RenderController } from "../render/render-controller";
 import { course } from '../model/course';
+import { ToolController } from "../tool/tool-controller";
 
 export class PlaybackService {
 
@@ -13,9 +14,12 @@ export class PlaybackService {
 
 	private renderController: RenderController;
 
+	private toolController: ToolController;
 
-	initialize(controller: RenderController) {
+
+	initialize(controller: RenderController, toolController: ToolController) {
 		this.renderController = controller;
+		this.toolController = toolController;
 		this.documents = new Map();
 
 		const executor = new StreamActionExecutor(this.renderController);
@@ -60,6 +64,7 @@ export class PlaybackService {
 
 		if (document) {
 			this.actionPlayer.setDocument(document);
+			this.toolController.setDocument(document);
 		}
 	}
 
@@ -69,6 +74,9 @@ export class PlaybackService {
 		if (document) {
 			this.actionPlayer.setDocument(document);
 			this.actionPlayer.setPageNumber(pageNumber);
+
+			this.toolController.setDocument(document);
+			this.toolController.setPageNumber(pageNumber);
 
 			course.documentState = {
 				currentPage: pageNumber,
@@ -98,6 +106,7 @@ export class PlaybackService {
 
 		if (document && pageNumber > -1 && pageNumber < document.getPageCount()) {
 			this.actionPlayer.setPageNumber(pageNumber);
+			this.toolController.setPageNumber(pageNumber);
 
 			const activeStateDoc = course.activeDocument;
 			activeStateDoc.activePage.pageNumber = pageNumber;
