@@ -1,10 +1,10 @@
 import { ToolContext } from "./tool-context";
-import { Tool } from "./tool";
+import { Tool, ToolType } from "./tool";
 import { PenPoint } from "../geometry/pen-point";
 import { Shape } from "../model/shape/shape";
 import { RemoveShapeAction } from "../model/action/remove-shape.action";
 
-class RubberTool implements Tool {
+export class RubberTool implements Tool {
 
 	private context: ToolContext;
 
@@ -30,6 +30,8 @@ class RubberTool implements Tool {
 	end(point: PenPoint): void {
 		// No-op
 	}
-}
 
-export { RubberTool };
+	getType(): ToolType {
+		return ToolType.RUBBER;
+	}
+}

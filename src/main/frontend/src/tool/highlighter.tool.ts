@@ -3,8 +3,9 @@ import { PaintTool } from "./paint.tool";
 import { PenPoint } from "../geometry/pen-point";
 import { StrokeShape } from "../model/shape/stroke.shape";
 import { AddShapeAction } from "../model/action/add-shape.action";
+import { ToolType } from "./tool";
 
-class HighlighterTool extends PaintTool {
+export class HighlighterTool extends PaintTool {
 
 	private shape: StrokeShape;
 
@@ -19,6 +20,8 @@ class HighlighterTool extends PaintTool {
 	execute(point: PenPoint): void {
 		this.shape.addPoint(point);
 	}
-}
 
-export { HighlighterTool };
+	getType(): ToolType {
+		return ToolType.HIGHLIGHTER;
+	}
+}

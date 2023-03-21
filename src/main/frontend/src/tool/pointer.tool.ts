@@ -3,8 +3,9 @@ import { PaintTool } from "./paint.tool";
 import { PenPoint } from "../geometry/pen-point";
 import { Page } from "../model/page";
 import { PointerShape } from "../model/shape/pointer.shape";
+import { ToolType } from "./tool";
 
-class PointerTool extends PaintTool {
+export class PointerTool extends PaintTool {
 
 	private shape: PointerShape;
 
@@ -27,6 +28,8 @@ class PointerTool extends PaintTool {
 	end(point: PenPoint): void {
 		this.page.removeShape(this.shape);
 	}
-}
 
-export { PointerTool };
+	getType(): ToolType {
+		return ToolType.POINTER;
+	}
+}

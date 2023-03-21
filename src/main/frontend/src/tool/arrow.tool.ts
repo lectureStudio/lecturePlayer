@@ -3,8 +3,9 @@ import { PaintTool } from "./paint.tool";
 import { PenPoint } from "../geometry/pen-point";
 import { ArrowShape } from "../model/shape/arrow.shape";
 import { AddShapeAction } from "../model/action/add-shape.action";
+import { ToolType } from "./tool";
 
-class ArrowTool extends PaintTool {
+export class ArrowTool extends PaintTool {
 
 	private shape: ArrowShape;
 
@@ -24,6 +25,8 @@ class ArrowTool extends PaintTool {
 		this.shape.setKeyEvent(this.context.keyEvent);
 		this.shape.setP1(point);
 	}
-}
 
-export { ArrowTool };
+	getType(): ToolType {
+		return ToolType.ARROW;
+	}
+}

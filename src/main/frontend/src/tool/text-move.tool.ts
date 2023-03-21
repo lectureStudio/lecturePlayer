@@ -2,8 +2,9 @@ import { AtomicTool } from "./atomic.tool";
 import { Point } from "../geometry/point";
 import { ToolContext } from "./tool-context";
 import { TypesettingShape } from "../model/shape/typesetting.shape";
+import { ToolType } from "./tool";
 
-class TextMoveTool extends AtomicTool {
+export class TextMoveTool extends AtomicTool {
 
 	private readonly handle: number;
 
@@ -29,6 +30,8 @@ class TextMoveTool extends AtomicTool {
 			}
 		}
 	}
-}
 
-export { TextMoveTool };
+	getType(): ToolType {
+		return ToolType.TEXT;
+	}
+}

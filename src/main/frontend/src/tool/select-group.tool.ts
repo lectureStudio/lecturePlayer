@@ -1,4 +1,4 @@
-import { Tool } from "./tool";
+import { Tool, ToolType } from "./tool";
 import { ToolContext } from "./tool-context";
 import { PenPoint } from "../geometry/pen-point";
 import { Shape } from "../model/shape/shape";
@@ -7,18 +7,18 @@ import { Rectangle } from "../geometry/rectangle";
 
 enum Mode { Select, Move }
 
-class SelectGroupTool implements Tool {
+export class SelectGroupTool implements Tool {
 
 	private mode: Mode;
-	
+
 	private context: ToolContext;
-	
+
 	private shape: SelectShape;
-	
+
 	private selectedShapes: Shape[];
-	
+
 	private sourcePoint: PenPoint;
-	
+
 	private initialized: boolean;
 
 
@@ -75,6 +75,10 @@ class SelectGroupTool implements Tool {
 		this.context.page.removeShape(this.shape);
 
 		this.initialized = false;
+	}
+
+	getType(): ToolType {
+		return ToolType.SELECT_GROUP;
 	}
 
 	selectGroup(rect: Rectangle): void {
@@ -146,5 +150,3 @@ class SelectGroupTool implements Tool {
 		this.context.endBulkRender();
 	}
 }
-
-export { SelectGroupTool };

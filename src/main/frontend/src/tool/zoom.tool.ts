@@ -1,9 +1,9 @@
 import { ToolContext } from "./tool-context";
-import { Tool } from "./tool";
+import { Tool, ToolType } from "./tool";
 import { ZoomShape } from "../model/shape/zoom.shape";
 import { PenPoint } from "../geometry/pen-point";
 
-class ZoomTool implements Tool {
+export class ZoomTool implements Tool {
 
 	private shape: ZoomShape;
 
@@ -36,6 +36,8 @@ class ZoomTool implements Tool {
 
 		this.context.page.getSlideShape().setPageRect(this.shape.bounds);
 	}
-}
 
-export { ZoomTool };
+	getType(): ToolType {
+		return ToolType.ZOOM;
+	}
+}

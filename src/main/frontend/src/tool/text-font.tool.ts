@@ -4,8 +4,9 @@ import { ToolContext } from "./tool-context";
 import { TextShape } from "../model/shape/text.shape";
 import { Color } from "../paint/color";
 import { Font } from "../paint/font";
+import { ToolType } from "./tool";
 
-class TextFontTool extends AtomicTool {
+export class TextFontTool extends AtomicTool {
 
 	private readonly handle: number;
 
@@ -38,6 +39,7 @@ class TextFontTool extends AtomicTool {
 		}
 	}
 
+	getType(): ToolType {
+		return ToolType.TEXT;
+	}
 }
-
-export { TextFontTool };

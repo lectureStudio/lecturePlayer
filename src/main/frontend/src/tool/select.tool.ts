@@ -1,9 +1,9 @@
-import { Tool } from "./tool";
+import { Tool, ToolType } from "./tool";
 import { ToolContext } from "./tool-context";
 import { PenPoint } from "../geometry/pen-point";
 import { Shape } from "../model/shape/shape";
 
-class SelectTool implements Tool {
+export class SelectTool implements Tool {
 
 	private sourcePoint: PenPoint;
 
@@ -45,6 +45,10 @@ class SelectTool implements Tool {
 		}
 	}
 
+	getType(): ToolType {
+		return ToolType.SELECT;
+	}
+
 	getTopLevelShape(point: PenPoint) {
 		let shape = null;
 
@@ -69,5 +73,3 @@ class SelectTool implements Tool {
 	}
 
 }
-
-export { SelectTool };

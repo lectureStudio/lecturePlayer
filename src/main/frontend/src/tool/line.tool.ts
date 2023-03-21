@@ -3,8 +3,9 @@ import { PaintTool } from "./paint.tool";
 import { PenPoint } from "../geometry/pen-point";
 import { LineShape } from "../model/shape/line.shape";
 import { AddShapeAction } from "../model/action/add-shape.action";
+import { ToolType } from "./tool";
 
-class LineTool extends PaintTool {
+export class LineTool extends PaintTool {
 
 	private shape: LineShape;
 
@@ -24,6 +25,8 @@ class LineTool extends PaintTool {
 		this.shape.setKeyEvent(this.context.keyEvent);
 		this.shape.setP1(point);
 	}
-}
 
-export { LineTool };
+	getType(): ToolType {
+		return ToolType.LINE;
+	}
+}

@@ -1,10 +1,10 @@
-import { Tool } from "./tool";
+import { Tool, ToolType } from "./tool";
 import { ToolContext } from "./tool-context";
 import { PenPoint } from "../geometry/pen-point";
 import { Shape } from "../model/shape/shape";
 import { AddShapeAction } from "../model/action/add-shape.action";
 
-class CloneTool implements Tool {
+export class CloneTool implements Tool {
 
 	private sourcePoint: PenPoint;
 
@@ -58,6 +58,10 @@ class CloneTool implements Tool {
 
 	end(point: PenPoint): void {
 		// No-op
+	}
+
+	getType(): ToolType {
+		return ToolType.CLONE;
 	}
 
 	private getTopLevelShape(point: PenPoint): Shape {
@@ -127,5 +131,3 @@ class CloneTool implements Tool {
 		return false;
 	}
 }
-
-export { CloneTool };

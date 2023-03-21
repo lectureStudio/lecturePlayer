@@ -1,10 +1,12 @@
-import { Tool } from "./tool";
+import { Tool, ToolType } from "./tool";
 import { Point } from "../geometry/point";
 import { ToolContext } from "./tool-context";
 
-abstract class AtomicTool implements Tool {
+export abstract class AtomicTool implements Tool {
 
 	abstract begin(point: Point, context: ToolContext): void;
+
+	abstract getType(): ToolType;
 
 
 	execute(point: Point): void {
@@ -15,5 +17,3 @@ abstract class AtomicTool implements Tool {
 		// No action
 	}
 }
-
-export { AtomicTool };

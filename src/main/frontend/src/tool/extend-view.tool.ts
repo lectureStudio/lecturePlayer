@@ -2,8 +2,9 @@ import { Rectangle } from "../geometry/rectangle";
 import { AtomicTool } from "./atomic.tool";
 import { Point } from "../geometry/point";
 import { ToolContext } from "./tool-context";
+import { ToolType } from "./tool";
 
-class ExtendViewTool extends AtomicTool {
+export class ExtendViewTool extends AtomicTool {
 
 	private readonly rect: Rectangle;
 
@@ -17,6 +18,8 @@ class ExtendViewTool extends AtomicTool {
 	begin(point: Point, context: ToolContext): void {
 		context.page.getSlideShape().setPageRect(this.rect);
 	}
-}
 
-export { ExtendViewTool };
+	getType(): ToolType {
+		return ToolType.EXTEND_VIEW;
+	}
+}

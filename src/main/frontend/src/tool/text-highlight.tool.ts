@@ -1,4 +1,4 @@
-import { Tool } from "./tool";
+import { Tool, ToolType } from "./tool";
 import { Point } from "../geometry/point";
 import { Rectangle } from "../geometry/rectangle";
 import { ToolContext } from "./tool-context";
@@ -6,7 +6,7 @@ import { TextHighlightShape } from "../model/shape/text-highlight.shape";
 import { Color } from "../paint/color";
 import { AddShapeAction } from "../model/action/add-shape.action";
 
-class TextHighlightTool implements Tool {
+export class TextHighlightTool implements Tool {
 
 	private readonly shapeHandle: number;
 
@@ -53,6 +53,8 @@ class TextHighlightTool implements Tool {
 	end(point: Point): void {
 		// Do nothing.
 	}
-}
 
-export { TextHighlightTool };
+	getType(): ToolType {
+		return ToolType.TEXT_SELECTION;
+	}
+}

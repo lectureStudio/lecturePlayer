@@ -1,9 +1,9 @@
-import { Tool } from "./tool";
+import { Tool, ToolType } from "./tool";
 import { ToolContext } from "./tool-context";
 import { TextShape } from "../model/shape/text.shape";
 import { PenPoint } from "../geometry/pen-point";
 
-class TextTool implements Tool {
+export class TextTool implements Tool {
 
 	private readonly handle: number;
 
@@ -32,6 +32,7 @@ class TextTool implements Tool {
 		this.context.page.addShape(this.shape);
 	}
 
+	getType(): ToolType {
+		return ToolType.TEXT;
+	}
 }
-
-export { TextTool };

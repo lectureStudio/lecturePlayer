@@ -1,9 +1,9 @@
-import { Tool } from "./tool";
+import { Tool, ToolType } from "./tool";
 import { Point } from "../geometry/point";
 import { ToolContext } from "./tool-context";
 import { Rectangle } from "../geometry/rectangle";
 
-class PanTool implements Tool {
+export class PanTool implements Tool {
 
 	private context: ToolContext;
 
@@ -30,6 +30,8 @@ class PanTool implements Tool {
 	end(point: Point): void {
 		// No-op
 	}
-}
 
-export { PanTool };
+	getType(): ToolType {
+		return ToolType.PANNING;
+	}
+}

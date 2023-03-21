@@ -3,8 +3,9 @@ import { PaintTool } from "./paint.tool";
 import { PenPoint } from "../geometry/pen-point";
 import { RectangleShape } from "../model/shape/rectangle.shape";
 import { AddShapeAction } from "../model/action/add-shape.action";
+import { ToolType } from "./tool";
 
-class RectangleTool extends PaintTool {
+export class RectangleTool extends PaintTool {
 
 	private shape: RectangleShape;
 
@@ -24,6 +25,8 @@ class RectangleTool extends PaintTool {
 		this.shape.setKeyEvent(this.context.keyEvent);
 		this.shape.setP1(point);
 	}
-}
 
-export { RectangleTool };
+	getType(): ToolType {
+		return ToolType.RECTANGLE;
+	}
+}

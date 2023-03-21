@@ -3,8 +3,9 @@ import { PaintTool } from "./paint.tool";
 import { PenPoint } from "../geometry/pen-point";
 import { AddShapeAction } from "../model/action/add-shape.action";
 import { PenShape } from "../model/shape/pen.shape";
+import { ToolType } from "./tool";
 
-class PenTool extends PaintTool {
+export class PenTool extends PaintTool {
 
 	private shape: PenShape;
 
@@ -23,6 +24,8 @@ class PenTool extends PaintTool {
 	end(point: PenPoint): void {
 		// No-op
 	}
-}
 
-export { PenTool };
+	getType(): ToolType {
+		return ToolType.PEN;
+	}
+}

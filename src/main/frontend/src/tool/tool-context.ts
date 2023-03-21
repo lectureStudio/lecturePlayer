@@ -1,9 +1,9 @@
 import { Page } from "../model/page";
 import { RenderController } from "../render/render-controller";
 
-class ToolContext {
+export class ToolContext {
 
-	private readonly renderController: RenderController;
+	readonly renderController: RenderController;
 
 	page: Page;
 
@@ -26,5 +26,3 @@ class ToolContext {
 		}
 	}
 }
-
-export { ToolContext };

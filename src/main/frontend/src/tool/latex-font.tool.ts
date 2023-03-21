@@ -4,8 +4,9 @@ import { ToolContext } from "./tool-context";
 import { Color } from "../paint/color";
 import { Font } from "../paint/font";
 import { LatexShape } from "../model/shape/latex.shape";
+import { ToolType } from "./tool";
 
-class LatexFontTool extends AtomicTool {
+export class LatexFontTool extends AtomicTool {
 
 	private readonly handle: number;
 
@@ -38,6 +39,7 @@ class LatexFontTool extends AtomicTool {
 		}
 	}
 
+	getType(): ToolType {
+		return ToolType.LATEX;
+	}
 }
-
-export { LatexFontTool };

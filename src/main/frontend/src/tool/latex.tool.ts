@@ -1,9 +1,9 @@
-import { Tool } from "./tool";
+import { Tool, ToolType } from "./tool";
 import { ToolContext } from "./tool-context";
 import { PenPoint } from "../geometry/pen-point";
 import { LatexShape } from "../model/shape/latex.shape";
 
-class LatexTool implements Tool {
+export class LatexTool implements Tool {
 
 	private readonly handle: number;
 
@@ -32,6 +32,7 @@ class LatexTool implements Tool {
 		this.context.page.addShape(this.shape);
 	}
 
+	getType(): ToolType {
+		return ToolType.LATEX;
+	}
 }
-
-export { LatexTool };
