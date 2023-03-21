@@ -1,5 +1,6 @@
 import { LitElement, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
+import { MouseListener } from '../../event/mouse-listener';
 import { RenderController } from '../../render/render-controller';
 import { RenderSurface } from '../../render/render-surface';
 import { SlideRenderSurface, } from '../../render/slide-render-surface';
@@ -58,6 +59,20 @@ export class SlideView extends LitElement {
 		return this.textLayerSurface;
 	}
 
+	addMouseListener(listener: MouseListener) {
+		// Use the volatile canvas since it has the real page/slide dimension.
+		const volatileCanvas: HTMLCanvasElement = this.renderRoot.querySelector(".volatile-canvas");
+
+		listener.registerElement(volatileCanvas);
+	}
+
+	removeMouseListener(listener: MouseListener) {
+		// Use the volatile canvas since it has the real page/slide dimension.
+		const volatileCanvas: HTMLCanvasElement = this.renderRoot.querySelector(".volatile-canvas");
+
+		listener.unregisterElement(volatileCanvas);
+	}
+
 	private resize() {
 		if (!this.renderController || !this.renderController.getPage()) {
 			return;
@@ -97,5 +112,4 @@ export class SlideView extends LitElement {
 			<div class="text-layer"></div>
 		`;
 	}
-
 }
