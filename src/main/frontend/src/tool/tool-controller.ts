@@ -11,6 +11,7 @@ import { RubberTool } from "./rubber.tool";
 import { Tool, ToolType } from "./tool";
 import { ToolContext } from "./tool-context";
 import { UndoTool } from "./undo.tool";
+import { setDocument, setPageNumber } from "../model/document-store";
 import $toolStore, { setToolType } from "../model/tool-store";
 
 export class ToolController {
@@ -26,6 +27,9 @@ export class ToolController {
 
 	constructor(renderController: RenderController) {
 		this.toolContext = new ToolContext(renderController);
+
+		setDocument.watch(this.setDocument.bind(this));
+		setPageNumber.watch(this.setPageNumber.bind(this));
 
 		$toolStore.watch(() => {
 			this.onToolStoreChange();

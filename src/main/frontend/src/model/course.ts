@@ -27,8 +27,6 @@ class Course extends EventTarget {
 
 	private _activeDocument: CourseStateDocument;
 
-	private _documentState: CourseDocumentState;
-
 	private _mediaState: CourseMediaState;
 
 	private _streamStats: StreamStats = {};
@@ -138,16 +136,6 @@ class Course extends EventTarget {
 		this._activeDocument = document;
 
 		this.dispatchEvent(Utils.createEvent("course-active-document"));
-	}
-
-	get documentState() {
-		return this._documentState;
-	}
-
-	set documentState(state: CourseDocumentState) {
-		this._documentState = state;
-
-		this.dispatchEvent(Utils.createEvent("course-document-state"));
 	}
 
 	get mediaState() {

@@ -1,6 +1,6 @@
 import { Action } from "./action";
 
-class ActionHandler<T> {
+export class ActionHandler<T> {
 
 	private undoActions: Action<T>[] = [];
 
@@ -44,6 +44,12 @@ class ActionHandler<T> {
 		this.undoActions.length = 0;
 		this.redoActions.length = 0;
 	}
-}
 
-export { ActionHandler };
+	canUndo(): boolean {
+		return this.undoActions.length > 0;
+	}
+
+	canRedo(): boolean {
+		return this.redoActions.length > 0;
+	}
+}

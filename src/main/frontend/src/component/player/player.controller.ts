@@ -416,10 +416,6 @@ export class PlayerController implements ReactiveController {
 		course.documentMap.set(BigInt(stateDoc.documentId), stateDoc);
 		// This is the document to be in use.
 		course.activeDocument = stateDoc;
-		course.documentState = {
-			currentPage: stateDoc.activePage.pageNumber,
-			pageCount: document.getPageCount()
-		};
 
 		this.host.dispatchEvent(Utils.createEvent("course-new-document"));
 	}
@@ -516,7 +512,7 @@ export class PlayerController implements ReactiveController {
 		const toolController = new ToolController(renderController);
 		const mouseListener = new MouseListener(toolController);
 
-		this.playbackService.initialize(renderController, toolController);
+		this.playbackService.initialize(renderController);
 
 		renderController.getSlideView().addMouseListener(mouseListener);
 	}

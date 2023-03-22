@@ -1,13 +1,12 @@
 import { SlColorPicker } from '@shoelace-style/shoelace';
 import { html } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
-import { course } from '../../model/course';
-import { CourseStateDocument } from '../../model/course-state-document';
+import { customElement, state } from 'lit/decorators.js';
 import { Color } from '../../paint/color';
 import { ToolType } from '../../tool/tool';
 import { Utils } from '../../utils/utils';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { documentNavigationStyles } from './document-navigation.styles';
+import $documentStore, { setPage } from "../../model/document-store";
 import $toolStore, { setToolType, setToolColor } from "../../model/tool-store";
 
 @customElement('document-navigation')
@@ -18,8 +17,7 @@ export class DocumentNavigation extends I18nLitElement {
 		documentNavigationStyles,
 	];
 
-	@property()
-	document: CourseStateDocument;
+	private readonly pageChangeListener = this.onPageChanged.bind(this);
 
 	@state()
 	toolType: ToolType;
@@ -31,8 +29,20 @@ export class DocumentNavigation extends I18nLitElement {
 		$toolStore.watch(store => {
 			this.toolType = store.selectedToolType;
 		});
+		$documentStore.watch(() => {
+			this.requestUpdate();
+		});
+		setPage.watch(page => {
+			// Observe page shape changes, e.g. to update the undo/redo state.
+			const prevPage = $documentStore.getState().selectedPage;
 
-		course.addEventListener("course-document-state", () => { this.requestUpdate() }, false);
+			if (prevPage) {
+				prevPage.removeChangeListener(this.pageChangeListener);
+			}
+			if (page) {
+				page.addChangeListener(this.pageChangeListener);
+			}
+		});
 
 		document.addEventListener("keydown", (event: KeyboardEvent) => {
 			if (event.defaultPrevented) {
@@ -71,8 +81,11 @@ export class DocumentNavigation extends I18nLitElement {
 	}
 
 	protected render() {
-		const prevEnabled = course.documentState?.currentPage > 0;
-		const nextEnabled = course.documentState?.currentPage < course.documentState?.pageCount - 1;
+		const documentStore = $documentStore.getState();
+		const prevEnabled = documentStore.selectedPageNumber > 0;
+		const nextEnabled = documentStore.selectedPageNumber < documentStore.selectedDocument?.getPageCount() - 1;
+		const undoEnabled = documentStore.selectedPage?.canUndo();
+		const redoEnabled = documentStore.selectedPage?.canRedo();
 
 		return html`
 			<sl-tooltip content="${t("controls.documents.page.prev")}" trigger="hover">
@@ -83,10 +96,10 @@ export class DocumentNavigation extends I18nLitElement {
 			</sl-tooltip>
 			<sl-divider vertical></sl-divider>
 			<sl-tooltip content="${t("controls.tools.undo")}" trigger="hover">
-				<sl-icon-button @click="${this.onTool}" data-type="UNDO" library="lect-icons" name="undo-tool" class="document-toolbar-button tool-button"></sl-icon-button>
+				<sl-icon-button @click="${this.onTool}" ?disabled="${!undoEnabled}" data-type="UNDO" library="lect-icons" name="undo-tool" class="document-toolbar-button tool-button"></sl-icon-button>
 			</sl-tooltip>
 			<sl-tooltip content="${t("controls.tools.redo")}" trigger="hover">
-				<sl-icon-button @click="${this.onTool}" data-type="REDO" library="lect-icons" name="redo-tool" class="document-toolbar-button tool-button"></sl-icon-button>
+				<sl-icon-button @click="${this.onTool}" ?disabled="${!redoEnabled}" data-type="REDO" library="lect-icons" name="redo-tool" class="document-toolbar-button tool-button"></sl-icon-button>
 			</sl-tooltip>
 			<sl-divider vertical></sl-divider>
 			<sl-tooltip content="${t("controls.tools.cursor")}" trigger="hover">
@@ -109,7 +122,7 @@ export class DocumentNavigation extends I18nLitElement {
 				<sl-icon-button @click="${this.onTool}" data-type="DELETE_ALL" library="lect-icons" name="clear-tool" class="document-toolbar-button tool-button"></sl-icon>
 			</sl-tooltip>
 			<sl-divider vertical></sl-divider>
-			<sl-color-picker @sl-change="${this.onToolColor}" value="${$toolStore.getState().selectedToolBrush.color.toRgba()}" format="rgb" label="Select a color" swatches="#d0021b; #f5a623; #f8e71c; #8b572a; #7ed321;" size="small"></sl-color-picker>
+			<sl-color-picker @sl-change="${this.onToolColor}" value="${$toolStore.getState().selectedToolBrush.color.toRgba()}" format="rgb" label="Select a color" swatches="#d0021b; #f5a623; #f8e71c; #8b572a; #7ed321;" size="small" no-format-toggle></sl-color-picker>
 		`;
 	}
 
@@ -131,6 +144,10 @@ export class DocumentNavigation extends I18nLitElement {
 		const picker = event.target as SlColorPicker;
 
 		setToolColor(Color.fromRGBString(picker.value));
+	}
+
+	private onPageChanged() {
+		this.requestUpdate();
 	}
 
 	private getButtonToolType(button: HTMLElement) {

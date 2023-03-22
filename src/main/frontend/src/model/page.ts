@@ -9,7 +9,7 @@ import { SlideDocument } from "./document";
 import { Rectangle } from "../geometry/rectangle";
 import { Dimension } from "../geometry/dimension";
 
-class Page {
+export class Page {
 
 	private readonly shapeChangeListener: (event: ShapeEvent) => void;
 
@@ -114,6 +114,14 @@ class Page {
 		this.firePageEvent(new PageEvent(this, PageChangeType.Clear, null));
 	}
 
+	canUndo(): boolean {
+		return this.actionHandler.canUndo();
+	}
+
+	canRedo(): boolean {
+		return this.actionHandler.canRedo();
+	}
+
 	private onSlideTransform(event: ShapeEvent): void {
 		this.firePageEvent(new PageEvent(this, PageChangeType.PageTransform, event.shape, event.dirtyRegion));
 	}
@@ -126,5 +134,3 @@ class Page {
 		this.changeEvent.publish(event);
 	}
 }
-
-export { Page };

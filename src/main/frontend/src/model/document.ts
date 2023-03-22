@@ -2,7 +2,7 @@ import { Dimension } from "../geometry/dimension";
 import { Rectangle } from "../geometry/rectangle";
 import { Page } from "./page";
 
-abstract class SlideDocument {
+export abstract class SlideDocument {
 
 	protected pages: Page[];
 
@@ -45,5 +45,3 @@ abstract class SlideDocument {
 		this.pages.splice(pageNumber, 1);
 	}
 }
-
-export { SlideDocument };

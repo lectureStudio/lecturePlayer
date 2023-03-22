@@ -25,4 +25,16 @@ export const documentNavigationStyles = css`
 	sl-divider {
 		height: 1.25rem;
 	}
+
+	sl-color-picker {
+		display: flex;
+	}
+	sl-color-picker::part(trigger) {
+		display: flex;
+		width: 1.5rem;
+		height: 1.5rem;
+	}
+	sl-color-picker::part(input) {
+		display: none;
+	}
 `;

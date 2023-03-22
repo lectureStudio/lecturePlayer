@@ -4,7 +4,7 @@ import { StreamActionPlayer } from "../action/stream-action-player";
 import { SlideDocument } from "../model/document";
 import { RenderController } from "../render/render-controller";
 import { course } from '../model/course';
-import { ToolController } from "../tool/tool-controller";
+import $documentStore, { setDocument, setPage, setPageNumber } from "../model/document-store";
 
 export class PlaybackService {
 
@@ -14,12 +14,9 @@ export class PlaybackService {
 
 	private renderController: RenderController;
 
-	private toolController: ToolController;
 
-
-	initialize(controller: RenderController, toolController: ToolController) {
+	initialize(controller: RenderController) {
 		this.renderController = controller;
-		this.toolController = toolController;
 		this.documents = new Map();
 
 		const executor = new StreamActionExecutor(this.renderController);
@@ -64,7 +61,8 @@ export class PlaybackService {
 
 		if (document) {
 			this.actionPlayer.setDocument(document);
-			this.toolController.setDocument(document);
+
+			setDocument(document);
 		}
 	}
 
@@ -75,13 +73,9 @@ export class PlaybackService {
 			this.actionPlayer.setDocument(document);
 			this.actionPlayer.setPageNumber(pageNumber);
 
-			this.toolController.setDocument(document);
-			this.toolController.setPageNumber(pageNumber);
-
-			course.documentState = {
-				currentPage: pageNumber,
-				pageCount: document.getPageCount()
-			};
+			setDocument(document);
+			setPage(document.getPage(pageNumber));
+			setPageNumber(pageNumber);
 
 			return true;
 		}
@@ -106,15 +100,12 @@ export class PlaybackService {
 
 		if (document && pageNumber > -1 && pageNumber < document.getPageCount()) {
 			this.actionPlayer.setPageNumber(pageNumber);
-			this.toolController.setPageNumber(pageNumber);
+
+			setPage(document.getPage(pageNumber));
+			setPageNumber(pageNumber);
 
 			const activeStateDoc = course.activeDocument;
 			activeStateDoc.activePage.pageNumber = pageNumber;
-
-			course.documentState = {
-				currentPage: pageNumber,
-				pageCount: document.getPageCount()
-			};
 
 			return true;
 		}
