@@ -34,7 +34,8 @@ export const documentNavigationStyles = css`
 		width: 1.5rem;
 		height: 1.5rem;
 	}
-	sl-color-picker::part(input) {
+	sl-color-picker::part(input),
+	sl-color-picker::part(opacity-slider) {
 		display: none;
 	}
 `;

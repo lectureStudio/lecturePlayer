@@ -1,6 +1,6 @@
 import { SlColorPicker } from '@shoelace-style/shoelace';
 import { html } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, query, state } from 'lit/decorators.js';
 import { Color } from '../../paint/color';
 import { ToolType } from '../../tool/tool';
 import { Utils } from '../../utils/utils';
@@ -18,6 +18,9 @@ export class DocumentNavigation extends I18nLitElement {
 	];
 
 	private readonly pageChangeListener = this.onPageChanged.bind(this);
+
+	@query("sl-color-picker")
+	colorPicker: SlColorPicker;
 
 	@state()
 	toolType: ToolType;
@@ -81,11 +84,15 @@ export class DocumentNavigation extends I18nLitElement {
 	}
 
 	protected render() {
-		const documentStore = $documentStore.getState();
-		const prevEnabled = documentStore.selectedPageNumber > 0;
-		const nextEnabled = documentStore.selectedPageNumber < documentStore.selectedDocument?.getPageCount() - 1;
-		const undoEnabled = documentStore.selectedPage?.canUndo();
-		const redoEnabled = documentStore.selectedPage?.canRedo();
+		const documentState = $documentStore.getState();
+		const prevEnabled = documentState.selectedPageNumber > 0;
+		const nextEnabled = documentState.selectedPageNumber < documentState.selectedDocument?.getPageCount() - 1;
+		const undoEnabled = documentState.selectedPage?.canUndo();
+		const redoEnabled = documentState.selectedPage?.canRedo();
+
+		const toolState = $toolStore.getState();
+		const currentColor = toolState.selectedToolBrush?.color.toRgba();
+		const swatches = toolState.selectedToolSettings?.colorPalette.map(color => color.toRgba()) || [];
 
 		return html`
 			<sl-tooltip content="${t("controls.documents.page.prev")}" trigger="hover">
@@ -122,7 +129,7 @@ export class DocumentNavigation extends I18nLitElement {
 				<sl-icon-button @click="${this.onTool}" data-type="DELETE_ALL" library="lect-icons" name="clear-tool" class="document-toolbar-button tool-button"></sl-icon>
 			</sl-tooltip>
 			<sl-divider vertical></sl-divider>
-			<sl-color-picker @sl-change="${this.onToolColor}" value="${$toolStore.getState().selectedToolBrush.color.toRgba()}" format="rgb" label="Select a color" swatches="#d0021b; #f5a623; #f8e71c; #8b572a; #7ed321;" size="small" no-format-toggle></sl-color-picker>
+			<sl-color-picker @sl-change="${this.onToolColor}" .swatches="${swatches}" value="${currentColor}" ?disabled="${!currentColor}" format="rgb" label="Select a color" size="small" opacity no-format-toggle></sl-color-picker>
 		`;
 	}
 
@@ -140,10 +147,8 @@ export class DocumentNavigation extends I18nLitElement {
 		setToolType(this.toolType);
 	}
 
-	private onToolColor(event: Event) {
-		const picker = event.target as SlColorPicker;
-
-		setToolColor(Color.fromRGBString(picker.value));
+	private onToolColor() {
+		setToolColor(Color.fromRGBString(this.colorPicker.value));
 	}
 
 	private onPageChanged() {
