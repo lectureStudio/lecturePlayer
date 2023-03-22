@@ -3,12 +3,12 @@ import { html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { course } from '../../model/course';
 import { CourseStateDocument } from '../../model/course-state-document';
-import { toolStore } from '../../model/tool-store';
 import { Color } from '../../paint/color';
 import { ToolType } from '../../tool/tool';
 import { Utils } from '../../utils/utils';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { documentNavigationStyles } from './document-navigation.styles';
+import $toolStore, { setToolType, setToolColor } from "../../model/tool-store";
 
 @customElement('document-navigation')
 export class DocumentNavigation extends I18nLitElement {
@@ -27,6 +27,10 @@ export class DocumentNavigation extends I18nLitElement {
 
 	override connectedCallback(): void {
 		super.connectedCallback();
+
+		$toolStore.watch(store => {
+			this.toolType = store.selectedToolType;
+		});
 
 		course.addEventListener("course-document-state", () => { this.requestUpdate() }, false);
 
@@ -50,7 +54,20 @@ export class DocumentNavigation extends I18nLitElement {
 	}
 
 	protected firstUpdated() {
-		this.selectToolButton(toolStore.selectedToolType);
+		this.toolType = $toolStore.getState().selectedToolType;
+	}
+
+	protected updated() {
+		this.renderRoot.querySelectorAll(".tool-button")
+			.forEach(element => {
+				element.classList.remove("tool-button-active");
+
+				const type = this.getButtonToolType(element as HTMLElement)
+
+				if (this.toolType === type) {
+					element.classList.add("tool-button-active");
+				}
+			});
 	}
 
 	protected render() {
@@ -65,6 +82,13 @@ export class DocumentNavigation extends I18nLitElement {
 				<sl-icon-button @click="${this.onNextSlide}" ?disabled="${!nextEnabled}" library="lect-icons" name="next-page" class="document-toolbar-button"></sl-icon>
 			</sl-tooltip>
 			<sl-divider vertical></sl-divider>
+			<sl-tooltip content="${t("controls.tools.undo")}" trigger="hover">
+				<sl-icon-button @click="${this.onTool}" data-type="UNDO" library="lect-icons" name="undo-tool" class="document-toolbar-button tool-button"></sl-icon-button>
+			</sl-tooltip>
+			<sl-tooltip content="${t("controls.tools.redo")}" trigger="hover">
+				<sl-icon-button @click="${this.onTool}" data-type="REDO" library="lect-icons" name="redo-tool" class="document-toolbar-button tool-button"></sl-icon-button>
+			</sl-tooltip>
+			<sl-divider vertical></sl-divider>
 			<sl-tooltip content="${t("controls.tools.cursor")}" trigger="hover">
 				<sl-icon-button @click="${this.onTool}" data-type="CURSOR" library="lect-icons" name="mouse-pointer" class="document-toolbar-button tool-button"></sl-icon-button>
 			</sl-tooltip>
@@ -74,8 +98,18 @@ export class DocumentNavigation extends I18nLitElement {
 			<sl-tooltip content="${t("controls.tools.pen")}" trigger="hover">
 				<sl-icon-button @click="${this.onTool}" data-type="PEN" library="lect-icons" name="pen-tool" class="document-toolbar-button tool-button"></sl-icon>
 			</sl-tooltip>
+			<sl-tooltip content="${t("controls.tools.highlighter")}" trigger="hover">
+				<sl-icon-button @click="${this.onTool}" data-type="HIGHLIGHTER" library="lect-icons" name="highlighter-tool" class="document-toolbar-button tool-button"></sl-icon>
+			</sl-tooltip>
 			<sl-divider vertical></sl-divider>
-			<sl-color-picker @sl-change="${this.onToolColor}" value="${toolStore.selectedToolBrush.color.toRgba()}" format="rgb" label="Select a color" swatches="#d0021b; #f5a623; #f8e71c; #8b572a; #7ed321;" size="small"></sl-color-picker>
+			<sl-tooltip content="${t("controls.tools.rubber")}" trigger="hover">
+				<sl-icon-button @click="${this.onTool}" data-type="RUBBER" library="lect-icons" name="rubber-tool" class="document-toolbar-button tool-button"></sl-icon>
+			</sl-tooltip>
+			<sl-tooltip content="${t("controls.tools.clear")}" trigger="hover">
+				<sl-icon-button @click="${this.onTool}" data-type="DELETE_ALL" library="lect-icons" name="clear-tool" class="document-toolbar-button tool-button"></sl-icon>
+			</sl-tooltip>
+			<sl-divider vertical></sl-divider>
+			<sl-color-picker @sl-change="${this.onToolColor}" value="${$toolStore.getState().selectedToolBrush.color.toRgba()}" format="rgb" label="Select a color" swatches="#d0021b; #f5a623; #f8e71c; #8b572a; #7ed321;" size="small"></sl-color-picker>
 		`;
 	}
 
@@ -88,34 +122,15 @@ export class DocumentNavigation extends I18nLitElement {
 	}
 
 	private onTool(event: Event) {
-		this.selectToolButton(this.getButtonToolType(event.target as HTMLElement));
+		this.toolType = this.getButtonToolType(event.target as HTMLElement);
+
+		setToolType(this.toolType);
 	}
 
 	private onToolColor(event: Event) {
 		const picker = event.target as SlColorPicker;
 
-		toolStore.selectedToolBrush.color = Color.fromRGBString(picker.value);
-	}
-
-	private selectToolButton(typeToSelect: ToolType) {
-		if (!typeToSelect) {
-			return;
-		}
-
-		this.renderRoot.querySelectorAll(".tool-button")
-			.forEach(element => {
-				element.classList.remove("tool-button-active");
-
-				const type = this.getButtonToolType(element as HTMLElement)
-
-				if (typeToSelect === type) {
-					element.classList.add("tool-button-active");
-
-					this.toolType = type;
-
-					toolStore.selectedToolType = type;
-				}
-			});
+		setToolColor(Color.fromRGBString(picker.value));
 	}
 
 	private getButtonToolType(button: HTMLElement) {

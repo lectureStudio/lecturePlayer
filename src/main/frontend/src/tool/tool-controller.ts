@@ -56,8 +56,6 @@ export class ToolController {
 			return;
 		}
 
-		console.log("set tool", tool.getType());
-
 		this.setPreviousTool(this.tool);
 
 		this.tool = tool;

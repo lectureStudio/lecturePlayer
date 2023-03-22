@@ -56,6 +56,7 @@
 	"dependencies": {
 		"@shoelace-style/shoelace": "^2.2.0",
 		"@stomp/stompjs": "^6.1.2",
+		"effector": "^22.7.0",
 		"i18next": "^21.8.12",
 		"i18next-browser-languagedetector": "^6.1.4",
 		"janus-gateway": "git://github.com/meetecho/janus-gateway.git",
