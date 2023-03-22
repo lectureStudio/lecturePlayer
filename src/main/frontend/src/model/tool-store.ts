@@ -73,9 +73,10 @@ export const setToolColor = createEvent<Color>();
 export const setToolThickness = createEvent<number>();
 
 export default createStore<ToolStore>({
-	selectedToolType: ToolType.PEN,
-	selectedToolBrush: toolSettingsMap.get(ToolType.PEN).customBrush,
-	selectedToolSettings: toolSettingsMap.get(ToolType.PEN)
+	// Select cursor by default.
+	selectedToolType: ToolType.CURSOR,
+	selectedToolBrush: null,
+	selectedToolSettings: null
 })
 	.on(setToolType, (state: ToolStore, type: ToolType) => {
 		if (type !== state.selectedToolType) {

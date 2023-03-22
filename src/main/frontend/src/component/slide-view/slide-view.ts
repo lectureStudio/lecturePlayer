@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit';
-import { customElement } from 'lit/decorators.js';
+import { customElement, property, query } from 'lit/decorators.js';
 import { MouseListener } from '../../event/mouse-listener';
 import { RenderController } from '../../render/render-controller';
 import { RenderSurface } from '../../render/render-surface';
@@ -24,16 +24,21 @@ export class SlideView extends LitElement {
 
 	private renderController: RenderController;
 
+	@query(".volatile-canvas")
+	volatileCanvas: HTMLCanvasElement;
+
+	@property({ type: Boolean, reflect: true })
+	textLayerEnabled: boolean = true;
+
 
 	firstUpdated() {
 		const slideCanvas: HTMLCanvasElement = this.renderRoot.querySelector(".slide-canvas");
 		const actionCanvas: HTMLCanvasElement = this.renderRoot.querySelector(".action-canvas");
-		const volatileCanvas: HTMLCanvasElement = this.renderRoot.querySelector(".volatile-canvas");
 		const textLayer: HTMLCanvasElement = this.renderRoot.querySelector(".text-layer");
 
 		this.slideRenderSurface = new SlideRenderSurface(this, slideCanvas);
 		this.actionRenderSurface = new RenderSurface(this, actionCanvas);
-		this.volatileRenderSurface = new RenderSurface(this, volatileCanvas);
+		this.volatileRenderSurface = new RenderSurface(this, this.volatileCanvas);
 		this.textLayerSurface = new TextLayerSurface(this, textLayer);
 
 		this.renderController = new RenderController(this);
@@ -59,18 +64,18 @@ export class SlideView extends LitElement {
 		return this.textLayerSurface;
 	}
 
+	setTextLayerEnabled(enabled: boolean) {
+		this.textLayerEnabled = enabled;
+	}
+
 	addMouseListener(listener: MouseListener) {
 		// Use the volatile canvas since it has the real page/slide dimension.
-		const volatileCanvas: HTMLCanvasElement = this.renderRoot.querySelector(".volatile-canvas");
-
-		listener.registerElement(volatileCanvas);
+		listener.registerElement(this.volatileCanvas);
 	}
 
 	removeMouseListener(listener: MouseListener) {
 		// Use the volatile canvas since it has the real page/slide dimension.
-		const volatileCanvas: HTMLCanvasElement = this.renderRoot.querySelector(".volatile-canvas");
-
-		listener.unregisterElement(volatileCanvas);
+		listener.unregisterElement(this.volatileCanvas);
 	}
 
 	private resize() {
@@ -104,7 +109,7 @@ export class SlideView extends LitElement {
 		});
 	}
 
-	render() {
+	protected render() {
 		return html`
 			<canvas class="slide-canvas"></canvas>
 			<canvas class="action-canvas" scale="full"></canvas>

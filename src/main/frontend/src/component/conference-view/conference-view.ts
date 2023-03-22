@@ -8,7 +8,6 @@ import { ParticipantView } from "../participant-view/participant-view";
 import { State } from "../../utils/state";
 import { ScreenView } from "../screen-view/screen-view";
 import { course } from "../../model/course";
-import { SlideView } from "../slide-view/slide-view";
 
 export enum ConferenceLayout {
 
@@ -78,9 +77,6 @@ export class ConferenceView extends I18nLitElement {
 
 	@query("screen-view")
 	screenView: ScreenView;
-
-	@query("slide-view")
-	slideView: SlideView;
 
 
 	public addGridElement(view: ParticipantView) {

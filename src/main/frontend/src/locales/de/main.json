@@ -45,7 +45,7 @@
 	"controls.layout": "Layout",
 	"controls.screenshare": "Bildschirm teilen",
 	"controls.tools": "Werkzeuge",
-	"controls.tools.cursor": "Auswahl",
+	"controls.tools.cursor": "Lokale Textauswahl",
 	"controls.tools.highlighter": "Highlighter",
 	"controls.tools.pen": "Stift",
 	"controls.tools.pointer": "Pointer",

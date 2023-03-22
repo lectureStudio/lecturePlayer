@@ -37,6 +37,8 @@ import { Brush } from "../paint/brush";
 import { SlideView } from "../component/slide-view/slide-view";
 import { Utils } from "../utils/utils";
 import { Dimension } from "../geometry/dimension";
+import { ToolType } from "../tool/tool";
+import $toolStore, { setToolType } from "../model/tool-store";
 
 export class RenderController {
 
@@ -79,6 +81,11 @@ export class RenderController {
 
 		// One time event used due to the highly decoupled nature of components.
 		document.dispatchEvent(Utils.createEvent("lect-render-controller-ready", this));
+
+		// Update current tool state.
+		setToolType.watch(this.toolSelected.bind(this));
+
+		this.toolSelected($toolStore.getState().selectedToolType);
 	}
 
 	getSlideView(): SlideView {
@@ -241,6 +248,10 @@ export class RenderController {
 				}
 				break;
 		}
+	}
+
+	private toolSelected(type: ToolType) {
+		this.slideView.setTextLayerEnabled(type === ToolType.CURSOR);
 	}
 
 	private visibilityChanged(): void {

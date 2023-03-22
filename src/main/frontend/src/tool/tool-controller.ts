@@ -2,6 +2,7 @@ import { PenPoint } from "../geometry/pen-point";
 import { SlideDocument } from "../model/document";
 import { RenderController } from "../render/render-controller";
 import { AtomicTool } from "./atomic.tool";
+import { CursorTool } from "./cursor.tool";
 import { ClearShapesTool } from "./clear-shapes.tool";
 import { HighlighterTool } from "./highlighter.tool";
 import { PenTool } from "./pen.tool";
@@ -34,10 +35,6 @@ export class ToolController {
 		$toolStore.watch(() => {
 			this.onToolStoreChange();
 		});
-	}
-
-	getDocument(): SlideDocument {
-		return this.document;
 	}
 
 	setDocument(document: SlideDocument): void {
@@ -100,7 +97,7 @@ export class ToolController {
 	private onToolStoreChange(): void {
 		switch ($toolStore.getState().selectedToolType) {
 			case ToolType.CURSOR:
-
+				this.selectCursorTool();
 				break;
 
 			case ToolType.HIGHLIGHTER:
@@ -134,6 +131,10 @@ export class ToolController {
 			default:
 				console.error("Selected unknown tool");
 		}
+	}
+
+	private selectCursorTool() {
+		this.setTool(new CursorTool());
 	}
 
 	private selectHighlighterTool() {

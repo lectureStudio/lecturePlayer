@@ -34,6 +34,10 @@ export const slideViewStyles = css`
 		z-index: 2;
 	}
 
+	:host(:not([textLayerEnabled])) .text-layer {
+		pointer-events: none;
+	}
+
 	.text-layer {
 		position: absolute;
 		top: 50%;
