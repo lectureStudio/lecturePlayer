@@ -2,20 +2,22 @@ import { Tool, ToolType } from "./tool";
 import { Point } from "../geometry/point";
 import { ToolContext } from "./tool-context";
 import { Rectangle } from "../geometry/rectangle";
+import { Action } from "../action/action";
+import { PanAction } from "../action/pan.action";
+import { PenPoint } from "../geometry/pen-point";
 
-export class PanTool implements Tool {
-
-	private context: ToolContext;
+export class PanTool extends Tool {
 
 	private lastPoint: Point;
 
 
-	begin(point: Point, context: ToolContext): void {
-		this.context = context;
+	begin(point: PenPoint, context: ToolContext): void {
 		this.lastPoint = point;
+
+		super.begin(point, context);
 	}
 
-	execute(point: Point): void {
+	execute(point: PenPoint): void {
 		const slideShape = this.context.page.getSlideShape();
 		const pageRect = slideShape.bounds;
 
@@ -25,13 +27,15 @@ export class PanTool implements Tool {
 		slideShape.setPageRect(new Rectangle(x, y, pageRect.width, pageRect.height));
 
 		this.lastPoint = point;
-	}
 
-	end(point: Point): void {
-		// No-op
+		super.execute(point);
 	}
 
 	getType(): ToolType {
 		return ToolType.PANNING;
+	}
+
+	createAction(): Action {
+		return new PanAction();
 	}
 }

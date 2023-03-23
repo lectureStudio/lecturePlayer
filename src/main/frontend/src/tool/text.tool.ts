@@ -2,17 +2,19 @@ import { Tool, ToolType } from "./tool";
 import { ToolContext } from "./tool-context";
 import { TextShape } from "../model/shape/text.shape";
 import { PenPoint } from "../geometry/pen-point";
+import { Action } from "../action/action";
+import { TextAction } from "../action/text.action";
 
-export class TextTool implements Tool {
+export class TextTool extends Tool {
 
 	private readonly handle: number;
 
 	private shape: TextShape;
 
-	private context: ToolContext;
-
 
 	constructor(handle: number) {
+		super();
+
 		this.handle = handle;
 	}
 
@@ -20,6 +22,8 @@ export class TextTool implements Tool {
 		this.context = context;
 
 		this.shape = new TextShape(this.handle);
+
+		super.begin(point, context);
 	}
 
 	execute(point: PenPoint): void {
@@ -30,9 +34,15 @@ export class TextTool implements Tool {
 		this.shape.setLocation(point);
 
 		this.context.page.addShape(this.shape);
+
+		super.end(point);
 	}
 
 	getType(): ToolType {
 		return ToolType.TEXT;
+	}
+
+	createAction(): Action {
+		return new TextAction(this.handle);
 	}
 }

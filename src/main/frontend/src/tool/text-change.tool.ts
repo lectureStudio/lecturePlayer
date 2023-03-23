@@ -3,6 +3,8 @@ import { Point } from "../geometry/point";
 import { ToolContext } from "./tool-context";
 import { TypesettingShape } from "../model/shape/typesetting.shape";
 import { ToolType } from "./tool";
+import { Action } from "../action/action";
+import { TextChangeAction } from "../action/text-change.action";
 
 export class TextChangeTool extends AtomicTool {
 
@@ -27,9 +29,15 @@ export class TextChangeTool extends AtomicTool {
 				break;
 			}
 		}
+
+		context.recordAction(this.createAction());
 	}
 
 	getType(): ToolType {
 		return ToolType.TEXT;
+	}
+
+	createAction(): Action {
+		return new TextChangeAction(this.handle, this.text);
 	}
 }

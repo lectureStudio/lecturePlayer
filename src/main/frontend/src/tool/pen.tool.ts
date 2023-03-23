@@ -4,6 +4,8 @@ import { PenPoint } from "../geometry/pen-point";
 import { AddShapeAction } from "../model/action/add-shape.action";
 import { PenShape } from "../model/shape/pen.shape";
 import { ToolType } from "./tool";
+import { Action } from "../action/action";
+import { PenAction } from "../action/pen.action";
 
 export class PenTool extends PaintTool {
 
@@ -15,17 +17,21 @@ export class PenTool extends PaintTool {
 		this.shape.addPoint(point);
 
 		context.page.addAction(new AddShapeAction([this.shape]));
+
+		super.begin(point, context);
 	}
 
 	execute(point: PenPoint): void {
 		this.shape.addPoint(point);
-	}
 
-	end(point: PenPoint): void {
-		// No-op
+		super.execute(point);
 	}
 
 	getType(): ToolType {
 		return ToolType.PEN;
+	}
+
+	createAction(): Action {
+		return new PenAction(this.shapeHandle, this.brush);
 	}
 }

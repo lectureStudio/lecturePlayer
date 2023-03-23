@@ -19,8 +19,6 @@ const opaquePalette = [
 const alphaPalette = [
 	// Orange
 	new Color(255, 209, 25, 0.7),
-	// Blue Vivid
-	new Color(33, 134, 235, 0.7),
 	// Cyan
 	new Color(72, 248, 248, 0.7),
 	// Light Green
@@ -29,7 +27,7 @@ const alphaPalette = [
 	new Color(255, 86, 255, 0.7)
 ]
 
-const alphaPaletteRgb = [
+const alphaPaletteRGB = [
 	// Red
 	new Color(255, 0, 0, 0.7),
 	// Blue
@@ -62,9 +60,9 @@ const toolSettingsMap: Map<ToolType, ToolSettings> = new Map([
 		customBrush: new Brush(alphaPalette[0], 0.02)
 	}],
 	[ToolType.POINTER, {
-		colorPalette: alphaPaletteRgb,
+		colorPalette: alphaPaletteRGB,
 		thickness: 0.015,
-		customBrush: new Brush(alphaPaletteRgb[0], 0.015)
+		customBrush: new Brush(alphaPaletteRGB[0], 0.015)
 	}],
 ]);
 

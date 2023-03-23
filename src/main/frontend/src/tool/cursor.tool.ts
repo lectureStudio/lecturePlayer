@@ -1,8 +1,9 @@
 import { Tool, ToolType } from "./tool";
 import { ToolContext } from "./tool-context";
 import { PenPoint } from "../geometry/pen-point";
+import { Action } from "../action/action";
 
-export class CursorTool implements Tool {
+export class CursorTool extends Tool {
 
 	begin(point: PenPoint, context: ToolContext): void {
 		// Do nothing
@@ -18,5 +19,10 @@ export class CursorTool implements Tool {
 
 	getType(): ToolType {
 		return ToolType.CURSOR;
+	}
+
+	createAction(): Action {
+		// Cursor is not recorded.
+		return null;
 	}
 }

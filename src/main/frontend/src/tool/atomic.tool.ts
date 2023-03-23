@@ -1,19 +1,22 @@
 import { Tool, ToolType } from "./tool";
 import { Point } from "../geometry/point";
 import { ToolContext } from "./tool-context";
+import { Action } from "../action/action";
 
-export abstract class AtomicTool implements Tool {
+export abstract class AtomicTool extends Tool {
 
 	abstract begin(point: Point, context: ToolContext): void;
 
 	abstract getType(): ToolType;
 
+	abstract createAction(): Action;
 
-	execute(point: Point): void {
+
+	override execute(point: Point): void {
 		// No action
 	}
 
-	end(point: Point): void {
+	override end(point: Point): void {
 		// No action
 	}
 }

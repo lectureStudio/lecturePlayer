@@ -5,8 +5,10 @@ import { ToolContext } from "./tool-context";
 import { TextHighlightShape } from "../model/shape/text-highlight.shape";
 import { Color } from "../paint/color";
 import { AddShapeAction } from "../model/action/add-shape.action";
+import { Action } from "../action/action";
+import { TextHighlightAction } from "../action/text-highlight.action";
 
-export class TextHighlightTool implements Tool {
+export class TextHighlightTool extends Tool {
 
 	private readonly shapeHandle: number;
 
@@ -16,6 +18,8 @@ export class TextHighlightTool implements Tool {
 
 
 	constructor(shapeHandle: number, color: Color, textBounds: Rectangle[]) {
+		super();
+
 		this.shapeHandle = shapeHandle;
 		this.color = color;
 		this.textBounds = textBounds;
@@ -56,5 +60,9 @@ export class TextHighlightTool implements Tool {
 
 	getType(): ToolType {
 		return ToolType.TEXT_SELECTION;
+	}
+
+	createAction(): Action {
+		return new TextHighlightAction(this.shapeHandle, this.color, this.textBounds);
 	}
 }

@@ -2,20 +2,20 @@ import { Tool, ToolType } from "./tool";
 import { ToolContext } from "./tool-context";
 import { PenPoint } from "../geometry/pen-point";
 import { Shape } from "../model/shape/shape";
+import { Action } from "../action/action";
+import { SelectAction } from "../action/select.action";
 
-export class SelectTool implements Tool {
+export class SelectTool extends Tool {
 
 	private sourcePoint: PenPoint;
-
-	private context: ToolContext;
 
 	private selectedShape: Shape;
 
 
 	begin(point: PenPoint, context: ToolContext): void {
-		this.sourcePoint = point.clone();
-		this.context = context;
+		super.begin(point, context);
 
+		this.sourcePoint = point.clone();
 		this.selectedShape = this.getTopLevelShape(point);
 
 		this.removeSelection();
@@ -34,6 +34,8 @@ export class SelectTool implements Tool {
 			this.context.endBulkRender();
 
 			this.sourcePoint = point.clone();
+
+			super.execute(point);
 		}
 	}
 
@@ -42,11 +44,17 @@ export class SelectTool implements Tool {
 			this.context.beginBulkRender();
 			this.selectedShape.setSelected(false);
 			this.context.endBulkRender();
+
+			super.end(point);
 		}
 	}
 
 	getType(): ToolType {
 		return ToolType.SELECT;
+	}
+
+	createAction(): Action {
+		return new SelectAction();
 	}
 
 	getTopLevelShape(point: PenPoint) {

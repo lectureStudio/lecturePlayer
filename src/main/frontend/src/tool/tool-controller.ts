@@ -12,6 +12,8 @@ import { RubberTool } from "./rubber.tool";
 import { Tool, ToolType } from "./tool";
 import { ToolContext } from "./tool-context";
 import { UndoTool } from "./undo.tool";
+import { Action } from "../action/action";
+import { StreamPagePlaybackAction } from "../action/stream.playback.action";
 import { setDocument, setPageNumber } from "../model/document-store";
 import $toolStore, { setToolType } from "../model/tool-store";
 
@@ -28,6 +30,7 @@ export class ToolController {
 
 	constructor(renderController: RenderController) {
 		this.toolContext = new ToolContext(renderController);
+		this.toolContext.actionListener = this.recordAction.bind(this);
 
 		setDocument.watch(this.setDocument.bind(this));
 		setPageNumber.watch(this.setPageNumber.bind(this));
@@ -43,6 +46,7 @@ export class ToolController {
 
 	setPageNumber(pageNumber: number): void {
 		this.toolContext.page = this.document.getPage(pageNumber);
+		this.toolContext.pageNumber = pageNumber;
 	}
 
 	setKeyEvent(keyEvent: KeyboardEvent): void {
@@ -184,5 +188,18 @@ export class ToolController {
 
 		point.x = pageRect.x + x_rel;
 		point.y = pageRect.y + y_rel;
+	}
+
+	private recordAction(action: Action) {
+		action.keyEvent = this.toolContext.keyEvent;
+		action.timestamp = new Date().valueOf();
+
+		const docId = this.document.getDocumentId();
+		const pageNumber = this.toolContext.pageNumber;
+
+		const streamAction = new StreamPagePlaybackAction(docId, pageNumber, action);
+
+		console.log(action);
+		console.log(streamAction);
 	}
 }

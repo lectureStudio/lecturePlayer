@@ -5,6 +5,8 @@ import { TextShape } from "../model/shape/text.shape";
 import { Color } from "../paint/color";
 import { Font } from "../paint/font";
 import { ToolType } from "./tool";
+import { Action } from "../action/action";
+import { TextFontAction } from "../action/text-font.action";
 
 export class TextFontTool extends AtomicTool {
 
@@ -37,9 +39,15 @@ export class TextFontTool extends AtomicTool {
 				break;
 			}
 		}
+
+		context.recordAction(this.createAction());
 	}
 
 	getType(): ToolType {
 		return ToolType.TEXT;
+	}
+
+	createAction(): Action {
+		return new TextFontAction(this.handle, this.font, this.textColor, this.textAttributes);
 	}
 }

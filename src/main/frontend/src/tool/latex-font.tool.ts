@@ -5,6 +5,8 @@ import { Color } from "../paint/color";
 import { Font } from "../paint/font";
 import { LatexShape } from "../model/shape/latex.shape";
 import { ToolType } from "./tool";
+import { Action } from "../action/action";
+import { LatexFontAction } from "../action/latex-font.action";
 
 export class LatexFontTool extends AtomicTool {
 
@@ -37,9 +39,15 @@ export class LatexFontTool extends AtomicTool {
 				break;
 			}
 		}
+
+		context.recordAction(this.createAction());
 	}
 
 	getType(): ToolType {
 		return ToolType.LATEX;
+	}
+
+	createAction(): Action {
+		return new LatexFontAction(this.handle, this.font, this.textColor, this.textAttributes);
 	}
 }

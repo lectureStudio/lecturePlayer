@@ -1,9 +1,8 @@
 import { Tool, ToolType } from "./tool";
-import { ToolContext } from "./tool-context";
 import { Brush } from "../paint/brush";
-import { PenPoint } from "../geometry/pen-point";
+import { Action } from "../action/action";
 
-export abstract class PaintTool implements Tool {
+export abstract class PaintTool extends Tool {
 
 	private _shapeHandle: number;
 
@@ -11,18 +10,8 @@ export abstract class PaintTool implements Tool {
 
 
 	abstract getType(): ToolType;
+	abstract createAction(): Action;
 
-	begin(point: PenPoint, context: ToolContext): void {
-
-	}
-
-	execute(point: PenPoint): void {
-
-	}
-
-	end(point: PenPoint): void {
-
-	}
 
 	set shapeHandle(handle: number) {
 		this._shapeHandle = handle;

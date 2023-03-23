@@ -3,6 +3,8 @@ import { Point } from "../geometry/point";
 import { ToolContext } from "./tool-context";
 import { TypesettingShape } from "../model/shape/typesetting.shape";
 import { ToolType } from "./tool";
+import { Action } from "../action/action";
+import { TextRemoveAction } from "../action/text-remove.action";
 
 export class TextRemoveTool extends AtomicTool {
 
@@ -24,9 +26,15 @@ export class TextRemoveTool extends AtomicTool {
 				break;
 			}
 		}
+
+		context.recordAction(this.createAction());
 	}
 
 	getType(): ToolType {
 		return ToolType.TEXT;
+	}
+
+	createAction(): Action {
+		return new TextRemoveAction(this.handle);
 	}
 }

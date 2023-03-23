@@ -3,19 +3,20 @@ import { ToolContext } from "./tool-context";
 import { PenPoint } from "../geometry/pen-point";
 import { Shape } from "../model/shape/shape";
 import { AddShapeAction } from "../model/action/add-shape.action";
+import { Action } from "../action/action";
+import { CloneAction } from "../action/clone.action";
 
-export class CloneTool implements Tool {
+export class CloneTool extends Tool {
 
 	private sourcePoint: PenPoint;
-
-	private context: ToolContext;
 
 	private selectedShapes: Shape[];
 
 
 	begin(point: PenPoint, context: ToolContext): void {
+		super.begin(point, context);
+
 		this.sourcePoint = point.clone();
-		this.context = context;
 
 		this.getSelectedShapes();
 
@@ -54,14 +55,16 @@ export class CloneTool implements Tool {
 		this.moveShapes(point, this.sourcePoint);
 
 		this.sourcePoint = point.clone();
-	}
 
-	end(point: PenPoint): void {
-		// No-op
+		super.execute(point);
 	}
 
 	getType(): ToolType {
 		return ToolType.CLONE;
+	}
+
+	createAction(): Action {
+		return new CloneAction();
 	}
 
 	private getTopLevelShape(point: PenPoint): Shape {

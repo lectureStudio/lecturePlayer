@@ -2,13 +2,17 @@ import { ToolContext } from "./tool-context";
 import { Tool, ToolType } from "./tool";
 import { PenPoint } from "../geometry/pen-point";
 import { RemoveShapeAction } from "../model/action/remove-shape.action";
+import { Action } from "../action/action";
+import { RubberAction } from "../action/rubber.action";
 
-export class DeleteShapeTool implements Tool {
+export class DeleteShapeTool extends Tool {
 
 	private readonly shapeHandle: number;
 
 
 	constructor(shapeHandle: number) {
+		super();
+
 		this.shapeHandle = shapeHandle;
 	}
 
@@ -31,5 +35,9 @@ export class DeleteShapeTool implements Tool {
 
 	getType(): ToolType {
 		return ToolType.RUBBER;
+	}
+
+	createAction(): Action {
+		return new RubberAction(this.shapeHandle);
 	}
 }

@@ -4,6 +4,8 @@ import { PenPoint } from "../geometry/pen-point";
 import { Page } from "../model/page";
 import { PointerShape } from "../model/shape/pointer.shape";
 import { ToolType } from "./tool";
+import { Action } from "../action/action";
+import { PointerAction } from "../action/pointer.action";
 
 export class PointerTool extends PaintTool {
 
@@ -19,17 +21,27 @@ export class PointerTool extends PaintTool {
 		this.shape.addPoint(point);
 
 		this.page.addShape(this.shape);
+
+		super.begin(point, context);
 	}
 
 	execute(point: PenPoint): void {
 		this.shape.addPoint(point);
+
+		super.execute(point);
 	}
 
 	end(point: PenPoint): void {
 		this.page.removeShape(this.shape);
+
+		super.end(point);
 	}
 
 	getType(): ToolType {
 		return ToolType.POINTER;
+	}
+
+	createAction(): Action {
+		return new PointerAction(this.shapeHandle, this.brush);
 	}
 }
