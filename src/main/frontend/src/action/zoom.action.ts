@@ -2,8 +2,9 @@ import { ActionExecutor } from "./action-executor";
 import { BrushAction } from "./brush.action";
 import { ZoomTool } from "../tool/zoom.tool";
 import { Brush } from "../paint/brush";
+import { ActionType } from "./action-type";
 
-class ZoomAction extends BrushAction {
+export class ZoomAction extends BrushAction {
 
 	constructor(shapeHandle?: number, brush?: Brush) {
 		super(0, brush);
@@ -14,6 +15,7 @@ class ZoomAction extends BrushAction {
 		executor.setTool(new ZoomTool());
 	}
 
+	getActionType(): ActionType {
+		return ActionType.ZOOM;
+	}
 }
-
-export { ZoomAction };

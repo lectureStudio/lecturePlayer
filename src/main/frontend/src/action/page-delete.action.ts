@@ -1,7 +1,8 @@
 import { Action } from "./action";
 import { ActionExecutor } from "./action-executor";
+import { ActionType } from "./action-type";
 
-class PageDeleteAction extends Action {
+export class PageDeleteAction extends Action {
 
 	private readonly documentId: bigint;
 
@@ -18,6 +19,12 @@ class PageDeleteAction extends Action {
 	execute(executor: ActionExecutor): void {
 		executor.removePageNumber(this.pageNumber);
 	}
-}
 
-export { PageDeleteAction };
+	getActionType(): ActionType {
+		return null;
+	}
+
+	toBuffer(): ArrayBuffer {
+		return super.createBuffer(0).buffer;
+	}
+}

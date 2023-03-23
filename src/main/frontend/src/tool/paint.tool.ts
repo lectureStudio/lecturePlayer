@@ -18,7 +18,10 @@ export abstract class PaintTool extends Tool {
 	}
 
 	get shapeHandle() {
-		return this._shapeHandle ? this._shapeHandle : this.generateShapeHandle();
+		if (!this._shapeHandle) {
+			this._shapeHandle = this.generateShapeHandle();
+		}
+		return this._shapeHandle;
 	}
 
 	protected generateShapeHandle(): number {

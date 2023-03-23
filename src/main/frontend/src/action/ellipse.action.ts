@@ -1,8 +1,9 @@
 import { ActionExecutor } from "./action-executor";
 import { BrushAction } from "./brush.action";
 import { EllipseTool } from "../tool/ellipse.tool";
+import { ActionType } from "./action-type";
 
-class EllipseAction extends BrushAction {
+export class EllipseAction extends BrushAction {
 
 	execute(executor: ActionExecutor): void {
 		const tool = new EllipseTool();
@@ -13,6 +14,7 @@ class EllipseAction extends BrushAction {
 		executor.setTool(tool);
 	}
 
+	getActionType(): ActionType {
+		return ActionType.ELLIPSE;
+	}
 }
-
-export { EllipseAction };

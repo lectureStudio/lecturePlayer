@@ -1,7 +1,7 @@
 import { Action } from "./action";
 import { PenPoint } from "../geometry/pen-point";
 
-abstract class ToolAction extends Action {
+export abstract class ToolAction extends Action {
 
 	point: PenPoint;
 
@@ -12,6 +12,16 @@ abstract class ToolAction extends Action {
 		this.point = point;
 	}
 
-}
+	override toBuffer(): ArrayBuffer {
+		const length = this.point ? 12 : 0;
+		const { buffer, dataView } = super.createBuffer(length);
 
-export { ToolAction };
+		if (this.point) {
+			dataView.setFloat32(13, this.point.x);
+			dataView.setFloat32(17, this.point.y);
+			dataView.setFloat32(21, this.point.p);
+		}
+
+		return buffer;
+	}
+}

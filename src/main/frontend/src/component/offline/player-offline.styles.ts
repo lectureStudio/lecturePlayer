@@ -19,7 +19,7 @@ export const playerOfflineStyles = css`
 		padding: 0.5rem 0;
 		align-self: center;
 	}
-	:host > div > span {
+	:host > div > sl-icon {
 		color: #0d6efd;
 		font-size: 3em;
 		align-self: center;

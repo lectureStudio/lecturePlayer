@@ -1,8 +1,9 @@
 import { Action } from "./action";
 import { ActionExecutor } from "./action-executor";
 import { TextRemoveTool } from "../tool/text-remove.tool";
+import { ActionType } from "./action-type";
 
-class TextRemoveAction extends Action {
+export class TextRemoveAction extends Action {
 
 	private readonly handle: number;
 
@@ -17,6 +18,15 @@ class TextRemoveAction extends Action {
 		executor.selectAndExecuteTool(new TextRemoveTool(this.handle));
 	}
 
-}
+	getActionType(): ActionType {
+		return ActionType.TEXT_REMOVE;
+	}
 
-export { TextRemoveAction };
+	toBuffer(): ArrayBuffer {
+		const { buffer, dataView } = super.createBuffer(4);
+
+		dataView.setInt32(13, this.handle);
+
+		return buffer;
+	}
+}

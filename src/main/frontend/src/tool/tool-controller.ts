@@ -14,6 +14,7 @@ import { ToolContext } from "./tool-context";
 import { UndoTool } from "./undo.tool";
 import { Action } from "../action/action";
 import { StreamPagePlaybackAction } from "../action/stream.playback.action";
+import { addStreamAction } from "../model/action-store";
 import { setDocument, setPageNumber } from "../model/document-store";
 import $toolStore, { setToolType } from "../model/tool-store";
 
@@ -197,9 +198,6 @@ export class ToolController {
 		const docId = this.document.getDocumentId();
 		const pageNumber = this.toolContext.pageNumber;
 
-		const streamAction = new StreamPagePlaybackAction(docId, pageNumber, action);
-
-		console.log(action);
-		console.log(streamAction);
+		addStreamAction(new StreamPagePlaybackAction(docId, pageNumber, action));
 	}
 }

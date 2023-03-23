@@ -1,8 +1,9 @@
 import { ActionExecutor } from "./action-executor";
 import { BrushAction } from "./brush.action";
 import { LineTool } from "../tool/line.tool";
+import { ActionType } from "./action-type";
 
-class LineAction extends BrushAction {
+export class LineAction extends BrushAction {
 
 	execute(executor: ActionExecutor): void {
 		const tool = new LineTool();
@@ -13,6 +14,7 @@ class LineAction extends BrushAction {
 		executor.setTool(tool);
 	}
 
+	getActionType(): ActionType {
+		return ActionType.LINE;
+	}
 }
-
-export { LineAction };

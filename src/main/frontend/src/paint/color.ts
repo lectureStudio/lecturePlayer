@@ -27,6 +27,10 @@ class Color {
 		return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
 	}
 
+	toRgbaNumber(): number {
+		return ((this.a & 0xFF) << 24) | ((this.r & 0xFF) << 16) | ((this.g & 0xFF) << 8) | ((this.b & 0xFF));
+	}
+
 	toAlpha(alpha: number): string {
 		return `rgba(${this.r}, ${this.g}, ${this.b}, ${alpha})`;
 	}

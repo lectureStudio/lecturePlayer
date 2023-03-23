@@ -1,7 +1,7 @@
 import { RecordedPage } from "../model/recorded-page";
 import { StreamAction } from "./stream.action";
 
-class StreamPageActionsAction extends StreamAction {
+export class StreamPageActionsAction extends StreamAction {
 
 	readonly documentId: bigint;
 
@@ -14,6 +14,8 @@ class StreamPageActionsAction extends StreamAction {
 		this.documentId = documentId;
 		this.recordedPage = recPage;
 	}
-}
 
-export { StreamPageActionsAction };
+	toBuffer(): ArrayBuffer {
+		throw new Error("Method not implemented.");
+	}
+}

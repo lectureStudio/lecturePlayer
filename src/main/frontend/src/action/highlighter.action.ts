@@ -1,8 +1,9 @@
 import { ActionExecutor } from "./action-executor";
 import { BrushAction } from "./brush.action";
 import { HighlighterTool } from "../tool/highlighter.tool";
+import { ActionType } from "./action-type";
 
-class HighlighterAction extends BrushAction {
+export class HighlighterAction extends BrushAction {
 
 	execute(executor: ActionExecutor): void {
 		const tool = new HighlighterTool();
@@ -12,6 +13,7 @@ class HighlighterAction extends BrushAction {
 		executor.setTool(tool);
 	}
 
+	getActionType(): ActionType {
+		return ActionType.HIGHLIGHTER;
+	}
 }
-
-export { HighlighterAction };

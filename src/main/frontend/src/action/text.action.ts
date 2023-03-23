@@ -1,8 +1,9 @@
 import { Action } from "./action";
 import { ActionExecutor } from "./action-executor";
 import { TextTool } from "../tool/text.tool";
+import { ActionType } from "./action-type";
 
-class TextAction extends Action {
+export class TextAction extends Action {
 
 	private readonly handle: number;
 
@@ -18,6 +19,15 @@ class TextAction extends Action {
 		executor.setTool(new TextTool(this.handle));
 	}
 
-}
+	getActionType(): ActionType {
+		return ActionType.TEXT;
+	}
 
-export { TextAction };
+	toBuffer(): ArrayBuffer {
+		const { buffer, dataView } = super.createBuffer(4);
+
+		dataView.setInt32(13, this.handle);
+
+		return buffer;
+	}
+}

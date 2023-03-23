@@ -1,7 +1,7 @@
 import { Action } from "./action";
 import { Brush } from "../paint/brush";
 
-abstract class BrushAction extends Action {
+export abstract class BrushAction extends Action {
 
 	shapeHandle: number;
 
@@ -15,6 +15,18 @@ abstract class BrushAction extends Action {
 		this.brush = brush;
 	}
 
-}
+	override toBuffer(): ArrayBuffer {
+		const length = this.brush ? 17 : 4;
+		const { buffer, dataView } = super.createBuffer(length);
 
-export { BrushAction };
+		dataView.setInt32(13, this.shapeHandle);
+
+		if (this.brush) {
+			dataView.setInt32(17, this.brush.color.toRgbaNumber());
+			dataView.setInt8(21, 0);
+			dataView.setFloat64(22, this.brush.width);
+		}
+
+		return buffer;
+	}
+}

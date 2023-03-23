@@ -3,8 +3,9 @@ import { ActionExecutor } from "./action-executor";
 import { Color } from "../paint/color";
 import { Font } from "../paint/font";
 import { TextFontTool } from "../tool/text-font.tool";
+import { ActionType } from "./action-type";
 
-class TextFontAction extends Action {
+export class TextFontAction extends Action {
 
 	private readonly handle: number;
 
@@ -22,12 +23,33 @@ class TextFontAction extends Action {
 		this.font = font;
 		this.textColor = textColor;
 		this.textAttributes = textAttributes;
-	}	
+	}
 
 	execute(executor: ActionExecutor): void {
 		executor.selectAndExecuteTool(new TextFontTool(this.handle, this.font, this.textColor, this.textAttributes));
 	}
 
-}
+	getActionType(): ActionType {
+		return ActionType.TEXT_FONT_CHANGE;
+	}
 
-export { TextFontAction };
+	toBuffer(): ArrayBuffer {
+		const encoder = new TextEncoder();
+		const textBuffer = encoder.encode(this.font.family);
+
+		const { buffer, dataView } = super.createBuffer(24 + textBuffer.length);
+
+		dataView.setInt32(13, this.handle);
+		dataView.setInt32(17, this.textColor.toRgbaNumber());
+		dataView.setInt32(21, textBuffer.length);
+		(<Uint8Array> buffer).set(textBuffer, 25);
+
+		dataView.setFloat64(25 + textBuffer.length, this.font.size);
+		dataView.setInt8(33 + textBuffer.length, 0);
+		dataView.setInt8(34 + textBuffer.length, 0);
+		dataView.setInt8(35 + textBuffer.length, 0);
+		dataView.setInt8(36 + textBuffer.length, 0);
+
+		return buffer;
+	}
+}

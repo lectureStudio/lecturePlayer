@@ -1,8 +1,9 @@
 import { ActionExecutor } from "./action-executor";
 import { BrushAction } from "./brush.action";
 import { PointerTool } from "../tool/pointer.tool";
+import { ActionType } from "./action-type";
 
-class PointerAction extends BrushAction {
+export class PointerAction extends BrushAction {
 
 	execute(executor: ActionExecutor): void {
 		const tool = new PointerTool();
@@ -11,6 +12,7 @@ class PointerAction extends BrushAction {
 		executor.setTool(tool);
 	}
 
+	getActionType(): ActionType {
+		return ActionType.POINTER;
+	}
 }
-
-export { PointerAction };

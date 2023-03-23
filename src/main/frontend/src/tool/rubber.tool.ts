@@ -4,8 +4,13 @@ import { Shape } from "../model/shape/shape";
 import { RemoveShapeAction } from "../model/action/remove-shape.action";
 import { Action } from "../action/action";
 import { RubberAction } from "../action/rubber.action";
+import { ToolContext } from "./tool-context";
 
 export class RubberTool extends Tool {
+
+	begin(point: PenPoint, context: ToolContext): void {
+		this.context = context;
+	}
 
 	execute(point: PenPoint): void {
 		const toDelete = new Array<Shape>();

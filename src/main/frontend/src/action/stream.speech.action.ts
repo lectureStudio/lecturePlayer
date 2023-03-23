@@ -1,6 +1,6 @@
 import { StreamAction } from "./stream.action";
 
-class StreamSpeechAction extends StreamAction {
+export class StreamSpeechAction extends StreamAction {
 
 	readonly publisherId: bigint;
 
@@ -10,6 +10,8 @@ class StreamSpeechAction extends StreamAction {
 
 		this.publisherId = publisherId;
 	}
-}
 
-export { StreamSpeechAction };
+	toBuffer(): ArrayBuffer {
+		throw new Error("Method not implemented.");
+	}
+}

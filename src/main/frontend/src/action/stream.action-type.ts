@@ -1,4 +1,4 @@
-enum StreamActionType {
+export enum StreamActionType {
 
 	STREAM_INIT,
 	STREAM_START,
@@ -20,5 +20,3 @@ enum StreamActionType {
 	STREAM_SCREEN_SHARE_CHANGE,
 
 }
-
-export { StreamActionType };

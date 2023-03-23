@@ -1,14 +1,20 @@
 import { Action } from "./action";
 import { ActionExecutor } from "./action-executor";
 import { CloneTool } from "../tool/clone.tool";
+import { ActionType } from "./action-type";
 
-class CloneAction extends Action {
+export class CloneAction extends Action {
 
 	execute(executor: ActionExecutor): void {
 		executor.setKeyEvent(this.keyEvent);
 		executor.setTool(new CloneTool());
 	}
 
-}
+	getActionType(): ActionType {
+		return ActionType.CLONE;
+	}
 
-export { CloneAction };
+	toBuffer(): ArrayBuffer {
+		return super.createBuffer(0).buffer;
+	}
+}

@@ -2,8 +2,9 @@ import { Action } from "./action";
 import { ActionExecutor } from "./action-executor";
 import { DeleteShapeTool } from "../tool/delete.shape.tool";
 import { PenPoint } from "../geometry/pen-point";
+import { ActionType } from "./action-type";
 
-class RubberAction extends Action {
+export class RubberAction extends Action {
 
 	private shapeHandle: number;
 
@@ -20,6 +21,15 @@ class RubberAction extends Action {
 		executor.beginTool(new PenPoint(0, 0, 0));
 	}
 
-}
+	getActionType(): ActionType {
+		return ActionType.RUBBER_EXT;
+	}
 
-export { RubberAction };
+	toBuffer(): ArrayBuffer {
+		const { buffer, dataView } = super.createBuffer(4);
+
+		dataView.setInt32(13, this.shapeHandle);
+
+		return buffer;
+	}
+}

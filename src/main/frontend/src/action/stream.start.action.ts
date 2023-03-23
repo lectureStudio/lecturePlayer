@@ -1,6 +1,6 @@
 import { StreamAction } from "./stream.action";
 
-class StreamStartAction extends StreamAction {
+export class StreamStartAction extends StreamAction {
 
 	readonly courseId: number;
 
@@ -10,6 +10,8 @@ class StreamStartAction extends StreamAction {
 
 		this.courseId = courseId;
 	}
-}
 
-export { StreamStartAction };
+	toBuffer(): ArrayBuffer {
+		throw new Error("Method not implemented.");
+	}
+}

@@ -10,6 +10,8 @@ import { CourseStateDocument } from "../model/course-state-document";
 import { StreamDocumentCreatedAction } from "../action/stream.document.created.action";
 import { StreamDocumentSelectedAction } from "../action/stream.document.selected.action";
 import { StreamPageSelectedAction } from "../action/stream.page.selected.action";
+import { addStreamAction } from "../model/action-store";
+import { StreamAction } from "../action/stream.action";
 
 export class JanusService extends EventTarget {
 
@@ -45,7 +47,6 @@ export class JanusService extends EventTarget {
 		this.subscribers = [];
 
 		this.opaqueId = "user-" + Janus.randomString(42);
-
 	}
 
 	setUserId(userId: string) {
@@ -129,24 +130,24 @@ export class JanusService extends EventTarget {
 
 	sendDocumentCreated(stateDoc: CourseStateDocument) {
 		if (this.myPublisher) {
-			const action = new StreamDocumentCreatedAction(stateDoc.documentId, DocumentType.PDF, stateDoc.documentName, stateDoc.documentFile);
-
-			this.myPublisher.sendData(action.toBuffer());
+			this.sendStreamAction(new StreamDocumentCreatedAction(stateDoc.documentId, DocumentType.PDF, stateDoc.documentName, stateDoc.documentFile));
 		}
 	}
 
 	sendDocumentSelected(stateDoc: CourseStateDocument) {
 		if (this.myPublisher) {
-			const action = new StreamDocumentSelectedAction(stateDoc.documentId, DocumentType.PDF, stateDoc.documentName, stateDoc.documentFile);
-
-			this.myPublisher.sendData(action.toBuffer());
+			this.sendStreamAction(new StreamDocumentSelectedAction(stateDoc.documentId, DocumentType.PDF, stateDoc.documentName, stateDoc.documentFile));
 		}
 	}
 
 	sendPageSelected(documentId: bigint, pageNumber: number) {
 		if (this.myPublisher) {
-			const action = new StreamPageSelectedAction(documentId, pageNumber);
+			this.sendStreamAction(new StreamPageSelectedAction(documentId, pageNumber));
+		}
+	}
 
+	sendStreamAction(action: StreamAction) {
+		if (this.myPublisher) {
 			this.myPublisher.sendData(action.toBuffer());
 		}
 	}
@@ -195,6 +196,10 @@ export class JanusService extends EventTarget {
 				try {
 					if (isConference) {
 						this.attachAsPublisher();
+
+						addStreamAction.watch(streamAction => {
+							this.sendStreamAction(streamAction);
+						});
 					}
 
 					this.getParticipants(pluginHandle);
