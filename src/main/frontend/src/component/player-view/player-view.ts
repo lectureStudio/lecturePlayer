@@ -11,7 +11,7 @@ import { playerViewStyles } from './player-view.styles';
 import { course } from '../../model/course';
 import { ScreenView } from '../screen-view/screen-view';
 import { State } from '../../utils/state';
-import { ConferenceLayout, ConferenceView } from '../conference-view/conference-view';
+import { ConferenceView } from '../conference-view/conference-view';
 import { SlSplitPanel } from '@shoelace-style/shoelace';
 
 @customElement('player-view')
@@ -134,7 +134,6 @@ export class PlayerView extends I18nLitElement {
 						`)}
 					</div>
 					<sl-button @click=${this.addDummyViews}>Add Grid!</sl-button>
-					<sl-button @click=${this.addDummyScreen}>Add Screen!</sl-button>
 				</div>
 				<div slot="end">
 					<sl-split-panel position="100" id="inner-split-panel">
@@ -184,16 +183,6 @@ export class PlayerView extends I18nLitElement {
 		view.name = "testname";
 
 		this.conferenceView.addGridElement(view);
-	}
-
-	private addDummyScreen() {
-		const view: ParticipantView = new ParticipantView;
-		view.setState(State.CONNECTED);
-		view.hasVideo = true;
-		view.name = "speaker";
-
-		this.conferenceView.addScreenElement(view);
-		this.conferenceView.setConferenceLayout(ConferenceLayout.PresentationBottom);
 	}
 
 	private onParticipantState(event: CustomEvent) {

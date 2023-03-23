@@ -1,8 +1,7 @@
-import { ConferenceLayout } from '../component';
 import { Utils } from '../utils/utils';
 import { MessageFeature, QuizFeature } from './course-feature';
 import { CourseMediaState, CoursePrivilege } from './course-state';
-import { CourseDocumentState, CourseStateDocument } from './course-state-document';
+import { CourseStateDocument } from './course-state-document';
 import { StreamStats } from './stream-stats';
 
 class Course extends EventTarget {
@@ -30,8 +29,6 @@ class Course extends EventTarget {
 	private _mediaState: CourseMediaState;
 
 	private _streamStats: StreamStats = {};
-
-	private _layout: ConferenceLayout;
 
 	private _conference: boolean;
 
@@ -156,16 +153,6 @@ class Course extends EventTarget {
 		this._streamStats = stats;
 
 		this.dispatchEvent(Utils.createEvent("course-stream-stats"));
-	}
-
-	get layout() {
-		return this._layout;
-	}
-
-	set layout(layout: ConferenceLayout) {
-		this._layout = layout;
-
-		this.dispatchEvent(Utils.createEvent("course-layout"));
 	}
 
 	get conference() {

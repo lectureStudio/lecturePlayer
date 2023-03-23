@@ -190,6 +190,16 @@ export const conferenceViewStyles = css`
 		align-content: start;
 	}
 
+	:host([contentFocus="0"]) screen-view {
+		display: none;
+	}
+	:host([contentFocus="1"]) .document-container {
+		display: none;
+	}
+	:host([contentFocus="2"]) .presentation-container {
+		display: none;
+	}
+
 	:host participant-view::part(base) {
 		height: inherit;
 		padding: 0;

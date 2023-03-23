@@ -33,10 +33,10 @@ import { chatHistory } from '../../model/chat-history';
 import { ParticipantsModal } from '../participants-modal/participants.modal';
 import { VpnModal } from '../vpn-modal/vpn.modal';
 import { DocumentService } from '../../service/document.service';
-import { ConferenceLayout } from '../conference-view/conference-view';
 import { RenderController } from '../../render/render-controller';
 import { ToolController } from '../../tool/tool-controller';
 import { MouseListener } from '../../event/mouse-listener';
+import { ContentFocus, setContentFocus } from '../../model/presentation-store';
 
 export class PlayerController implements ReactiveController {
 
@@ -374,7 +374,7 @@ export class PlayerController implements ReactiveController {
 					this.janusService.sendDocumentSelected(uploadedDoc);
 					this.janusService.sendPageSelected(uploadedDoc.documentId, selectedPage);
 
-					course.layout = ConferenceLayout.PresentationBottom;
+					setContentFocus(ContentFocus.Document);
 				})
 				.catch(error => {
 					console.error(error);

@@ -3,8 +3,7 @@ import { customElement, query } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { layoutButtonStyles } from './layout-button.styles';
 import { SlMenu, SlMenuItem, SlTooltip } from '@shoelace-style/shoelace';
-import { ConferenceLayout } from '../conference-view/conference-view';
-import { course } from '../../model/course';
+import { ContentLayout, setContentLayout } from '../../model/presentation-store';
 
 @customElement('layout-button')
 export class LayoutButton extends I18nLitElement {
@@ -64,6 +63,6 @@ export class LayoutButton extends I18nLitElement {
 			}
 		}
 
-		course.layout = ConferenceLayout[value as keyof typeof ConferenceLayout];
+		setContentLayout(ContentLayout[value as keyof typeof ContentLayout]);
 	}
 }

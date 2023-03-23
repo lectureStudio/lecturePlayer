@@ -1,7 +1,6 @@
-import { ConferenceLayout } from "../component";
-import { course } from "../model/course";
 import { CourseStateDocument } from "../model/course-state-document";
 import { SlideDocument } from "../model/document";
+import { ContentFocus, setContentFocus } from "../model/presentation-store";
 import { PlaybackService } from "../service/playback.service";
 import { PageDeleteAction } from "./page-delete.action";
 import { PageAction } from "./page.action";
@@ -138,7 +137,7 @@ export class StreamActionProcessor {
 	private selectDocument(documentId: bigint) {
 		this.playbackService.selectDocument(documentId);
 
-		course.layout = ConferenceLayout.PresentationBottom;
+		setContentFocus(ContentFocus.Document);
 	}
 
 	private selectPage(pageNumber: number) {

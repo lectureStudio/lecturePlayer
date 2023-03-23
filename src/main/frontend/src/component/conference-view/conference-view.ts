@@ -7,17 +7,7 @@ import { conferenceViewStyles } from "./conference-view.styles";
 import { ParticipantView } from "../participant-view/participant-view";
 import { State } from "../../utils/state";
 import { ScreenView } from "../screen-view/screen-view";
-import { course } from "../../model/course";
-
-export enum ConferenceLayout {
-
-	Gallery,
-	PresentationTop,
-	PresentationRight,
-	PresentationBottom,
-	PresentationLeft
-
-}
+import $presentationStore, { ContentFocus, ContentLayout, setContentFocus } from "../../model/presentation-store";
 
 @customElement('conference-view')
 export class ConferenceView extends I18nLitElement {
@@ -49,7 +39,10 @@ export class ConferenceView extends I18nLitElement {
 	tileWidth: number;
 
 	@property({ reflect: true })
-	layout: ConferenceLayout = ConferenceLayout.Gallery;
+	layout: ContentLayout;
+
+	@property()
+	contentFocus: ContentFocus;
 
 	@state()
 	gridCounter: number = 0;
@@ -95,18 +88,6 @@ export class ConferenceView extends I18nLitElement {
 		this.calculateSize();
 	}
 
-	public addScreenElement(view: ParticipantView) {
-		view.isVisible = true;
-
-		this.presentationContainer.appendChild(view);
-	}
-
-	public setConferenceLayout(layout: ConferenceLayout) {
-		this.layout = layout;
-
-		this.updateGridState();
-	}
-
 	override connectedCallback() {
 		super.connectedCallback();
 
@@ -118,7 +99,15 @@ export class ConferenceView extends I18nLitElement {
 		document.addEventListener("remove-grid-element", this.removeGridElement.bind(this));
 		document.addEventListener("participant-talking", this.onTalkingPublisher.bind(this));
 
-		course.addEventListener("course-layout", this.onSelectLayout.bind(this));
+		// Set and observe content focus.
+		$presentationStore.watch(state => {
+			// Mandatory to set the layout first, since setContentFocus() may modify the layout.
+			this.setContentLayout(state.contentLayout);
+			this.setContentFocus(state.contentFocus);
+		});
+
+		this.setContentLayout($presentationStore.getState().contentLayout);
+		this.setContentFocus($presentationStore.getState().contentFocus);
 	}
 
 	protected firstUpdated() {
@@ -143,7 +132,7 @@ export class ConferenceView extends I18nLitElement {
 			<div class="presentation-container">
 				<screen-view></screen-view>
 
-				<div class="document-container ${classMap({ hidden: !course.activeDocument })}">
+				<div class="document-container">
 					<slide-view class="conference-slides"></slide-view>
 					<document-navigation></document-navigation>
 				</div>
@@ -183,14 +172,34 @@ export class ConferenceView extends I18nLitElement {
 		`;
 	}
 
+	public setContentLayout(layout: ContentLayout) {
+		this.layout = layout;
+
+		this.updateGridState();
+	}
+
+	private setContentFocus(focus: ContentFocus) {
+		this.contentFocus = focus;
+
+		switch (this.contentFocus) {
+			case ContentFocus.Document:
+			case ContentFocus.ScreenShare:
+				this.setContentLayout(ContentLayout.PresentationBottom);
+				break;
+			default:
+				this.setContentLayout(ContentLayout.Gallery);
+				break;
+		}
+	}
+
 	private getIconName(topLeft: boolean) {
 		switch (this.layout) {
-			case ConferenceLayout.PresentationBottom:
-			case ConferenceLayout.PresentationTop:
+			case ContentLayout.PresentationBottom:
+			case ContentLayout.PresentationTop:
 				return topLeft ? "chevron-left" : "chevron-right";
 
-			case ConferenceLayout.PresentationLeft:
-			case ConferenceLayout.PresentationRight:
+			case ContentLayout.PresentationLeft:
+			case ContentLayout.PresentationRight:
 				return topLeft ? "chevron-up" : "chevron-down";
 
 			default:
@@ -230,13 +239,13 @@ export class ConferenceView extends I18nLitElement {
 		let contentWidth = this.contentRect.width;
 
 		switch (this.layout) {
-			case ConferenceLayout.PresentationBottom:
-			case ConferenceLayout.PresentationTop:
+			case ContentLayout.PresentationBottom:
+			case ContentLayout.PresentationTop:
 				contentWidth -= 80; // Size of navigation buttons.
 				break;
 
-			case ConferenceLayout.PresentationLeft:
-			case ConferenceLayout.PresentationRight:
+			case ContentLayout.PresentationLeft:
+			case ContentLayout.PresentationRight:
 				contentHeight -= 80; // Size of navigation buttons.
 				break;
 		}
@@ -254,13 +263,13 @@ export class ConferenceView extends I18nLitElement {
 		this.tileHeight = height;
 
 		switch (this.layout) {
-			case ConferenceLayout.PresentationBottom:
-			case ConferenceLayout.PresentationTop:
+			case ContentLayout.PresentationBottom:
+			case ContentLayout.PresentationTop:
 				this.tilesPerPage = Math.min(this.gridCounter, Math.floor(contentWidth / width));
 				break;
 
-			case ConferenceLayout.PresentationLeft:
-			case ConferenceLayout.PresentationRight:
+			case ContentLayout.PresentationLeft:
+			case ContentLayout.PresentationRight:
 				this.tilesPerPage = Math.min(this.gridCounter, Math.floor(contentHeight / height));
 				break;
 		}
@@ -274,7 +283,7 @@ export class ConferenceView extends I18nLitElement {
 	}
 
 	private updateGridState() {
-		if (this.layout === ConferenceLayout.Gallery) {
+		if (this.layout === ContentLayout.Gallery) {
 			this.gridColumns = Math.min(this.gridCounter, this.columnLimit);
 			this.gridRows = Math.ceil(this.gridCounter / this.columnLimit);
 		}
@@ -300,13 +309,13 @@ export class ConferenceView extends I18nLitElement {
 			this.screenView.setState(State.CONNECTED);
 			this.screenView.addVideo(event.detail.video);
 
-			this.setConferenceLayout(ConferenceLayout.PresentationBottom);
+			setContentFocus(ContentFocus.ScreenShare);
 		}
 		else if (state === State.DISCONNECTED) {
 			this.screenView.setState(State.DISCONNECTED);
 			this.screenView.removeVideo();
 
-			this.setConferenceLayout(ConferenceLayout.Gallery);
+			setContentFocus(ContentFocus.Participants);
 		}
 	}
 
@@ -315,7 +324,7 @@ export class ConferenceView extends I18nLitElement {
 
 		this.screenView.setVideoVisible(visible);
 
-		this.setConferenceLayout(ConferenceLayout.Gallery);
+		setContentFocus(visible ? ContentFocus.ScreenShare : ContentFocus.Participants);
 	}
 
 	private onTalkingPublisher(event: CustomEvent) {
@@ -347,9 +356,5 @@ export class ConferenceView extends I18nLitElement {
 				}
 			}
 		}
-	}
-
-	protected onSelectLayout() {
-		this.setConferenceLayout(course.layout);
 	}
 }
