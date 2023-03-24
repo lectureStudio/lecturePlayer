@@ -21,4 +21,8 @@ export const layoutButtonStyles = css`
 	sl-menu ::part(base) {
 		font-size: var(--sl-font-size-x-small);
 	}
+
+	:host([isConference]) .conference-control {
+		display: none;
+	}
 `;

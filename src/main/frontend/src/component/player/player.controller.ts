@@ -36,6 +36,7 @@ import { RenderController } from '../../render/render-controller';
 import { ToolController } from '../../tool/tool-controller';
 import { MouseListener } from '../../event/mouse-listener';
 import { ContentFocus, setContentFocus } from '../../model/presentation-store';
+import { StatsModal } from '../stats-modal/stats.modal';
 import { jsPDF } from 'jspdf';
 
 export class PlayerController implements ReactiveController {
@@ -99,6 +100,7 @@ export class PlayerController implements ReactiveController {
 
 		this.host.addEventListener("player-fullscreen", this.onFullscreen.bind(this));
 		this.host.addEventListener("player-settings", this.onSettings.bind(this), false);
+		this.host.addEventListener("player-stats", this.onStats.bind(this), false);
 		this.host.addEventListener("player-hand-action", this.onHandAction.bind(this), false);
 		this.host.addEventListener("player-quiz-action", this.onQuizAction.bind(this), false);
 		this.host.addEventListener("player-chat-visibility", this.onChatVisibility.bind(this), false);
@@ -479,6 +481,16 @@ export class PlayerController implements ReactiveController {
 		}
 
 		this.registerModal("SettingsModal", settingsModal);
+	}
+
+	private onStats(event: CustomEvent) {
+	
+		const statsModal = new StatsModal();
+		statsModal.janusService = this.janusService;
+
+		console.log("stats")
+
+		this.registerModal("StatsModal", statsModal);
 	}
 
 	private onHandAction(event: CustomEvent) {

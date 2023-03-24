@@ -265,12 +265,6 @@ export class PlayerControls extends I18nLitElement {
 					</sl-button>
 				</sl-tooltip>
 
-				<sl-tooltip content="${t("controls.settings")}" trigger="hover">
-					<sl-button @click="${this.onSettings}" id="settings-button">
-						<sl-icon slot="prefix" library="lect-icons" name="settings"></sl-icon>
-					</sl-button>
-				</sl-tooltip>
-
 				<sl-tooltip content="${this.fullscreen ? t("controls.fullscreen.off") : t("controls.fullscreen.on")}" trigger="hover">
 					<sl-button @click="${this.onFullscreen}" id="fullscreen-button">
 						<sl-icon slot="prefix" library="lect-icons" name="fullscreen" id="fullscreen"></sl-icon>

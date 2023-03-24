@@ -1,9 +1,11 @@
-import { html } from 'lit';
-import { customElement, query } from 'lit/decorators.js';
+import { html, TemplateResult } from 'lit';
+import { customElement, property, query } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { layoutButtonStyles } from './layout-button.styles';
 import { SlMenu, SlMenuItem, SlTooltip } from '@shoelace-style/shoelace';
 import { ContentLayout, setContentLayout } from '../../model/presentation-store';
+import { Utils } from '../../utils/utils';
+import { course } from '../../model/course';
 
 @customElement('layout-button')
 export class LayoutButton extends I18nLitElement {
@@ -19,27 +21,39 @@ export class LayoutButton extends I18nLitElement {
 	@query('sl-tooltip')
 	tooltip: SlTooltip;
 
+	@property({ type: Boolean })
+	screenShare: boolean = false;
+
+	@property({ type: Boolean })
+	speakerMode: boolean = false;
+
+	@property({ type: String })
+	viewMode: "Gallery" | "Speaker";
+
+	@property({ type: Boolean })
+	isConference: boolean = false;
 
 	override connectedCallback() {
 		super.connectedCallback()
+
+		this.isConference = course.conference;
 	}
 
 	protected render() {
 		return html`
 			<sl-dropdown placement="top-start">
 				<div slot="trigger">
-					<sl-tooltip content="${t("controls.layout")}" trigger="hover">
+					<sl-tooltip content="${t("controls.settings")}" trigger="hover">
 						<sl-button @click="${this.onButton}">
-							<sl-icon slot="prefix" library="lect-icons" name="layout"></sl-icon>
+							<sl-icon slot="prefix" library="lect-icons" name="settings"></sl-icon>
 						</sl-button>
 					</sl-tooltip>
 				</div>
 				<sl-menu @sl-select="${this.onLayoutSelected}">
-					<sl-menu-item type="checkbox" value="Gallery" checked="">${t("layout.gallery")}</sl-menu-item>
-					<sl-menu-item type="checkbox" value="PresentationTop">${t("layout.presentation.top")}</sl-menu-item>
-					<sl-menu-item type="checkbox" value="PresentationRight">${t("layout.presentation.right")}</sl-menu-item>
-					<sl-menu-item type="checkbox" value="PresentationBottom">${t("layout.presentation.bottom")}</sl-menu-item>
-					<sl-menu-item type="checkbox" value="PresentationLeft">${t("layout.presentation.left")}</sl-menu-item>
+					<sl-menu-item value="settings" @click="${this.onSettings}">${t("controls.settings")}</sl-menu-item>
+					<sl-menu-item value="stats" @click="${this.onStats}">${t("stats.title")}</sl-menu-item>
+					<sl-menu-item class="conference-control" type="checkbox" value="Gallery" checked="">${t("layout.gallery")}</sl-menu-item>
+					<sl-menu-item class="conference-control" type="checkbox" value="Speaker">${t("layout.speaker")}</sl-menu-item>
 				</sl-menu>
 			</sl-dropdown>
 		`;
@@ -54,15 +68,26 @@ export class LayoutButton extends I18nLitElement {
 		const value = selectedItem.value;
 
 		// Keep selected item checked, e.g. when double-checked.
-		selectedItem.checked = true;
-
-		for (let item of this.menu.getAllItems()) {
-			// Uncheck all items, except the selected one.
-			if (item.value !== selectedItem.value) {
-				item.checked = false;
+		if (selectedItem.type === "checkbox") {
+			selectedItem.checked = true;
+		
+		
+			for (let item of this.menu.getAllItems()) {
+				// Uncheck all items, except the selected one.
+				if (item.value !== selectedItem.value && item.type === "checkbox") {
+					item.checked = false;
+				}
 			}
-		}
 
-		setContentLayout(ContentLayout[value as keyof typeof ContentLayout]);
+			setContentLayout(ContentLayout[value as keyof typeof ContentLayout]);
+		}
+	}
+
+	private onSettings(): void {
+		this.dispatchEvent(Utils.createEvent("player-settings"));
+	}
+
+	private onStats(): void {
+		this.dispatchEvent(Utils.createEvent("player-stats"));
 	}
 }

@@ -65,7 +65,6 @@ export class SettingsModal extends Modal {
 				<sl-tab-group>
 					<sl-tab slot="nav" panel="audio">${t("settings.audio")}</sl-tab>
 					<sl-tab slot="nav" panel="video">${t("settings.camera")}</sl-tab>
-					<sl-tab slot="nav" panel="stats">${t("settings.stats")}</sl-tab>
 
 					<sl-tab-panel name="audio">
 						<sound-settings></sound-settings>
@@ -73,9 +72,7 @@ export class SettingsModal extends Modal {
 					<sl-tab-panel name="video">
 						<camera-settings></camera-settings>
 					</sl-tab-panel>
-					<sl-tab-panel name="stats">
-						<stream-stats .janusService="${this.janusService}"></stream-stats>
-					</sl-tab-panel>
+		
 				</sl-tab-group>
 				<div slot="footer">
 					<sl-button @click="${this.cancel}" variant="default" size="small">${t("settings.close")}</sl-button>
