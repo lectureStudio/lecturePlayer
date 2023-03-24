@@ -98,6 +98,7 @@ export class DocumentNavigation extends I18nLitElement {
 			<sl-tooltip content="${t("controls.documents.page.prev")}" trigger="hover">
 				<sl-icon-button @click="${this.onPreviousSlide}" ?disabled="${!prevEnabled}" library="lect-icons" name="prev-page" class="document-toolbar-button"></sl-icon>
 			</sl-tooltip>
+			<span>${documentState.selectedPageNumber + 1}</span>
 			<sl-tooltip content="${t("controls.documents.page.next")}" trigger="hover">
 				<sl-icon-button @click="${this.onNextSlide}" ?disabled="${!nextEnabled}" library="lect-icons" name="next-page" class="document-toolbar-button"></sl-icon>
 			</sl-tooltip>
