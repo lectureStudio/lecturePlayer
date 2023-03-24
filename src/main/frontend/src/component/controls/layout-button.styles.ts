@@ -22,7 +22,7 @@ export const layoutButtonStyles = css`
 		font-size: var(--sl-font-size-x-small);
 	}
 
-	:host([isConference]) .conference-control {
+	:host(:not([isConference])) .conference-control {
 		display: none;
 	}
 `;
