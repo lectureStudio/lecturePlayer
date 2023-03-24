@@ -1,5 +1,5 @@
 import { html, TemplateResult } from 'lit';
-import { customElement, property, query } from 'lit/decorators.js';
+import { customElement, property, query, state } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { documentsButtonStyles } from './documents-button.styles';
 import { SlMenu, SlMenuItem, SlTooltip } from '@shoelace-style/shoelace';
@@ -14,6 +14,9 @@ export class DocumentsButton extends I18nLitElement {
 		I18nLitElement.styles,
 		documentsButtonStyles,
 	];
+
+	@state()
+	disabled: boolean;
 
 	@query('sl-menu')
 	menu: SlMenu;
@@ -39,10 +42,10 @@ export class DocumentsButton extends I18nLitElement {
 		const documentItems = this.renderDocumentItems();
 
 		return html`
-			<sl-dropdown placement="top-start">
+			<sl-dropdown placement="top-start" ?disabled="${this.disabled}">
 				<div slot="trigger">
 					<sl-tooltip content="${t("controls.documents")}" trigger="hover">
-						<sl-button @click="${this.onButton}">
+						<sl-button @click="${this.onButton}" ?disabled="${this.disabled}">
 							<sl-icon slot="prefix" library="lect-icons" name="document-collection"></sl-icon>
 						</sl-button>
 					</sl-tooltip>

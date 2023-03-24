@@ -7,6 +7,7 @@ import { playerControlsStyles } from './player-controls.styles';
 import { course } from '../../model/course';
 import { Settings } from '../../utils/settings';
 import { State } from '../../utils/state';
+import $presentationStore, { ContentFocus } from "../../model/presentation-store";
 
 @customElement('player-controls')
 export class PlayerControls extends I18nLitElement {
@@ -83,6 +84,10 @@ export class PlayerControls extends I18nLitElement {
 		this.mutedMic = Settings.getMicrophoneMuteOnEntry();
 		this.hasChat = course.chatFeature != null && course.chatFeature.featureId != null;
 		this.hasQuiz = course.quizFeature != null && course.quizFeature.featureId != null;
+
+		$presentationStore.watch(state => {
+			this.requestUpdate();
+		});
 	}
 
 	protected firstUpdated(): void {
@@ -187,6 +192,8 @@ export class PlayerControls extends I18nLitElement {
 	}
 
 	render() {
+		const documentsEnabled = $presentationStore.getState().contentFocus !== ContentFocus.ScreenShare;
+
 		return html`
 			<div class="col nav-left">
 				<media-device-button
@@ -238,7 +245,7 @@ export class PlayerControls extends I18nLitElement {
 					</sl-button>
 				</sl-tooltip>
 
-				<documents-button class="conference-control"></documents-button>
+				<documents-button .disabled="${!documentsEnabled}" class="conference-control"></documents-button>
 			</div>
 			<div class="col nav-right">
 				<layout-button class="conference-control"></layout-button>
