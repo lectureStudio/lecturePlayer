@@ -1,4 +1,4 @@
-[![CodeQL](https://github.com/lectureStudio/lecturePlayer/actions/workflows/codeql.yaml/badge.svg?branch=main&event=push)](https://github.com/lectureStudio/lecturePlayer/actions/workflows/codeql.yaml)
+[![CodeQL](https://github.com/lectureStudio/lecturePlayer/actions/workflows/codeql.yml/badge.svg?branch=main&event=push)](https://github.com/lectureStudio/lecturePlayer/actions/workflows/codeql.yml)
 
 ## lecturePlayer
 
