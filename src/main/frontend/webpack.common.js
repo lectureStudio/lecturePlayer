@@ -46,6 +46,12 @@ module.exports = {
 	resolve: {
 		extensions: ['.ts', '.js']
 	},
+	externals: {
+		// Prevent Webpack from generating the jsPDF dependencies chunks.
+		canvg: "canvg",
+		html2canvas: "html2canvas",
+		dompurify: "dompurify"
+	},
 	module: {
 		rules: [
 			// janus.js does not use 'export' to provide its functionality to others, instead
