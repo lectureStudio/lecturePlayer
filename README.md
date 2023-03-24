@@ -1,3 +1,5 @@
+[![CodeQL](https://github.com/lectureStudio/lecturePlayer/actions/workflows/codeql.yaml/badge.svg?branch=main&event=push)](https://github.com/lectureStudio/lecturePlayer/actions/workflows/codeql.yaml)
+
 ## lecturePlayer
 
 Browser-based streaming player that is used to render real-time presentations streamed with lectureStudio tools.  
