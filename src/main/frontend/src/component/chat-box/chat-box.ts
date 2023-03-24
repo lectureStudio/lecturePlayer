@@ -1,5 +1,6 @@
 import { html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
+import { when } from 'lit/directives/when.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { chatBoxStyles } from './chat-box.styles';
 import { Toaster } from '../../utils/toaster';
@@ -19,9 +20,6 @@ export class ChatBox extends I18nLitElement {
 
 	@property()
 	messageService: MessageService;
-
-	@property()
-	privilegeService: PrivilegeService;
 
 	@query(".chat-history-log")
 	messageContainer: HTMLElement;
@@ -95,10 +93,10 @@ export class ChatBox extends I18nLitElement {
 			</section>
 
 			<footer>
-				${this.privilegeService.canWriteMessages() ? html`
-				<message-form .privilegeService="${this.privilegeService}"></message-form>
+				${when(PrivilegeService.canWriteMessages(), () => html`
+				<message-form></message-form>
 				<sl-button @click="${this.post}" type="submit" form="course-message-form" class="icon-send" id="message-submit"></sl-button>
-				` : ''}
+				`)}
 			</footer>
 		`;
 	}
@@ -112,7 +110,7 @@ export class ChatBox extends I18nLitElement {
 
 		this.requestUpdate();
 
-		if (!this.privilegeService.canReadMessages()) {
+		if (!PrivilegeService.canReadMessages()) {
 			// No privilege to read/receive messages.
 			return;
 		}
@@ -143,7 +141,7 @@ export class ChatBox extends I18nLitElement {
 	}
 
 	private clearMessages() {
-		if (!this.privilegeService.canReadMessages()) {
+		if (!PrivilegeService.canReadMessages()) {
 			// No privilege to read/receive messages.
 			return;
 		}
@@ -156,7 +154,7 @@ export class ChatBox extends I18nLitElement {
 	}
 
 	private insertMessage(message: MessageServiceMessage) {
-		if (!this.privilegeService.canReadMessages()) {
+		if (!PrivilegeService.canReadMessages()) {
 			// No privilege to read/receive messages.
 			return null;
 		}

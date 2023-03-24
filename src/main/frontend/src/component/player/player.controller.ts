@@ -8,7 +8,6 @@ import { EventService } from '../../service/event.service';
 import { JanusService } from '../../service/janus.service';
 import { MessageService, MessageServiceHistory } from '../../service/message.service';
 import { PlaybackService } from '../../service/playback.service';
-import { PrivilegeService } from '../../service/privilege.service';
 import { SpeechService } from '../../service/speech.service';
 import { Devices } from '../../utils/devices';
 import { HttpRequest } from '../../utils/http-request';
@@ -54,8 +53,6 @@ export class PlayerController implements ReactiveController {
 
 	private readonly courseStateService: CourseStateService;
 
-	private readonly privilegeService: PrivilegeService;
-
 	private readonly janusService: JanusService;
 
 	private readonly playbackService: PlaybackService;
@@ -80,7 +77,6 @@ export class PlayerController implements ReactiveController {
 		this.messageService = new MessageService();
 		this.speechService = new SpeechService();
 		this.playbackService = new PlaybackService();
-		this.privilegeService = new PrivilegeService();
 
 		const actionProcessor = new StreamActionProcessor(this.playbackService);
 		actionProcessor.onGetDocument = this.getDocument.bind(this);
@@ -99,7 +95,6 @@ export class PlayerController implements ReactiveController {
 		this.eventService.connect();
 
 		this.host.messageService = this.messageService;
-		this.host.privilegeService = this.privilegeService;
 
 		this.host.addEventListener("player-fullscreen", this.onFullscreen.bind(this));
 		this.host.addEventListener("player-settings", this.onSettings.bind(this), false);
@@ -491,7 +486,6 @@ export class PlayerController implements ReactiveController {
 		if (this.maxWidth576Query.matches) {
 			const chatModal = new ChatModal();
 			chatModal.messageService = this.messageService;
-			chatModal.privilegeService = this.privilegeService;
 
 			this.registerModal("ChatModal", chatModal);
 		}
@@ -500,7 +494,6 @@ export class PlayerController implements ReactiveController {
 	private onParticipantsVisibility() {
 		if (this.maxWidth576Query.matches) {
 			const participantsModal = new ParticipantsModal();
-			participantsModal.privilegeService = this.privilegeService;
 
 			this.registerModal("ParticipantsModal", participantsModal);
 		}

@@ -1,5 +1,6 @@
 import { html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
+import { when } from "lit/directives/when.js";
 import { PrivilegeService } from '../../service/privilege.service';
 import { Utils } from '../../utils/utils';
 import { I18nLitElement, t } from '../i18n-mixin';
@@ -16,9 +17,6 @@ export class PlayerControls extends I18nLitElement {
 		I18nLitElement.styles,
 		playerControlsStyles,
 	];
-
-	@property()
-	privilegeService: PrivilegeService;
 
 	@query('.slide-canvas')
 	slideCanvas: HTMLCanvasElement;
@@ -71,13 +69,14 @@ export class PlayerControls extends I18nLitElement {
 	@property({ type: Boolean, reflect: true })
 	shareScreenBlocked: boolean = false;
 
+
 	override connectedCallback() {
 		super.connectedCallback()
 
 		course.addEventListener("course-chat-feature", this.onChatState.bind(this));
 		course.addEventListener("course-quiz-feature", this.onQuizState.bind(this));
 		course.addEventListener("course-user-privileges", () => {
-			this.hasParticipants = this.privilegeService.canViewParticipants();
+			this.hasParticipants = PrivilegeService.canViewParticipants();
 		});
 
 		this.mutedCam = Settings.getCameraMuteOnEntry();
@@ -223,29 +222,33 @@ export class PlayerControls extends I18nLitElement {
 				<span id="duration">${this.getFormattedDuration()}</span>
 			</div>
 			<div class="col nav-center">
-				${this.privilegeService.canContributeBySpeech() ? html`
+				${when(PrivilegeService.canContributeBySpeech(), () => html`
 				<sl-tooltip content="${this.handUp ? t("controls.speech.abort") : t("controls.speech.start")}" trigger="hover">
 					<sl-button @click="${this.onHand}" id="hand-button">
 						<sl-icon slot="prefix" library="lect-icons" name="hand"></sl-icon>
 					</sl-button>
 				</sl-tooltip>
-				` : ''}
+				`)}
 
-				${this.privilegeService.canParticipateInQuiz() ? html`
+				${when(PrivilegeService.canParticipateInQuiz(), () => html`
 				<sl-tooltip content="${t("controls.quiz.show")}" trigger="hover">
 					<sl-button @click="${this.onQuiz}" id="quiz-button">
 						<sl-icon slot="prefix" library="lect-icons" name="quiz"></sl-icon>
 					</sl-button>
 				</sl-tooltip>
-				` : ''}
+				`)}
 
-				<sl-tooltip content="${t("controls.screenshare")}" trigger="hover">
+				${when(PrivilegeService.canShareScreen(), () => html`
+				<sl-tooltip content="${t(this.shareScreen ? "controls.screenshare.stop" : "controls.screenshare")}" trigger="hover">
 					<sl-button @click="${this.onShareScreen}" class="conference-control" id="share-screen-button">
 						<sl-icon slot="prefix" library="lect-icons" name="share-screen"></sl-icon>
 					</sl-button>
 				</sl-tooltip>
+				`)}
 
+				${when(PrivilegeService.canShareDocuments(), () => html`
 				<documents-button .disabled="${!documentsEnabled}" class="conference-control"></documents-button>
+				`)}
 			</div>
 			<div class="col nav-right">
 				<layout-button class="conference-control"></layout-button>

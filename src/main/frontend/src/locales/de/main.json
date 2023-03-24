@@ -44,6 +44,7 @@
 	"controls.documents.page.next": "Nächste Seite",
 	"controls.layout": "Layout",
 	"controls.screenshare": "Bildschirm teilen",
+	"controls.screenshare.stop": "Bildschirmfreigabe beenden",
 	"controls.tools": "Werkzeuge",
 	"controls.tools.cursor": "Lokale Textauswahl",
 	"controls.tools.highlighter": "Highlighter",

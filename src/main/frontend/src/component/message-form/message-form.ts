@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import { customElement, query, state } from 'lit/decorators.js';
+import { customElement, query } from 'lit/decorators.js';
 import { PrivilegeService } from '../../service/privilege.service';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { messageFormStyles } from './message-form.styles';
@@ -14,9 +14,6 @@ export class MessageForm extends I18nLitElement {
 		I18nLitElement.styles,
 		messageFormStyles,
 	];
-
-	@state()
-	privilegeService: PrivilegeService;
 
 	@query('#recipients')
 	private recipientSelect: HTMLSelectElement;
@@ -51,7 +48,7 @@ export class MessageForm extends I18nLitElement {
 	protected override render() {
 		const optionTemplates = [];
 
-		if (this.privilegeService.canWritePrivateMessages()) {
+		if (PrivilegeService.canWritePrivateMessages()) {
 			for (const participant of participants.participants) {
 				if (participant.userId !== course.userId) {
 					optionTemplates.push(html`<option value="${participant.userId}">${participant.firstName} ${participant.familyName}</option>`);
@@ -59,11 +56,11 @@ export class MessageForm extends I18nLitElement {
 			}
 		}
 
-		const allOption = this.privilegeService.canWriteMessagesToAll()
+		const allOption = PrivilegeService.canWriteMessagesToAll()
 			? html`<option value="${ChatRecipientType.Public}">${t("course.feature.message.target.all")}</option>`
 			: '';
 
-		const organisatorsOption = this.privilegeService.canWriteMessagesToOrganisators()
+		const organisatorsOption = PrivilegeService.canWriteMessagesToOrganisators()
 			? html`<option value="${ChatRecipientType.Organisers}">${t("course.feature.message.target.organisers")}</option>`
 			: '';
 

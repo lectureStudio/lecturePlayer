@@ -1,10 +1,9 @@
 import { html } from 'lit';
-import { customElement, property, query } from 'lit/decorators.js';
+import { customElement, query } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { participantBoxStyles } from './participants-box.styles';
 import { participants } from '../../model/participants';
 import { course } from '../../model/course';
-import { PrivilegeService } from '../../service/privilege.service';
 
 @customElement('participants-box')
 export class ParticipantsBox extends I18nLitElement {
@@ -13,9 +12,6 @@ export class ParticipantsBox extends I18nLitElement {
 		I18nLitElement.styles,
 		participantBoxStyles
 	];
-
-	@property()
-	privilegeService: PrivilegeService;
 
 	@query(".participant-log")
 	participantContainer: HTMLElement;

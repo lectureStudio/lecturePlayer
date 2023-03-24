@@ -1,5 +1,6 @@
 import { html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { when } from 'lit/directives/when.js';
 import { MessageService } from '../../service/message.service';
 import { PrivilegeService } from '../../service/privilege.service';
 import { I18nLitElement } from '../i18n-mixin';
@@ -20,9 +21,6 @@ export class PlayerFeatureView extends I18nLitElement {
 	@property()
 	messageService: MessageService;
 
-	@property()
-	privilegeService: PrivilegeService;
-
 	@property({ type: Boolean, reflect: true })
 	hasChat: boolean = false;
 
@@ -31,13 +29,11 @@ export class PlayerFeatureView extends I18nLitElement {
 
 
 	protected updated(): void {
-		if (this.privilegeService) {
-			if (this.privilegeService.canReadMessages()) {
-				this.hasChat = course.chatFeature != null;
-			}
-			if (this.privilegeService.canParticipateInQuiz()) {
-				this.hasQuiz = course.quizFeature != null;
-			}
+		if (PrivilegeService.canReadMessages()) {
+			this.hasChat = course.chatFeature != null;
+		}
+		if (PrivilegeService.canParticipateInQuiz()) {
+			this.hasQuiz = course.quizFeature != null;
 		}
 	}
 
@@ -45,36 +41,16 @@ export class PlayerFeatureView extends I18nLitElement {
 		return html`
 			<div>
 				<div class="center">
-					${this.renderQuiz()}
+					${when(PrivilegeService.canParticipateInQuiz() && course.quizFeature, () => html`
+					<quiz-box .courseId="${course.courseId}" .feature="${course.quizFeature}"></quiz-box>
+					`)}
 				</div>
 				<div class="right">
-					${this.renderChat()}
+					${when(PrivilegeService.canReadMessages() && course.chatFeature, () => html`
+					<chat-box .messageService="${this.messageService}"></chat-box>
+					`)}
 				</div>
 			</div>
 		`;
-	}
-
-	protected renderChat() {
-		if (!this.privilegeService.canReadMessages()) {
-			return '';
-		}
-
-		return course.chatFeature ?
-			html`
-				<chat-box .messageService="${this.messageService}" .privilegeService="${this.privilegeService}"></chat-box>
-			`
-			: '';
-	}
-
-	protected renderQuiz() {
-		if (!this.privilegeService.canParticipateInQuiz()) {
-			return '';
-		}
-
-		return course.quizFeature ?
-			html`
-				<quiz-box .courseId="${course.courseId}" .feature="${course.quizFeature}"></quiz-box>
-			`
-			: '';
 	}
 }

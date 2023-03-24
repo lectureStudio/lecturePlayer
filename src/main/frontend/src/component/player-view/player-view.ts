@@ -25,9 +25,6 @@ export class PlayerView extends I18nLitElement {
 	private controller = new PlayerViewController(this);
 
 	@property()
-	privilegeService: PrivilegeService;
-
-	@property()
 	messageService: MessageService;
 
 	@property({ type: Boolean, reflect: true })
@@ -129,8 +126,8 @@ export class PlayerView extends I18nLitElement {
 			<sl-split-panel position="0" id="outer-split-panel">
 				<div slot="start" class="left-container">
 					<div class="feature-container">
-						${when(this.privilegeService.canViewParticipants(), () => html`
-							<participants-box .privilegeService="${this.privilegeService}"></participants-box>
+						${when(PrivilegeService.canViewParticipants(), () => html`
+							<participants-box></participants-box>
 						`)}
 					</div>
 					<sl-button @click=${this.addDummyViews}>Add Grid!</sl-button>
@@ -152,16 +149,16 @@ export class PlayerView extends I18nLitElement {
 								`)
 							}
 							<div class="controls-container">
-								<player-controls .isConference="${course.conference}" .chatVisible="${this.chatVisible}" .participantsVisible="${this.participantsVisible}" .privilegeService="${this.privilegeService}"></player-controls>
+								<player-controls .isConference="${course.conference}" .chatVisible="${this.chatVisible}" .participantsVisible="${this.participantsVisible}"></player-controls>
 							</div>
 						</div>
 						<div slot="end" class="right-container">
 							<div class="video-feeds">
 							</div>
 							<div class="feature-container">
-								${this.privilegeService.canUseChat() ? html`
-								<chat-box .messageService="${this.messageService}" .privilegeService="${this.privilegeService}"></chat-box>
-								` : ''}
+								${when(PrivilegeService.canUseChat(), () => html`
+								<chat-box .messageService="${this.messageService}"></chat-box>
+								`)}
 							</div>
 						</div>
 					</sl-split-panel>
@@ -171,8 +168,8 @@ export class PlayerView extends I18nLitElement {
 	}
 
 	private updateContainerVisibility() {
-		this.rightContainerVisible = this.chatVisible && this.privilegeService.canUseChat();
-		this.participantsVisible = this.privilegeService.canViewParticipants();
+		this.rightContainerVisible = this.chatVisible && PrivilegeService.canUseChat();
+		this.participantsVisible = PrivilegeService.canViewParticipants();
 	}
 
 	private addDummyViews() {

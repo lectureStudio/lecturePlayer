@@ -44,6 +44,7 @@
 	"controls.documents.page.next": "Next Page",
 	"controls.layout": "Layout",
 	"controls.screenshare": "Share Screen",
+	"controls.screenshare.stop": "End Screen Share",
 	"controls.tools": "Tools",
 	"controls.tools.cursor": "Local Text Selection",
 	"controls.tools.highlighter": "Highlighter",

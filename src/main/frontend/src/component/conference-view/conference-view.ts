@@ -1,5 +1,6 @@
 import { html } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
+import { when } from "lit/directives/when.js";
 import { classMap } from "lit/directives/class-map.js";
 import { participants } from '../../model/participants';
 import { I18nLitElement } from "../i18n-mixin";
@@ -8,6 +9,7 @@ import { ParticipantView } from "../participant-view/participant-view";
 import { State } from "../../utils/state";
 import { ScreenView } from "../screen-view/screen-view";
 import $presentationStore, { ContentFocus, ContentLayout, setContentFocus } from "../../model/presentation-store";
+import { PrivilegeService } from "../../service/privilege.service";
 
 @customElement('conference-view')
 export class ConferenceView extends I18nLitElement {
@@ -134,7 +136,10 @@ export class ConferenceView extends I18nLitElement {
 
 				<div class="document-container">
 					<slide-view class="conference-slides"></slide-view>
+
+					${when(PrivilegeService.canShareDocuments(), () => html`
 					<document-navigation></document-navigation>
+					`)}
 				</div>
 			</div>
 

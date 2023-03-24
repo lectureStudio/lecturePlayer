@@ -2,40 +2,48 @@ import { course } from '../model/course';
 
 export class PrivilegeService {
 
-	canUseChat(): boolean {
+	static canUseChat(): boolean {
 		return this.canReadMessages() || this.canWriteMessages();
 	}
 
-	canWriteMessages(): boolean {
+	static canWriteMessages(): boolean {
 		return this.canWritePrivateMessages() || this.canWriteMessagesToAll() || this.canWriteMessagesToOrganisators();
 	}
 
-	canReadMessages(): boolean {
+	static canReadMessages(): boolean {
 		return course.userPrivileges.findIndex(privilege => privilege.name === "CHAT_READ") > -1;
 	}
 
-	canWriteMessagesToAll(): boolean {
+	static canWriteMessagesToAll(): boolean {
 		return course.userPrivileges.findIndex(privilege => privilege.name === "CHAT_WRITE") > -1;
 	}
 
-	canWritePrivateMessages(): boolean {
+	static canWritePrivateMessages(): boolean {
 		return course.userPrivileges.findIndex(privilege => privilege.name === "CHAT_WRITE_PRIVATELY") > -1;
 	}
 
-	canWriteMessagesToOrganisators(): boolean {
+	static canWriteMessagesToOrganisators(): boolean {
 		return course.userPrivileges.findIndex(privilege => privilege.name === "CHAT_WRITE_TO_ORGANISATOR") > -1;
 	}
 
-	canContributeBySpeech(): boolean {
+	static canContributeBySpeech(): boolean {
 		return course.userPrivileges.findIndex(privilege => privilege.name === "SPEECH") > -1;
 	}
 
-	canParticipateInQuiz(): boolean {
+	static canParticipateInQuiz(): boolean {
 		return course.userPrivileges.findIndex(privilege => privilege.name === "QUIZ_PARTICIPATION") > -1;
 	}
 
-	canViewParticipants(): boolean {
+	static canViewParticipants(): boolean {
 		//return course.userPrivileges.findIndex(privilege => privilege.name === "PARTICIPANTS_VIEW") > -1;
 		return true;
+	}
+
+	static canShareScreen(): boolean {
+		return course.userPrivileges.findIndex(privilege => privilege.name === "COURSE_STREAM") > -1;
+	}
+
+	static canShareDocuments(): boolean {
+		return course.userPrivileges.findIndex(privilege => privilege.name === "COURSE_STREAM") > -1;
 	}
 }
