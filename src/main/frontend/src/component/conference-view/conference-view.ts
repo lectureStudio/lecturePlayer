@@ -41,7 +41,7 @@ export class ConferenceView extends I18nLitElement {
 	@property({ reflect: true })
 	layout: ContentLayout;
 
-	@property()
+	@property({ reflect: true })
 	contentFocus: ContentFocus;
 
 	@state()
@@ -315,7 +315,7 @@ export class ConferenceView extends I18nLitElement {
 			this.screenView.setState(State.DISCONNECTED);
 			this.screenView.removeVideo();
 
-			setContentFocus(ContentFocus.Participants);
+			setContentFocus($presentationStore.getState().previousContentFocus);
 		}
 	}
 
@@ -324,7 +324,7 @@ export class ConferenceView extends I18nLitElement {
 
 		this.screenView.setVideoVisible(visible);
 
-		setContentFocus(visible ? ContentFocus.ScreenShare : ContentFocus.Participants);
+		setContentFocus(visible ? ContentFocus.ScreenShare : $presentationStore.getState().previousContentFocus);
 	}
 
 	private onTalkingPublisher(event: CustomEvent) {

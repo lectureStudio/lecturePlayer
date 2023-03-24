@@ -24,6 +24,7 @@ export enum ContentLayout {
 type PresentationStore = {
 	contentFocus: ContentFocus;
 	contentLayout: ContentLayout;
+	previousContentFocus: ContentFocus;
 }
 
 export const setContentLayout = createEvent<ContentLayout>();
@@ -31,7 +32,8 @@ export const setContentFocus = createEvent<ContentFocus>();
 
 export default createStore<PresentationStore>({
 	contentFocus: ContentFocus.Participants,
-	contentLayout: ContentLayout.Gallery
+	contentLayout: ContentLayout.Gallery,
+	previousContentFocus: ContentFocus.Participants
 })
 	.on(setContentLayout, (state: PresentationStore, layout: ContentLayout) => {
 		if (layout !== state.contentLayout) {
@@ -47,6 +49,7 @@ export default createStore<PresentationStore>({
 			return {
 				...state,
 				contentFocus: focus,
+				previousContentFocus: state.contentFocus
 			};
 		}
 		return state;
