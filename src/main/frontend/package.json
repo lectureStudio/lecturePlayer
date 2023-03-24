@@ -60,6 +60,7 @@
 		"i18next": "^21.8.12",
 		"i18next-browser-languagedetector": "^6.1.4",
 		"janus-gateway": "git://github.com/meetecho/janus-gateway.git",
+		"jspdf": "^2.5.1",
 		"lit": "^2.2.7",
 		"pdfjs-dist": "^2.16.105"
 	}

@@ -36,6 +36,7 @@ import { RenderController } from '../../render/render-controller';
 import { ToolController } from '../../tool/tool-controller';
 import { MouseListener } from '../../event/mouse-listener';
 import { ContentFocus, setContentFocus } from '../../model/presentation-store';
+import { jsPDF } from 'jspdf';
 
 export class PlayerController implements ReactiveController {
 
@@ -337,43 +338,13 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onOpenNewDocument() {
-		let uploadedDoc: CourseStateDocument;
-
 		Utils.openFile({
 			description: 'PDF files',
 			mimeTypes: ['application/pdf'],
 			extensions: ['.pdf']
 		})
 		.then((file: File) => {
-			this.courseStateService.uploadDocument(file)
-				.then((stateDoc: CourseStateDocument) => {
-					console.log("document state", stateDoc);
-
-					uploadedDoc = stateDoc;
-
-					return Utils.readFile(file);
-				})
-				.then((fileBuffer: Uint8Array) => {
-					return new DocumentService().loadDocument(fileBuffer);
-				})
-				.then((document: SlideDocument) => {
-					this.updateDocumentState(document, uploadedDoc);
-
-					const selectedPage = uploadedDoc.activePage.pageNumber;
-
-					this.playbackService.addDocument(document);
-					this.playbackService.selectDocument(uploadedDoc.documentId);
-					this.playbackService.setPageNumber(selectedPage);
-
-					this.janusService.sendDocumentCreated(uploadedDoc);
-					this.janusService.sendDocumentSelected(uploadedDoc);
-					this.janusService.sendPageSelected(uploadedDoc.documentId, selectedPage);
-
-					setContentFocus(ContentFocus.Document);
-				})
-				.catch(error => {
-					console.error(error);
-				});
+			this.uploadDocument(file);
 		})
 		.catch(error => {
 			console.error(error);
@@ -381,7 +352,56 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onOpenNewWhiteboard() {
+		const doc = new jsPDF({
+			orientation: "landscape",
+			unit: "px",
+			format: [720, 480],
+			compress: true
+		});
 
+		// Create some empty pages.
+		for (let i = 0; i < 50; i++) {
+			doc.addPage();
+		}
+
+		const blob = doc.output("blob");
+		const file = new File([blob], "whiteboard.pdf", { type: "application/pdf", lastModified: new Date().valueOf() });
+
+		this.uploadDocument(file);
+	}
+
+	private uploadDocument(file: File) {
+		let uploadedDoc: CourseStateDocument;
+
+		this.courseStateService.uploadDocument(file)
+			.then((stateDoc: CourseStateDocument) => {
+				console.log("document state", stateDoc);
+
+				uploadedDoc = stateDoc;
+
+				return Utils.readFile(file);
+			})
+			.then((fileBuffer: Uint8Array) => {
+				return new DocumentService().loadDocument(fileBuffer);
+			})
+			.then((document: SlideDocument) => {
+				this.updateDocumentState(document, uploadedDoc);
+
+				const selectedPage = uploadedDoc.activePage.pageNumber;
+
+				this.playbackService.addDocument(document);
+				this.playbackService.selectDocument(uploadedDoc.documentId);
+				this.playbackService.setPageNumber(selectedPage);
+
+				this.janusService.sendDocumentCreated(uploadedDoc);
+				this.janusService.sendDocumentSelected(uploadedDoc);
+				this.janusService.sendPageSelected(uploadedDoc.documentId, selectedPage);
+
+				setContentFocus(ContentFocus.Document);
+			})
+			.catch(error => {
+				console.error(error);
+			});
 	}
 
 	private onDocumentPrevPage() {
