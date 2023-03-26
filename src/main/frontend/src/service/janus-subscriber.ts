@@ -280,7 +280,7 @@ export class JanusSubscriber extends JanusParticipant {
 
 				this.view.addScreenVideo(mediaElement as HTMLVideoElement);
 
-				document.dispatchEvent(Utils.createEvent("screen-share-state", {
+				document.dispatchEvent(Utils.createEvent("screen-share-block", {
 					screenSharing: true
 				}));
 

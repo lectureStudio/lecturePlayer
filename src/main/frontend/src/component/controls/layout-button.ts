@@ -1,4 +1,4 @@
-import { html, TemplateResult } from 'lit';
+import { html} from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { layoutButtonStyles } from './layout-button.styles';
@@ -6,6 +6,7 @@ import { SlMenu, SlMenuItem, SlTooltip } from '@shoelace-style/shoelace';
 import { ContentLayout, setContentLayout } from '../../model/presentation-store';
 import { Utils } from '../../utils/utils';
 import { course } from '../../model/course';
+import { State } from '../../utils/state';
 
 @customElement('layout-button')
 export class LayoutButton extends I18nLitElement {
@@ -21,20 +22,30 @@ export class LayoutButton extends I18nLitElement {
 	@query('sl-tooltip')
 	tooltip: SlTooltip;
 
-	@property({ type: Boolean })
-	screenShare: boolean = false;
+	@property({ type: Boolean, reflect: true })
+	isSharing: boolean = false;
 
 	@property({ type: Boolean })
 	speakerMode: boolean = false;
 
-	@property({ type: String })
-	viewMode: "Gallery" | "Speaker";
+	@property({ type: Boolean })
+	isGallery: boolean = true;
 
 	@property({ type: Boolean })
+	isSpeaker: boolean = false;
+
+	@property({ type: Boolean, reflect: true })
 	isConference: boolean = false;
 
 	override connectedCallback() {
 		super.connectedCallback()
+	}
+
+	protected override firstUpdated(): void {
+		// Register listeners.
+		document.addEventListener("participant-screen-stream", (e: CustomEvent) => {
+			this.isSharing = e.detail.state === State.CONNECTED;
+		});
 
 		this.isConference = course.conference;
 	}
@@ -52,8 +63,8 @@ export class LayoutButton extends I18nLitElement {
 				<sl-menu @sl-select="${this.onLayoutSelected}">
 					<sl-menu-item value="settings" @click="${this.onSettings}">${t("controls.settings")}</sl-menu-item>
 					<sl-menu-item value="stats" @click="${this.onStats}">${t("stats.title")}</sl-menu-item>
-					<sl-menu-item class="conference-control" type="checkbox" value="Gallery" checked="">${t("layout.gallery")}</sl-menu-item>
-					<sl-menu-item class="conference-control" type="checkbox" value="Speaker">${t("layout.speaker")}</sl-menu-item>
+					<sl-menu-item class="conference-control" type="checkbox" value="Gallery" checked="" id="gallery-item">${t("layout.gallery")}</sl-menu-item>
+					<sl-menu-item class="conference-control" type="checkbox" value="Speaker"id="speaker-item">${t("layout.speaker")}</sl-menu-item>
 				</sl-menu>
 			</sl-dropdown>
 		`;
@@ -67,6 +78,18 @@ export class LayoutButton extends I18nLitElement {
 		const selectedItem: SlMenuItem = event.detail.item;
 		const value = selectedItem.value;
 
+		// if speaker layout is selected
+		if (value === "Speaker" && !this.isSpeaker) {
+			this.isSpeaker = true;
+			setContentLayout(ContentLayout.PresentationLeft);
+			this.dispatchEvent(Utils.createEvent("speaker-view", this.isSpeaker));
+		}
+		else if (value === "Gallery") {
+			this.isSpeaker = false;
+			setContentLayout(ContentLayout.Gallery);
+			this.dispatchEvent(Utils.createEvent("speaker-view", this.isSpeaker));
+		}
+
 		// Keep selected item checked, e.g. when double-checked.
 		if (selectedItem.type === "checkbox") {
 			selectedItem.checked = true;
@@ -79,7 +102,8 @@ export class LayoutButton extends I18nLitElement {
 				}
 			}
 
-			setContentLayout(ContentLayout[value as keyof typeof ContentLayout]);
+			//setContentLayout(ContentLayout[value as keyof typeof ContentLayout]);
+			
 		}
 	}
 

@@ -105,11 +105,9 @@ export const playerControlsStyles = css`
 	:host(:not([isConference])) .conference-control {
 		display: none;
 	}
-	:host([shareScreenBlocked]) .icon-share {
-		opacity: 0.5;
-	}
 	:host([shareScreenBlocked]) #share-screen-button {
 		pointer-events:none;
+		opacity: 0.5;
 	}
 	:host([shareScreenBlocked]) #share-screen-button::part(base) {
 		background-color: transparent;

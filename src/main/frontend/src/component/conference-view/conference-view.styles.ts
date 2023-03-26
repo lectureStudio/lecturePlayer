@@ -208,4 +208,16 @@ export const conferenceViewStyles = css`
 	:host .hide-grid {
 		display: none;
 	}
+
+	:host([isSpeaker]) .presentation-container {
+		display:block;
+	}
+
+	:host([isSpeaker]) .document-container {
+		display: none;
+	}
+
+	:host([isSpeaker]) .screen-view {
+		display: none;
+	}
 `;
