@@ -358,18 +358,38 @@ export class ConferenceView extends I18nLitElement {
 			isTalking = false;
 		}
 
-		for (const grid of this.gridContainer.querySelectorAll("participant-view")) {
-			counter += 1;
-			const gridElement = grid as ParticipantView;
-			if (gridElement.publisherId == publisherId) {
-				gridElement.isTalking = isTalking;
-				// make talking participant visible
-				if (isTalking && counter > this.gridElementsLimit) {
-					const lastGridElement = this.gridContainer.children[this.gridElementsLimit - 1] as ParticipantView;
-					lastGridElement.isVisible = false;
-					const secondGridElement = this.gridContainer.children[1] as ParticipantView;
-					gridElement.isVisible = true;
-					this.gridContainer.insertBefore(gridElement, secondGridElement);
+		const speaker = this.presentationContainer.querySelector("participant-view") as ParticipantView;
+
+		if (this.isSpeaker && speaker?.publisherId == publisherId) {
+			speaker.isTalking = isTalking;
+		}
+		else {
+			for (const grid of this.gridContainer.querySelectorAll("participant-view")) {
+				counter += 1;
+				const gridElement = grid as ParticipantView;
+				if (gridElement.publisherId == publisherId) {
+					gridElement.isTalking = isTalking;
+					// highlight current speaker
+					if (this.isSpeaker && isTalking) {
+						const firstGridElement = this.gridContainer.children[0] as ParticipantView;
+						this.gridContainer.insertBefore(speaker, firstGridElement);
+						gridElement.isVisible = true;
+						this.presentationContainer.appendChild(gridElement);
+						if (counter > this.gridElementsLimit) {
+							const lastGridElement = this.gridContainer.children[this.gridElementsLimit - 1] as ParticipantView;
+							lastGridElement.isVisible = false;
+						}
+					}
+					else {
+						// make talking participant visible
+						if (isTalking && counter > this.gridElementsLimit) {
+							const lastGridElement = this.gridContainer.children[this.gridElementsLimit - 1] as ParticipantView;
+							lastGridElement.isVisible = false;
+							const secondGridElement = this.gridContainer.children[1] as ParticipantView;
+							gridElement.isVisible = true;
+							this.gridContainer.insertBefore(gridElement, secondGridElement);
+						}
+					}
 				}
 			}
 		}
