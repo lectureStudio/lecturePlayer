@@ -8,6 +8,8 @@ export abstract class SlideDocument {
 
 	private documentId: bigint;
 
+	private name: string;
+
 
 	abstract getPageBounds(pageNumber: number): Promise<Rectangle>;
 
@@ -19,7 +21,7 @@ export abstract class SlideDocument {
 
 
 	constructor() {
-		
+
 	}
 
 	getDocumentId(): bigint {
@@ -28,6 +30,14 @@ export abstract class SlideDocument {
 
 	setDocumentId(id: bigint): void {
 		this.documentId = id;
+	}
+
+	getDocumentName(): string {
+		return this.name;
+	}
+
+	setDocumentName(name: string) {
+		this.name = name;
 	}
 
 	getPageCount(): number {

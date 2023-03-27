@@ -4,8 +4,8 @@ import { I18nLitElement, t } from '../i18n-mixin';
 import { documentsButtonStyles } from './documents-button.styles';
 import { SlMenu, SlMenuItem, SlTooltip } from '@shoelace-style/shoelace';
 import { Utils } from '../../utils/utils';
-import { course } from '../../model/course';
 import { CourseStateDocument } from '../../model/course-state-document';
+import $documentStore from "../../model/document-store";
 
 @customElement('documents-button')
 export class DocumentsButton extends I18nLitElement {
@@ -33,9 +33,9 @@ export class DocumentsButton extends I18nLitElement {
 	override connectedCallback() {
 		super.connectedCallback()
 
-		document.addEventListener("course-new-document", () => {
+		$documentStore.watch(state => {
 			this.requestUpdate();
-		});
+		})
 	}
 
 	protected render() {
@@ -62,18 +62,18 @@ export class DocumentsButton extends I18nLitElement {
 	private renderDocumentItems() {
 		const itemTemplates: TemplateResult[] = [];
 
-		if (course.documentMap) {
-			const activeDoc = course.activeDocument;
+		const documentState = $documentStore.getState();
+		const activeDoc = documentState.selectedDocument;
 
-			for (const doc of course.documentMap.values()) {
-				const selected = activeDoc ? activeDoc.documentId === doc.documentId : false;
+		for (const doc of documentState.documents) {
+			const docId = doc.getDocumentId();
+			const selected = activeDoc ? activeDoc.getDocumentId() === docId : false;
 
-				if (selected) {
-					this.selectedDocId = doc.documentId.toString();
-				}
-
-				itemTemplates.push(html`<sl-menu-item type="checkbox" value="${doc.documentId}" ?checked="${selected}">${doc.documentName}</sl-menu-item>`);
+			if (selected) {
+				this.selectedDocId = docId.toString();
 			}
+
+			itemTemplates.push(html`<sl-menu-item type="checkbox" value="${docId}" ?checked="${selected}">${doc.getDocumentName()}</sl-menu-item>`);
 		}
 
 		if (itemTemplates.length > 0) {

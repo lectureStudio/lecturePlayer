@@ -38,7 +38,7 @@ export class CourseStateService {
 							throw new Error("Received empty course document");
 						}
 
-						this.updateDocumentStats(stateDoc, dataBuffer.byteLength);
+						this.updateDocumentStats(0, dataBuffer.byteLength);
 
 						const byteBuffer = new Uint8Array(dataBuffer);
 						const docService = new DocumentService();
@@ -115,6 +115,7 @@ export class CourseStateService {
 			})
 			.post<any>(this.host + "/course/file/upload", formData)
 				.then((stateDoc: CourseStateDocument) => {
+					this.updateDocumentStats(file.size, 0);
 					resolve(stateDoc);
 				})
 				.catch((error: any) => {
@@ -193,7 +194,7 @@ export class CourseStateService {
 		return this.host + this.apiPath + path;
 	}
 
-	private updateDocumentStats(stateDoc: CourseStateDocument, byteSize: number) {
+	private updateDocumentStats(byteSent: number, byteReceived: number) {
 		let stats = course.streamStats.documentStats;
 
 		if (!stats) {
@@ -207,7 +208,13 @@ export class CourseStateService {
 			course.streamStats.documentStats = stats;
 		}
 
-		stats.countReceived += 1;
-		stats.bytesReceived += byteSize;
+		if (byteSent > 0) {
+			stats.countSent += 1;
+			stats.bytesSent += byteSent;
+		}
+		if (byteReceived > 0) {
+			stats.countReceived += 1;
+			stats.bytesReceived += byteReceived;
+		}
 	}
 }

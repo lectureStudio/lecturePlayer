@@ -17,6 +17,11 @@ export const documentNavigationStyles = css`
 		padding: 0;
 	}
 
+	.document-page-number {
+		width: 2em;
+		text-align: center;
+	}
+
 	.tool-button-active {
 		background: var(--sl-color-neutral-300);
 		border-radius: var(--sl-border-radius-small);
