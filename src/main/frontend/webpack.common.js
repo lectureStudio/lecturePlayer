@@ -21,13 +21,12 @@ module.exports = {
 				// Copy icons to dist/icons
 				{
 					from: path.resolve(__dirname, 'src/icons'),
-					to: path.resolve(__dirname, '/home/feil/workspace/lectureStreaming/src/main/resources/static/icons')
-
+					to: path.resolve(__dirname, 'C:\\Users\\Alex\\Desktop\\lectureStreaming\\src\\main\\resources\\static\\icons')
 				},
 				// Copy Shoelace assets to dist/shoelace
 				{
 					from: path.resolve(__dirname, 'node_modules/@shoelace-style/shoelace/dist/assets'),
-					to: path.resolve(__dirname, '/home/feil/workspace/lectureStreaming/src/main/resources/static/js/shoelace/assets')
+					to: path.resolve(__dirname, 'C:\\Users\\Alex\\Desktop\\lectureStreaming\\src\\main\\resources\\static\\js\\shoelace\\assets')
 				}
 			]
 		}),
@@ -38,7 +37,7 @@ module.exports = {
 		new webpack.ProvidePlugin({ adapter: ['webrtc-adapter', 'default'] }),
 	],
 	output: {
-		path: '/home/feil/workspace/lectureStreaming/src/main/resources/static/js/',
+		path: 'C:\\Users\\Alex\\Desktop\\lectureStreaming\\src\\main\\resources\\static\\js',
 		filename: '[name].js',
 		library: "lect",
 		libraryTarget: 'umd',

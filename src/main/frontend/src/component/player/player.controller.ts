@@ -87,7 +87,7 @@ export class PlayerController implements ReactiveController {
 		actionProcessor.onPeerConnected = this.onPeerConnected.bind(this);
 
 		this.courseStateService = new CourseStateService("https://" + window.location.host);
-		this.janusService = new JanusService("https://" + window.location.hostname + "/janus", actionProcessor);
+		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus", actionProcessor);
 		this.modals = new Map();
 
 		this.maxWidth576Query = window.matchMedia("(max-width: 576px)");

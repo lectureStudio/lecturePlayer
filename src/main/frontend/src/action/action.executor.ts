@@ -5,6 +5,7 @@ import { SlideDocument } from "../model/document";
 import { PenPoint } from "../geometry/pen-point";
 import { AtomicTool } from "../tool/atomic.tool";
 import { RenderController } from "../render/render-controller";
+import { setPage, setPageNumber } from "../model/document-store";
 
 export class StreamActionExecutor implements ActionExecutor {
 
@@ -45,6 +46,9 @@ export class StreamActionExecutor implements ActionExecutor {
 
 		this.toolContext.page = page;
 		this.renderController.setPage(page);
+
+		setPage(page);
+		setPageNumber(pageNumber);
 	}
 
 	removePageNumber(pageNumber: number): void {
