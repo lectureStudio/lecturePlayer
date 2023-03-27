@@ -331,8 +331,10 @@ export class ConferenceView extends I18nLitElement {
 			this.screenView.setState(State.DISCONNECTED);
 			this.screenView.removeVideo();
 
-			//setContentFocus($presentationStore.getState().previousContentFocus)
-			setContentFocus(ContentFocus.Participants);
+			if ($presentationStore.getState().contentFocus === ContentFocus.ScreenShare) {
+				// Change focus only if screen-share is active.
+				setContentFocus($presentationStore.getState().previousContentFocus);
+			}
 		}
 	}
 
