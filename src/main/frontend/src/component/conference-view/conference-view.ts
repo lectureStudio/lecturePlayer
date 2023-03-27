@@ -303,7 +303,21 @@ export class ConferenceView extends I18nLitElement {
 	}
 
 	private removeGridElement(event: CustomEvent) {
-		event.detail.gridElement.remove();
+
+		const speaker = this.presentationContainer.querySelector("participant-view") as ParticipantView;
+		const toRemove = event.detail.gridElement as ParticipantView;
+
+		if (speaker === toRemove) {
+			speaker.remove();
+			const newSpeaker = this.gridContainer.children[0] as ParticipantView;
+			this.presentationContainer.appendChild(newSpeaker);
+
+			const lastVisible = this.gridContainer.children[this.gridElementsLimit] as ParticipantView;
+			if (lastVisible) {
+				lastVisible.isVisible = true;
+			}
+		}
+		else event.detail.gridElement.remove();
 
 		this.gridCounter -= 1;
 
