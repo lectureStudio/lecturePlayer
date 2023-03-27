@@ -4,6 +4,7 @@ import { I18nLitElement, t } from '../i18n-mixin';
 import { DeviceInfo, Devices } from '../../utils/devices';
 import { mediaSettingsStyles } from './media-settings.styles';
 import { Utils } from '../../utils/utils';
+import { setCameraBlocked, setMicrophoneBlocked } from '../../model/device-settings-store';
 
 export abstract class MediaSettings extends I18nLitElement {
 
@@ -49,7 +50,7 @@ export abstract class MediaSettings extends I18nLitElement {
 	protected renderDevices(devices: MediaDeviceInfo[], onChange: (event: Event) => void, name: string, id: string, label: string) {
 		// Speaker feature is behind the 'media.setsinkid.enabled' preferences (needs to be set to true).
 		// To change preferences in Firefox, visit about:config.
-		if (name === "audioOutput" && Utils.isFirefox()) {
+		if (name === "speakerDeviceId" && Utils.isFirefox()) {
 			return null;
 		}
 
@@ -73,6 +74,7 @@ export abstract class MediaSettings extends I18nLitElement {
 	protected enumerateDevices(useVideo: boolean) {
 		Devices.enumerateDevices(useVideo, true)
 			.then((result: DeviceInfo) => {
+				this.updateSettings(false, false);
 				this.updateModel(result, false);
 			})
 			.catch(error => {
@@ -81,6 +83,7 @@ export abstract class MediaSettings extends I18nLitElement {
 				if (error.name == "NotReadableError") {
 					Devices.enumerateDevices(false, true)
 						.then((result: DeviceInfo) => {
+							this.updateSettings(false, true);
 							this.updateModel(result, true);
 						})
 						.catch(error => {
@@ -89,11 +92,13 @@ export abstract class MediaSettings extends I18nLitElement {
 				}
 				else if (error.name == "NotAllowedError" || error.name == "PermissionDeniedError") {
 					this.devicesBlocked = true;
+					this.updateSettings(false, true);
 					this.setError();
 				}
 				else {
 					Devices.enumerateDevices(false, false)
 						.then((result: DeviceInfo) => {
+							this.updateSettings(false, true);
 							this.updateModel(result, false);
 						})
 						.catch(error => {
@@ -101,5 +106,10 @@ export abstract class MediaSettings extends I18nLitElement {
 						});
 				}
 			});
+	}
+
+	private updateSettings(micBlocked: boolean, camBlocked: boolean) {
+		setMicrophoneBlocked(micBlocked);
+		setCameraBlocked(camBlocked);
 	}
 }

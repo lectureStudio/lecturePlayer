@@ -1,5 +1,5 @@
-import { Settings } from "./settings";
 import { Utils } from "./utils";
+import $deviceSettingsStore from '../model/device-settings-store';
 
 export interface DeviceInfo {
 
@@ -43,7 +43,7 @@ export class Devices {
 	}
 
 	static async getVideoStream() {
-		const videoSource = Settings.getCameraId();
+		const videoSource = $deviceSettingsStore.getState().cameraDeviceId;
 		const constraints = {
 			video: {
 				deviceId: videoSource ? { exact: videoSource } : undefined,
@@ -57,24 +57,37 @@ export class Devices {
 	}
 
 	static enumerateDevices(useVideo: boolean, useSettings: boolean): Promise<DeviceInfo> {
-		let constraints: any;
-	
-		if (useSettings) {
-			const audioSource = Settings.getMicrophoneId();
-			const videoSource = Settings.getCameraId();
+		let constraints: MediaStreamConstraints = {};
 
-			constraints = {
-				audio: {
-					deviceId: audioSource ? { exact: audioSource } : undefined
-				},
-				video: {
-					deviceId: videoSource ? { exact: videoSource } : undefined,
+		if (useSettings) {
+			const deviceSettings = $deviceSettingsStore.getState();
+			const audioSource = deviceSettings.microphoneDeviceId;
+			const videoSource = deviceSettings.cameraDeviceId;
+
+			if (audioSource) {
+				constraints.audio = {
+					deviceId: { exact: audioSource }
+				}
+			}
+			else {
+				constraints.audio = true;
+			}
+
+			if (videoSource) {
+				constraints.video = {
+					deviceId: { exact: videoSource },
 					width: { ideal: 1280 },
 					height: { ideal: 720 },
 					facingMode: "user"
 				}
-			};
-		
+			}
+			else {
+				constraints.video = {
+					width: { ideal: 1280 },
+					height: { ideal: 720 }
+				}
+			}
+
 			if (!useVideo) {
 				delete constraints.video;
 			}

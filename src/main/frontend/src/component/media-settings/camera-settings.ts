@@ -2,10 +2,10 @@ import { html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { t } from '../i18n-mixin';
 import { DeviceInfo, Devices } from '../../utils/devices';
-import { DeviceSettings, Settings } from '../../utils/settings';
 import { cameraSettingsStyles } from './camera-settings.styles';
 import { SlSelect, SlSwitch } from '@shoelace-style/shoelace';
 import { MediaSettings } from './media-settings';
+import $deviceSettingsStore, { DeviceSettings } from '../../model/device-settings-store';
 
 @customElement("camera-settings")
 export class CameraSettings extends MediaSettings {
@@ -35,7 +35,10 @@ export class CameraSettings extends MediaSettings {
 		const deviceForm: HTMLFormElement = this.renderRoot?.querySelector('#device-select-form') ?? null;
 		const data = new FormData(deviceForm);
 
-		return <DeviceSettings> <unknown> Object.fromEntries(data.entries());
+		const settings = <DeviceSettings><unknown> Object.fromEntries(data.entries());
+		settings.cameraMuteOnEntry = settings.cameraMuteOnEntry ? true : false;
+
+		return settings;
 	}
 
 	override connectedCallback() {
@@ -55,14 +58,14 @@ export class CameraSettings extends MediaSettings {
 	override firstUpdated() {
 		super.firstUpdated();
 
-		this.cameraMuteSwitch.checked = Settings.getCameraMuteOnEntry();
+		this.cameraMuteSwitch.checked = $deviceSettingsStore.getState().cameraMuteOnEntry;
 	}
 
 	protected override setEnabled(enabled: boolean) {
 		super.setEnabled(enabled);
 
 		if (this.cameraSelect) {
-			this.cameraSelect.value = Settings.getCameraId();
+			this.cameraSelect.value = $deviceSettingsStore.getState().cameraDeviceId;
 		}
 	}
 
@@ -75,7 +78,7 @@ export class CameraSettings extends MediaSettings {
 		this.video.srcObject = result.stream;
 		this.video.muted = true;
 
-		if (!this.videoInputDevices.find(devInfo => { return devInfo.deviceId === Settings.getCameraId() })) {
+		if (!this.videoInputDevices.find(devInfo => { return devInfo.deviceId === $deviceSettingsStore.getState().cameraDeviceId })) {
 			Devices.stopVideoTracks(this.video.srcObject as MediaStream);
 		}
 
@@ -139,11 +142,11 @@ export class CameraSettings extends MediaSettings {
 			</sl-alert>
 
 			<form id="device-select-form">
-				<sl-switch id="cameraMuteOnEntry" name="videoInputMuteOnEntry" size="small">${t("devices.camera.mute.on.entry")}</sl-switch>
+				<sl-switch id="cameraMuteOnEntry" name="cameraMuteOnEntry" size="small">${t("devices.camera.mute.on.entry")}</sl-switch>
 				<div class="container2">
 					<video id="cameraPreview" class="video" playsinline autoplay muted></video>
 					<div class="controls">
-						${this.renderDevices(this.videoInputDevices, this.onCameraChange, "videoInput", "cameraSelect", t("devices.camera"))}
+						${this.renderDevices(this.videoInputDevices, this.onCameraChange, "cameraDeviceId", "cameraSelect", t("devices.camera"))}
 					</div>
 				</div>
 			</form>

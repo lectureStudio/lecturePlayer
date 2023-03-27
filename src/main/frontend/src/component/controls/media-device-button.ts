@@ -3,9 +3,9 @@ import { customElement, property, query, state } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { mediaDeviceButtonStyles } from './media-device-button.styles';
 import { SlMenu, SlMenuItem } from '@shoelace-style/shoelace';
-import { Settings } from '../../utils/settings';
 import { Utils } from '../../utils/utils';
 import { Devices } from '../../utils/devices';
+import $deviceSettingsStore, { DeviceSettings } from '../../model/device-settings-store';
 
 @customElement('media-device-button')
 export class MediaDeviceButton extends I18nLitElement {
@@ -24,6 +24,9 @@ export class MediaDeviceButton extends I18nLitElement {
 	@state()
 	devices: Map<string, MediaDeviceInfo> = new Map();
 
+	@state()
+	deviceSettings: DeviceSettings;
+
 	@query('sl-menu')
 	menu: SlMenu;
 
@@ -36,6 +39,17 @@ export class MediaDeviceButton extends I18nLitElement {
 	override connectedCallback() {
 		super.connectedCallback();
 
+		$deviceSettingsStore.updates.watch(settings => {
+			this.deviceSettings = settings;
+
+			if (!settings.cameraBlocked || !settings.microphoneBlocked) {
+				// Enumerate devices if unblocked.
+				this.getDevices();
+			}
+		});
+
+		this.deviceSettings = $deviceSettingsStore.getState();
+
 		// When devices are (dis)connected.
 		navigator.mediaDevices.ondevicechange = () => {
 			this.getDevices();
@@ -47,14 +61,17 @@ export class MediaDeviceButton extends I18nLitElement {
 
 	protected override firstUpdated(): void {
 		// Register listeners.
-		this.menu.addEventListener('sl-select', this.onItemSelected.bind(this));
-		document.addEventListener('start-modal-abort', this.initDevices.bind(this));
+		this.menu.addEventListener("sl-select", this.onItemSelected.bind(this));
+		document.addEventListener("lect-device-permission-change", this.getDevices.bind(this));
 	}
 
 	protected render() {
 		const itemTemplates: TemplateResult[] = [];
+		let disabled = false;
 
 		if (this.type == "audio") {
+			disabled = this.deviceSettings.microphoneBlocked;
+
 			const speakerItems = this.renderDeviceItems("audiooutput");
 			const microphoneItems = this.renderDeviceItems("audioinput");
 
@@ -66,15 +83,32 @@ export class MediaDeviceButton extends I18nLitElement {
 				itemTemplates.push(html`<sl-menu-label>${t("devices.microphone")}</sl-menu-label>`);
 				itemTemplates.push(...microphoneItems);
 			}
+			else if (disabled) {
+				itemTemplates.push(html`<sl-menu-label>${t("devices.permission.required")}</sl-menu-label>`);
+			}
 		}
 		else {
-			itemTemplates.push(html`<sl-menu-label>${t("devices.camera")}</sl-menu-label>`);
-			itemTemplates.push(...this.renderDeviceItems("videoinput"));
+			disabled = this.deviceSettings.cameraBlocked;
+
+			const cameraItems = this.renderDeviceItems("videoinput");
+
+			if (cameraItems.length > 0) {
+				itemTemplates.push(html`<sl-menu-label>${t("devices.camera")}</sl-menu-label>`);
+				itemTemplates.push(...cameraItems);
+
+				// This can happen with Firefox. Even if the permission was not granted,
+				// the device names are visible when microphone was granted.
+				// So do not punish Firefox users.
+				disabled = false;
+			}
+			else if (disabled) {
+				itemTemplates.push(html`<sl-menu-label>${t("devices.permission.required")}</sl-menu-label>`);
+			}
 		}
 
 		return html`
 			<sl-tooltip content="${this.tooltip}" trigger="hover">
-				<sl-button id="enable-button" @click="${this.onMute}">
+				<sl-button id="enable-button" @click="${this.onMute}" ?disabled="${disabled}">
 					<slot slot="prefix" name="icon"></slot>
 				</sl-button>
 			</sl-tooltip>
@@ -175,12 +209,17 @@ export class MediaDeviceButton extends I18nLitElement {
 	private getDevices() {
 		const devices: Map<string, MediaDeviceInfo> = new Map();
 
+		if (this.deviceSettings.cameraBlocked && this.deviceSettings.microphoneBlocked) {
+			this.devices = devices;
+			return;
+		}
+
 		const predicate = this.type == "audio"
 			? (device: MediaDeviceInfo) => {
-				return device.kind === "audioinput" || device.kind === "audiooutput";
+				return device.label && (device.kind === "audioinput" || device.kind === "audiooutput");
 			}
 			: (device: MediaDeviceInfo) => {
-				return device.kind === "videoinput";
+				return device.label && device.kind === "videoinput";
 			};
 
 		navigator.mediaDevices.enumerateDevices()
@@ -203,18 +242,13 @@ export class MediaDeviceButton extends I18nLitElement {
 	private getSettingsDeviceId(device: MediaDeviceInfo): string {
 		switch (device.kind) {
 			case 'audioinput':
-				return Settings.getMicrophoneId();
+				return this.deviceSettings.microphoneDeviceId;
 			case 'audiooutput':
-				return Settings.getSpeakerId();
+				return this.deviceSettings.speakerDeviceId;
 			case 'videoinput':
-				return Settings.getCameraId();
+				return this.deviceSettings.cameraDeviceId;
 			default:
 				throw new Error("Kind of media device not supported");
 		}
-	}
-
-	private initDevices(): void {
-		this.getDevices();
-		// toDO: select audioinput if no audioinput checked
 	}
 }

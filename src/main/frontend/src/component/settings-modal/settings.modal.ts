@@ -4,11 +4,11 @@ import { t } from '../i18n-mixin';
 import { Modal } from '../modal/modal';
 import { Utils } from '../../utils/utils';
 import { settingsModalStyles } from './settings.modal.styles';
-import { Settings } from '../../utils/settings';
 import { JanusService } from '../../service/janus.service';
 import { SoundSettings } from '../media-settings/sound-settings';
 import { CameraSettings } from '../media-settings/camera-settings';
 import { SlTab } from '@shoelace-style/shoelace';
+import { persistDeviceSettings, setDeviceSettings } from '../../model/device-settings-store';
 
 @customElement("settings-modal")
 export class SettingsModal extends Modal {
@@ -33,7 +33,8 @@ export class SettingsModal extends Modal {
 	save() {
 		const devices = { ...this.cameraSettings.getDeviceSettings(), ...this.soundSettings.getDeviceSettings() };
 
-		Settings.saveDeviceChoice(devices);
+		setDeviceSettings(devices);
+		persistDeviceSettings(devices);
 
 		this.dispatchEvent(Utils.createEvent("device-settings-saved"));
 		this.close();
@@ -72,7 +73,6 @@ export class SettingsModal extends Modal {
 					<sl-tab-panel name="video">
 						<camera-settings></camera-settings>
 					</sl-tab-panel>
-		
 				</sl-tab-group>
 				<div slot="footer">
 					<sl-button @click="${this.cancel}" variant="default" size="small">${t("settings.close")}</sl-button>

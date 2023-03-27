@@ -3,11 +3,11 @@ import { customElement, property, query } from "lit/decorators.js";
 import { course } from "../../model/course";
 import { MediaType } from "../../model/media-type";
 import { Devices } from "../../utils/devices";
-import { Settings } from "../../utils/settings";
 import { State } from "../../utils/state";
 import { Utils } from "../../utils/utils";
 import { I18nLitElement } from "../i18n-mixin";
 import { participantViewStyles } from "./participant-view.styles";
+import $deviceSettingsStore, { DeviceSettings } from '../../model/device-settings-store';
 
 @customElement('participant-view')
 export class ParticipantView extends I18nLitElement {
@@ -69,8 +69,11 @@ export class ParticipantView extends I18nLitElement {
 
 		document.addEventListener("lect-speaker-volume", this.onAudioVolume.bind(this));
 		document.addEventListener("player-start-media", this.onStartMediaPlayback.bind(this));
-		document.addEventListener("speaker-setting-changed", this.onSpeakerSetting.bind(this));
 		document.addEventListener("lect-device-change", this.onDeviceChange.bind(this));
+
+		$deviceSettingsStore.updates.watch(settings => {
+			this.onSpeakerSetting(settings);
+		});
 
 		this.micActive = course.mediaState?.microphoneActive;
 		this.camActive = course.mediaState?.cameraActive;
@@ -191,9 +194,9 @@ export class ParticipantView extends I18nLitElement {
 		}
 	}
 
-	private onSpeakerSetting(e: CustomEvent) {
+	private onSpeakerSetting(settings: DeviceSettings) {
 		if (this.audio) {
-			Devices.setAudioSink(this.audio, Settings.getSpeakerId());
+			Devices.setAudioSink(this.audio, settings.speakerDeviceId);
 		}
 	}
 

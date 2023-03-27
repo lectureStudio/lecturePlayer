@@ -1,7 +1,7 @@
 import { Janus, JanusRoomParticipant, PluginHandle } from "janus-gateway";
 import { ParticipantView } from "../component/participant-view/participant-view";
+import { DeviceSettings } from "../model/device-settings-store";
 import { Devices } from "../utils/devices";
-import { DeviceSettings } from "../utils/settings";
 import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
 import { RTCStatsService } from "./rtc-stats.service";

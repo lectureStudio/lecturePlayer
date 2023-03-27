@@ -4,7 +4,6 @@ import { JanusSubscriber } from "./janus-subscriber";
 import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
 import { StreamActionProcessor } from "../action/stream-action-processor";
-import { DeviceSettings, Settings } from "../utils/settings";
 import { DocumentType } from "../model/document.type";
 import { CourseStateDocument } from "../model/course-state-document";
 import { StreamDocumentCreatedAction } from "../action/stream.document.created.action";
@@ -12,6 +11,7 @@ import { StreamDocumentSelectedAction } from "../action/stream.document.selected
 import { StreamPageSelectedAction } from "../action/stream.page.selected.action";
 import { addStreamAction } from "../model/action-store";
 import { StreamAction } from "../action/stream.action";
+import $settingsStore, { DeviceSettings } from "../model/device-settings-store";
 
 export class JanusService extends EventTarget {
 
@@ -117,7 +117,7 @@ export class JanusService extends EventTarget {
 
 	attachAsPublisher() {
 		const publisher = new JanusPublisher(this.janus, this.roomId, this.opaqueId, this.userName);
-		publisher.setDeviceSettings(Settings.getDeviceSettings());
+		publisher.setDeviceSettings($settingsStore.getState());
 		publisher.addEventListener("janus-participant-error", this.onPublisherError.bind(this));
 		publisher.addEventListener("janus-participant-state", this.onPublisherState.bind(this));
 		publisher.addEventListener("janus-participant-destroyed", this.onPublisherDestroyed.bind(this));
@@ -278,7 +278,7 @@ export class JanusService extends EventTarget {
 		}
 
 		const subscriber = new JanusSubscriber(this.janus, publisher.id, publisher.display, this.roomId, this.opaqueId);
-		subscriber.setDeviceSettings(Settings.getDeviceSettings());
+		subscriber.setDeviceSettings($settingsStore.getState());
 		subscriber.addEventListener("janus-participant-connection-connected", this.onParticipantConnectionConnected.bind(this));
 		subscriber.addEventListener("janus-participant-connection-disconnected", this.onParticipantConnectionDisconnected.bind(this));
 		subscriber.addEventListener("janus-participant-connection-failure", this.onParticipantConnectionFailure.bind(this));

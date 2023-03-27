@@ -44,6 +44,9 @@ export const mediaDeviceButtonStyles = css`
 		font-size: var(--sl-font-size-x-small);
 	}
 
+	sl-menu-label {
+		width: max-content;
+	}
 	sl-menu-label::part(base) {
 		width: 100%;
 		padding: 0 var(--sl-spacing-x-small);

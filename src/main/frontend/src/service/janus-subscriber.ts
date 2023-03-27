@@ -266,7 +266,7 @@ export class JanusSubscriber extends JanusParticipant {
 		if (isAudio) {
 			// Set speaker output device.
 			if (this.deviceSettings) {
-				Devices.setAudioSink(mediaElement, this.deviceSettings.audioOutput);
+				Devices.setAudioSink(mediaElement, this.deviceSettings.speakerDeviceId);
 			}
 
 			this.view.addAudio(mediaElement);

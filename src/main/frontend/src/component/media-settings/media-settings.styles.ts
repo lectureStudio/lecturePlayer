@@ -6,7 +6,7 @@ export const mediaSettingsStyles = css`
 		flex-direction: column;
 		gap: 1.0em;
 	}
-	:host(:not([enabled])) {
+	:host(:not([enabled])) form {
 		pointer-events: none;
 		opacity: 0.4;
 	}

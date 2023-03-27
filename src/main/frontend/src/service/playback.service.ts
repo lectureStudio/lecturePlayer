@@ -4,7 +4,7 @@ import { StreamActionPlayer } from "../action/stream-action-player";
 import { SlideDocument } from "../model/document";
 import { RenderController } from "../render/render-controller";
 import { course } from '../model/course';
-import $documentStore, { setDocument, setPage, setPageNumber } from "../model/document-store";
+import { addDocument, removeDocumentById, setDocument, setPage, setPageNumber } from "../model/document-store";
 
 export class PlaybackService {
 
@@ -40,16 +40,22 @@ export class PlaybackService {
 
 	addDocument(document: SlideDocument): void {
 		this.documents.set(BigInt(document.getDocumentId()), document);
+
+		addDocument(document);
 	}
 
 	addDocuments(documents: SlideDocument[]): void {
 		documents.forEach((doc: SlideDocument) => {
 			this.addDocument(doc);
+
+			addDocument(doc);
 		});
 	}
 
 	removeDocument(docId: bigint): void {
 		this.documents.delete(BigInt(docId));
+
+		removeDocumentById(docId);
 	}
 
 	getSelectedDocument(): SlideDocument {

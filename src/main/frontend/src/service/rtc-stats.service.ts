@@ -52,7 +52,7 @@ export class RTCStatsService {
 		}
 		else if (stats.kind === "video") {
 			// Find the track for the given stats, since not all browsers provide us the 'mid' in the stats.
-			const trackDesc = this.getTrackDescription(stats.ssrc);
+			const trackDesc = this.getTrackDescription(stats.ssrc, inbound);
 
 			const videoStats = this.createVideoStats(stats, codecStats, inbound);
 
@@ -127,7 +127,7 @@ export class RTCStatsService {
 		streamStats.dataStats = dataStats;
 	}
 
-	private getTrackDescription(ssrc: number) {
+	private getTrackDescription(ssrc: number, inbound: boolean) {
 		let mid = null;
 
 		for (const transceiver of this.pc.getTransceivers()) {
@@ -143,7 +143,16 @@ export class RTCStatsService {
 			return null;
 		}
 
-		return this.streamIds.get(mid);
+		return this.getStreamTypeForMid(mid);
+	}
+
+	protected getStreamTypeForMid(mid: string) {
+		for (const [k, v] of this.streamIds) {
+			if (v === mid) {
+				return k;
+			}
+		}
+		return null;
 	}
 
 	private setStats(streamStats: StreamStats, target: string, stats: StreamAudioStats | StreamVideoStats, inbound: boolean) {

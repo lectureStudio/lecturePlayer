@@ -2,9 +2,9 @@ import { html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { t } from '../i18n-mixin';
 import { DeviceInfo, Devices } from '../../utils/devices';
-import { DeviceSettings, Settings } from '../../utils/settings';
 import { SlSelect, SlSwitch } from '@shoelace-style/shoelace';
 import { MediaSettings } from './media-settings';
+import $deviceSettingsStore, { DeviceSettings } from '../../model/device-settings-store';
 
 @customElement("sound-settings")
 export class SoundSettings extends MediaSettings {
@@ -35,7 +35,10 @@ export class SoundSettings extends MediaSettings {
 		const deviceForm: HTMLFormElement = this.renderRoot?.querySelector('#device-select-form') ?? null;
 		const data = new FormData(deviceForm);
 
-		return <DeviceSettings> <unknown> Object.fromEntries(data.entries());
+		const settings = <DeviceSettings><unknown> Object.fromEntries(data.entries());
+		settings.microphoneMuteOnEntry = settings.microphoneMuteOnEntry ? true : false;
+
+		return settings;
 	}
 
 	override connectedCallback() {
@@ -55,17 +58,17 @@ export class SoundSettings extends MediaSettings {
 	override firstUpdated() {
 		super.firstUpdated();
 
-		this.microphoneMuteSwitch.checked = Settings.getMicrophoneMuteOnEntry();
+		this.microphoneMuteSwitch.checked = $deviceSettingsStore.getState().microphoneMuteOnEntry;
 	}
 
 	protected override setEnabled(enabled: boolean) {
 		super.setEnabled(enabled);
 
 		if (this.microphoneSelect) {
-			this.microphoneSelect.value = Settings.getMicrophoneId();
+			this.microphoneSelect.value = $deviceSettingsStore.getState().microphoneDeviceId;
 		}
 		if (this.speakerSelect) {
-			this.speakerSelect.value = Settings.getSpeakerId();
+			this.speakerSelect.value = $deviceSettingsStore.getState().speakerDeviceId;
 		}
 	}
 
@@ -126,9 +129,9 @@ export class SoundSettings extends MediaSettings {
 			</sl-alert>
 
 			<form id="device-select-form">
-				<sl-switch id="microphoneMuteOnEntry" name="audioInputMuteOnEntry" size="small">${t("devices.microphone.mute.on.entry")}</sl-switch>
-				${this.renderDevices(this.audioInputDevices, this.onMicrophoneChange, "audioInput", "microphoneSelect", t("devices.microphone"))}
-				${this.renderDevices(this.audioOutputDevices, this.onSpeakerChange, "audioOutput", "speakerSelect", t("devices.speaker"))}
+				<sl-switch id="microphoneMuteOnEntry" name="microphoneMuteOnEntry" size="small">${t("devices.microphone.mute.on.entry")}</sl-switch>
+				${this.renderDevices(this.audioInputDevices, this.onMicrophoneChange, "microphoneDeviceId", "microphoneSelect", t("devices.microphone"))}
+				${this.renderDevices(this.audioOutputDevices, this.onSpeakerChange, "speakerDeviceId", "speakerSelect", t("devices.speaker"))}
 			</form>
 
 			<audio id="audio" playsinline autoplay muted></audio>

@@ -3,10 +3,10 @@ import { StreamMediaChangeAction } from "../action/stream.media.change.action";
 import { course } from "../model/course";
 import { MediaType } from "../model/media-type";
 import { Devices } from "../utils/devices";
-import { Settings } from "../utils/settings";
 import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
 import { JanusParticipant, JanusStreamType } from "./janus-participant";
+import $deviceSettingsStore from "../model/device-settings-store";
 
 export class JanusPublisher extends JanusParticipant {
 
@@ -45,7 +45,12 @@ export class JanusPublisher extends JanusParticipant {
 			onmessage: this.onMessage.bind(this),
 			onlocaltrack: this.onLocalTrack.bind(this),
 			oncleanup: this.onCleanUp.bind(this),
-			ondetached: this.onDetached.bind(this)
+			ondetached: this.onDetached.bind(this),
+			consentDialog: (on: boolean) => {
+				if (!on) {
+					document.dispatchEvent(Utils.createEvent("lect-device-permission-change"));
+				}
+			}
 		});
 	}
 
@@ -256,14 +261,20 @@ export class JanusPublisher extends JanusParticipant {
 	}
 
 	private createOffer() {
-		const videoEnable = this.deviceSettings.videoInput != null && !this.deviceSettings.videoInputMuteOnEntry;
+		const videoEnable = this.deviceSettings.cameraDeviceId != null && !this.deviceSettings.cameraMuteOnEntry;
 		const videoCapture = videoEnable
 			? {
-				deviceId: this.deviceSettings.videoInput,
+				deviceId: this.deviceSettings.cameraDeviceId,
 				width: { ideal: 1280 },
 				height: { ideal: 720 },
 			}
 			: false;
+
+		const audioCapture = this.deviceSettings.microphoneDeviceId != null && !this.deviceSettings.microphoneBlocked
+			? {
+				deviceId: this.deviceSettings.microphoneDeviceId,
+			}
+			: undefined;
 
 		// Publish our stream.
 		this.handle.createOffer({
@@ -271,9 +282,7 @@ export class JanusPublisher extends JanusParticipant {
 			tracks: [
 				{
 					type: JanusStreamType.audio,
-					capture: {
-						deviceId: this.deviceSettings.audioInput
-					},
+					capture: audioCapture,
 					recv: false
 				},
 				{
@@ -289,7 +298,7 @@ export class JanusPublisher extends JanusParticipant {
 				Janus.debug("Got publisher SDP!", jsep);
 
 				// Muting microphone is handled differently as the camera, since the audio track is always present.
-				if (Settings.getMicrophoneMuteOnEntry()) {
+				if ($deviceSettingsStore.getState().microphoneMuteOnEntry) {
 					this.handle.muteAudio();
 				}
 
@@ -407,7 +416,7 @@ export class JanusPublisher extends JanusParticipant {
 		else {
 			// A new track needs to be added and other participants notified of its existence.
 			const captureSettings: MediaTrackConstraints = {
-				deviceId: Settings.getCameraId(),
+				deviceId: $deviceSettingsStore.getState().cameraDeviceId,
 				width: { ideal: 1280 },
 				height: { ideal: 720 }
 			};

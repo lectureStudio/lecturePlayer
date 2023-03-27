@@ -6,9 +6,9 @@ import { Utils } from '../../utils/utils';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { playerControlsStyles } from './player-controls.styles';
 import { course } from '../../model/course';
-import { Settings } from '../../utils/settings';
 import { State } from '../../utils/state';
 import $presentationStore, { ContentFocus } from "../../model/presentation-store";
+import $deviceSettingsStore from "../../model/device-settings-store";
 
 @customElement('player-controls')
 export class PlayerControls extends I18nLitElement {
@@ -79,12 +79,14 @@ export class PlayerControls extends I18nLitElement {
 			this.hasParticipants = PrivilegeService.canViewParticipants();
 		});
 
-		this.mutedCam = Settings.getCameraMuteOnEntry();
-		this.mutedMic = Settings.getMicrophoneMuteOnEntry();
+		const deviceSettings = $deviceSettingsStore.getState();
+
+		this.mutedCam = deviceSettings.cameraMuteOnEntry;
+		this.mutedMic = deviceSettings.microphoneMuteOnEntry;
 		this.hasChat = course.chatFeature != null && course.chatFeature.featureId != null;
 		this.hasQuiz = course.quizFeature != null && course.quizFeature.featureId != null;
 
-		$presentationStore.watch(state => {
+		$presentationStore.updates.watch(state => {
 			this.requestUpdate();
 		});
 	}

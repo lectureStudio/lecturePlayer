@@ -11,7 +11,7 @@ import { PlaybackService } from '../../service/playback.service';
 import { SpeechService } from '../../service/speech.service';
 import { Devices } from '../../utils/devices';
 import { HttpRequest } from '../../utils/http-request';
-import { DeviceSettings, MediaProfile, Settings } from '../../utils/settings';
+import { MediaProfile, Settings } from '../../utils/settings';
 import { State } from '../../utils/state';
 import { Utils } from '../../utils/utils';
 import { ChatModal } from '../chat-modal/chat.modal';
@@ -38,6 +38,8 @@ import { MouseListener } from '../../event/mouse-listener';
 import { ContentFocus, setContentFocus } from '../../model/presentation-store';
 import { StatsModal } from '../stats-modal/stats.modal';
 import { jsPDF } from 'jspdf';
+import $documentStore from "../../model/document-store";
+import $deviceSettingsStore, { DeviceSettings, setCameraDeviceId, setMicrophoneBlocked, setMicrophoneDeviceId, setSpeakerDeviceId } from "../../model/device-settings-store";
 
 export class PlayerController implements ReactiveController {
 
@@ -200,6 +202,32 @@ export class PlayerController implements ReactiveController {
 		this.janusService.setUserId(courseUser.userId);
 		this.janusService.setUserName(`${courseUser.firstName} ${courseUser.familyName}`);
 
+		return new Promise<void>((resolve) => {
+			if (course.conference) {
+				navigator.mediaDevices.getUserMedia({
+					audio: true
+				})
+					.then((stream: MediaStream) => {
+						// Stream is not needed.
+						Devices.stopMediaTracks(stream);
+
+						setMicrophoneBlocked(false);
+					})
+					.catch(error => {
+						setMicrophoneBlocked(true);
+					})
+					.finally(() => {
+						// Allways resolve, since we are only probing the permissions.
+						resolve();
+					});
+			}
+			else {
+				resolve();
+			}
+		});
+	}
+
+	private onMediaDevicesHandled() {
 		return this.janusService.connect(course.conference);
 	}
 
@@ -251,6 +279,7 @@ export class PlayerController implements ReactiveController {
 		this.courseStateService.getCourseState(this.host.courseId)
 			.then(this.onCourseState.bind(this))
 			.then(this.onCourseParticipant.bind(this))
+			.then(this.onMediaDevicesHandled.bind(this))
 			.then(this.onConnected.bind(this))
 			.catch(this.onConnectionError.bind(this));
 	}
@@ -326,6 +355,7 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onSelectDocument(event: CustomEvent) {
+		const documentState = $documentStore.getState();
 		const docId = BigInt(event.detail.documentId);
 		const docInfo = course.documentMap.get(docId);
 		const selectedPage = docInfo.activePage.pageNumber;
@@ -362,7 +392,7 @@ export class PlayerController implements ReactiveController {
 		});
 
 		// Create some empty pages.
-		for (let i = 0; i < 50; i++) {
+		for (let i = 1; i < 50; i++) {
 			doc.addPage();
 		}
 
@@ -428,13 +458,12 @@ export class PlayerController implements ReactiveController {
 
 	private updateDocumentState(document: SlideDocument, stateDoc: CourseStateDocument) {
 		document.setDocumentId(stateDoc.documentId);
+		document.setDocumentName(stateDoc.documentName);
 
 		// Add remote state to local state.
 		course.documentMap.set(BigInt(stateDoc.documentId), stateDoc);
 		// This is the document to be in use.
 		course.activeDocument = stateDoc;
-
-		this.host.dispatchEvent(Utils.createEvent("course-new-document"));
 	}
 
 	private setFullscreen(enable: boolean) {
@@ -460,13 +489,13 @@ export class PlayerController implements ReactiveController {
 		const deviceConfig: MediaDeviceSetting = event.detail;
 
 		if (deviceConfig.kind === "audioinput") {
-			Settings.setMicrophoneId(deviceConfig.deviceId);
+			setMicrophoneDeviceId(deviceConfig.deviceId);
 		}
 		else if (deviceConfig.kind === "audiooutput") {
-			Settings.setSpeakerId(deviceConfig.deviceId);
+			setSpeakerDeviceId(deviceConfig.deviceId);
 		}
 		else if (deviceConfig.kind === "videoinput") {
-			Settings.setCameraId(deviceConfig.deviceId);
+			setCameraDeviceId(deviceConfig.deviceId);
 		}
 	}
 
@@ -483,12 +512,9 @@ export class PlayerController implements ReactiveController {
 		this.registerModal("SettingsModal", settingsModal);
 	}
 
-	private onStats(event: CustomEvent) {
-	
+	private onStats() {
 		const statsModal = new StatsModal();
 		statsModal.janusService = this.janusService;
-
-		console.log("stats")
 
 		this.registerModal("StatsModal", statsModal);
 	}
@@ -731,14 +757,14 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private speechAccepted() {
-		const speechConstraints = Settings.getDeviceSettings();
+		const speechConstraints = $deviceSettingsStore.getState();
 
 		const constraints = {
 			audio: {
-				deviceId: speechConstraints.audioInput ? { exact: speechConstraints.audioInput } : undefined
+				deviceId: speechConstraints.microphoneDeviceId ? { exact: speechConstraints.microphoneDeviceId } : undefined
 			},
 			video: {
-				deviceId: speechConstraints.videoInput ? { exact: speechConstraints.videoInput } : undefined,
+				deviceId: speechConstraints.cameraDeviceId ? { exact: speechConstraints.cameraDeviceId } : undefined,
 				width: { ideal: 1280 },
 				height: { ideal: 720 },
 				facingMode: "user"
@@ -752,7 +778,7 @@ export class PlayerController implements ReactiveController {
 			.catch(error => {
 				console.error(error.name);
 
-				speechConstraints.videoInput = undefined;
+				speechConstraints.cameraDeviceId = undefined;
 
 				this.showSpeechAcceptedModal(null, speechConstraints, true);
 			});
