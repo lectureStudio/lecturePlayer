@@ -430,43 +430,50 @@ export class JanusPublisher extends JanusParticipant {
 		}
 	}
 
-	private async addNewTrack(type: JanusStreamType, captureSettings: boolean | MediaTrackConstraints, onError: (error: any) => void) {
-		this.handle.createOffer({
-			tracks: [
-				{
-					type: type,
-					add: true,
-					capture: captureSettings,
-				}
-			],
-			success: (jsep: JSEP) => {
-				// Got new SDP, send it to the gateway.
-				const configure: any = {
-					request: "configure"
-				};
-
-				// Find the new 'mid' of the newly added track.
-				const mids = [...this.streamMids.values()];
-
-				for (let transceiver of this.handle.webrtcStuff.pc.getTransceivers()) {
-					if (!mids.find(mid => mid === transceiver.mid)) {
-						// Found new 'mid', attach description to it, so subscribers know what to do with it,
-						// e.g. where to display the track.
-						if (type === JanusStreamType.screen) {
-							configure.descriptions = [
-								{
-									mid: transceiver.mid,
-									description: "screen-share"
-								}
-							];
-						}
-						break;
+	private addNewTrack(type: JanusStreamType, captureSettings: boolean | MediaTrackConstraints, onError: (error: any) => void) {
+		return new Promise<void>(resolve => {
+			this.handle.createOffer({
+				tracks: [
+					{
+						type: type,
+						add: true,
+						capture: captureSettings,
 					}
-				}
+				],
+				success: (jsep: JSEP) => {
+					// Got new SDP, send it to the gateway.
+					const configure: any = {
+						request: "configure"
+					};
 
-				this.handle.send({ message: configure, jsep: jsep });
-			},
-			error: onError
+					// Find the new 'mid' of the newly added track.
+					const mids = [...this.streamMids.values()];
+
+					for (let transceiver of this.handle.webrtcStuff.pc.getTransceivers()) {
+						if (!mids.find(mid => mid === transceiver.mid)) {
+							// Found new 'mid', attach description to it, so subscribers know what to do with it,
+							// e.g. where to display the track.
+							if (type === JanusStreamType.screen) {
+								configure.descriptions = [
+									{
+										mid: transceiver.mid,
+										description: "screen-share"
+									}
+								];
+							}
+							break;
+						}
+					}
+
+					this.handle.send({
+						message: configure,
+						jsep: jsep,
+						success: resolve,
+						error: onError
+					});
+				},
+				error: onError
+			});
 		});
 	}
 
