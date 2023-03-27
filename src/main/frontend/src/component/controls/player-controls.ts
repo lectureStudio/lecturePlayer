@@ -238,13 +238,13 @@ export class PlayerControls extends I18nLitElement {
 				</sl-tooltip>
 				`)}
 
-				
+				${when(PrivilegeService.canShareScreen(), () => html`
 				<sl-tooltip content="${t(this.shareScreen ? "controls.screenshare.stop" : "controls.screenshare")}" trigger="hover">
 					<sl-button @click="${this.onShareScreen}" class="conference-control" id="share-screen-button">
 						<sl-icon slot="prefix" library="lect-icons" name="share-screen"></sl-icon>
 					</sl-button>
 				</sl-tooltip>
-			
+				`)}
 
 				${when(PrivilegeService.canShareDocuments(), () => html`
 				<documents-button .disabled="${!documentsEnabled}" class="conference-control"></documents-button>
