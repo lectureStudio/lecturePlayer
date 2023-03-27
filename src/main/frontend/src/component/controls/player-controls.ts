@@ -114,7 +114,7 @@ export class PlayerControls extends I18nLitElement {
 		document.addEventListener("lect-camera-not-readable", () => {
 			this.mutedCam = true;
 		});
-		document.addEventListener("screen-share-state", (e: CustomEvent) => {
+		document.addEventListener("screen-share-block", (e: CustomEvent) => {
 			this.shareScreenBlocked = e.detail.screenSharing;
 		});
 	}

@@ -8,7 +8,7 @@ import { conferenceViewStyles } from "./conference-view.styles";
 import { ParticipantView } from "../participant-view/participant-view";
 import { State } from "../../utils/state";
 import { ScreenView } from "../screen-view/screen-view";
-import $presentationStore, { ContentFocus, ContentLayout, setContentFocus } from "../../model/presentation-store";
+import $presentationStore, { ContentFocus, ContentLayout, setContentFocus, setContentLayout } from "../../model/presentation-store";
 import { PrivilegeService } from "../../service/privilege.service";
 
 @customElement('conference-view')
@@ -64,6 +64,9 @@ export class ConferenceView extends I18nLitElement {
 	@property()
 	rowsLimit: number = 3;
 
+	@property({ type: Boolean, reflect: true })
+	isSpeaker: boolean = false;
+
 	@query('.grid-container')
 	gridContainer: HTMLElement;
 
@@ -100,6 +103,7 @@ export class ConferenceView extends I18nLitElement {
 
 		document.addEventListener("remove-grid-element", this.removeGridElement.bind(this));
 		document.addEventListener("participant-talking", this.onTalkingPublisher.bind(this));
+		document.addEventListener("speaker-view", this.onSpeakerView.bind(this));
 
 		// Set and observe content focus.
 		$presentationStore.watch(state => {
@@ -310,6 +314,13 @@ export class ConferenceView extends I18nLitElement {
 	private onParticipantScreenStream(event: CustomEvent) {
 		const state: State = event.detail.state;
 
+		if (this.isSpeaker) {
+			this.resetGalleryView();
+		}
+		else {
+			this.isSpeaker = false;
+		}
+
 		if (state === State.CONNECTED) {
 			this.screenView.setState(State.CONNECTED);
 			this.screenView.addVideo(event.detail.video);
@@ -320,7 +331,8 @@ export class ConferenceView extends I18nLitElement {
 			this.screenView.setState(State.DISCONNECTED);
 			this.screenView.removeVideo();
 
-			setContentFocus($presentationStore.getState().previousContentFocus);
+			//setContentFocus($presentationStore.getState().previousContentFocus)
+			setContentFocus(ContentFocus.Participants);
 		}
 	}
 
@@ -346,20 +358,69 @@ export class ConferenceView extends I18nLitElement {
 			isTalking = false;
 		}
 
-		for (const grid of this.gridContainer.querySelectorAll("participant-view")) {
-			counter += 1;
-			const gridElement = grid as ParticipantView;
-			if (gridElement.publisherId == publisherId) {
-				gridElement.isTalking = isTalking;
-				// make talking participant visible
-				if (isTalking && counter > this.gridElementsLimit) {
-					const lastGridElement = this.gridContainer.children[this.gridElementsLimit - 1] as ParticipantView;
-					lastGridElement.isVisible = false;
-					const secondGridElement = this.gridContainer.children[1] as ParticipantView;
-					gridElement.isVisible = true;
-					this.gridContainer.insertBefore(gridElement, secondGridElement);
+		const speaker = this.presentationContainer.querySelector("participant-view") as ParticipantView;
+
+		if (this.isSpeaker && speaker?.publisherId == publisherId) {
+			speaker.isTalking = isTalking;
+		}
+		else {
+			for (const grid of this.gridContainer.querySelectorAll("participant-view")) {
+				counter += 1;
+				const gridElement = grid as ParticipantView;
+				if (gridElement.publisherId == publisherId) {
+					gridElement.isTalking = isTalking;
+					// highlight current speaker
+					if (this.isSpeaker && isTalking) {
+						const firstGridElement = this.gridContainer.children[0] as ParticipantView;
+						this.gridContainer.insertBefore(speaker, firstGridElement);
+						gridElement.isVisible = true;
+						this.presentationContainer.appendChild(gridElement);
+						if (counter > this.gridElementsLimit) {
+							const lastGridElement = this.gridContainer.children[this.gridElementsLimit - 1] as ParticipantView;
+							lastGridElement.isVisible = false;
+						}
+					}
+					else {
+						// make talking participant visible
+						if (isTalking && counter > this.gridElementsLimit) {
+							const lastGridElement = this.gridContainer.children[this.gridElementsLimit - 1] as ParticipantView;
+							lastGridElement.isVisible = false;
+							const secondGridElement = this.gridContainer.children[1] as ParticipantView;
+							gridElement.isVisible = true;
+							this.gridContainer.insertBefore(gridElement, secondGridElement);
+						}
+					}
 				}
 			}
 		}
+	}
+
+	private onSpeakerView(event: CustomEvent) {
+		this.isSpeaker = event.detail;
+		const firstSpeaker = this.gridContainer.children[0] as ParticipantView;
+		if (firstSpeaker && this.isSpeaker) {
+			this.presentationContainer.appendChild(firstSpeaker);
+			this.setContentLayout(ContentLayout.PresentationLeft);
+		}
+		else if (!this.isSpeaker) {
+			this.resetGalleryView();
+		}
+	}
+
+	private resetGalleryView(): void {
+		const speaker = this.presentationContainer.querySelector("participant-view");
+		const firstGrid = this.gridContainer.children[0] as ParticipantView;
+		if (speaker) {
+			const lastGridElement = this.gridContainer.children[this.gridElementsLimit - 1] as ParticipantView;
+			if (this.gridCounter >= this.gridElementsLimit) {
+				lastGridElement.isVisible = false;
+			}
+			if (firstGrid) {
+				this.gridContainer.insertBefore(speaker, firstGrid);
+			}
+			else this.gridContainer.appendChild(speaker);
+		}
+		this.setContentLayout(ContentLayout.Gallery);
+
 	}
 }

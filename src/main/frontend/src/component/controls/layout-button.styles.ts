@@ -25,4 +25,12 @@ export const layoutButtonStyles = css`
 	:host(:not([isConference])) .conference-control {
 		display: none;
 	}
+
+	:host([isSharing]) #speaker-item {
+		display: none;
+	}
+
+	:host([isSharing]) #gallery-item {
+		display: none;
+	}
 `;
