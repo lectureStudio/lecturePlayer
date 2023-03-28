@@ -51,31 +51,31 @@ export class MessageForm extends I18nLitElement {
 		if (PrivilegeService.canWritePrivateMessages()) {
 			for (const participant of participants.participants) {
 				if (participant.userId !== course.userId) {
-					optionTemplates.push(html`<option value="${participant.userId}">${participant.firstName} ${participant.familyName}</option>`);
+					optionTemplates.push(html`<sl-option value="${participant.userId}">${participant.firstName} ${participant.familyName}</sl-option>`);
 				}
 			}
 		}
 
 		const allOption = PrivilegeService.canWriteMessagesToAll()
-			? html`<option value="${ChatRecipientType.Public}">${t("course.feature.message.target.all")}</option>`
+			? html`<sl-option value="${ChatRecipientType.Public}">${t("course.feature.message.target.all")}</sl-option>`
 			: '';
 
 		const organisatorsOption = PrivilegeService.canWriteMessagesToOrganisators()
-			? html`<option value="${ChatRecipientType.Organisers}">${t("course.feature.message.target.organisers")}</option>`
+			? html`<sl-option value="${ChatRecipientType.Organisers}">${t("course.feature.message.target.organisers")}</sl-option>`
 			: '';
 
 		return html`
 			<form id="course-message-form">
 				<div class="controls">
 					<span>${t("course.feature.message.target")}</span>
-					<select @change=${this.onRecipient} name="recipient" id="recipients" class="form-select form-select-sm" aria-label=".form-select-sm">
+					<sl-select @sl-change=${this.onRecipient} name="recipient" id="recipients" size="small">
 						${allOption}
 						${organisatorsOption}
 						${optionTemplates}
-					</select>
+					</sl-select>
 				</div>
 				<div>
-					<textarea name="text" rows="3" placeholder="${t("course.feature.message.placeholder")}"></textarea>
+					<sl-textarea name="text" rows="3" resize="none" placeholder="${t("course.feature.message.placeholder")}"></sl-textarea>
 				</div>
 			</form>
 		`;

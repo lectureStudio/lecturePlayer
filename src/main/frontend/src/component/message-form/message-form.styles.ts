@@ -20,7 +20,7 @@ export const messageFormStyles = css`
 		height: auto;
 		line-height: 1em;
 	}
-	textarea {
+	sl-textarea {
 		resize: none;
 		border: 0;
 		border-radius: 0;
@@ -28,7 +28,7 @@ export const messageFormStyles = css`
 		padding: 0.25em 0.5em;
 		width: 100%;
 	}
-	textarea:focus {   
+	sl-textarea:focus {   
 		border-color: #86b7fe;
 		outline: 0;
 		box-shadow: 0 0 0 -0.25rem rgba(13, 110, 253, 0.25);

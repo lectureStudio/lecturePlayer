@@ -148,7 +148,7 @@ export class PlayerView extends I18nLitElement {
 								`)
 							}
 							<div class="controls-container">
-								<player-controls .isConference="${course.conference}" .chatVisible="${this.chatVisible}" .participantsVisible="${this.participantsVisible}"></player-controls>
+								<player-controls .chatVisible="${this.chatVisible}" .participantsVisible="${this.participantsVisible}"></player-controls>
 							</div>
 						</div>
 						<div slot="end" class="right-container">

@@ -23,18 +23,25 @@ export const chatBoxStyles = css`
 	footer {
 		display: flex;
 	}
-	footer button {
-		display: var(--send-button-display, block);
+	footer sl-icon-button {
+		display: var(--send-button-display, flex);
 		background-color: transparent;
 		border: 0;
-		border-radius: 0;
+		border-radius: var(--sl-border-radius-circle);
 		color: #0d6efd;
 		font-size: 1.5rem;
 		padding: 0.25rem 0.5rem;
-		transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+		align-self: center;
+		width: 2em;
+		height: 2em;
+		max-width: 2em;
+		min-width: 2em;
+		max-height: 2em;
+		min-height: 2em;
+		justify-content: center;
 	}
-	footer button:hover {
-		background-color: #0d6efd;
+	footer sl-icon-button:hover {
+		background-color: var(--sl-color-primary-50);
 		color: white;
 	}
 

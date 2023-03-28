@@ -85,6 +85,7 @@ export class PlayerControls extends I18nLitElement {
 		this.mutedMic = deviceSettings.microphoneMuteOnEntry;
 		this.hasChat = course.chatFeature != null && course.chatFeature.featureId != null;
 		this.hasQuiz = course.quizFeature != null && course.quizFeature.featureId != null;
+		this.isConference = course.conference;
 
 		$presentationStore.updates.watch(state => {
 			this.requestUpdate();

@@ -179,9 +179,9 @@ export class PlayerController implements ReactiveController {
 		course.title = state.title;
 		course.description = state.description;
 		course.userId = state.userId;
-		course.userPrivileges = state.userPrivileges;
 		course.chatFeature = state.messageFeature;
 		course.quizFeature = state.quizFeature;
+		course.userPrivileges = state.userPrivileges;
 		course.documentMap = state.documentMap ?? new Map();
 		course.activeDocument = state.activeDocument;
 		course.mediaState = state.mediaState;
@@ -230,7 +230,7 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onConnected() {
-		console.log("~ janus connected");
+		console.log("~ Janus connected");
 
 		if (course.activeDocument == null && !course.conference) {
 			// Update early, if not streaming.

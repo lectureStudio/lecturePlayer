@@ -24,6 +24,7 @@ export * from '@shoelace-style/shoelace/dist/components/switch/switch.js';
 export * from '@shoelace-style/shoelace/dist/components/tab/tab.js';
 export * from '@shoelace-style/shoelace/dist/components/tab-panel/tab-panel.js';
 export * from '@shoelace-style/shoelace/dist/components/tab-group/tab-group.js';
+export * from '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
 export * from '@shoelace-style/shoelace/dist/components/tooltip/tooltip';
 export * from '@shoelace-style/shoelace/dist/components/visually-hidden/visually-hidden';
 

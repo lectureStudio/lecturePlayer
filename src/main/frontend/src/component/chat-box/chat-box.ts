@@ -95,7 +95,7 @@ export class ChatBox extends I18nLitElement {
 			<footer>
 				${when(PrivilegeService.canWriteMessages(), () => html`
 				<message-form></message-form>
-				<sl-button @click="${this.post}" type="submit" form="course-message-form" class="icon-send" id="message-submit"></sl-button>
+				<sl-icon-button @click="${this.post}" slot="icon" library="lect-icons" name="send-message" id="message-submit"></sl-icon-button>
 				`)}
 			</footer>
 		`;
