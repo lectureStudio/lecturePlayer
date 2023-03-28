@@ -355,17 +355,13 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onSelectDocument(event: CustomEvent) {
-		const documentState = $documentStore.getState();
-		const docId = BigInt(event.detail.documentId);
-		const docInfo = course.documentMap.get(docId);
-		const selectedPage = docInfo.activePage.pageNumber;
+		const docId = BigInt(event.detail.documentId).valueOf();
+		const docState = $documentStore.getState().documentStateMap.get(docId);
+		const selectedPage = docState.selectedPageNumber;
 
 		if (this.playbackService.setActiveDocument(docId, selectedPage)) {
-			// This is the document to be in use.
-			course.activeDocument = docInfo;
-
-			this.janusService.sendDocumentSelected(docInfo);
-			this.janusService.sendPageSelected(docInfo.documentId, selectedPage);
+			this.janusService.sendDocumentSelected(docState.document);
+			this.janusService.sendPageSelected(docId, selectedPage);
 		}
 	}
 
@@ -417,17 +413,19 @@ export class PlayerController implements ReactiveController {
 				return new DocumentService().loadDocument(fileBuffer);
 			})
 			.then((document: SlideDocument) => {
-				this.updateDocumentState(document, uploadedDoc);
+				document.setDocumentId(uploadedDoc.documentId);
+				document.setDocumentName(uploadedDoc.documentName);
+				document.setDocumentFile(uploadedDoc.documentFile);
 
-				const selectedPage = uploadedDoc.activePage.pageNumber;
+				const selectedPage = 0;
 
 				this.playbackService.addDocument(document);
-				this.playbackService.selectDocument(uploadedDoc.documentId);
+				this.playbackService.selectDocument(document.getDocumentId());
 				this.playbackService.setPageNumber(selectedPage);
 
-				this.janusService.sendDocumentCreated(uploadedDoc);
-				this.janusService.sendDocumentSelected(uploadedDoc);
-				this.janusService.sendPageSelected(uploadedDoc.documentId, selectedPage);
+				this.janusService.sendDocumentCreated(document);
+				this.janusService.sendDocumentSelected(document);
+				this.janusService.sendPageSelected(document.getDocumentId(), selectedPage);
 
 				setContentFocus(ContentFocus.Document);
 			})
@@ -438,32 +436,22 @@ export class PlayerController implements ReactiveController {
 
 	private onDocumentPrevPage() {
 		if (this.playbackService.selectPreviousDocumentPage()) {
-			const stateDoc = course.activeDocument;
+			const docState = $documentStore.getState().selectedDocumentState;
 
-			this.janusService.sendPageSelected(stateDoc.documentId, stateDoc.activePage.pageNumber);
+			this.janusService.sendPageSelected(docState.document.getDocumentId(), docState.selectedPageNumber);
 		}
 	}
 
 	private onDocumentNextPage() {
 		if (this.playbackService.selectNextDocumentPage()) {
-			const stateDoc = course.activeDocument;
+			const docState = $documentStore.getState().selectedDocumentState;
 
-			this.janusService.sendPageSelected(stateDoc.documentId, stateDoc.activePage.pageNumber);
+			this.janusService.sendPageSelected(docState.document.getDocumentId(), docState.selectedPageNumber);
 		}
 	}
 
 	private onPeerConnected(peerId: bigint) {
 		this.janusService.addPeer(peerId);
-	}
-
-	private updateDocumentState(document: SlideDocument, stateDoc: CourseStateDocument) {
-		document.setDocumentId(stateDoc.documentId);
-		document.setDocumentName(stateDoc.documentName);
-
-		// Add remote state to local state.
-		course.documentMap.set(BigInt(stateDoc.documentId), stateDoc);
-		// This is the document to be in use.
-		course.activeDocument = stateDoc;
 	}
 
 	private setFullscreen(enable: boolean) {

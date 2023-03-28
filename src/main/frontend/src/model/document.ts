@@ -10,6 +10,8 @@ export abstract class SlideDocument {
 
 	private name: string;
 
+	private file: string;
+
 
 	abstract getPageBounds(pageNumber: number): Promise<Rectangle>;
 
@@ -38,6 +40,14 @@ export abstract class SlideDocument {
 
 	setDocumentName(name: string) {
 		this.name = name;
+	}
+
+	getDocumentFile(): string {
+		return this.file;
+	}
+
+	setDocumentFile(file: string) {
+		this.file = file;
 	}
 
 	getPageCount(): number {

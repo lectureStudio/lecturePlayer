@@ -11,9 +11,6 @@ type DocumentState = {
 type DocumentStore = {
 	documents: SlideDocument[];
 	selectedDocumentState: DocumentState;
-	selectedDocument: SlideDocument;
-	selectedPage: Page,
-	selectedPageNumber: number;
 	documentStateMap: Map<bigint, DocumentState>;
 }
 
@@ -25,25 +22,34 @@ const addDocumentToList = (documents: SlideDocument[], document: SlideDocument):
 	document,
 ];
 
+const addDocumentState = (stateMap: Map<bigint, DocumentState>, document: SlideDocument): Map<bigint, DocumentState> =>
+	new Map([...stateMap.entries(), [ BigInt(document.getDocumentId()), { document: document, selectedPage: null, selectedPageNumber: 0 } ]]);
+
+const updateDocumentStatePage = (documentState: DocumentState, page: Page): DocumentState => {
+	documentState.selectedPage = page;
+	return documentState;
+};
+const updateDocumentStatePageNumber = (documentState: DocumentState, pageNumber: number): DocumentState => {
+	documentState.selectedPageNumber = pageNumber;
+	return documentState;
+};
+
 export const addDocument = createEvent<SlideDocument>();
 export const removeDocument = createEvent<SlideDocument>();
 export const removeDocumentById = createEvent<bigint>();
 export const setPage = createEvent<Page>();
 export const setPageNumber = createEvent<number>();
 export const setDocument = createEvent<SlideDocument>();
-export const setDocumentState = createEvent<DocumentState>();
 
 export default createStore<DocumentStore>({
 	documents: [],
 	selectedDocumentState: null,
-	selectedDocument: null,
-	selectedPage: null,
-	selectedPageNumber: 0,
 	documentStateMap: new Map()
 })
 	.on(addDocument, (state: DocumentStore, document: SlideDocument) => ({
 		...state,
 		documents: addDocumentToList(state.documents, document),
+		documentStateMap: addDocumentState(state.documentStateMap, document)
 	}))
 	.on(removeDocument, (state: DocumentStore, document: SlideDocument) => ({
 		...state,
@@ -53,42 +59,24 @@ export default createStore<DocumentStore>({
 		...state,
 		documents: removeDocumentFromList(state.documents, id),
 	}))
-	.on(setDocumentState, (state: DocumentStore, docState: DocumentState) => ({
+	.on(setDocument, (state: DocumentStore, document: SlideDocument) => ({
 		...state,
-		selectedDocumentState: docState,
+		selectedDocumentState: state.documentStateMap.get(BigInt(document.getDocumentId()))
 	}))
-	.on(setDocument, (state: DocumentStore, document: SlideDocument) => {
-		if (document !== state.selectedDocument) {
-			return {
-				...state,
-				selectedDocument: document,
-				selectedDocumentState: state.documentStateMap.get(document.getDocumentId())
-			};
-		}
-		return state;
-	})
 	.on(setPage, (state: DocumentStore, page: Page) => {
-		if (page !== state.selectedPage) {
+		if (page !== state.selectedDocumentState.selectedPage) {
 			return {
 				...state,
-				selectedPage: page,
-				selectedDocumentState: {
-					...state.selectedDocumentState,
-					selectedPage: page
-				}
+				selectedDocumentState: updateDocumentStatePage(state.selectedDocumentState, page)
 			};
 		}
 		return state;
 	})
 	.on(setPageNumber, (state: DocumentStore, pageNumber: number) => {
-		if (pageNumber !== state.selectedPageNumber) {
+		if (pageNumber !== state.selectedDocumentState.selectedPageNumber) {
 			return {
 				...state,
-				selectedPageNumber: pageNumber,
-				selectedDocumentState: {
-					...state.selectedDocumentState,
-					selectedPageNumber: pageNumber
-				}
+				selectedDocumentState: updateDocumentStatePageNumber(state.selectedDocumentState, pageNumber)
 			};
 		}
 		return state;

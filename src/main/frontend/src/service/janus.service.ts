@@ -5,13 +5,13 @@ import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
 import { StreamActionProcessor } from "../action/stream-action-processor";
 import { DocumentType } from "../model/document.type";
-import { CourseStateDocument } from "../model/course-state-document";
 import { StreamDocumentCreatedAction } from "../action/stream.document.created.action";
 import { StreamDocumentSelectedAction } from "../action/stream.document.selected.action";
 import { StreamPageSelectedAction } from "../action/stream.page.selected.action";
 import { addStreamAction } from "../model/action-store";
 import { StreamAction } from "../action/stream.action";
 import $settingsStore, { DeviceSettings } from "../model/device-settings-store";
+import { SlideDocument } from "../model/document";
 
 export class JanusService extends EventTarget {
 
@@ -128,15 +128,15 @@ export class JanusService extends EventTarget {
 		this.myPublisher = publisher;
 	}
 
-	sendDocumentCreated(stateDoc: CourseStateDocument) {
+	sendDocumentCreated(doc: SlideDocument) {
 		if (this.myPublisher) {
-			this.sendStreamAction(new StreamDocumentCreatedAction(stateDoc.documentId, DocumentType.PDF, stateDoc.documentName, stateDoc.documentFile));
+			this.sendStreamAction(new StreamDocumentCreatedAction(doc.getDocumentId(), DocumentType.PDF, doc.getDocumentName(), doc.getDocumentFile()));
 		}
 	}
 
-	sendDocumentSelected(stateDoc: CourseStateDocument) {
+	sendDocumentSelected(doc: SlideDocument) {
 		if (this.myPublisher) {
-			this.sendStreamAction(new StreamDocumentSelectedAction(stateDoc.documentId, DocumentType.PDF, stateDoc.documentName, stateDoc.documentFile));
+			this.sendStreamAction(new StreamDocumentSelectedAction(doc.getDocumentId(), DocumentType.PDF, doc.getDocumentName(), doc.getDocumentFile()));
 		}
 	}
 

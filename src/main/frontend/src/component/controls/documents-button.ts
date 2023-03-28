@@ -63,7 +63,7 @@ export class DocumentsButton extends I18nLitElement {
 		const itemTemplates: TemplateResult[] = [];
 
 		const documentState = $documentStore.getState();
-		const activeDoc = documentState.selectedDocument;
+		const activeDoc = documentState.selectedDocumentState?.document;
 
 		for (const doc of documentState.documents) {
 			const docId = doc.getDocumentId();

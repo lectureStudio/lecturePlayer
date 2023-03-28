@@ -3,8 +3,7 @@ import { StreamActionExecutor } from "../action/action.executor";
 import { StreamActionPlayer } from "../action/stream-action-player";
 import { SlideDocument } from "../model/document";
 import { RenderController } from "../render/render-controller";
-import { course } from '../model/course';
-import { addDocument, removeDocumentById, setDocument, setPage, setPageNumber } from "../model/document-store";
+import $documentStore, { addDocument, removeDocumentById, setDocument, setPage, setPageNumber } from "../model/document-store";
 
 export class PlaybackService {
 
@@ -90,15 +89,15 @@ export class PlaybackService {
 	}
 
 	selectPreviousDocumentPage(): boolean {
-		const activeStateDoc = course.activeDocument;
+		const docState = $documentStore.getState().selectedDocumentState;
 
-		return this.setPageNumber(activeStateDoc.activePage.pageNumber - 1);
+		return this.setPageNumber(docState.selectedPageNumber - 1);
 	}
 
 	selectNextDocumentPage(): boolean {
-		const activeStateDoc = course.activeDocument;
+		const docState = $documentStore.getState().selectedDocumentState;
 
-		return this.setPageNumber(activeStateDoc.activePage.pageNumber + 1);
+		return this.setPageNumber(docState.selectedPageNumber + 1);
 	}
 
 	setPageNumber(pageNumber: number) {
@@ -109,9 +108,6 @@ export class PlaybackService {
 
 			setPage(document.getPage(pageNumber));
 			setPageNumber(pageNumber);
-
-			const activeStateDoc = course.activeDocument;
-			activeStateDoc.activePage.pageNumber = pageNumber;
 
 			return true;
 		}

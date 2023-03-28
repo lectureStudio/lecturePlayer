@@ -37,7 +37,7 @@ export class DocumentNavigation extends I18nLitElement {
 		});
 		setPage.watch(page => {
 			// Observe page shape changes, e.g. to update the undo/redo state.
-			const prevPage = $documentStore.getState().selectedPage;
+			const prevPage = $documentStore.getState().selectedDocumentState.selectedPage;
 
 			if (prevPage) {
 				prevPage.removeChangeListener(this.pageChangeListener);
@@ -84,11 +84,11 @@ export class DocumentNavigation extends I18nLitElement {
 	}
 
 	protected render() {
-		const documentState = $documentStore.getState();
-		const prevEnabled = documentState.selectedPageNumber > 0;
-		const nextEnabled = documentState.selectedPageNumber < documentState.selectedDocument?.getPageCount() - 1;
-		const undoEnabled = documentState.selectedPage?.canUndo();
-		const redoEnabled = documentState.selectedPage?.canRedo();
+		const documentState = $documentStore.getState().selectedDocumentState;
+		const prevEnabled = documentState ? documentState?.selectedPageNumber > 0 : false;
+		const nextEnabled = documentState ? documentState?.selectedPageNumber < documentState.document?.getPageCount() - 1 : false;
+		const undoEnabled = documentState ? documentState?.selectedPage?.canUndo() : false;
+		const redoEnabled = documentState ? documentState?.selectedPage?.canRedo() : false;
 
 		const toolState = $toolStore.getState();
 		const currentColor = toolState.selectedToolBrush?.color.toRgba();
@@ -98,7 +98,7 @@ export class DocumentNavigation extends I18nLitElement {
 			<sl-tooltip content="${t("controls.documents.page.prev")}" trigger="hover">
 				<sl-icon-button @click="${this.onPreviousSlide}" ?disabled="${!prevEnabled}" library="lect-icons" name="prev-page" class="document-toolbar-button"></sl-icon>
 			</sl-tooltip>
-			<span class="document-page-number">${documentState.selectedPageNumber + 1}</span>
+			<span class="document-page-number">${documentState?.selectedPageNumber + 1}</span>
 			<sl-tooltip content="${t("controls.documents.page.next")}" trigger="hover">
 				<sl-icon-button @click="${this.onNextSlide}" ?disabled="${!nextEnabled}" library="lect-icons" name="next-page" class="document-toolbar-button"></sl-icon>
 			</sl-tooltip>
