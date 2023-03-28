@@ -22,5 +22,6 @@ export * from './screen-view/screen-view';
 export * from './stream-stats/stream-stats';
 export * from './media-settings/camera-settings';
 export * from './media-settings/sound-settings';
+export * from './media-settings/layout-settings';
 
 export * from './shoelace';

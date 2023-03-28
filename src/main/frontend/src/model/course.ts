@@ -156,8 +156,7 @@ class Course extends EventTarget {
 	}
 
 	get conference() {
-		//return this._conference;
-		return true;
+		return this._conference;
 	}
 
 	set conference(conference: boolean) {

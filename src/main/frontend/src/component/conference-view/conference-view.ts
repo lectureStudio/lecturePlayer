@@ -104,6 +104,7 @@ export class ConferenceView extends I18nLitElement {
 		document.addEventListener("remove-grid-element", this.removeGridElement.bind(this));
 		document.addEventListener("participant-talking", this.onTalkingPublisher.bind(this));
 		document.addEventListener("speaker-view", this.onSpeakerView.bind(this));
+		document.addEventListener("settings-layout", this.onLayoutChange.bind(this));
 
 		// Set and observe content focus.
 		$presentationStore.watch(state => {
@@ -437,6 +438,10 @@ export class ConferenceView extends I18nLitElement {
 			else this.gridContainer.appendChild(speaker);
 		}
 		this.setContentLayout(ContentLayout.Gallery);
+	}
 
+	private onLayoutChange(e: CustomEvent): void {
+		const layout = e.detail;
+		this.setContentLayout(ContentLayout[layout as keyof typeof ContentLayout]);
 	}
 }

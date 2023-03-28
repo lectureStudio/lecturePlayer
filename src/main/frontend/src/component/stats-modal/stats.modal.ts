@@ -9,7 +9,6 @@ export class StatsModal extends Modal {
 
 	janusService: JanusService;
 
-
 	protected override render() {
 		return html`
 			<sl-dialog label="${t("stats.title")}">	

@@ -7,8 +7,10 @@ import { settingsModalStyles } from './settings.modal.styles';
 import { JanusService } from '../../service/janus.service';
 import { SoundSettings } from '../media-settings/sound-settings';
 import { CameraSettings } from '../media-settings/camera-settings';
+import { LayoutSettings } from '../media-settings/layout-settings'
 import { SlTab } from '@shoelace-style/shoelace';
 import { persistDeviceSettings, setDeviceSettings } from '../../model/device-settings-store';
+import $presentationStore, { ContentLayout } from "../../model/presentation-store";
 
 @customElement("settings-modal")
 export class SettingsModal extends Modal {
@@ -29,6 +31,8 @@ export class SettingsModal extends Modal {
 	@query('sound-settings')
 	soundSettings: SoundSettings;
 
+	@query('layout-settings')
+	layoutSettings: LayoutSettings;
 
 	save() {
 		const devices = { ...this.cameraSettings.getDeviceSettings(), ...this.soundSettings.getDeviceSettings() };
@@ -61,17 +65,23 @@ export class SettingsModal extends Modal {
 	}
 
 	protected override render() {
+		const layoutChangeEnabled = $presentationStore.getState().contentLayout !== ContentLayout.Gallery;
+
 		return html`
 			<sl-dialog label="${t("settings.title")}">
 				<sl-tab-group>
 					<sl-tab slot="nav" panel="audio">${t("settings.audio")}</sl-tab>
 					<sl-tab slot="nav" panel="video">${t("settings.camera")}</sl-tab>
+					<sl-tab slot="nav" .disabled="${!layoutChangeEnabled}" panel="layout">${t("settings.layout")}</sl-tab>
 
 					<sl-tab-panel name="audio">
 						<sound-settings></sound-settings>
 					</sl-tab-panel>
 					<sl-tab-panel name="video">
 						<camera-settings></camera-settings>
+					</sl-tab-panel>
+					<sl-tab-panel name="layout">
+						<layout-settings></layout-settings>
 					</sl-tab-panel>
 				</sl-tab-group>
 				<div slot="footer">
