@@ -42,7 +42,7 @@ export class EventService extends EventTarget {
 			},
 		});
 		client.onConnect = () => {
-			console.log("STOMP connected");
+			console.log("~ STOMP connected");
 
 			this.dispatchEvent(Utils.createEvent("event-service-state", {
 				connected: true

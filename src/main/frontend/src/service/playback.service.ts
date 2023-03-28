@@ -75,12 +75,12 @@ export class PlaybackService {
 		const document = this.documents.get(BigInt(docId));
 
 		if (document) {
-			this.actionPlayer.setDocument(document);
-			this.actionPlayer.setPageNumber(pageNumber);
-
 			setDocument(document);
 			setPage(document.getPage(pageNumber));
 			setPageNumber(pageNumber);
+
+			this.actionPlayer.setDocument(document);
+			this.actionPlayer.setPageNumber(pageNumber);
 
 			return true;
 		}

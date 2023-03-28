@@ -45,8 +45,7 @@ export const participantBoxStyles = css`
 		align-items: end;
 	}
 
-	[class^="icon-"],
-	[class*=" icon-"] {
+	sl-icon {
 		font-size: 1.4em;
 		margin-left: auto;
 	}

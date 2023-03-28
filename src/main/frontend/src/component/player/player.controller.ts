@@ -196,8 +196,6 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onCourseParticipant(courseUser: CourseParticipant) {
-		console.log("~ course user", courseUser);
-
 		this.janusService.setRoomId(this.host.courseId);
 		this.janusService.setUserId(courseUser.userId);
 		this.janusService.setUserName(`${courseUser.firstName} ${courseUser.familyName}`);
@@ -247,6 +245,9 @@ export class PlayerController implements ReactiveController {
 		if (course.activeDocument) {
 			this.getDocuments(course.documentMap)
 				.then(documents => {
+					this.playbackService.addDocuments(documents);
+					this.playbackService.setActiveDocument(course.activeDocument.documentId, course.activeDocument.activePage.pageNumber);
+
 					this.registerModal("RecordedModal", new RecordedModal(), false, false);
 
 					this.viewController.update();
@@ -254,9 +255,6 @@ export class PlayerController implements ReactiveController {
 					if (course.recorded) {
 						this.openModal("RecordedModal");
 					}
-
-					// Update UI
-
 				});
 		}
 

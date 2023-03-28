@@ -224,7 +224,7 @@ export class PlayerControls extends I18nLitElement {
 				<span id="duration">${this.getFormattedDuration()}</span>
 			</div>
 			<div class="col nav-center">
-				${when(PrivilegeService.canContributeBySpeech(), () => html`
+				${when(PrivilegeService.canContributeBySpeech() && false, () => html`
 				<sl-tooltip content="${this.handUp ? t("controls.speech.abort") : t("controls.speech.start")}" trigger="hover">
 					<sl-button @click="${this.onHand}" id="hand-button">
 						<sl-icon slot="prefix" library="lect-icons" name="hand"></sl-icon>
