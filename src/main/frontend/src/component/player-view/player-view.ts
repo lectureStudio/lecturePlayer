@@ -110,9 +110,8 @@ export class PlayerView extends I18nLitElement {
 		this.addEventListener("screen-view-video", (event: CustomEvent) => {
 			this.screenVisible = event.detail.hasVideo;
 		});
-		this.addEventListener("player-chat-visibility", (event: CustomEvent) => {
-			this.chatVisible = event.detail.visible;
-			this.updateContainerVisibility();
+		this.addEventListener("player-chat-visibility", () => {
+			this.updateRightContainerVisibility();
 		});
 	}
 
@@ -167,8 +166,13 @@ export class PlayerView extends I18nLitElement {
 	}
 
 	private updateContainerVisibility() {
-		this.rightContainerVisible = this.chatVisible && PrivilegeService.canUseChat();
+		this.updateRightContainerVisibility();
+
 		this.participantsVisible = PrivilegeService.canViewParticipants();
+	}
+
+	private updateRightContainerVisibility() {
+		this.rightContainerVisible = this.chatVisible && PrivilegeService.canUseChat();
 	}
 
 	private onParticipantState(event: CustomEvent) {

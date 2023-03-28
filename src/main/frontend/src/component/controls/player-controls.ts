@@ -118,6 +118,8 @@ export class PlayerControls extends I18nLitElement {
 		document.addEventListener("screen-share-block", (e: CustomEvent) => {
 			this.shareScreenBlocked = e.detail.screenSharing;
 		});
+
+		this.hasParticipants = PrivilegeService.canViewParticipants();
 	}
 
 	private onMuteMicrophone(): void {
@@ -159,9 +161,7 @@ export class PlayerControls extends I18nLitElement {
 	}
 
 	private onChatVisibility(): void {
-		this.dispatchEvent(Utils.createEvent("player-chat-visibility", {
-			visible: this.chatVisible
-		}));
+		this.dispatchEvent(Utils.createEvent("player-chat-visibility"));
 	}
 
 	private onParticipantsVisibility(): void {

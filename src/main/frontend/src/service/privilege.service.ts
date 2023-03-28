@@ -35,8 +35,7 @@ export class PrivilegeService {
 	}
 
 	static canViewParticipants(): boolean {
-		//return course.userPrivileges.findIndex(privilege => privilege.name === "PARTICIPANTS_VIEW") > -1;
-		return true;
+		return course.userPrivileges.findIndex(privilege => privilege.name === "PARTICIPANTS_VIEW") > -1;
 	}
 
 	static canShareScreen(): boolean {
