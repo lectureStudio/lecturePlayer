@@ -56,22 +56,32 @@ export class Devices {
 		return await navigator.mediaDevices.getUserMedia(constraints);
 	}
 
-	static enumerateDevices(useVideo: boolean, useSettings: boolean): Promise<DeviceInfo> {
+	static enumerateAudioDevices(useSettings: boolean): Promise<DeviceInfo> {
 		let constraints: MediaStreamConstraints = {};
 
 		if (useSettings) {
 			const deviceSettings = $deviceSettingsStore.getState();
 			const audioSource = deviceSettings.microphoneDeviceId;
-			const videoSource = deviceSettings.cameraDeviceId;
 
 			if (audioSource) {
 				constraints.audio = {
 					deviceId: { exact: audioSource }
 				}
 			}
-			else {
-				constraints.audio = true;
-			}
+		}
+		if (!constraints.audio) {
+			constraints.audio = true;
+		}
+
+		return this.getUserMedia(constraints);
+	}
+
+	static enumerateVideoDevices(useSettings: boolean): Promise<DeviceInfo> {
+		let constraints: MediaStreamConstraints = {};
+
+		if (useSettings) {
+			const deviceSettings = $deviceSettingsStore.getState();
+			const videoSource = deviceSettings.cameraDeviceId;
 
 			if (videoSource) {
 				constraints.video = {
@@ -87,22 +97,19 @@ export class Devices {
 					height: { ideal: 720 }
 				}
 			}
-
-			if (!useVideo) {
-				delete constraints.video;
+		}
+		if (!constraints.video) {
+			constraints.video = {
+				width: { ideal: 1280 },
+				height: { ideal: 720 }
 			}
 		}
-		else {
-			constraints = {
-				audio: true,
-				video: {
-					width: { ideal: 1280 },
-					height: { ideal: 720 }
-				}
-			};
-		}
 
-		return new Promise((resolve, reject) => {
+		return this.getUserMedia(constraints);
+	}
+
+	static getUserMedia(constraints: MediaStreamConstraints): Promise<DeviceInfo> {
+		return new Promise<DeviceInfo>((resolve, reject) => {
 			navigator.mediaDevices.getUserMedia(constraints)
 				.then(stream => {
 					return navigator.mediaDevices.enumerateDevices()

@@ -62,7 +62,9 @@ export class MediaDeviceButton extends I18nLitElement {
 	protected override firstUpdated(): void {
 		// Register listeners.
 		this.menu.addEventListener("sl-select", this.onItemSelected.bind(this));
-		document.addEventListener("lect-device-permission-change", this.getDevices.bind(this));
+		document.addEventListener("lect-device-permission-change", () => {
+			// this.getDevices();
+		});
 	}
 
 	protected render() {
@@ -82,6 +84,11 @@ export class MediaDeviceButton extends I18nLitElement {
 			if (microphoneItems.length > 0) {
 				itemTemplates.push(html`<sl-menu-label>${t("devices.microphone")}</sl-menu-label>`);
 				itemTemplates.push(...microphoneItems);
+
+				// This can happen with Firefox. Even if the permission was not granted,
+				// the device names are visible when camera was granted.
+				// So do not punish Firefox users.
+				disabled = false;
 			}
 			else if (disabled) {
 				itemTemplates.push(html`<sl-menu-label>${t("devices.permission.required")}</sl-menu-label>`);

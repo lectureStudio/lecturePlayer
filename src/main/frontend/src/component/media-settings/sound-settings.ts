@@ -4,7 +4,7 @@ import { t } from '../i18n-mixin';
 import { DeviceInfo, Devices } from '../../utils/devices';
 import { SlSelect, SlSwitch } from '@shoelace-style/shoelace';
 import { MediaSettings } from './media-settings';
-import $deviceSettingsStore, { DeviceSettings } from '../../model/device-settings-store';
+import $deviceSettingsStore, { DeviceSettings, setMicrophoneBlocked } from '../../model/device-settings-store';
 
 @customElement("sound-settings")
 export class SoundSettings extends MediaSettings {
@@ -43,8 +43,6 @@ export class SoundSettings extends MediaSettings {
 
 	override connectedCallback() {
 		super.connectedCallback();
-
-		this.enumerateDevices(false);
 	}
 
 	override disconnectedCallback() {
@@ -59,6 +57,10 @@ export class SoundSettings extends MediaSettings {
 		super.firstUpdated();
 
 		this.microphoneMuteSwitch.checked = $deviceSettingsStore.getState().microphoneMuteOnEntry;
+	}
+
+	queryDevices(): void {
+		this.enumerateDevices();
 	}
 
 	protected override setEnabled(enabled: boolean) {
@@ -86,6 +88,24 @@ export class SoundSettings extends MediaSettings {
 		Devices.getAudioLevel(audioTrack, this.meterCanvas);
 
 		this.setEnabled(true);
+	}
+
+	private enumerateDevices() {
+		Devices.enumerateAudioDevices(true)
+			.then((result: DeviceInfo) => {
+				this.updateBlockedSettings(result);
+				this.updateModel(result, false);
+			})
+			.catch(error => {
+				console.error(error);
+
+				this.devicesBlocked = true;
+				this.setError();
+			});
+	}
+
+	private updateBlockedSettings(info: DeviceInfo) {
+		setMicrophoneBlocked(info ? info.stream.getAudioTracks().length < 1 : true);
 	}
 
 	private onMicrophoneChange(event: Event) {

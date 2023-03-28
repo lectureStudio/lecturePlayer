@@ -27,13 +27,13 @@ export const persistDeviceSettings = (state: DeviceSettings) => {
 	localStorage.setItem("video.input", state.cameraDeviceId);
 	localStorage.setItem("video.input.entry.mute", JSON.stringify(state.cameraMuteOnEntry ? true : false));
 
-	if (state.microphoneDeviceId === "none") {
+	if (!state.microphoneDeviceId || state.microphoneDeviceId === "none") {
 		localStorage.removeItem("audio.input");
 	}
-	if (state.speakerDeviceId === "none") {
+	if (!state.speakerDeviceId || state.speakerDeviceId === "none") {
 		localStorage.removeItem("audio.output");
 	}
-	if (state.cameraDeviceId === "none") {
+	if (!state.cameraDeviceId || state.cameraDeviceId === "none") {
 		localStorage.removeItem("video.input");
 	}
 };

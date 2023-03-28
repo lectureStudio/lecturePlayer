@@ -8,7 +8,7 @@ import { JanusService } from '../../service/janus.service';
 import { SoundSettings } from '../media-settings/sound-settings';
 import { CameraSettings } from '../media-settings/camera-settings';
 import { LayoutSettings } from '../media-settings/layout-settings'
-import { SlTab } from '@shoelace-style/shoelace';
+import { SlTab, SlTabPanel } from '@shoelace-style/shoelace';
 import { persistDeviceSettings, setDeviceSettings } from '../../model/device-settings-store';
 import $presentationStore, { ContentLayout } from "../../model/presentation-store";
 
@@ -34,6 +34,7 @@ export class SettingsModal extends Modal {
 	@query('layout-settings')
 	layoutSettings: LayoutSettings;
 
+
 	save() {
 		const devices = { ...this.cameraSettings.getDeviceSettings(), ...this.soundSettings.getDeviceSettings() };
 
@@ -55,12 +56,23 @@ export class SettingsModal extends Modal {
 		// Select and show the desired settings content/section.
 		if (this.section) {
 			const tab: SlTab = this.shadowRoot.querySelector(`sl-tab[panel=${this.section}]`);
-			const tabPanel: SlTab = this.shadowRoot.querySelector(`sl-tab-panel[name=${this.section}]`);
+			const tabPanel: SlTabPanel = this.shadowRoot.querySelector(`sl-tab-panel[name=${this.section}]`);
 
 			if (tab && tabPanel) {
 				tab.active = true;
 				tabPanel.active = true;
+
+				this.onTab(tabPanel.name);
 			}
+		}
+	}
+
+	private onTab(name: string) {
+		if (name === "audio") {
+			this.soundSettings.queryDevices();
+		}
+		else if (name === "video") {
+			this.cameraSettings.queryDevices();
 		}
 	}
 
@@ -69,7 +81,7 @@ export class SettingsModal extends Modal {
 
 		return html`
 			<sl-dialog label="${t("settings.title")}">
-				<sl-tab-group>
+				<sl-tab-group @sl-tab-show="${(event: CustomEvent) => { this.onTab(event.detail.name) }}">
 					<sl-tab slot="nav" panel="audio">${t("settings.audio")}</sl-tab>
 					<sl-tab slot="nav" panel="video">${t("settings.camera")}</sl-tab>
 					<sl-tab slot="nav" .disabled="${!layoutChangeEnabled}" panel="layout">${t("settings.layout")}</sl-tab>

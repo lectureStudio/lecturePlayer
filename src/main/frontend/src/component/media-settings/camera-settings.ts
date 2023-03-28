@@ -5,7 +5,7 @@ import { DeviceInfo, Devices } from '../../utils/devices';
 import { cameraSettingsStyles } from './camera-settings.styles';
 import { SlSelect, SlSwitch } from '@shoelace-style/shoelace';
 import { MediaSettings } from './media-settings';
-import $deviceSettingsStore, { DeviceSettings } from '../../model/device-settings-store';
+import $deviceSettingsStore, { DeviceSettings, setCameraBlocked } from '../../model/device-settings-store';
 
 @customElement("camera-settings")
 export class CameraSettings extends MediaSettings {
@@ -43,8 +43,6 @@ export class CameraSettings extends MediaSettings {
 
 	override connectedCallback() {
 		super.connectedCallback();
-
-		this.enumerateDevices(true);
 	}
 
 	override disconnectedCallback() {
@@ -59,6 +57,10 @@ export class CameraSettings extends MediaSettings {
 		super.firstUpdated();
 
 		this.cameraMuteSwitch.checked = $deviceSettingsStore.getState().cameraMuteOnEntry;
+	}
+
+	queryDevices(): void {
+		this.enumerateDevices();
 	}
 
 	protected override setEnabled(enabled: boolean) {
@@ -83,6 +85,24 @@ export class CameraSettings extends MediaSettings {
 		}
 
 		this.setEnabled(true);
+	}
+
+	private enumerateDevices() {
+		Devices.enumerateVideoDevices(true)
+			.then((result: DeviceInfo) => {
+				this.updateBlockedSettings(result);
+				this.updateModel(result, false);
+			})
+			.catch(error => {
+				console.error(error);
+
+				this.devicesBlocked = true;
+				this.setError();
+			});
+	}
+
+	private updateBlockedSettings(info: DeviceInfo) {
+		setCameraBlocked(info ? info.stream.getVideoTracks().length < 1 : true);
 	}
 
 	private onCameraChange(event: Event) {
