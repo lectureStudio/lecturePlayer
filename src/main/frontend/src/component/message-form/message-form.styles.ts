@@ -26,7 +26,6 @@ export const messageFormStyles = css`
 		border-radius: 0;
 		font-size: 0.9rem;
 		padding: 0.25em 0.5em;
-		width: 100%;
 	}
 	sl-textarea:focus {   
 		border-color: #86b7fe;

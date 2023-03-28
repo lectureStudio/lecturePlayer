@@ -14,12 +14,12 @@ export const playerViewStyles = css`
 		height: 100%;
 	}
 	:host #outer-split-panel {
-		--min: 175px;
+		--min: 200px;
 		--max: 350px;
 	}
 	:host #inner-split-panel {
 		--min: calc(100% - 350px);
-		--max: calc(100% - 175px);
+		--max: calc(100% - 310px);
 	}
 
 	:host .center-container {

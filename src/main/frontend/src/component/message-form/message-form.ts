@@ -68,7 +68,7 @@ export class MessageForm extends I18nLitElement {
 			<form id="course-message-form">
 				<div class="controls">
 					<span>${t("course.feature.message.target")}</span>
-					<sl-select @sl-change=${this.onRecipient} name="recipient" id="recipients" size="small">
+					<sl-select @sl-change=${this.onRecipient} name="recipient" id="recipients" size="small" placement="top">
 						${allOption}
 						${organisatorsOption}
 						${optionTemplates}
