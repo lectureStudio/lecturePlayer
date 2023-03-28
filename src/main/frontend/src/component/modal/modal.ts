@@ -34,7 +34,9 @@ export abstract class Modal extends I18nLitElement {
 	}
 
 	close() {
-		this.dialog.hide();
+		if (this.dialog) {
+			this.dialog.hide();
+		}
 	}
 
 	private requestClose(event: CustomEvent) {
