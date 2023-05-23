@@ -127,8 +127,6 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private setConnectionState(state: State) {
-		console.log("set connection state", this.host.state, state);
-
 		if (this.host.state === state) {
 			return;
 		}
@@ -177,6 +175,8 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private connect() {
+		console.log("connect");
+
 		participants.clear();
 		chatHistory.clear();
 
@@ -373,6 +373,8 @@ export class PlayerController implements ReactiveController {
 	private onEventServiceState(event: CustomEvent) {
 		const connected = event.detail.connected;
 
+		console.log("event service", connected);
+
 		if (connected) {
 			switch (this.host.state) {
 				case State.CONNECTING:
@@ -382,15 +384,15 @@ export class PlayerController implements ReactiveController {
 					break;
 
 				case State.RECONNECTING:
-					this.reconnect();
+					// this.reconnect();
 					break;
 			}
+
+			this.janusService.reconnect();
 		}
 	}
 
 	private fetchState() {
-		console.log("fetch state");
-
 		const promises = new Array<Promise<any>>();
 
 		promises.push(this.getParticipants());
@@ -464,6 +466,8 @@ export class PlayerController implements ReactiveController {
 	private onStreamState(event: CustomEvent) {
 		const courseId = event.detail.courseId;
 		const started = event.detail.started;
+
+		console.log("stream state", started);
 
 		if (this.host.courseId !== courseId) {
 			return;

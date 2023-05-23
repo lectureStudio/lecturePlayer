@@ -62,6 +62,15 @@ export class JanusService extends EventTarget {
 		});
 	}
 
+	reconnect() {
+		for (const participant of this.publishers) {
+			participant.reconnect();
+		}
+		for (const participant of this.subscribers) {
+			participant.reconnect();
+		}
+	}
+
 	disconnect() {
 		for (const participant of this.publishers) {
 			participant.disconnect();
@@ -119,10 +128,15 @@ export class JanusService extends EventTarget {
 	}
 
 	private createSession() {
+
+		console.log("~ janus create session");
+
 		this.janus = new Janus({
 			server: this.serverUrl,
 			destroyOnUnload: true,
 			success: () => {
+				console.log("~ janus session id", this.janus.getSessionId());
+
 				if (this.janus.getSessionId()) {
 					this.attach();
 				}
@@ -130,7 +144,21 @@ export class JanusService extends EventTarget {
 			error: (cause: any) => {
 				console.error(cause);
 
-				this.dispatchEvent(Utils.createEvent("janus-session-error"));
+				console.log("~ janus session error");
+
+				this.janus.reconnect({
+					success: () => {
+						console.log("~ janus session reconnected", this.janus.getSessionId());
+					},
+					error: (error: string) => {
+						console.error(error);
+					}
+				});
+
+				if (this.subscribers.length === 0) {
+					// Dispatch error only, if this is the first connection attempt.
+					this.dispatchEvent(Utils.createEvent("janus-session-error"));
+				}
 			},
 			destroyed: () => {
 				Janus.log("Janus destroyed");
