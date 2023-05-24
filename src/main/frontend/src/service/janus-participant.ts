@@ -16,8 +16,6 @@ export abstract class JanusParticipant extends EventTarget {
 
 	private statsService: RTCStatsService;
 
-	private iceConnectionState: RTCIceConnectionState;
-
 	protected readonly streamIds: Map<string, string>;
 
 	protected readonly janus: Janus;
@@ -49,15 +47,15 @@ export abstract class JanusParticipant extends EventTarget {
 		this.view.addEventListener("participant-cam-mute", this.onMuteVideo.bind(this));
 	}
 
-	abstract connect(): void;
+	public abstract connect(): void;
 
 	reconnect() {
-		this.handle.send({
-			message: {
-				request: "configure",
-				restart: true
-			}
-		});
+		// this.handle.send({
+		// 	message: {
+		// 		request: "configure",
+		// 		restart: true
+		// 	}
+		// });
 
 		this.janus.reconnect({
 			success: () => {
@@ -70,8 +68,8 @@ export abstract class JanusParticipant extends EventTarget {
 	}
 
 	disconnect() {
-		//this.handle.hangup();
-		//this.handle.detach();
+		this.handle.hangup();
+		this.handle.detach();
 
 		this.setState(State.DISCONNECTED);
 	}
@@ -84,6 +82,45 @@ export abstract class JanusParticipant extends EventTarget {
 		this.statsService.pc = this.handle.webrtcStuff.pc;
 		this.statsService.streamIds = this.streamIds;
 		this.statsService.getStats();
+	}
+
+	protected connected(): void {
+		this.handle.webrtcStuff.pc.addEventListener("connectionstatechange", (event) => {
+			const peerConnection = this.handle.webrtcStuff.pc;
+
+			if (!peerConnection) {
+				// Connection may already be disposed.
+				return;
+			}
+
+			const connectionState = this.handle.webrtcStuff.pc.connectionState;
+
+			console.log("+ pc connection state", connectionState);
+
+			switch (connectionState) {
+				case "connected":
+					this.dispatchEvent(Utils.createEvent("janus-participant-connection-connected", {
+						participant: this
+					}));
+					break;
+	
+				case "disconnected":
+					this.dispatchEvent(Utils.createEvent("janus-participant-connection-disconnected", {
+						participant: this
+					}));
+					break;
+	
+				case "failed":
+					// We cannot recover from a failed connection state.
+					this.handle.hangup();
+					this.handle.detach();
+
+					this.dispatchEvent(Utils.createEvent("janus-participant-connection-failure", {
+						participant: this
+					}));
+					break;
+			}
+		}, false);
 	}
 
 	protected onMuteAudio() {
@@ -144,28 +181,6 @@ export abstract class JanusParticipant extends EventTarget {
 	protected onIceState(state: "connected" | "failed" | "disconnected" | "closed") {
 		Janus.log("ICE state changed to " + state);
 		console.log("ICE state changed to " + state);
-
-		switch (state) {
-			case "connected":
-				this.dispatchEvent(Utils.createEvent("janus-participant-connection-connected", {
-					participant: this
-				}));
-				break;
-
-			case "disconnected":
-				this.dispatchEvent(Utils.createEvent("janus-participant-connection-disconnected", {
-					participant: this
-				}));
-				break;
-
-			case "failed":
-				this.dispatchEvent(Utils.createEvent("janus-participant-connection-failure", {
-					participant: this
-				}));
-				break;
-		}
-
-		this.iceConnectionState = state;
 	}
 
 	protected onMediaState(medium: 'audio' | 'video', receiving: boolean, mid?: number) {
@@ -174,14 +189,6 @@ export abstract class JanusParticipant extends EventTarget {
 
 	protected onDataOpen(label: string, protocol: string) {
 		Janus.log("The DataChannel is available!" + " - " + label + " - " + protocol);
-
-
-		this.handle.webrtcStuff.pc.onconnectionstatechange = (event) => {
-			console.log("+ pc connection state", this.handle.webrtcStuff.pc.connectionState);
-		};
-		this.handle.webrtcStuff.pc.onsignalingstatechange = (event) => {
-			console.log("+ pc signaling state", this.handle.webrtcStuff.pc.signalingState);
-		};
 	}
 
 	protected onDetached() {

@@ -270,8 +270,26 @@ export class JanusService extends EventTarget {
 		const subscriber: JanusSubscriber = event.detail.participant;
 
 		if (subscriber.isPrimary) {
-			this.dispatchEvent(Utils.createEvent("janus-connection-failure"));
+			// this.dispatchEvent(Utils.createEvent("janus-connection-failure"));
 		}
+
+		// Remove subscriber and try to create a new one.
+		// this.subscribers = this.subscribers.filter(sub => sub !== subscriber);
+
+		console.log("subscriber count", this.subscribers.length);
+
+		this.publishers.slice(0);
+		this.subscribers.slice(0);
+
+		this.janus.destroy({
+			cleanupHandles: true,
+			notifyDestroyed: false,
+			unload: false,
+			success: () => console.log("~ janus destroyed"),
+			error: (error: string) => console.error(error)
+		});
+
+		this.connect();
 	}
 
 	private onSubscriberError(event: CustomEvent) {
