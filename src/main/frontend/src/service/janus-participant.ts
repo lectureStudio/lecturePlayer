@@ -8,12 +8,6 @@ import { RTCStatsService } from "./rtc-stats.service";
 
 export abstract class JanusParticipant extends EventTarget {
 
-	private readonly reconnectState = {
-		attempt: 0,
-		attemptsMax: 3,
-		timeout: 1500
-	};
-
 	private statsService: RTCStatsService;
 
 	protected readonly streamIds: Map<string, string>;
@@ -50,13 +44,7 @@ export abstract class JanusParticipant extends EventTarget {
 	public abstract connect(): void;
 
 	reconnect() {
-		// this.handle.send({
-		// 	message: {
-		// 		request: "configure",
-		// 		restart: true
-		// 	}
-		// });
-
+		// Proactively keep connection alive.
 		this.janus.reconnect({
 			success: () => {
 				console.log("~ janus reconnected", this.janus.isConnected());
@@ -112,8 +100,7 @@ export abstract class JanusParticipant extends EventTarget {
 	
 				case "failed":
 					// We cannot recover from a failed connection state.
-					this.handle.hangup();
-					this.handle.detach();
+					this.disconnect();
 
 					this.dispatchEvent(Utils.createEvent("janus-participant-connection-failure", {
 						participant: this
@@ -148,13 +135,6 @@ export abstract class JanusParticipant extends EventTarget {
 			participant: this,
 			error: cause
 		}));
-
-		this.reconnectState.attempt++;
-
-		if (this.reconnectState.attempt < this.reconnectState.attemptsMax) {
-			// Try again.
-			window.setTimeout(this.connect.bind(this), this.reconnectState.timeout);
-		}
 	}
 
 	protected onWebRtcState(isConnected: boolean) {
@@ -180,7 +160,6 @@ export abstract class JanusParticipant extends EventTarget {
 
 	protected onIceState(state: "connected" | "failed" | "disconnected" | "closed") {
 		Janus.log("ICE state changed to " + state);
-		console.log("ICE state changed to " + state);
 	}
 
 	protected onMediaState(medium: 'audio' | 'video', receiving: boolean, mid?: number) {

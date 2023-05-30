@@ -36,12 +36,6 @@ import { VpnModal } from '../vpn-modal/vpn.modal';
 
 export class PlayerController implements ReactiveController {
 
-	private readonly reconnectState = {
-		attempt: 0,
-		attemptsMax: 5,
-		timeout: 2000
-	};
-
 	private readonly host: LecturePlayer;
 
 	private readonly maxWidth576Query: MediaQueryList;
@@ -57,6 +51,10 @@ export class PlayerController implements ReactiveController {
 	private readonly playbackService: PlaybackService;
 
 	private readonly messageService: MessageService;
+
+	private janusServiceState: State;
+
+	private eventServiceState: State;
 
 	private eventService: EventService;
 
@@ -130,6 +128,8 @@ export class PlayerController implements ReactiveController {
 		if (this.host.state === state) {
 			return;
 		}
+
+		console.log("set connection state", state, "event", this.eventServiceState, "janus", this.janusServiceState);
 
 		this.host.state = state;
 
@@ -217,32 +217,8 @@ export class PlayerController implements ReactiveController {
 			.catch(error => {
 				console.error(error);
 
-				if (this.host.state === State.RECONNECTING) {
-					this.reconnect();
-				}
-				else {
-					this.setConnectionState(State.DISCONNECTED);
-				}
+				this.setConnectionState(State.DISCONNECTED);
 			});
-	}
-
-	private reconnect() {
-		if (this.host.state !== State.RECONNECTING) {
-			return;
-		}
-
-		console.log("Reconnecting...");
-
-		this.reconnectState.attempt++;
-
-		if (this.reconnectState.attempt >= this.reconnectState.attemptsMax) {
-			this.reconnectState.attempt = 0;
-			this.setConnectionState(State.DISCONNECTED);
-		}
-		else {
-			this.janusService.disconnect();
-			window.setTimeout(this.connect.bind(this), this.reconnectState.timeout);
-		}
 	}
 
 	private setDisconnected() {
@@ -373,7 +349,9 @@ export class PlayerController implements ReactiveController {
 	private onEventServiceState(event: CustomEvent) {
 		const connected = event.detail.connected;
 
-		console.log("event service", connected);
+		this.eventServiceState = connected ? State.CONNECTED : State.DISCONNECTED;
+
+		console.log("event service state", connected, "host", this.host.state, "janus", this.janusServiceState);
 
 		if (connected) {
 			switch (this.host.state) {
@@ -382,12 +360,10 @@ export class PlayerController implements ReactiveController {
 				case State.CONNECTED_FEATURES:
 					this.fetchState();
 					break;
-
-				case State.RECONNECTING:
-					// this.reconnect();
-					break;
 			}
+		}
 
+		if (this.janusServiceState === State.DISCONNECTED) {
 			this.janusService.reconnect();
 		}
 	}
@@ -537,16 +513,22 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onJanusConnectionEstablished() {
+		this.janusServiceState = State.CONNECTED;
+
 		if (this.host.state === State.RECONNECTING) {
 			this.setConnectionState(State.CONNECTED);
 		}
 	}
 
 	private onJanusConnectionFailure() {
+		this.janusServiceState = State.DISCONNECTED;
+
 		this.setConnectionState(State.RECONNECTING);
 	}
 
 	private onJanusSessionError() {
+		this.janusServiceState = State.DISCONNECTED;
+
 		const vpnModal = new VpnModal();
 
 		this.registerModal("VpnModal", vpnModal);
@@ -674,6 +656,9 @@ export class PlayerController implements ReactiveController {
 		}
 
 		modal.container = this.host.renderRoot;
+
+		// Close potentially opened modal of same type to prevent modal overlapping.
+		this.closeModal(name);
 
 		this.modals.set(name, modal);
 

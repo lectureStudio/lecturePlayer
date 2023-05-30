@@ -63,11 +63,31 @@ export class JanusService extends EventTarget {
 	}
 
 	reconnect() {
+		const connected = this.janus.isConnected();
+
+		console.log("~ janus reconnect, is connected:", connected);
+
+		// Try to reconnect individual participants.
 		for (const participant of this.publishers) {
-			participant.reconnect();
+			connected ? participant.reconnect() : participant.disconnect();
 		}
 		for (const participant of this.subscribers) {
-			participant.reconnect();
+			connected ? participant.reconnect() : participant.disconnect();
+		}
+
+		if (!connected) {
+			// Janus session closed/expired. Establish a new connection.
+			this.janus.destroy({
+				cleanupHandles: true,
+				notifyDestroyed: false,
+				unload: false,
+				success: () => {
+					console.log("~ janus destroyed")
+
+					this.connect();
+				},
+				error: (error: string) => console.error(error)
+			});
 		}
 	}
 
@@ -144,7 +164,7 @@ export class JanusService extends EventTarget {
 			error: (cause: any) => {
 				console.error(cause);
 
-				console.log("~ janus session error");
+				console.log("~ janus session error", cause);
 
 				this.janus.reconnect({
 					success: () => {
@@ -267,11 +287,7 @@ export class JanusService extends EventTarget {
 	}
 
 	private onParticipantConnectionFailure(event: CustomEvent) {
-		const subscriber: JanusSubscriber = event.detail.participant;
-
-		if (subscriber.isPrimary) {
-			// this.dispatchEvent(Utils.createEvent("janus-connection-failure"));
-		}
+		// const subscriber: JanusSubscriber = event.detail.participant;
 
 		// Remove subscriber and try to create a new one.
 		// this.subscribers = this.subscribers.filter(sub => sub !== subscriber);
@@ -280,16 +296,6 @@ export class JanusService extends EventTarget {
 
 		this.publishers.slice(0);
 		this.subscribers.slice(0);
-
-		this.janus.destroy({
-			cleanupHandles: true,
-			notifyDestroyed: false,
-			unload: false,
-			success: () => console.log("~ janus destroyed"),
-			error: (error: string) => console.error(error)
-		});
-
-		this.connect();
 	}
 
 	private onSubscriberError(event: CustomEvent) {
