@@ -92,6 +92,7 @@ export class JanusSubscriber extends JanusParticipant {
 				const started = message.started;
 
 				if (started === "ok") {
+					this.connected();
 					this.setState(State.CONNECTED);
 				}
 			}

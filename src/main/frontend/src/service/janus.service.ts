@@ -62,6 +62,35 @@ export class JanusService extends EventTarget {
 		});
 	}
 
+	reconnect() {
+		const connected = this.janus.isConnected();
+
+		console.log("~ janus reconnect, is connected:", connected);
+
+		// Try to reconnect individual participants.
+		for (const participant of this.publishers) {
+			connected ? participant.reconnect() : participant.disconnect();
+		}
+		for (const participant of this.subscribers) {
+			connected ? participant.reconnect() : participant.disconnect();
+		}
+
+		if (!connected) {
+			// Janus session closed/expired. Establish a new connection.
+			this.janus.destroy({
+				cleanupHandles: true,
+				notifyDestroyed: false,
+				unload: false,
+				success: () => {
+					console.log("~ janus destroyed")
+
+					this.connect();
+				},
+				error: (error: string) => console.error(error)
+			});
+		}
+	}
+
 	disconnect() {
 		for (const participant of this.publishers) {
 			participant.disconnect();
@@ -119,10 +148,15 @@ export class JanusService extends EventTarget {
 	}
 
 	private createSession() {
+
+		console.log("~ janus create session");
+
 		this.janus = new Janus({
 			server: this.serverUrl,
 			destroyOnUnload: true,
 			success: () => {
+				console.log("~ janus session id", this.janus.getSessionId());
+
 				if (this.janus.getSessionId()) {
 					this.attach();
 				}
@@ -130,7 +164,21 @@ export class JanusService extends EventTarget {
 			error: (cause: any) => {
 				console.error(cause);
 
-				this.dispatchEvent(Utils.createEvent("janus-session-error"));
+				console.log("~ janus session error", cause);
+
+				this.janus.reconnect({
+					success: () => {
+						console.log("~ janus session reconnected", this.janus.getSessionId());
+					},
+					error: (error: string) => {
+						console.error(error);
+					}
+				});
+
+				if (this.subscribers.length === 0) {
+					// Dispatch error only, if this is the first connection attempt.
+					this.dispatchEvent(Utils.createEvent("janus-session-error"));
+				}
 			},
 			destroyed: () => {
 				Janus.log("Janus destroyed");
@@ -239,11 +287,15 @@ export class JanusService extends EventTarget {
 	}
 
 	private onParticipantConnectionFailure(event: CustomEvent) {
-		const subscriber: JanusSubscriber = event.detail.participant;
+		// const subscriber: JanusSubscriber = event.detail.participant;
 
-		if (subscriber.isPrimary) {
-			this.dispatchEvent(Utils.createEvent("janus-connection-failure"));
-		}
+		// Remove subscriber and try to create a new one.
+		// this.subscribers = this.subscribers.filter(sub => sub !== subscriber);
+
+		console.log("subscriber count", this.subscribers.length);
+
+		this.publishers.slice(0);
+		this.subscribers.slice(0);
 	}
 
 	private onSubscriberError(event: CustomEvent) {

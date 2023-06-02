@@ -6,7 +6,7 @@
 	"scripts": {
 		"build:dev": "webpack --config webpack.dev.js",
 		"build:prod": "webpack --config webpack.prod.js",
-		"watch": "concurrently \"webpack --config webpack.dev.js --watch\" \"npm run type-check:watch\"",
+		"watch": "webpack --config webpack.dev.js --watch",
 		"start:dev": "webpack serve --host 0.0.0.0 --config webpack.dev.js",
 		"type-check": "tsc --noEmit",
 		"type-check:watch": "npm run type-check -- --watch",
