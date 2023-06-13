@@ -57,7 +57,7 @@
 		"i18next-browser-languagedetector": "^6.1.4",
 		"janus-gateway": "git://github.com/meetecho/janus-gateway.git",
 		"lit": "^2.2.7",
-		"pdfjs-dist": "^2.16.105",
+		"pdfjs-dist": "^3.7.107",
 		"split.js": "^1.6.5",
 		"tippy.js": "^6.3.7",
 		"web-dialog": "^0.0.11"

@@ -7,9 +7,9 @@ import { ActionHandler } from "./action/action-handler";
 import { SlideShape } from "./shape/slide.shape";
 import { SlideDocument } from "./document";
 import { Rectangle } from "../geometry/rectangle";
-import { Dimension } from "../geometry/dimension";
+import { PDFPageProxy } from "pdfjs-dist/types/web/interfaces";
 
-class Page {
+export class Page {
 
 	private readonly shapeChangeListener: (event: ShapeEvent) => void;
 
@@ -23,24 +23,19 @@ class Page {
 
 	private readonly document: SlideDocument;
 
+	private readonly pageProxy: PDFPageProxy;
+
 	private readonly pageNumber: number;
 
 
-	constructor(document: SlideDocument, pageNumber: number) {
+	constructor(document: SlideDocument, pageProxy: PDFPageProxy, pageNumber: number) {
 		this.document = document;
+		this.pageProxy = pageProxy;
 		this.pageNumber = pageNumber;
 		this.slideShape = new SlideShape(this);
 		this.slideShape.addChangeListener(this.onSlideTransform.bind(this));
 
 		this.shapeChangeListener = this.onShapeModified.bind(this);
-	}
-
-	render(context: CanvasRenderingContext2D, viewRect: Rectangle, dirtyRegion: Rectangle): Promise<CanvasImageSource> {
-		return this.document.renderPage(this.pageNumber, context, viewRect, dirtyRegion);
-	}
-
-	renderText(root: HTMLElement, size: Dimension) {
-		this.document.renderPageText(this.pageNumber, root, size, this.getSlideShape().bounds);
 	}
 
 	addChangeListener(listener: Listener<PageEvent>): Disposable {
@@ -75,8 +70,18 @@ class Page {
 		}
 	}
 
-	async getPageBounds(): Promise<Rectangle> {
-		return await this.document.getPageBounds(this.pageNumber);
+	getDocument() {
+		return this.document;
+	}
+
+	getPageProxy(): PDFPageProxy {
+		return this.pageProxy;
+	}
+
+	getPageBounds(): Rectangle {
+		const bounds = this.pageProxy.view;
+
+		return new Rectangle(bounds[0], bounds[1], bounds[2], bounds[3]);
 	}
 
 	getPageNumber(): number {
@@ -126,5 +131,3 @@ class Page {
 		this.changeEvent.publish(event);
 	}
 }
-
-export { Page };

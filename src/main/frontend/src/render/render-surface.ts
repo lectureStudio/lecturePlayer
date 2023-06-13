@@ -98,6 +98,11 @@ export class RenderSurface {
 		this.fireSizeEvent(new SizeEvent(this.size));
 	}
 
+	setCanvasSize(width: number, height: number) {
+		this.canvas.width = width;
+		this.canvas.height = height;
+	}
+
 	setPageSize(bounds: Rectangle): void {
 		let width = this.parent.clientWidth;
 		let height = this.parent.clientHeight;

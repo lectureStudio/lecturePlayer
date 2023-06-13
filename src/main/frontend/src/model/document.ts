@@ -1,25 +1,14 @@
-import { Dimension } from "../geometry/dimension";
-import { Rectangle } from "../geometry/rectangle";
 import { Page } from "./page";
 
-abstract class SlideDocument {
+export abstract class SlideDocument {
 
 	protected pages: Page[];
 
 	private documentId: bigint;
 
 
-	abstract getPageBounds(pageNumber: number): Promise<Rectangle>;
-
-	abstract getPageText(pageNumber: number): Promise<string>;
-
-	abstract renderPage(pageNumber: number, context: CanvasRenderingContext2D, viewRect: Rectangle, dirtyRegion: Rectangle): Promise<CanvasImageSource>;
-
-	abstract renderPageText(pageNumber: number, root: HTMLElement, size: Dimension, viewRect: Rectangle): void;
-
-
 	constructor() {
-		
+
 	}
 
 	getDocumentId(): bigint {
@@ -45,5 +34,3 @@ abstract class SlideDocument {
 		this.pages.splice(pageNumber, 1);
 	}
 }
-
-export { SlideDocument };

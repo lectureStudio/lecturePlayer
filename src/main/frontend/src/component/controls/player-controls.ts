@@ -17,15 +17,6 @@ export class PlayerControls extends I18nLitElement {
 	@property()
 	privilegeService: PrivilegeService;
 
-	@query('.slide-canvas')
-	slideCanvas: HTMLCanvasElement;
-
-	@query('.action-canvas')
-	actionCanvas: HTMLCanvasElement;
-
-	@query('.volatile-canvas')
-	volatileCanvas: HTMLCanvasElement;
-
 	@query('#volumeIndicator')
 	volumeIndicator: HTMLElement;
 

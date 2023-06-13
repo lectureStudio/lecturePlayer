@@ -1,7 +1,7 @@
 import { Rectangle } from "../geometry/rectangle";
 import { PDFPageProxy } from "pdfjs-dist/types/src/display/api";
 
-class PdfRenderer {
+export class PdfRenderer {
 
 	private readonly backCanvas = document.createElement('canvas');
 
@@ -10,6 +10,7 @@ class PdfRenderer {
 
 	async render(pageProxy: PDFPageProxy, context: CanvasRenderingContext2D, viewRect: Rectangle, dirtyRegion: Rectangle): Promise<CanvasImageSource> {
 		if (this.renderTask) {
+			this.renderTask.cancel();
 			return null;
 		}
 
@@ -33,15 +34,11 @@ class PdfRenderer {
 		this.backCanvas.height = dirtyRegion.height;
 
 		this.renderTask = pageProxy.render({
-			canvasContext: this.backCanvas.getContext('2d'),
+			canvasContext: this.backCanvas.getContext("2d", { alpha: false }),
 			viewport: viewport,
 		});
 
 		return this.renderTask.promise.then(() => {
-			context.canvas.width = this.backCanvas.width;
-			context.canvas.height = this.backCanvas.height;
-			context.drawImage(this.backCanvas, 0, 0);
-
 			this.renderTask = null;
 
 			return this.backCanvas;
@@ -51,5 +48,3 @@ class PdfRenderer {
 		});
 	}
 }
-
-export { PdfRenderer };

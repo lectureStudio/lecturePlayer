@@ -4,8 +4,6 @@ import { TextLayerSurface } from "./text-layer-surface";
 import { StrokeShape } from "../model/shape/stroke.shape";
 import { HighlighterRenderer } from "./highlighter.renderer";
 import { SizeEvent } from "../event/size-event";
-import { SlideShape } from "../model/shape/slide.shape";
-import { SlideRenderer } from "./slide.renderer";
 import { Rectangle } from "../geometry/rectangle";
 import { Page } from "../model/page";
 import { PointerRenderer } from "./pointer.renderer";
@@ -35,6 +33,7 @@ import { PenShape } from "../model/shape/pen.shape";
 import { PenRenderer } from "./pen.renderer";
 import { Brush } from "../paint/brush";
 import { SlideView } from "../component/slide-view/slide-view";
+import { AnnotationLayerSurface } from "./annotation-layer-surface";
 
 export class RenderController {
 
@@ -49,6 +48,8 @@ export class RenderController {
 	private volatileRenderSurface: RenderSurface;
 
 	private textLayerSurface: TextLayerSurface;
+
+	private annotationLayerSurface: AnnotationLayerSurface;
 
 	private page: Page;
 
@@ -69,7 +70,9 @@ export class RenderController {
 		this.setActionRenderSurface(slideView.getActionRenderSurface());
 		this.setSlideRenderSurface(slideView.getSlideRenderSurface());
 		this.setVolatileRenderSurface(slideView.getVolatileRenderSurface());
-		this.setTextLayerSurface(slideView.getTextLayerSurface());
+
+		this.textLayerSurface = slideView.getTextLayerSurface();
+		this.annotationLayerSurface = slideView.getAnnotationLayerSurface();
 
 		slideView.setRenderController(this);
 	}
@@ -86,17 +89,13 @@ export class RenderController {
 
 		this.page = page;
 
-		this.updateSurfaceSize(page)
-			.then(() => {
-				if (!this.seek) {
-					this.enableRendering();
-				}
+		this.updateSurfaceSize(page);
 
-				this.renderAllLayers(page);
-			})
-			.catch(error => {
-				console.error(error);
-			});
+		if (!this.seek) {
+			this.enableRendering();
+		}
+
+		this.renderAllLayers(page);
 	}
 
 	setSeek(seek: boolean): void {
@@ -146,13 +145,11 @@ export class RenderController {
 
 	private setSlideRenderSurface(renderSurface: SlideRenderSurface): void {
 		this.slideRenderSurface = renderSurface;
-		this.slideRenderSurface.registerRenderer(new SlideShape(null), new SlideRenderer());
 		this.slideRenderSurface.addSizeListener(this.slideRenderSurfaceSizeChanged.bind(this));
 	}
 
 	private setActionRenderSurface(renderSurface: RenderSurface): void {
 		this.actionRenderSurface = renderSurface;
-		this.actionRenderSurface.addSizeListener(this.actionRenderSurfaceSizeChanged.bind(this));
 
 		this.registerShapeRenderers(renderSurface);
 	}
@@ -163,17 +160,12 @@ export class RenderController {
 		this.registerShapeRenderers(renderSurface);
 	}
 
-	private setTextLayerSurface(textLayerSurface: TextLayerSurface): void {
-		this.textLayerSurface = textLayerSurface;
-	}
+	private updateSurfaceSize(page: Page): void {
+		const bounds = page.getPageBounds();
 
-	private updateSurfaceSize(page: Page): Promise<void> {
-		return page.getPageBounds().then(bounds => {
-			this.slideRenderSurface.setPageSize(bounds);
-			this.actionRenderSurface.setPageSize(bounds);
-			this.volatileRenderSurface.setPageSize(bounds);
-			this.textLayerSurface.setPageSize(bounds);
-		});
+		this.slideRenderSurface.setPageSize(bounds);
+		this.actionRenderSurface.setPageSize(bounds);
+		this.volatileRenderSurface.setPageSize(bounds);
 	}
 
 	private enableRendering(): void {
@@ -186,10 +178,6 @@ export class RenderController {
 
 	private slideRenderSurfaceSizeChanged(event: SizeEvent): void {
 		this.renderAllLayers(this.page);
-	}
-
-	private actionRenderSurfaceSizeChanged(event: SizeEvent): void {
-		this.refreshAnnotationLayers();
 	}
 
 	private pageChanged(event: PageEvent): void {
@@ -271,7 +259,7 @@ export class RenderController {
 		}
 	}
 
-	private renderAllLayers(page: Page): void {
+	private async renderAllLayers(page: Page): Promise<void> {
 		const size = this.slideRenderSurface.getSize();
 
 		if (!size) {
@@ -279,32 +267,33 @@ export class RenderController {
 			return;
 		}
 
-		const promise = this.renderSlideLayer(page);
-		promise.then((imageSource: CanvasImageSource) => {
-			if (imageSource) {
-				const pageTransform = this.getPageTransform();
+		const imageSource = await this.renderSlideLayer(page);
 
-				this.lastTransform.setTransform(pageTransform);
+		if (imageSource) {
+			const pageTransform = this.getPageTransform();
 
-				this.actionRenderSurface.setTransform(pageTransform);
-				this.volatileRenderSurface.setTransform(pageTransform);
+			this.lastTransform.setTransform(pageTransform);
 
-				this.actionRenderSurface.renderImageSource(imageSource);
-				this.actionRenderSurface.renderShapes(page.getShapes());
-				this.volatileRenderSurface.clear();
-				this.textLayerSurface.render(page);
+			this.actionRenderSurface.setTransform(pageTransform);
+			this.volatileRenderSurface.setTransform(pageTransform);
 
-				this.lastShape = null;
+			this.slideRenderSurface.setCanvasSize(size.width, size.height);
+			this.slideRenderSurface.renderImageSource(imageSource);
 
-				if (!Object.is(page, this.page)) {
-					// Keep the view up to date.
-					this.renderAllLayers(this.page);
-				}
+			this.actionRenderSurface.renderImageSource(imageSource);
+			this.actionRenderSurface.renderShapes(page.getShapes());
+			this.volatileRenderSurface.clear();
+
+			this.textLayerSurface.render(page);
+			this.annotationLayerSurface.render(page);
+
+			this.lastShape = null;
+
+			if (!Object.is(page, this.page)) {
+				// Keep the view up to date.
+				this.renderAllLayers(this.page);
 			}
-		})
-		.catch(error => {
-			console.error(error)
-		});
+		}
 	}
 
 	private renderPermanentLayer(shape: Shape, dirtyRegion: Rectangle): void {
@@ -322,12 +311,12 @@ export class RenderController {
 		const size = this.slideRenderSurface.getSize();
 
 		if (!size) {
-			return this.slideRenderSurface.renderSlideShape(page.getSlideShape(), new Rectangle(0, 0, 0, 0));
+			return this.slideRenderSurface.render(page, new Rectangle(0, 0, 0, 0));
 		}
 
 		const bounds = new Rectangle(0, 0, size.width, size.height);
 
-		return this.slideRenderSurface.renderSlideShape(page.getSlideShape(), bounds);
+		return this.slideRenderSurface.render(page, bounds);
 	}
 
 	private getPageTransform(): Transform {
