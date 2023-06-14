@@ -8,6 +8,8 @@ import { AnnotationLayerSurface } from '../../render/annotation-layer-surface';
 import { slideViewStyles } from './slide-view.styles';
 import { textLayerStyles } from './text-layer.styles';
 import { annotationLayerStyles } from './annotation-layer.styles';
+import { Page } from '../../model/page';
+import { Dimension } from '../../geometry/dimension';
 
 @customElement('slide-view')
 export class SlideView extends LitElement {
@@ -43,9 +45,9 @@ export class SlideView extends LitElement {
 		const textLayer: HTMLDivElement = this.renderRoot.querySelector(".text-layer");
 		const annotationLayer: HTMLDivElement = this.renderRoot.querySelector(".annotation-layer");
 
-		this.slideRenderSurface = new SlideRenderSurface(this, slideCanvas);
-		this.actionRenderSurface = new RenderSurface(this, actionCanvas);
-		this.volatileRenderSurface = new RenderSurface(this, volatileCanvas);
+		this.slideRenderSurface = new SlideRenderSurface(slideCanvas);
+		this.actionRenderSurface = new RenderSurface(actionCanvas);
+		this.volatileRenderSurface = new RenderSurface(volatileCanvas);
 		this.textLayerSurface = new TextLayerSurface(textLayer);
 		this.annotationLayerSurface = new AnnotationLayerSurface(annotationLayer);
 
@@ -78,12 +80,7 @@ export class SlideView extends LitElement {
 		return this.annotationLayerSurface;
 	}
 
-	private resize() {
-		if (!this.renderController) {
-			return;
-		}
-
-		const page = this.renderController.getPage();
+	getViewSize(page: Page) {
 		const bounds = page.getPageBounds();
 
 		let width = this.clientWidth;
@@ -100,26 +97,50 @@ export class SlideView extends LitElement {
 		}
 
 		if (width === 0 || height === 0) {
+			return null;
+		}
+
+		const pixelRatio = window.devicePixelRatio || 1;
+		const sfx = this.approximateFraction(pixelRatio);
+
+		width = this.roundToDivide(width, sfx[1]);
+		height = this.roundToDivide(height, sfx[1]);
+
+		return new Dimension(width, height);
+	}
+
+	private resize() {
+		if (!this.renderController) {
 			return;
 		}
 
-		this.scale = (1.0 / page.getSlideShape().bounds.width) * (width / bounds.width);
+		const page = this.renderController.getPage();
+		const bounds = page.getPageBounds();
+		const size = this.getViewSize(page);
+
+		if (!size) {
+			return;
+		}
+
+		this.scale = (1.0 / page.getSlideShape().bounds.width) * (size.width / bounds.width);
 
 		this.style.setProperty('--scale-factor', this.scale.toString());
 
 		this.setLayerDimensions(this.container, bounds.width, bounds.height);
 
-		this.slideRenderSurface.setSize(width, height);
-		this.actionRenderSurface.setSize(width, height);
-		this.volatileRenderSurface.setSize(width, height);
+		this.slideRenderSurface.setSize(size.width, size.height);
+		this.actionRenderSurface.setSize(size.width, size.height);
+		this.volatileRenderSurface.setSize(size.width, size.height);
+
+		this.renderController.render();
 	}
 
 	render() {
 		return html`
 			<div class="slide-container">
 				<canvas class="slide-canvas"></canvas>
-				<canvas class="action-canvas" scale="full"></canvas>
-				<canvas class="volatile-canvas" scale="full"></canvas>
+				<canvas class="action-canvas"></canvas>
+				<canvas class="volatile-canvas"></canvas>
 				<div class="text-layer"></div>
 				<div class="annotation-layer"></div>
 			</div>
@@ -131,5 +152,62 @@ export class SlideView extends LitElement {
 
 		style.width = `calc(var(--scale-factor) * ${pageWidth}px)`;
 		style.height = `calc(var(--scale-factor) * ${pageHeight}px)`;
+	}
+
+	private roundToDivide(x: number, div: number) {
+		const r = x % div;
+		return r === 0 ? x : Math.round(x - r + div);
+	}
+
+	/**
+	 *  Approximates float number as a fraction using Farey sequence (max order
+	 *  of 8).
+	 *  @param {number} x - Positive float number.
+	 *  @returns {Array} Estimated fraction: the first array item is a numerator,
+	 *                   the second one is a denominator.
+	 */
+	private approximateFraction(x: number) {
+		// Fast paths for int numbers or their inversions.
+		if (Math.floor(x) === x) {
+			return [x, 1];
+		}
+		const xinv = 1 / x;
+		const limit = 8;
+		if (xinv > limit) {
+			return [1, limit];
+		} else if (Math.floor(xinv) === xinv) {
+			return [1, xinv];
+		}
+
+		const x_ = x > 1 ? xinv : x;
+		// a/b and c/d are neighbours in Farey sequence.
+		let a = 0,
+			b = 1,
+			c = 1,
+			d = 1;
+		// Limiting search to order 8.
+		while (true) {
+			// Generating next term in sequence (order of q).
+			const p = a + c,
+				q = b + d;
+			if (q > limit) {
+				break;
+			}
+			if (x_ <= p / q) {
+				c = p;
+				d = q;
+			} else {
+				a = p;
+				b = q;
+			}
+		}
+		let result;
+		// Select closest of the neighbours to x.
+		if (x_ - a / b < c / d - x_) {
+			result = x_ === x ? [a, b] : [b, a];
+		} else {
+			result = x_ === x ? [c, d] : [d, c];
+		}
+		return result;
 	}
 }

@@ -8,8 +8,8 @@ export class SlideRenderSurface extends RenderSurface {
 	private readonly renderer: PdfRenderer;
 
 
-	constructor(parent: HTMLElement, canvas: HTMLCanvasElement) {
-		super(parent, canvas);
+	constructor(canvas: HTMLCanvasElement) {
+		super(canvas);
 
 		this.renderer = new PdfRenderer();
 	}
@@ -29,8 +29,6 @@ export class SlideRenderSurface extends RenderSurface {
 		this.canvasContext.scale(sx, sx);
 
 		const promise = this.renderer.render(page.getPageProxy(), this.canvasContext, shape.bounds, dirtyRegion);
-
-		await promise;
 
 		this.canvasContext.restore();
 
