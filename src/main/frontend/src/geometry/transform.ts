@@ -20,11 +20,18 @@ class Transform {
 	 * 
 	 * If no transformation matrix is provided, the new transform is set to the
 	 * identity transform.
-	 * 
+	 *
 	 * @param m The transformation matrix elements.
 	 */
 	constructor(m?: number[]) {
 		this.m = m ? m.slice(0, 6) : [1, 0, 0, 1, 0, 0];
+	}
+
+	/**
+	 * @returns the transformation matrix elements.
+	 */
+	getMatrix(): number[] {
+		return this.m;
 	}
 
 	/**

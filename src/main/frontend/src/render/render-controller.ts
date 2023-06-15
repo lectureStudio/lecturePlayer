@@ -265,7 +265,9 @@ export class RenderController {
 
 		this.rendering = true;
 
-		this.renderSlideLayer(page).then(() => {
+		const transform = this.getSlideTransform();
+
+		this.renderSlideLayer(page, transform).then(() => {
 			if (!size || size.width === 0 || size.height === 0) {
 				// Do not even try to render.
 				return;
@@ -284,7 +286,7 @@ export class RenderController {
 			this.volatileRenderSurface.setCanvasSize(size.width, size.height);
 			this.volatileRenderSurface.clear();
 
-			this.textLayerSurface.render(page);
+			this.textLayerSurface.render(page, transform);
 			this.annotationLayerSurface.render(page);
 
 			this.lastShape = null;
@@ -309,7 +311,7 @@ export class RenderController {
 		this.lastShape = shape;
 	}
 
-	private renderSlideLayer(page: Page): Promise<void> {
+	private renderSlideLayer(page: Page, transform: Transform): Promise<void> {
 		const size = this.slideRenderSurface.getSize();
 
 		if (!size) {
@@ -318,7 +320,25 @@ export class RenderController {
 
 		const bounds = new Rectangle(0, 0, size.width, size.height);
 
-		return this.slideRenderSurface.render(page, bounds);
+		return this.slideRenderSurface.render(page, transform, bounds);
+	}
+
+	private getSlideTransform(): Transform {
+		const size = this.slideRenderSurface.getSize();
+
+		const viewRect = this.page.getSlideShape().bounds;
+		const pageProxy = this.page.getPageProxy();
+
+		const scaleX = 1.0 / viewRect.width;
+		const scaleTx = size.width * scaleX;
+
+		const tx = viewRect.x * scaleTx;
+		const ty = viewRect.y * scaleTx;
+
+		const width = pageProxy.view[2] - pageProxy.view[0];
+		const scale = scaleX * (size.width / width);
+
+		return new Transform([scale, 0, 0, scale, -tx, -ty]);
 	}
 
 	private getPageTransform(): Transform {
