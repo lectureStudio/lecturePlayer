@@ -14,7 +14,7 @@ class TextHighlightRenderer implements ShapeRenderer {
 		context.beginPath();
 		context.globalAlpha = 1;
 		context.globalCompositeOperation = "multiply";
-		context.fillStyle = shape.getColor().toRgba();
+		context.fillStyle = shape.getColor().toRgb();
 		context.rect(bounds.x, bounds.y, bounds.width, bounds.height);
 		context.fill();
 	}

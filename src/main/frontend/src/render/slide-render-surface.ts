@@ -1,35 +1,27 @@
 import { Rectangle } from "../geometry/rectangle";
 import { RenderSurface } from "./render-surface";
-import { SlideRenderer } from "./slide.renderer";
-import { SlideShape } from "../model/shape/slide.shape";
+import { PdfRenderer } from "./pdf.renderer";
+import { Page } from "../model/page";
+import { Transform } from "../geometry/transform";
 
-class SlideRenderSurface extends RenderSurface {
+export class SlideRenderSurface extends RenderSurface {
 
-	renderSlideShape(shape: SlideShape, dirtyRegion: Rectangle): Promise<CanvasImageSource> {
+	private readonly renderer: PdfRenderer;
+
+
+	constructor(canvas: HTMLCanvasElement) {
+		super(canvas);
+
+		this.renderer = new PdfRenderer();
+	}
+
+	async render(page: Page, transform: Transform, viewRegion: Rectangle): Promise<void> {
 		if (!this.canvasContext.canvas.style.width || !this.canvasContext.canvas.style.height) {
 			return new Promise((resolve, reject) => {
-				reject("Canvas has no real size");
+				reject("Surface has no real size");
 			});
 		}
-		
-		const renderer = <SlideRenderer> this.renderers.get(shape.getShapeType());
-		let promise: Promise<CanvasImageSource> = null;
 
-		if (renderer) {
-			const pageRect = shape.bounds;
-
-			const sx = this.canvas.width / pageRect.width;
-
-			this.canvasContext.save();
-			this.canvasContext.scale(sx, sx);
-
-			promise = renderer.render(this.canvasContext, shape, dirtyRegion);
-
-			this.canvasContext.restore();
-		}
-
-		return promise;
+		await this.renderer.render(page.getPageProxy(), this.canvasContext, transform, viewRegion);
 	}
 }
-
-export { SlideRenderSurface };

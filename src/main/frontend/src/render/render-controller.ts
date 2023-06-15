@@ -3,9 +3,6 @@ import { RenderSurface } from "./render-surface";
 import { TextLayerSurface } from "./text-layer-surface";
 import { StrokeShape } from "../model/shape/stroke.shape";
 import { HighlighterRenderer } from "./highlighter.renderer";
-import { SizeEvent } from "../event/size-event";
-import { SlideShape } from "../model/shape/slide.shape";
-import { SlideRenderer } from "./slide.renderer";
 import { Rectangle } from "../geometry/rectangle";
 import { Page } from "../model/page";
 import { PointerRenderer } from "./pointer.renderer";
@@ -35,12 +32,15 @@ import { PenShape } from "../model/shape/pen.shape";
 import { PenRenderer } from "./pen.renderer";
 import { Brush } from "../paint/brush";
 import { SlideView } from "../component/slide-view/slide-view";
+import { AnnotationLayerSurface } from "./annotation-layer-surface";
 
 export class RenderController {
 
 	private readonly pageChangeListener: (event: PageEvent) => void;
 
 	private readonly visibilityChangeListener: () => void;
+
+	private readonly slideView: SlideView;
 
 	private slideRenderSurface: SlideRenderSurface;
 
@@ -50,6 +50,8 @@ export class RenderController {
 
 	private textLayerSurface: TextLayerSurface;
 
+	private annotationLayerSurface: AnnotationLayerSurface;
+
 	private page: Page;
 
 	private lastShape: Shape;
@@ -58,20 +60,28 @@ export class RenderController {
 
 	private seek: boolean = false;
 
+	private rendering: boolean = false;
+
 
 	constructor(slideView: SlideView) {
-		this.pageChangeListener = this.pageChanged.bind(this);
-		this.visibilityChangeListener = this.visibilityChanged.bind(this);
+		this.slideView = slideView;
+		this.slideView.setRenderController(this);
+
 		this.lastTransform = new Transform();
 
+		this.pageChangeListener = this.pageChanged.bind(this);
+		this.visibilityChangeListener = this.visibilityChanged.bind(this);
+
+		this.slideRenderSurface = slideView.getSlideRenderSurface();
+		this.actionRenderSurface = slideView.getActionRenderSurface();
+		this.volatileRenderSurface = slideView.getVolatileRenderSurface();
+		this.textLayerSurface = slideView.getTextLayerSurface();
+		this.annotationLayerSurface = slideView.getAnnotationLayerSurface();
+
+		this.registerShapeRenderers(this.actionRenderSurface);
+		this.registerShapeRenderers(this.volatileRenderSurface);
+
 		document.addEventListener("visibilitychange", this.visibilityChangeListener);
-
-		this.setActionRenderSurface(slideView.getActionRenderSurface());
-		this.setSlideRenderSurface(slideView.getSlideRenderSurface());
-		this.setVolatileRenderSurface(slideView.getVolatileRenderSurface());
-		this.setTextLayerSurface(slideView.getTextLayerSurface());
-
-		slideView.setRenderController(this);
 	}
 
 	getPage(): Page {
@@ -86,17 +96,13 @@ export class RenderController {
 
 		this.page = page;
 
-		this.updateSurfaceSize(page)
-			.then(() => {
-				if (!this.seek) {
-					this.enableRendering();
-				}
+		this.updateSurfaceSize(page);
 
-				this.renderAllLayers(page);
-			})
-			.catch(error => {
-				console.error(error);
-			});
+		if (!this.seek) {
+			this.enableRendering();
+		}
+
+		this.renderAllLayers(page);
 	}
 
 	setSeek(seek: boolean): void {
@@ -133,10 +139,11 @@ export class RenderController {
 		}
 	}
 
-	dispose() {
-		this.slideRenderSurface.removeSizeListeners();
-		this.actionRenderSurface.removeSizeListeners();
+	render(): void {
+		this.renderAllLayers(this.page);
+	}
 
+	dispose() {
 		document.removeEventListener("visibilitychange", this.visibilityChangeListener);
 
 		if (this.page) {
@@ -144,36 +151,16 @@ export class RenderController {
 		}
 	}
 
-	private setSlideRenderSurface(renderSurface: SlideRenderSurface): void {
-		this.slideRenderSurface = renderSurface;
-		this.slideRenderSurface.registerRenderer(new SlideShape(null), new SlideRenderer());
-		this.slideRenderSurface.addSizeListener(this.slideRenderSurfaceSizeChanged.bind(this));
-	}
+	private updateSurfaceSize(page: Page): void {
+		const size = this.slideView.getViewSize(page);
 
-	private setActionRenderSurface(renderSurface: RenderSurface): void {
-		this.actionRenderSurface = renderSurface;
-		this.actionRenderSurface.addSizeListener(this.actionRenderSurfaceSizeChanged.bind(this));
+		if (!size) {
+			return;
+		}
 
-		this.registerShapeRenderers(renderSurface);
-	}
-
-	private setVolatileRenderSurface(renderSurface: RenderSurface): void {
-		this.volatileRenderSurface = renderSurface;
-
-		this.registerShapeRenderers(renderSurface);
-	}
-
-	private setTextLayerSurface(textLayerSurface: TextLayerSurface): void {
-		this.textLayerSurface = textLayerSurface;
-	}
-
-	private updateSurfaceSize(page: Page): Promise<void> {
-		return page.getPageBounds().then(bounds => {
-			this.slideRenderSurface.setPageSize(bounds);
-			this.actionRenderSurface.setPageSize(bounds);
-			this.volatileRenderSurface.setPageSize(bounds);
-			this.textLayerSurface.setPageSize(bounds);
-		});
+		this.slideRenderSurface.setSize(size.width, size.height);
+		this.actionRenderSurface.setSize(size.width, size.height);
+		this.volatileRenderSurface.setSize(size.width, size.height);
 	}
 
 	private enableRendering(): void {
@@ -182,14 +169,6 @@ export class RenderController {
 
 	private disableRendering(): void {
 		this.page.removeChangeListener(this.pageChangeListener);
-	}
-
-	private slideRenderSurfaceSizeChanged(event: SizeEvent): void {
-		this.renderAllLayers(this.page);
-	}
-
-	private actionRenderSurfaceSizeChanged(event: SizeEvent): void {
-		this.refreshAnnotationLayers();
 	}
 
 	private pageChanged(event: PageEvent): void {
@@ -272,38 +251,52 @@ export class RenderController {
 	}
 
 	private renderAllLayers(page: Page): void {
+		if (this.rendering) {
+			// Rendering too fast, skip. Happens especially while panning in zoomed mode.
+			return;
+		}
+
 		const size = this.slideRenderSurface.getSize();
 
-		if (!size) {
+		if (!size || size.width === 0 || size.height === 0) {
 			// Do not even try to render.
 			return;
 		}
 
-		const promise = this.renderSlideLayer(page);
-		promise.then((imageSource: CanvasImageSource) => {
-			if (imageSource) {
-				const pageTransform = this.getPageTransform();
+		this.rendering = true;
 
-				this.lastTransform.setTransform(pageTransform);
+		const transform = this.getSlideTransform();
 
-				this.actionRenderSurface.setTransform(pageTransform);
-				this.volatileRenderSurface.setTransform(pageTransform);
-
-				this.actionRenderSurface.renderImageSource(imageSource);
-				this.actionRenderSurface.renderShapes(page.getShapes());
-				this.volatileRenderSurface.clear();
-				this.textLayerSurface.render(page);
-
-				this.lastShape = null;
-
-				if (!Object.is(page, this.page)) {
-					// Keep the view up to date.
-					this.renderAllLayers(this.page);
-				}
+		this.renderSlideLayer(page, transform).then(() => {
+			if (!size || size.width === 0 || size.height === 0) {
+				// Do not even try to render.
+				return;
 			}
-		})
-		.catch(error => {
-			console.error(error)
+
+			const pageTransform = this.getPageTransform();
+
+			this.lastTransform.setTransform(pageTransform);
+
+			this.actionRenderSurface.setTransform(pageTransform);
+			this.actionRenderSurface.setCanvasSize(size.width, size.height);
+			this.actionRenderSurface.renderSurface(this.slideRenderSurface);
+			this.actionRenderSurface.renderShapes(page.getShapes());
+
+			this.volatileRenderSurface.setTransform(pageTransform);
+			this.volatileRenderSurface.setCanvasSize(size.width, size.height);
+			this.volatileRenderSurface.clear();
+
+			this.textLayerSurface.render(page, transform);
+			this.annotationLayerSurface.render(page);
+
+			this.lastShape = null;
+
+			this.rendering = false;
+
+			if (!Object.is(page, this.page)) {
+				// Keep the view up to date.
+				this.renderAllLayers(this.page);
+			}
 		});
 	}
 
@@ -318,16 +311,34 @@ export class RenderController {
 		this.lastShape = shape;
 	}
 
-	private renderSlideLayer(page: Page): Promise<CanvasImageSource> {
+	private renderSlideLayer(page: Page, transform: Transform): Promise<void> {
 		const size = this.slideRenderSurface.getSize();
 
 		if (!size) {
-			return this.slideRenderSurface.renderSlideShape(page.getSlideShape(), new Rectangle(0, 0, 0, 0));
+			return Promise.reject("Surface has no real size");
 		}
 
 		const bounds = new Rectangle(0, 0, size.width, size.height);
 
-		return this.slideRenderSurface.renderSlideShape(page.getSlideShape(), bounds);
+		return this.slideRenderSurface.render(page, transform, bounds);
+	}
+
+	private getSlideTransform(): Transform {
+		const size = this.slideRenderSurface.getSize();
+
+		const viewRect = this.page.getSlideShape().bounds;
+		const pageProxy = this.page.getPageProxy();
+
+		const scaleX = 1.0 / viewRect.width;
+		const scaleTx = size.width * scaleX;
+
+		const tx = viewRect.x * scaleTx;
+		const ty = viewRect.y * scaleTx;
+
+		const width = pageProxy.view[2] - pageProxy.view[0];
+		const scale = scaleX * (size.width / width);
+
+		return new Transform([scale, 0, 0, scale, -tx, -ty]);
 	}
 
 	private getPageTransform(): Transform {

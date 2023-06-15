@@ -2,13 +2,9 @@ import { Shape } from "../model/shape/shape";
 import { ShapeRenderer } from "./shape.renderer";
 import { Dimension } from "../geometry/dimension";
 import { Rectangle } from "../geometry/rectangle";
-import { SizeEvent } from "../event/size-event";
-import { TypedEvent, Listener, Disposable } from "../utils/event-listener";
 import { Transform } from "../geometry/transform";
 
 export class RenderSurface {
-
-	protected readonly parent: HTMLElement;
 
 	protected readonly canvas: HTMLCanvasElement;
 
@@ -16,15 +12,12 @@ export class RenderSurface {
 
 	protected readonly renderers: Map<String, ShapeRenderer>;
 
-	private readonly sizeEvent = new TypedEvent<SizeEvent>();
-
 	private readonly transform: Transform;
 
 	private size: Dimension = new Dimension(0, 0);
 
 
-	constructor(parent: HTMLElement, canvas: HTMLCanvasElement) {
-		this.parent = parent;
+	constructor(canvas: HTMLCanvasElement) {
 		this.canvas = canvas;
 		this.canvasContext = canvas.getContext("2d");
 		this.renderers = new Map();
@@ -95,54 +88,18 @@ export class RenderSurface {
 		this.size = newSize;
 
 		this.resizeCanvas(width, height, dpr);
-		this.fireSizeEvent(new SizeEvent(this.size));
 	}
 
-	setPageSize(bounds: Rectangle): void {
-		let width = this.parent.clientWidth;
-		let height = this.parent.clientHeight;
-
-		const slideRatio = bounds.width / bounds.height;
-		const viewRatio = width / height;
-
-		if (viewRatio > slideRatio) {
-			width = height * slideRatio;
-		}
-		else {
-			height = width / slideRatio;
-		}
-
-		if (width === 0 || height === 0) {
-			return;
-		}
-
-		this.setSize(width, height);
+	setCanvasSize(width: number, height: number) {
+		this.canvas.width = width;
+		this.canvas.height = height;
 	}
 
 	setTransform(transform: Transform): void {
 		this.transform.setTransform(transform);
 	}
 
-	addSizeListener(listener: Listener<SizeEvent>): Disposable {
-		return this.sizeEvent.subscribe(listener);
-	}
-
-	removeSizeListeners(): void {
-		this.sizeEvent.unsubscribeAll();
-	}
-
-	protected fireSizeEvent(event: SizeEvent): void {
-		this.sizeEvent.publish(event);
-	}
-
 	private resizeCanvas(width: number, height: number, devicePixelRatio: number): void {
-		const scaleMode = this.canvas.getAttribute("scale");
-
-		if (scaleMode && scaleMode === "full") {
-			this.canvas.width = width * devicePixelRatio;
-			this.canvas.height = height * devicePixelRatio;
-		}
-
 		this.canvas.style.width = width + "px";
 		this.canvas.style.height = height + "px";
 	}
