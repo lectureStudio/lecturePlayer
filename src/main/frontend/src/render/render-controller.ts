@@ -248,7 +248,7 @@ export class RenderController {
 		}
 	}
 
-	private async renderAllLayers(page: Page): Promise<void> {
+	private renderAllLayers(page: Page): void {
 		const size = this.slideRenderSurface.getSize();
 
 		if (!size || size.width === 0 || size.height === 0) {
@@ -256,19 +256,19 @@ export class RenderController {
 			return;
 		}
 
-		const imageSource = await this.renderSlideLayer(page);
+		this.renderSlideLayer(page).then(() => {
+			if (!size || size.width === 0 || size.height === 0) {
+				// Do not even try to render.
+				return;
+			}
 
-		if (imageSource) {
 			const pageTransform = this.getPageTransform();
 
 			this.lastTransform.setTransform(pageTransform);
 
-			this.slideRenderSurface.setCanvasSize(size.width, size.height);
-			this.slideRenderSurface.renderImageSource(imageSource);
-
 			this.actionRenderSurface.setTransform(pageTransform);
 			this.actionRenderSurface.setCanvasSize(size.width, size.height);
-			this.actionRenderSurface.renderImageSource(imageSource);
+			this.actionRenderSurface.renderSurface(this.slideRenderSurface);
 			this.actionRenderSurface.renderShapes(page.getShapes());
 
 			this.volatileRenderSurface.setTransform(pageTransform);
@@ -284,7 +284,7 @@ export class RenderController {
 				// Keep the view up to date.
 				this.renderAllLayers(this.page);
 			}
-		}
+		});
 	}
 
 	private renderPermanentLayer(shape: Shape, dirtyRegion: Rectangle): void {
@@ -298,11 +298,11 @@ export class RenderController {
 		this.lastShape = shape;
 	}
 
-	private renderSlideLayer(page: Page): Promise<CanvasImageSource> {
+	private renderSlideLayer(page: Page): Promise<void> {
 		const size = this.slideRenderSurface.getSize();
 
 		if (!size) {
-			return this.slideRenderSurface.render(page, new Rectangle(0, 0, 0, 0));
+			return Promise.reject("Surface has no real size");
 		}
 
 		const bounds = new Rectangle(0, 0, size.width, size.height);

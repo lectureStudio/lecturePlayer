@@ -13,10 +13,10 @@ export class TextLayerSurface {
 		this.textRenderer = new PdfTextRenderer();
 	}
 
-	render(page: Page) {
+	async render(page: Page) {
 		// Clear previous text elements.
 		this.root.replaceChildren();
 
-		this.textRenderer.render(page.getPageProxy(), this.root);
+		await this.textRenderer.render(page.getPageProxy(), this.root);
 	}
 }

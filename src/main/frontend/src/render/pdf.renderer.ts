@@ -1,16 +1,14 @@
+import { RenderTask } from "pdfjs-dist";
 import { Rectangle } from "../geometry/rectangle";
 import { PDFPageProxy } from "pdfjs-dist/types/src/display/api";
 
 export class PdfRenderer {
 
-	private readonly backCanvas = document.createElement('canvas');
-
-	private renderTask: any;
+	private renderTask: RenderTask;
 
 
-	async render(pageProxy: PDFPageProxy, context: CanvasRenderingContext2D, viewRect: Rectangle, dirtyRegion: Rectangle): Promise<CanvasImageSource> {
+	async render(pageProxy: PDFPageProxy, context: CanvasRenderingContext2D, viewRect: Rectangle, dirtyRegion: Rectangle): Promise<void> {
 		if (this.renderTask) {
-			this.renderTask.cancel();
 			return null;
 		}
 
@@ -30,21 +28,19 @@ export class PdfRenderer {
 		viewport.transform[4] -= tx;
 		viewport.transform[5] -= ty;
 
-		this.backCanvas.width = dirtyRegion.width;
-		this.backCanvas.height = dirtyRegion.height;
+		context.canvas.width = dirtyRegion.width;
+		context.canvas.height = dirtyRegion.height;
 
 		this.renderTask = pageProxy.render({
-			canvasContext: this.backCanvas.getContext("2d", { alpha: false }),
+			canvasContext: context,
 			viewport: viewport,
 		});
 
 		return this.renderTask.promise.then(() => {
 			this.renderTask = null;
-
-			return this.backCanvas;
 		},
 		(reason: string) => {
-			//console.error(reason);
+			console.error(reason);
 		});
 	}
 }

@@ -14,10 +14,10 @@ export class SlideRenderSurface extends RenderSurface {
 		this.renderer = new PdfRenderer();
 	}
 
-	async render(page: Page, dirtyRegion: Rectangle): Promise<CanvasImageSource> {
+	async render(page: Page, dirtyRegion: Rectangle): Promise<void> {
 		if (!this.canvasContext.canvas.style.width || !this.canvasContext.canvas.style.height) {
 			return new Promise((resolve, reject) => {
-				reject("Canvas has no real size");
+				reject("Surface has no real size");
 			});
 		}
 
@@ -28,10 +28,8 @@ export class SlideRenderSurface extends RenderSurface {
 		this.canvasContext.save();
 		this.canvasContext.scale(sx, sx);
 
-		const promise = this.renderer.render(page.getPageProxy(), this.canvasContext, shape.bounds, dirtyRegion);
+		await this.renderer.render(page.getPageProxy(), this.canvasContext, shape.bounds, dirtyRegion);
 
 		this.canvasContext.restore();
-
-		return promise;
 	}
 }

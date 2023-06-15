@@ -102,8 +102,5 @@ export class RenderSurface {
 	private resizeCanvas(width: number, height: number, devicePixelRatio: number): void {
 		this.canvas.style.width = width + "px";
 		this.canvas.style.height = height + "px";
-
-		// this.canvas.width = width * devicePixelRatio;
-		// this.canvas.height = height * devicePixelRatio;
 	}
 }

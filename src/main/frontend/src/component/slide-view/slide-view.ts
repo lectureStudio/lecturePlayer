@@ -160,11 +160,11 @@ export class SlideView extends LitElement {
 	}
 
 	/**
-	 *  Approximates float number as a fraction using Farey sequence (max order
-	 *  of 8).
-	 *  @param {number} x - Positive float number.
-	 *  @returns {Array} Estimated fraction: the first array item is a numerator,
-	 *                   the second one is a denominator.
+	 * Approximates float number as a fraction using Farey sequence (max order
+	 * of 8).
+	 * @param {number} x - Positive float number.
+	 * @returns {Array} Estimated fraction: the first array item is a numerator,
+	 *                  the second one is a denominator.
 	 */
 	private approximateFraction(x: number) {
 		// Fast paths for int numbers or their inversions.
@@ -201,11 +201,14 @@ export class SlideView extends LitElement {
 				b = q;
 			}
 		}
+		
 		let result;
+
 		// Select closest of the neighbours to x.
 		if (x_ - a / b < c / d - x_) {
 			result = x_ === x ? [a, b] : [b, a];
-		} else {
+		}
+		else {
 			result = x_ === x ? [c, d] : [d, c];
 		}
 		return result;

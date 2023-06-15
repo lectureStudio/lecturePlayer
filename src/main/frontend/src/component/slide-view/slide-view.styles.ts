@@ -18,6 +18,7 @@ export const slideViewStyles = css`
 		--scale-factor: 1;
 	}
 	:host .slide-canvas {
+		display: none;
 		z-index: 0;
 	}
 	:host .action-canvas {
