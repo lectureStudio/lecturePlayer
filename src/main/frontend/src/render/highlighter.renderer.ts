@@ -14,7 +14,7 @@ class HighlighterRenderer implements ShapeRenderer {
 		}
 
 		const brush = shape.brush;
-		const color = shape.isSelected() ? "rgba(255, 0, 100, 0.5)" : brush.color.toRgba();
+		const color = shape.isSelected() ? "rgba(255, 0, 100, 0.5)" : brush.color.toRgb();
 
 		let index = 0;
 		let p0 = points[index++];
