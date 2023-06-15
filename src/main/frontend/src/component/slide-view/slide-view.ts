@@ -122,7 +122,7 @@ export class SlideView extends LitElement {
 			return;
 		}
 
-		this.scale = (1.0 / page.getSlideShape().bounds.width) * (size.width / bounds.width);
+		this.scale = size.width / bounds.width;
 
 		this.style.setProperty('--scale-factor', this.scale.toString());
 
