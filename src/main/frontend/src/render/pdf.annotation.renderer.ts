@@ -1,9 +1,17 @@
 import { PDFPageProxy } from "pdfjs-dist/types/src/display/api";
 import { AnnotationLayer } from "pdfjs-dist";
+import { GenericL10n } from "pdfjs-dist/web/pdf_viewer";
 
 const pdfViever = require("pdfjs-dist/web/pdf_viewer");
 
 export class PdfAnnotationRenderer {
+
+	private readonly l10n: GenericL10n;
+
+
+	constructor() {
+		this.l10n = new GenericL10n("en-us");
+	}
 
 	async render(pageProxy: PDFPageProxy, root: HTMLDivElement): Promise<void> {
 		const viewport = pageProxy.getViewport().clone({ dontFlip: true });
@@ -26,13 +34,8 @@ export class PdfAnnotationRenderer {
 				enableScripting: false,
 			});
 
-			// const webL10n = document.webL10n;
-			// webL10n.setLanguage("en-US", () => {
-			// 	console.log("++++ webL10n set lang");
-			// });
-
-			// webL10n.translate(root);
+			// Process interpolated text.
+			this.l10n.translate(root);
 		}
 	}
-
 }
