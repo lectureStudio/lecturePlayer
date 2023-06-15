@@ -60,6 +60,8 @@ export class RenderController {
 
 	private seek: boolean = false;
 
+	private rendering: boolean = false;
+
 
 	constructor(slideView: SlideView) {
 		this.slideView = slideView;
@@ -249,12 +251,19 @@ export class RenderController {
 	}
 
 	private renderAllLayers(page: Page): void {
+		if (this.rendering) {
+			// Rendering too fast, skip. Happens especially while panning in zoomed mode.
+			return;
+		}
+
 		const size = this.slideRenderSurface.getSize();
 
 		if (!size || size.width === 0 || size.height === 0) {
 			// Do not even try to render.
 			return;
 		}
+
+		this.rendering = true;
 
 		this.renderSlideLayer(page).then(() => {
 			if (!size || size.width === 0 || size.height === 0) {
@@ -279,6 +288,8 @@ export class RenderController {
 			this.annotationLayerSurface.render(page);
 
 			this.lastShape = null;
+
+			this.rendering = false;
 
 			if (!Object.is(page, this.page)) {
 				// Keep the view up to date.
