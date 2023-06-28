@@ -223,9 +223,13 @@ export class HttpRequest {
 	}
 
 	private decodeBody(request: XMLHttpRequest): any {
+		const contentType = request.getResponseHeader("Content-Type");
 		let body = request.response || null;
 		let responseType: string = request.responseType;
 
+		if (contentType && contentType.startsWith("text/plain")) {
+			return request.responseText;
+		}
 		if (!responseType) {
 			responseType = request.getResponseHeader("Content-Type");
 
@@ -241,6 +245,15 @@ export class HttpRequest {
 		}
 
 		return body;
+	}
+
+	private setCsrfHeader(request: XMLHttpRequest): void {
+		const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute("content");
+		const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute("content");
+
+		if (csrfToken && csrfHeader) {
+			request.setRequestHeader(csrfHeader, csrfToken);
+		}
 	}
 
 	private setHeaders(body: any, request: XMLHttpRequest): void {
@@ -268,6 +281,8 @@ export class HttpRequest {
 		if (!headers || !headers.has("Accept")) {
 			request.setRequestHeader("Accept", "application/json, text/plain, */*");
 		}
+
+		this.setCsrfHeader(request);
 	}
 
 	private getHeaders(request: XMLHttpRequest): Map<string, string | string[]> {

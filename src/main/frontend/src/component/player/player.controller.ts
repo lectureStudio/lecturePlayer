@@ -60,7 +60,7 @@ export class PlayerController implements ReactiveController {
 
 	private viewController: PlayerViewController;
 
-	private speechRequestId: bigint;
+	private speechRequestId: string;
 
 	private devicesSelected: boolean;
 
@@ -468,7 +468,7 @@ export class PlayerController implements ReactiveController {
 		const accepted = event.detail.accepted;
 		const requestId = event.detail.requestId;
 
-		if (this.speechRequestId && (BigInt(requestId) - this.speechRequestId) < 1000) {
+		if (this.speechRequestId && requestId === this.speechRequestId) {
 			if (accepted) {
 				this.speechAccepted();
 			}
