@@ -10,6 +10,8 @@ export interface CourseFeatureResponse {
 
 	statusMessage: string;
 
+	fieldErrors: Map<number, string>;
+
 }
 
 export interface MessageFeature extends CourseFeature {
@@ -32,6 +34,29 @@ export interface QuizAnswer {
 
 }
 
+export interface QuizRule {
+
+	type: string;
+
+	fieldId: number;
+
+	isAllowed(value: any): boolean;
+
+}
+
+export interface QuizMinMaxRule extends QuizRule {
+
+	min: number;
+	max: number;
+
+}
+
+export interface QuizInputFieldFilter {
+
+	rules: QuizRule[];
+
+}
+
 export interface QuizFeature extends CourseFeature {
 
 	readonly type: QuizType;
@@ -39,5 +64,7 @@ export interface QuizFeature extends CourseFeature {
 	readonly question: string;
 
 	readonly options: string[];
+
+	readonly fieldFilter: QuizInputFieldFilter;
 
 }

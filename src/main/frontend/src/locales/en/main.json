@@ -62,6 +62,7 @@
 	"course.feature.quiz.send.error": "Failed to send answer",
 	"course.feature.quiz.count.error": "Only one answer per quiz is allowed",
 	"course.feature.quiz.input.invalid": "Input not allowed",
+	"course.feature.quiz.input.out-of-range": "Input out of range",
 	"course.feature.quiz.sent": "Your answer has been successfully sent",
 	"course.participants": "Participants",
 	"course.participants.me": "Me",

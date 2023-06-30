@@ -62,6 +62,7 @@
 	"course.feature.quiz.send.error": "Antwort konnte nicht gesendet werden",
 	"course.feature.quiz.count.error": "Nur eine Antwort pro Quiz erlaubt",
 	"course.feature.quiz.input.invalid": "Eingabe nicht erlaubt",
+	"course.feature.quiz.input.out-of-range": "Eingabe außerhalb des zulässigen Bereichs",
 	"course.feature.quiz.sent": "Ihre Antwort wurde erfolgreich verschickt",
 	"course.participants": "Teilnehmer:innen",
 	"course.participants.me": "Ich",

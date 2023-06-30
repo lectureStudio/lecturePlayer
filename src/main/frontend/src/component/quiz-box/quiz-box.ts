@@ -1,10 +1,11 @@
 import { html } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
-import { QuizFeature } from '../../model/course-feature';
+import { customElement, property, query } from 'lit/decorators.js';
+import { CourseFeatureResponse, QuizFeature } from '../../model/course-feature';
 import { QuizService } from '../../service/quiz.service';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { Toaster } from '../toast/toaster';
 import { quizBoxStyles } from './quiz-box.styles';
+import { QuizForm } from '../quiz-form/quiz-form';
 
 @customElement('quiz-box')
 export class QuizBox extends I18nLitElement {
@@ -20,6 +21,9 @@ export class QuizBox extends I18nLitElement {
 	@property()
 	feature: QuizFeature;
 
+	@query('quiz-form')
+	quizForm: QuizForm;
+
 
 	protected post(event: Event) {
 		const quizForm: HTMLFormElement = this.renderRoot.querySelector("quiz-form")
@@ -30,14 +34,27 @@ export class QuizBox extends I18nLitElement {
 
 		const service = new QuizService();
 		service.postAnswerFromForm(this.courseId, quizForm)
+			.then(response => {
+				this.quizForm.setResponse(response);
+
+				if (response.statusCode === 0) {
+					Toaster.showSuccess(`${t(response.statusMessage)}`);
+				}
+				else {
+					Toaster.showError(`${t(response.statusMessage)}`);
+				}
+			})
 			.finally(() => {
 				quizForm.reset();
 				submitButton.disabled = false;
 			})
 			.catch(error => {
-				console.error(error);
+				const response: CourseFeatureResponse = error.body;
 
-				Toaster.showError(`${t("course.feature.quiz.send.error")}`);
+				// Delegate response error to the form.
+				this.quizForm.setResponse(response);
+
+				Toaster.showError(`${t(response.statusMessage)}`);
 			});
 	}
 

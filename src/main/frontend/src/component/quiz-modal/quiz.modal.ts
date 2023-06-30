@@ -1,10 +1,11 @@
 import { html } from "lit";
 import { Modal } from "../modal/modal";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, query } from "lit/decorators.js";
 import { t } from '../i18n-mixin';
-import { QuizFeature } from "../../model/course-feature";
+import { CourseFeatureResponse, QuizFeature } from "../../model/course-feature";
 import { QuizService } from "../../service/quiz.service";
 import { Toaster } from "../toast/toaster";
+import { QuizForm } from "../quiz-form/quiz-form";
 
 @customElement("quiz-modal")
 export class QuizModal extends Modal {
@@ -14,6 +15,9 @@ export class QuizModal extends Modal {
 
 	@property()
 	feature: QuizFeature;
+
+	@query('quiz-form')
+	quizForm: QuizForm;
 
 
 	protected post(event: Event) {
@@ -25,6 +29,16 @@ export class QuizModal extends Modal {
 
 		const service = new QuizService();
 		service.postAnswerFromForm(this.courseId, quizForm)
+			.then(response => {
+				this.quizForm.setResponse(response);
+
+				if (response.statusCode === 0) {
+					Toaster.showSuccess(`${t(response.statusMessage)}`);
+				}
+				else {
+					Toaster.showError(`${t(response.statusMessage)}`);
+				}
+			})
 			.finally(() => {
 				quizForm.reset();
 				submitButton.disabled = false;
@@ -32,9 +46,12 @@ export class QuizModal extends Modal {
 				this.close();
 			})
 			.catch(error => {
-				console.error(error);
+				const response: CourseFeatureResponse = error.body;
 
-				Toaster.showError(`${t("course.feature.quiz.send.error")}`);
+				// Delegate response error to the form.
+				this.quizForm.setResponse(response);
+
+				Toaster.showError(`${t(response.statusMessage)}`);
 			});
 	}
 
