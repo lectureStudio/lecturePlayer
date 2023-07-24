@@ -56,7 +56,7 @@ export abstract class JanusParticipant extends EventTarget {
 	}
 
 	disconnect() {
-		this.handle.hangup();
+		this.handle.hangup(true);
 		this.handle.detach();
 
 		this.setState(State.DISCONNECTED);

@@ -66,11 +66,6 @@ export class ParticipantView extends I18nLitElement {
 
 	setState(state: State) {
 		this.state = state;
-
-		this.dispatchEvent(Utils.createEvent("participant-state", {
-			participant: this,
-			state: state
-		}));
 	}
 
 	addAudio(audio: HTMLAudioElement) {

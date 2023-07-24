@@ -99,8 +99,8 @@ export class JanusService extends EventTarget {
 			participant.disconnect();
 		}
 
-		this.publishers.slice(0);
-		this.subscribers.slice(0);
+		this.publishers = [];
+		this.subscribers = [];
 	}
 
 	addPeer(peerId: bigint) {
@@ -148,23 +148,16 @@ export class JanusService extends EventTarget {
 	}
 
 	private createSession() {
-
-		console.log("~ janus create session");
-
 		this.janus = new Janus({
 			server: this.serverUrl,
 			destroyOnUnload: true,
 			success: () => {
-				console.log("~ janus session id", this.janus.getSessionId());
-
 				if (this.janus.getSessionId()) {
 					this.attach();
 				}
 			},
 			error: (cause: any) => {
-				console.error(cause);
-
-				console.log("~ janus session error", cause);
+				console.error("~ janus session error", cause);
 
 				this.janus.reconnect({
 					success: () => {
@@ -213,11 +206,15 @@ export class JanusService extends EventTarget {
 				const canJoin = res.participants && res.participants.length > 0;
 
 				if (canJoin) {
-					for (let i in res.participants) {
-						const publisher: JanusRoomParticipant = res.participants[i];
+					console.log("publishers", res.participants);
 
-						this.attachToPublisher(publisher, true);
-					}
+					window.setTimeout(() => {
+						for (let i in res.participants) {
+							const publisher: JanusRoomParticipant = res.participants[i];
+	
+							this.attachToPublisher(publisher, true);
+						}
+					}, 3000);
 				}
 				else {
 					Janus.error("Requested feed is not available anymore");
