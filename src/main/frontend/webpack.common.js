@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
 	entry: {
@@ -11,6 +12,8 @@ module.exports = {
 	},
 	plugins: [
 		new CleanWebpackPlugin(['dist']),
+
+		new MiniCssExtractPlugin(),
 
 		// janus.js does not use 'import' to access to the functionality of webrtc-adapter,
 		// instead it expects a global object called 'adapter' for that.
@@ -44,6 +47,11 @@ module.exports = {
 				options: {
 					specifier: 'lit' // defaults to `lit`
 				}
+			},
+			// Bundle styles into main.css
+			{
+				test: /\.css$/i,
+				use: [MiniCssExtractPlugin.loader, 'css-loader']
 			},
 			{
 				test: /\.scss$/,

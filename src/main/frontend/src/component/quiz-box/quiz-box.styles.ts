@@ -11,4 +11,7 @@ export const quizBoxStyles = css`
 		margin-bottom: 0.5rem;
 		line-height: 1.2;
 	}
+	section {
+		padding: 0 1rem;
+	}
 `;

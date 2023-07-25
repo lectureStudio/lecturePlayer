@@ -83,18 +83,18 @@ export class ChatBox extends I18nLitElement {
 
 	protected render() {
 		return html`
-			<header>
+			<header part="header">
 				${t("course.feature.message")}
 			</header>
 
-			<section>
+			<section part="section">
 				<div class="chat-history">
 					<div class="chat-history-log">
 					</div>
 				</div>
 			</section>
 
-			<footer>
+			<footer part="footer">
 				${this.privilegeService.canWriteMessages() ? html`
 				<message-form .privilegeService="${this.privilegeService}"></message-form>
 				<button @click="${this.post}" type="submit" form="course-message-form" class="icon-send" id="message-submit"></button>

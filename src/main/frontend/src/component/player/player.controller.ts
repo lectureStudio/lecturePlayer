@@ -184,7 +184,7 @@ export class PlayerController implements ReactiveController {
 			.then(courseState => {
 				this.setCourseState(courseState);
 
-				if (courseState.activeDocument == null) {
+				if (!this.hasStream()) {
 					// Update early, if not streaming.
 					this.updateConnectionState();
 				}
@@ -404,7 +404,9 @@ export class PlayerController implements ReactiveController {
 			chatHistory.clear();
 		}
 
-		this.updateConnectionState();
+		if (this.isClassroomProfile() || !this.hasStream()) {
+			this.updateConnectionState();
+		}
 	}
 
 	private onQuizState(event: CustomEvent) {
@@ -420,7 +422,9 @@ export class PlayerController implements ReactiveController {
 
 		course.quizFeature = state.started ? state.feature : null;
 
-		this.updateConnectionState();
+		if (this.isClassroomProfile() || !this.hasStream()) {
+			this.updateConnectionState();
+		}
 	}
 
 	private onRecordingState(event: CustomEvent) {
@@ -505,12 +509,15 @@ export class PlayerController implements ReactiveController {
 		}
 	}
 
+	private hasStream() {
+		return course.activeDocument != null;
+	}
+
 	private updateConnectionState() {
 		const isClassroom = this.isClassroomProfile();
 		const hasFeatures = course.chatFeature != null || course.quizFeature != null;
-		const hasStream = course.activeDocument != null;
 
-		if (hasStream && !isClassroom) {
+		if (this.hasStream() && !isClassroom) {
 			this.setConnectionState(State.CONNECTED);
 		}
 		else if (hasFeatures) {

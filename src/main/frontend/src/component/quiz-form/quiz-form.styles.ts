@@ -5,6 +5,9 @@ export const quizFormStyles = css`
 		width: 100%;
 	}
 
+	.form-control {
+		width: auto;
+	}
 	.form-control-desc {
 		font-size: 0.875em;
 	}

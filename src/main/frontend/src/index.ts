@@ -21,6 +21,13 @@ import './component/tabs/tabs';
 import './component/toast/toast';
 import './component/tooltip/tooltip';
 
+import '@shoelace-style/shoelace/dist/themes/light.css';
+import '@shoelace-style/shoelace/dist/themes/dark.css';
+import '@shoelace-style/shoelace/dist/components/split-panel/split-panel.js';
+import '@shoelace-style/shoelace/dist/components/tab/tab.js';
+import '@shoelace-style/shoelace/dist/components/tab-group/tab-group.js';
+import '@shoelace-style/shoelace/dist/components/tab-panel/tab-panel.js';
+
 import i18next from 'i18next';
 import LanguageDetector from "i18next-browser-languagedetector";
 import * as resources from './locales';

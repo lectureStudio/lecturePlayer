@@ -16,25 +16,53 @@ export const featureViewStyles = css`
 		padding-left: 0.25rem;
 		width: 100%;
 	}
-	:host .center {
-		display: flex;
-		width: 66.66666667%;
-		margin-right: 1em;
-	}
-	:host .right {
-		display: flex;
-		width: 33.33333333%;
-	}
 	:host chat-box {
 		width: 100%;
+		height: 100%;
 	}
-	:host(:not([hasChat])) .center,
-	:host(:not([hasQuiz])) .right {
+	:host chat-box::part(header),
+	:host quiz-box::part(header) {
+		display: none;
+	}
+	:host(:not([hasChat])) .chat-context,
+	:host(:not([hasQuiz])) .quiz-context {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
+	:host(:not([hasChat])) .chat-context::part(base),
+	:host(:not([hasQuiz])) .quiz-context::part(base) {
+		pointer-events: none;
+	}
+	:host #outer-split-panel {
+		--min: 200px;
+		--max: 350px;
+	}
+	:host(:not([participantsVisible])) #outer-split-panel {
+		--min: 0;
+	}
+	:host(:not([participantsVisible])) #outer-split-panel::part(divider),
+	:host(:not([participantsVisible])) .left-container {
+		display: none;
+	}
+
+	sl-split-panel,
+	sl-tab-group {
 		width: 100%;
 	}
-	:host(:not([hasChat])) .right,
-	:host(:not([hasQuiz])) .center {
-		display: none;
+	sl-tab-group::part(base),
+	sl-tab-group::part(body),
+	sl-tab-panel,
+	sl-tab-panel::part(base) {
+		height: 100%;
+	}
+
+	.feature-container {
+		display: flex;
+		margin-right: auto;
+		margin-left: auto;
+		padding: 0 1.5rem;
+		width: 100%;
+		height: 100%;
 	}
 
 	@media (min-width: 576px) {
