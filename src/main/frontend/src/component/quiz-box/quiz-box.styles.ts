@@ -13,6 +13,12 @@ export const quizBoxStyles = css`
 		margin-bottom: 0.5rem;
 		line-height: 1.2;
 	}
+	footer {
+		padding: 0.25rem;
+	}
+	footer sl-button span {
+		font-size: 1.5em;
+	}
 	section {
 		display: flex;
 		flex: 1 1 auto;

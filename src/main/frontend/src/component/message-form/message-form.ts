@@ -49,37 +49,39 @@ export class MessageForm extends I18nLitElement {
 	}
 
 	protected override render() {
+		const canWriteToAll = this.privilegeService.canWriteMessagesToAll();
+		const canWriteToOrga = this.privilegeService.canWriteMessagesToOrganisators();
 		const optionTemplates = [];
 
 		if (this.privilegeService.canWritePrivateMessages()) {
 			for (const participant of participants.participants) {
 				if (participant.userId !== course.userId) {
-					optionTemplates.push(html`<option value="${participant.userId}">${participant.firstName} ${participant.familyName}</option>`);
+					optionTemplates.push(html`<sl-option value="${participant.userId}">${participant.firstName} ${participant.familyName}</sl-option>`);
 				}
 			}
 		}
 
-		const allOption = this.privilegeService.canWriteMessagesToAll()
-			? html`<option value="${ChatRecipientType.Public}">${t("course.feature.message.target.all")}</option>`
+		const allOption = canWriteToAll
+			? html`<sl-option value="${ChatRecipientType.Public}">${t("course.feature.message.target.all")}</sl-option>`
 			: '';
 
-		const organisatorsOption = this.privilegeService.canWriteMessagesToOrganisators()
-			? html`<option value="${ChatRecipientType.Organisers}">${t("course.feature.message.target.organisers")}</option>`
+		const organisatorsOption = canWriteToOrga
+			? html`<sl-option value="${ChatRecipientType.Organisers}">${t("course.feature.message.target.organisers")}</sl-option>`
 			: '';
+
+		if (optionTemplates.length > 0 && (canWriteToAll || canWriteToOrga)) {
+			optionTemplates.unshift(html`<sl-divider></sl-divider>`);
+		}
 
 		return html`
 			<form id="course-message-form">
-				<div class="controls">
-					<span>${t("course.feature.message.target")}</span>
-					<select @change=${this.onRecipient} name="recipient" id="recipients" class="form-select form-select-sm" aria-label=".form-select-sm">
-						${allOption}
-						${organisatorsOption}
-						${optionTemplates}
-					</select>
-				</div>
-				<div>
-					<textarea name="text" rows="3" placeholder="${t("course.feature.message.placeholder")}"></textarea>
-				</div>
+				<span>${t("course.feature.message.target")}</span>
+				<sl-select @sl-change=${this.onRecipient} name="recipient" id="recipients" size="small" hoist>
+					${allOption}
+					${organisatorsOption}
+					${optionTemplates}
+				</sl-select>
+				<sl-textarea name="text" placeholder="${t("course.feature.message.placeholder")}" rows="2" resize="none" size="small"></sl-textarea>
 			</form>
 		`;
 	}

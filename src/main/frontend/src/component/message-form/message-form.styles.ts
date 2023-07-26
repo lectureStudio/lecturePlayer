@@ -3,34 +3,24 @@ import { css } from 'lit';
 export const messageFormStyles = css`
 	:host {
 		width: 100%;
+		padding: 0 0.25rem;
 	}
-	.controls {
+	:host form {
 		display: flex;
-		flex-direction: row;
-		align-items: baseline;
-		padding: 0.25em 0;
-		font-size: 0.9em;
+		flex-direction: column;
+		gap: 0.25em;
+		font-size: var(--sl-font-size-small);
 	}
-	.controls > span {
-		min-width: fit-content;
-		padding: 0 1em 0 0.25em;
-	}
-	.form-select {
+	form sl-select {
 		max-width: fit-content;
-		height: auto;
-		line-height: 1em;
 	}
-	textarea {
-		resize: none;
-		border: 0;
-		border-radius: 0;
-		font-size: 0.9rem;
-		padding: 0.25em 0.5em;
+	form sl-option {
 		width: 100%;
 	}
-	textarea:focus {   
-		border-color: #86b7fe;
-		outline: 0;
-		box-shadow: 0 0 0 -0.25rem rgba(13, 110, 253, 0.25);
+	form sl-option::part(base) {
+		font-size: var(--sl-font-size-x-small);
+	}
+	form sl-option::part(label) {
+		min-width: fit-content;
 	}
 `;
