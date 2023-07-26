@@ -17,7 +17,7 @@ export class FeatureViewController implements ReactiveController {
 		course.addEventListener("course-quiz-feature", this.onFeatureState.bind(this));
 	}
 
-	private onFeatureState() {
-		this.host.requestUpdate();
+	private async onFeatureState() {
+		this.host.refresh();
 	}
 }

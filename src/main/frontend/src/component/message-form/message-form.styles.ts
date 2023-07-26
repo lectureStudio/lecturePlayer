@@ -23,4 +23,10 @@ export const messageFormStyles = css`
 	form sl-option::part(label) {
 		min-width: fit-content;
 	}
+	form .recipient-container {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0px 0.75rem;
+	}
 `;

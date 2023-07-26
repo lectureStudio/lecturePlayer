@@ -3,11 +3,11 @@ import { customElement, property, query } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { MessageService } from '../../service/message.service';
 import { PrivilegeService } from '../../service/privilege.service';
-import { I18nLitElement } from '../i18n-mixin';
+import { I18nLitElement, t } from '../i18n-mixin';
 import { FeatureViewController } from './feature-view.controller';
 import { featureViewStyles } from './feature-view.styles';
 import { course } from '../../model/course';
-import { SlSplitPanel, SlTabGroup } from '@shoelace-style/shoelace';
+import { SlSplitPanel, SlTab, SlTabGroup } from '@shoelace-style/shoelace';
 
 @customElement('player-feature-view')
 export class PlayerFeatureView extends I18nLitElement {
@@ -19,8 +19,7 @@ export class PlayerFeatureView extends I18nLitElement {
 
 	private controller = new FeatureViewController(this);
 
-	@property()
-	section: string = "chat";
+	private readonly maxWidth600Query: MediaQueryList;
 
 	@property()
 	messageService: MessageService;
@@ -28,42 +27,58 @@ export class PlayerFeatureView extends I18nLitElement {
 	@property()
 	privilegeService: PrivilegeService;
 
-	@property({ type: Boolean, reflect: true })
-	participantsVisible: boolean = true;
-
-	@property({ type: Boolean, reflect: true })
-	hasChat: boolean = false;
-
-	@property({ type: Boolean, reflect: true })
-	hasQuiz: boolean = false;
-
 	@query("#outer-split-panel")
 	outerSplitPanel: SlSplitPanel;
 
 	@query("sl-tab-group")
 	tabGroup: SlTabGroup;
 
+	@property({ reflect: true })
+	participantsVisible: boolean = true;
+
+	section: string = "chat";
+
+	isCompactMode: boolean = false;
+
+	hasChat: boolean = false;
+
+	hasQuiz: boolean = false;
+
+
+	constructor() {
+		super();
+
+		// Matches with the css query.
+		this.maxWidth600Query = window.matchMedia("(max-width: 600px)");
+		this.maxWidth600Query.onchange = (event) => {
+			this.onCompactLayout(event.matches);
+		};
+
+		this.isCompactMode = this.maxWidth600Query.matches;
+	}
+
+	async refresh() {
+		this.updateState();
+		this.requestUpdate();
+		// Update once again for smooth tab selection as tabs come and go.
+		await this.updateComplete;
+		this.requestUpdate();
+	}
 
 	protected willUpdate(changedProperties: PropertyValues): void {
-		if (this.privilegeService) {
-			this.participantsVisible = this.privilegeService.canViewParticipants();
-
-			if (this.privilegeService.canReadMessages()) {
-				this.hasChat = course.chatFeature != null;
-			}
-			if (this.privilegeService.canParticipateInQuiz()) {
-				this.hasQuiz = course.quizFeature != null;
-			}
-		}
-
-		// Quiz has priority.
-		this.section = this.hasQuiz ? "quiz" : "chat";
+		super.willUpdate(changedProperties);
 
 		if (this.tabGroup) {
-			this.tabGroup.show(this.section);
-		}
+			let showSection = this.section;
+			let tab: SlTab = this.tabGroup.querySelector(`sl-tab[panel=${this.section}]`);
 
-		super.willUpdate(changedProperties);
+			tab = this.checkOrGetDefault(tab);
+			if (tab) {
+				showSection = tab.panel;
+			}
+
+			this.tabGroup.show(showSection);
+		}
 	}
 
 	protected render() {
@@ -72,23 +87,17 @@ export class PlayerFeatureView extends I18nLitElement {
 				<sl-split-panel position="0" id="outer-split-panel">
 					<div slot="start" class="left-container">
 						<div class="participants-container">
-							${when(this.privilegeService.canViewParticipants(), () => html`
-								<participants-box></participants-box>
-							`)}
+						${when(this.participantsVisible, () => html`
+							<participants-box></participants-box>
+						`)}
 						</div>
 					</div>
-					<div slot="end">
+					<div slot="end" class="center-container">
 						<div class="feature-container">
-							<sl-tab-group activation="manual">
-								<sl-tab slot="nav" class="chat-context" panel="chat" .active="${!this.hasQuiz}">Chat</sl-tab>
-								<sl-tab slot="nav" class="quiz-context" panel="quiz" .active="${this.hasQuiz}">Quiz</sl-tab>
-
-								<sl-tab-panel name="chat">
-									${this.renderChat()}
-								</sl-tab-panel>
-								<sl-tab-panel name="quiz">
-									${this.renderQuiz()}
-								</sl-tab-panel>
+							<sl-tab-group>
+								${this.renderChat()}
+								${this.renderQuiz()}
+								${this.renderParticipants()}
 							</sl-tab-group>
 						</div>
 					</div>
@@ -98,26 +107,82 @@ export class PlayerFeatureView extends I18nLitElement {
 	}
 
 	protected renderChat() {
-		if (!this.privilegeService.canReadMessages()) {
+		if (!this.hasChat) {
 			return '';
 		}
 
-		return course.chatFeature ?
-			html`
+		return html`
+			<sl-tab slot="nav" panel="chat">${t("course.feature.message")}</sl-tab>
+			<sl-tab-panel name="chat">
 				<chat-box .messageService="${this.messageService}" .privilegeService="${this.privilegeService}"></chat-box>
-			`
-			: '';
+			</sl-tab-panel>
+		`;
 	}
 
 	protected renderQuiz() {
-		if (!this.privilegeService.canParticipateInQuiz()) {
+		if (!this.hasQuiz) {
 			return '';
 		}
 
-		return course.quizFeature ?
-			html`
-				<quiz-box .courseId="${course.courseId}" .feature="${course.quizFeature}"></quiz-box>
-			`
-			: '';
+		return html`
+			<sl-tab slot="nav" panel="quiz">${t("course.feature.quiz")}</sl-tab>
+			<sl-tab-panel name="quiz">
+				<quiz-box .courseId="${course.courseId}" .feature="${course.quizFeature}"></quiz-box>	
+			</sl-tab-panel>
+		`;
+	}
+
+	protected renderParticipants() {
+		if (!this.isCompactMode || !this.participantsVisible) {
+			return '';
+		}
+
+		return html`
+			<sl-tab slot="nav" panel="participants">${t("course.participants")}</sl-tab>
+			<sl-tab-panel name="participants">
+				<participants-box></participants-box>
+			</sl-tab-panel>
+		`;
+	}
+
+	private updateState() {
+		if (this.privilegeService) {
+			this.participantsVisible = this.privilegeService.canViewParticipants();
+
+			this.hasChat = this.privilegeService.canReadMessages() ? (course.chatFeature != null) : false;
+			this.hasQuiz = this.privilegeService.canParticipateInQuiz() ? (course.quizFeature != null) : false;
+		}
+
+		const tab: SlTab = this.tabGroup.querySelector("sl-tab[active]");
+
+		// Quiz has priority.
+		this.section = this.hasQuiz ? "quiz" : (tab ? tab.panel : this.section);
+	}
+
+	private onCompactLayout(compact: boolean) {
+		this.isCompactMode = compact;
+
+		let tab: SlTab = this.tabGroup.querySelector("sl-tab[active]");
+
+		// Select non-participants tab for activation.
+		if (tab.panel !== "participants") {
+			this.section = tab.panel;
+		}
+		else {
+			// Select first tab as default one.
+			tab = this.checkOrGetDefault(null);
+			if (tab) {
+				this.section = tab.panel;
+			}
+		}
+
+		this.requestUpdate();
+	}
+
+	private checkOrGetDefault(tab: SlTab): SlTab {
+		if (!tab) {
+			return this.tabGroup.querySelector("sl-tab:first-of-type");
+		}
+		return tab;
 	}
 }

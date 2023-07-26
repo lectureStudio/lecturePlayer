@@ -24,10 +24,6 @@ export const featureViewStyles = css`
 	:host quiz-box::part(header) {
 		display: none;
 	}
-	:host(:not([hasChat])) .chat-context,
-	:host(:not([hasQuiz])) .quiz-context {
-		visibility: hidden;
-	}
 	:host #outer-split-panel {
 		--min: 200px;
 		--max: 350px;
@@ -51,6 +47,9 @@ export const featureViewStyles = css`
 		height: 100%;
 	}
 
+	.center-container {
+		min-width: 0;
+	}
 	.feature-container {
 		display: flex;
 		margin-right: auto;
@@ -60,16 +59,19 @@ export const featureViewStyles = css`
 		height: 100%;
 	}
 
-	@media (min-width: 576px) {
-		:host > div {
-			max-width: 540px;
+
+	@media (max-width: 400px) {
+		.feature-container {
+			padding: 0 0.5rem;
 		}
 	}
-	@media (min-width: 768px) {
-		:host > div {
-			flex: 0 0 auto;
-			width: 66.66666667%;
-			max-width: 720px;
+	@media (max-width: 600px) {
+		:host #outer-split-panel {
+			--min: 0;
+		}
+		:host #outer-split-panel::part(divider),
+		:host .left-container {
+			display: none;
 		}
 	}
 	@media (min-width: 992px) {

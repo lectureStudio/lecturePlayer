@@ -23,11 +23,18 @@ export const quizFormStyles = css`
 		width: max-content;
 	}
 
+	sl-checkbox::part(control) {
+		margin-top: 0.2rem;
+	}
+	sl-checkbox::part(label) {
+		line-height: 1.5rem;
+	}
+
 	.quiz-question {
 		padding-bottom: 0.75rem;
 	}
 	.quiz-option {
-		padding-bottom: 0.75rem;
+		padding-bottom: 0.85rem;
 	}
 	.quiz-options {
 		display: flex;

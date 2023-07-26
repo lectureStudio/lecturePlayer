@@ -75,12 +75,14 @@ export class MessageForm extends I18nLitElement {
 
 		return html`
 			<form id="course-message-form">
-				<span>${t("course.feature.message.target")}</span>
-				<sl-select @sl-change=${this.onRecipient} name="recipient" id="recipients" size="small" hoist>
-					${allOption}
-					${organisatorsOption}
-					${optionTemplates}
-				</sl-select>
+				<div class="recipient-container">
+					<span>${t("course.feature.message.target")}</span>
+					<sl-select @sl-change=${this.onRecipient} name="recipient" id="recipients" size="small" hoist>
+						${allOption}
+						${organisatorsOption}
+						${optionTemplates}
+					</sl-select>
+				</div>
 				<sl-textarea name="text" placeholder="${t("course.feature.message.placeholder")}" rows="2" resize="none" size="small"></sl-textarea>
 			</form>
 		`;
