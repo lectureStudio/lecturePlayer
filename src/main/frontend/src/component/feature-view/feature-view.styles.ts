@@ -26,12 +26,7 @@ export const featureViewStyles = css`
 	}
 	:host(:not([hasChat])) .chat-context,
 	:host(:not([hasQuiz])) .quiz-context {
-		cursor: not-allowed;
-		opacity: 0.5;
-	}
-	:host(:not([hasChat])) .chat-context::part(base),
-	:host(:not([hasQuiz])) .quiz-context::part(base) {
-		pointer-events: none;
+		visibility: hidden;
 	}
 	:host #outer-split-panel {
 		--min: 200px;

@@ -60,19 +60,17 @@ export class QuizBox extends I18nLitElement {
 
 	protected render() {
 		return html`
-			<article>
-				<header part="header">
-					${t("course.feature.quiz")}
-				</header>
-				<section part="section">
-					<quiz-form .feature="${this.feature}"></quiz-form>
-				</section>
-				<footer part="footer">
-					<button type="button" @click="${this.post}" class="btn btn-outline-primary btn-sm" id="quiz-submit" form="quiz-form">
-						${t("course.feature.quiz.send")}
-					</button>
-				</footer>
-			</article>
+			<header part="header">
+				${t("course.feature.quiz")}
+			</header>
+			<section part="section">
+				<quiz-form .feature="${this.feature}"></quiz-form>
+			</section>
+			<footer part="footer">
+				<button type="button" @click="${this.post}" class="btn btn-outline-primary btn-sm" id="quiz-submit" form="quiz-form">
+					${t("course.feature.quiz.send")}
+				</button>
+			</footer>
 		`;
 	}
 }
