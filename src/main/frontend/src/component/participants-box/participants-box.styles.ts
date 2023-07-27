@@ -6,7 +6,6 @@ export const participantBoxStyles = css`
 		flex-direction: column;
 	}
 	header {
-		align-self: center;
 		font-weight: 600;
 		padding: 0.25em;
 		line-height: 1.2;
@@ -19,6 +18,15 @@ export const participantBoxStyles = css`
 		height: 100%;
 		overflow-y: hidden;
 		align-items: stretch;
+	}
+
+	.title {
+		display: flex;
+		justify-content: center;
+	}
+	.control-buttons {
+		display: flex;
+		font-size: 1.15em;
 	}
 
 	.participants {
@@ -43,6 +51,10 @@ export const participantBoxStyles = css`
 	.participant {
 		display: flex;
 		align-items: end;
+	}
+
+	sl-menu ::part(base) {
+		font-size: var(--sl-font-size-small);
 	}
 
 	[class^="icon-"],
