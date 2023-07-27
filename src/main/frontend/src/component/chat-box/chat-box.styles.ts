@@ -24,16 +24,8 @@ export const chatBoxStyles = css`
 		display: flex;
 		flex-direction: column;
 	}
-	footer sl-button {
-		display: var(--send-button-display, block);
-		color: #0d6efd;
-		width: fit-content;
-	}
-	footer sl-button span {
-		font-size: 1.5em;
-	}
-	footer .message-buttons {
-		padding: 0.25rem;
+	footer sl-icon {
+		font-size: 16px;
 	}
 
 	.chat-history {

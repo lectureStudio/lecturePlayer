@@ -14,6 +14,7 @@ export const messageFormStyles = css`
 	form sl-select {
 		max-width: fit-content;
 	}
+	form sl-textarea,
 	form sl-option {
 		width: 100%;
 	}
@@ -28,5 +29,10 @@ export const messageFormStyles = css`
 		flex-wrap: wrap;
 		align-items: center;
 		gap: 0px 0.75rem;
+	}
+	form .message-container {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
 	}
 `;

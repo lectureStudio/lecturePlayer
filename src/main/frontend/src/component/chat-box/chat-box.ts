@@ -96,13 +96,11 @@ export class ChatBox extends I18nLitElement {
 
 			<footer part="footer">
 				${this.privilegeService.canWriteMessages() ? html`
-				<message-form .privilegeService="${this.privilegeService}"></message-form>
-				<div class="message-buttons">
-					<sl-button @click="${this.post}" type="submit" form="course-message-form" id="message-submit" size="small">
-						<span class="icon-send" slot="suffix"></span>
-						${t("course.feature.message.send")}
+				<message-form .privilegeService="${this.privilegeService}">
+					<sl-button slot="right-pane" @click="${this.post}" type="submit" form="course-message-form" id="message-submit" size="medium" circle>
+						<sl-icon name="send"></sl-icon>
 					</sl-button>
-				</div>
+				</message-form>
 				` : ''}
 			</footer>
 		`;

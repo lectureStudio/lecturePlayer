@@ -83,7 +83,10 @@ export class MessageForm extends I18nLitElement {
 						${optionTemplates}
 					</sl-select>
 				</div>
-				<sl-textarea name="text" placeholder="${t("course.feature.message.placeholder")}" rows="2" resize="none" size="small"></sl-textarea>
+				<div class="message-container">
+					<sl-textarea name="text" placeholder="${t("course.feature.message.placeholder")}" rows="2" resize="none" size="small"></sl-textarea>
+					<slot name="right-pane"></slot>
+				</div>
 			</form>
 		`;
 	}

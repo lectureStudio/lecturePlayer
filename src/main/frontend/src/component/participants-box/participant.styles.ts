@@ -19,7 +19,7 @@ export const participantStyles = css`
 
 	[class^="icon-"],
 	[class*=" icon-"] {
-		font-size: 1.65em;
+		font-size: 1.5em;
 		margin-left: auto;
 	}
 `;

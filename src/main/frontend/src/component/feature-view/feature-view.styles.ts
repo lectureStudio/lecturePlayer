@@ -25,7 +25,7 @@ export const featureViewStyles = css`
 		display: none;
 	}
 	:host #outer-split-panel {
-		--min: 200px;
+		--min: 230px;
 		--max: 350px;
 	}
 	:host(:not([participantsVisible])) #outer-split-panel {
