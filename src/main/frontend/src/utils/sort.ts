@@ -1,5 +1,3 @@
-import { ParticipantType } from "../model/course-state";
-
 export enum SortOrder {
 
 	Ascending,
@@ -7,27 +5,12 @@ export enum SortOrder {
 
 }
 
-export enum ParticipantSortProperty {
+export interface SortConfig<T> {
 
-	Affiliation,
-	FirstName,
-	LastName,
-
-}
-
-export namespace ParticipantSortPropertyUtil {
-
-	export function toString(property: ParticipantSortProperty): string {
-		return ParticipantSortProperty[property];
-	}
+	order: SortOrder;
+	comparators: TypeComparator<T>[];
 
 }
-
-/**
- * This is equivalent to:
- * type ParticipantSortProperty = 'FirstName' | 'LastName';
- */
-export type ParticipantSortPropertyType = keyof typeof ParticipantSortProperty;
 
 export type TypeComparator<T> = (a: T, b: T) => number;
 
@@ -35,22 +18,17 @@ export const StringComparator: TypeComparator<string> = (a: string, b: string) =
 	return a.localeCompare(b);
 };
 
-export const ParticipantTypeComparator: TypeComparator<ParticipantType> = (a: ParticipantType, b: ParticipantType) => {
-	if (a === b) {
-		return 0;
-	}
-	if (a === "ORGANISATOR") {
-		return 1;
-	}
-	if (b === "ORGANISATOR") {
-		return -1;
-	}
-	if (a === "CO_ORGANISATOR") {
-		return 1;
-	}
-	if (b === "CO_ORGANISATOR") {
-		return -1;
+export function compare<T>(sortConfig: SortConfig<T>, a: T, b: T): number {
+	let result = 0;
+
+	for (const comparator of sortConfig.comparators) {
+		result = comparator(a, b);
+
+		if (result !== 0) {
+			// Values are different, do not use next comparator.
+			break;
+		}
 	}
 
-	return 0;
-};
+	return result;
+}

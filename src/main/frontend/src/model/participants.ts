@@ -54,4 +54,26 @@ class Participants extends EventTarget {
 	}
 }
 
+export enum ParticipantSortProperty {
+
+	Affiliation,
+	FirstName,
+	LastName,
+
+}
+
+export namespace ParticipantSortPropertyUtil {
+
+	export function toString(property: ParticipantSortProperty): string {
+		return ParticipantSortProperty[property];
+	}
+
+}
+
+/**
+ * This is equivalent to:
+ * type ParticipantSortProperty = 'FirstName' | 'LastName';
+ */
+export type ParticipantSortPropertyType = keyof typeof ParticipantSortProperty;
+
 export const participants = new Participants();

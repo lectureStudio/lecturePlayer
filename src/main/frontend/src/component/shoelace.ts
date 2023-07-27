@@ -29,6 +29,3 @@ setBasePath('/');
 registerIconLibrary('default', {
 	resolver: name => `/icons/${name}.svg`
 });
-registerIconLibrary('system', {
-	resolver: name => `/icons/${name}.svg`
-});

@@ -3,9 +3,9 @@ import { customElement, property, query, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { participantBoxStyles } from './participants-box.styles';
-import { participants } from '../../model/participants';
+import { ParticipantSortProperty, ParticipantSortPropertyType, ParticipantSortPropertyUtil, participants } from '../../model/participants';
 import { PrivilegeService } from '../../service/privilege.service';
-import { SortOrder, ParticipantSortProperty, ParticipantSortPropertyType, ParticipantSortPropertyUtil, StringComparator, ParticipantTypeComparator } from '../../utils/sort';
+import { SortOrder, SortConfig, compare } from '../../utils/sort';
 import { CourseParticipant } from '../../model/course-state';
 import { SlMenu, SlMenuItem } from '@shoelace-style/shoelace';
 
@@ -21,10 +21,13 @@ export class ParticipantsBox extends I18nLitElement {
 	participants: CourseParticipant[] = [];
 
 	@state()
-	sortOrder = SortOrder.Ascending;
+	sortProperty = ParticipantSortProperty.LastName;
 
 	@state()
-	sortProperty = ParticipantSortProperty.LastName;
+	sortConfig: SortConfig<CourseParticipant> = {
+		order: SortOrder.Ascending,
+		comparators: []
+	};
 
 	@property()
 	privilegeService: PrivilegeService;
@@ -43,6 +46,8 @@ export class ParticipantsBox extends I18nLitElement {
 		participants.addEventListener("added", () => { this.setParticipants() }, false);
 		participants.addEventListener("removed", () => { this.setParticipants() }, false);
 		participants.addEventListener("cleared", () => { this.setParticipants() }, false);
+
+		this.setSortComparators(this.sortProperty);
 	}
 
 	protected render() {
@@ -98,26 +103,25 @@ export class ParticipantsBox extends I18nLitElement {
 
 	private sort(array: CourseParticipant[]) {
 		this.participants = array.sort(this.comparator.bind(this));
+		this.requestUpdate();
 	}
 
 	private setParticipants() {
 		this.sort([...participants.participants]);
-
-		this.requestUpdate();
 	}
 
 	private onSortOrder() {
-		this.sortOrder = (this.sortOrder === SortOrder.Ascending) ? SortOrder.Descending : SortOrder.Ascending
+		this.sortConfig.order = (this.sortConfig.order === SortOrder.Ascending) ? SortOrder.Descending : SortOrder.Ascending
 
 		this.sort(this.participants);
 	}
 
 	private getSortOrderIcon() {
-		return (this.sortOrder === SortOrder.Ascending) ? "sort-alpha-down-alt" : "sort-alpha-down";
+		return (this.sortConfig.order === SortOrder.Ascending) ? "sort-alpha-down-alt" : "sort-alpha-down";
 	}
 
 	private getSortOrderTooltip() {
-		return (this.sortOrder === SortOrder.Ascending) ? t("sort.descending") : t("sort.ascending");
+		return (this.sortConfig.order === SortOrder.Ascending) ? t("sort.descending") : t("sort.ascending");
 	}
 
 	private onSortProperty(event: CustomEvent) {
@@ -147,39 +151,64 @@ export class ParticipantsBox extends I18nLitElement {
 		}
 
 		this.sortProperty = property;
+		this.setSortComparators(property);
 
 		this.sort(this.participants);
 	}
 
-	private comparator(a: CourseParticipant, b: CourseParticipant): number {
-		let lhs = null;
-		let rhs = null;
-		let cpr = null;
+	private setSortComparators(sortProperty: ParticipantSortProperty) {
+		this.sortConfig.comparators = this.getSortComparators(sortProperty);
+	}
 
-		switch (this.sortProperty) {
+	private getSortComparators(sortProperty: ParticipantSortProperty) {
+		switch (sortProperty) {
 			case ParticipantSortProperty.FirstName:
-				lhs = a.firstName;
-				rhs = b.firstName;
-				cpr = StringComparator;
-				break;
+				return [this.FirstNameComparator, this.LastNameComparator];
 
 			case ParticipantSortProperty.LastName:
-				lhs = a.familyName;
-				rhs = b.familyName;
-				cpr = StringComparator;
-				break;
+				return [this.LastNameComparator, this.FirstNameComparator];
 
 			case ParticipantSortProperty.Affiliation:
-				lhs = a.participantType;
-				rhs = b.participantType;
-				cpr = ParticipantTypeComparator;
-				break;
+				return [this.ParticipantTypeComparator, this.FirstNameComparator];
 		}
-
-		if (this.sortOrder === SortOrder.Ascending) {
-			return cpr(lhs, rhs);
-		}
-
-		return cpr(rhs, lhs);
 	}
+
+	private comparator(a: CourseParticipant, b: CourseParticipant): number {
+		if (this.sortConfig.order === SortOrder.Ascending) {
+			return compare(this.sortConfig, a, b);
+		}
+
+		return compare(this.sortConfig, b, a);
+	}
+
+	private FirstNameComparator = (a: CourseParticipant, b: CourseParticipant) => {
+		return a.firstName.localeCompare(b.firstName);
+	};
+
+	private LastNameComparator = (a: CourseParticipant, b: CourseParticipant) => {
+		return a.familyName.localeCompare(b.familyName);
+	};
+
+	private ParticipantTypeComparator = (a: CourseParticipant, b: CourseParticipant) => {
+		const lhs = a.participantType;
+		const rhs = b.participantType;
+
+		if (lhs === rhs) {
+			return 0;
+		}
+		if (lhs === "ORGANISATOR") {
+			return 1;
+		}
+		if (rhs === "ORGANISATOR") {
+			return -1;
+		}
+		if (lhs === "CO_ORGANISATOR") {
+			return 1;
+		}
+		if (rhs === "CO_ORGANISATOR") {
+			return -1;
+		}
+
+		return 0;
+	};
 }
