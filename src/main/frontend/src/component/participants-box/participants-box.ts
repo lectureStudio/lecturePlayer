@@ -48,6 +48,7 @@ export class ParticipantsBox extends I18nLitElement {
 		participants.addEventListener("cleared", () => { this.setParticipants() }, false);
 
 		this.setSortComparators(this.sortProperty);
+		this.setParticipants();
 	}
 
 	protected render() {
