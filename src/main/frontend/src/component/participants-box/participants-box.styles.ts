@@ -4,6 +4,7 @@ export const participantBoxStyles = css`
 	:host {
 		display: flex;
 		flex-direction: column;
+		height: 100%;
 	}
 	header {
 		font-weight: 600;
@@ -46,20 +47,10 @@ export const participantBoxStyles = css`
 		padding: 0.15em 0.5em;
 	}
 	.participant-log > *:hover {
-		background-color: #F1F5F9;
-	}
-	.participant {
-		display: flex;
-		align-items: end;
+		background-color: var(--sl-color-sky-100);
 	}
 
 	sl-menu ::part(base) {
 		font-size: var(--sl-font-size-small);
-	}
-
-	[class^="icon-"],
-	[class*=" icon-"] {
-		font-size: 1.4em;
-		margin-left: auto;
 	}
 `;

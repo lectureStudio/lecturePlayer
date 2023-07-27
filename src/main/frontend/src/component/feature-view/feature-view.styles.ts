@@ -58,6 +58,9 @@ export const featureViewStyles = css`
 		width: 100%;
 		height: 100%;
 	}
+	.participants-container {
+		height: 100%;
+	}
 
 
 	@media (max-width: 400px) {

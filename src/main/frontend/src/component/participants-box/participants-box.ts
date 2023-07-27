@@ -1,11 +1,11 @@
 import { html } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
+import { repeat } from 'lit/directives/repeat.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { participantBoxStyles } from './participants-box.styles';
 import { participants } from '../../model/participants';
-import { course } from '../../model/course';
 import { PrivilegeService } from '../../service/privilege.service';
-import { SortOrder, ParticipantSortProperty, ParticipantSortPropertyType } from '../../utils/sort';
+import { SortOrder, ParticipantSortProperty, ParticipantSortPropertyType, ParticipantSortPropertyUtil, StringComparator, ParticipantTypeComparator } from '../../utils/sort';
 import { CourseParticipant } from '../../model/course-state';
 import { SlMenu, SlMenuItem } from '@shoelace-style/shoelace';
 
@@ -46,37 +46,6 @@ export class ParticipantsBox extends I18nLitElement {
 	}
 
 	protected render() {
-		const templates = [];
-
-		for (const participant of this.participants) {
-			let name = `${participant.firstName} ${participant.familyName}`;
-			let type;
-
-			if (participant.userId === course.userId) {
-				name += ` (${t("course.participants.me")})`;
-			}
-
-			switch (participant.participantType) {
-				case 'ORGANISATOR':
-				case 'CO_ORGANISATOR':
-					const lower = participant.participantType.toLowerCase();
-
-					type = html`
-						<span class="icon-${lower}" id="participant-type">
-							<ui-tooltip for="participant-type">${t("course.role." + lower)}</ui-tooltip>
-						</span>
-					`;
-					break;
-			}
-
-			templates.push(html`
-				<div class="participant">
-					<span>${name}</span>
-					${type}
-				</div>
-			`);
-		}
-
 		return html`
 			<header>
 				<span class="title">${t("course.participants")} (${this.participants.length})</span>
@@ -93,8 +62,24 @@ export class ParticipantsBox extends I18nLitElement {
 						</div>
 						<sl-menu @sl-select="${this.onSortProperty}" id="custom-sort-menu">
 							<sl-menu-label>${t("sort.by")}</sl-menu-label>
-							<sl-menu-item type="checkbox" value="FirstName" ?checked="${this.sortProperty === ParticipantSortProperty.FirstName}">${t("sort.by.first.name")}</sl-menu-item>
-							<sl-menu-item type="checkbox" value="LastName" ?checked="${this.sortProperty === ParticipantSortProperty.LastName}">${t("sort.by.last.name")}</sl-menu-item>
+							<sl-menu-item
+								type="checkbox"
+								value="${ParticipantSortPropertyUtil.toString(ParticipantSortProperty.FirstName)}"
+								?checked="${this.sortProperty === ParticipantSortProperty.FirstName}">
+									${t("sort.by.first.name")}
+							</sl-menu-item>
+							<sl-menu-item
+								type="checkbox"
+								value="${ParticipantSortPropertyUtil.toString(ParticipantSortProperty.LastName)}"
+								?checked="${this.sortProperty === ParticipantSortProperty.LastName}">
+									${t("sort.by.last.name")}
+							</sl-menu-item>
+							<sl-menu-item
+								type="checkbox"
+								value="${ParticipantSortPropertyUtil.toString(ParticipantSortProperty.Affiliation)}"
+								?checked="${this.sortProperty === ParticipantSortProperty.Affiliation}">
+									${t("sort.by.affiliation")}
+							</sl-menu-item>
 						</sl-menu>
 					</sl-dropdown>
 				</div>
@@ -102,7 +87,9 @@ export class ParticipantsBox extends I18nLitElement {
 			<section>
 				<div class="participants">
 					<div class="participant-log">
-						${templates}
+					${repeat(this.participants, (participant) => participant.userId, (participant, index) => html`
+						<course-participant .participant="${participant}"></course-participant>
+					`)}
 					</div>
 				</div>
 			</section>
@@ -167,23 +154,32 @@ export class ParticipantsBox extends I18nLitElement {
 	private comparator(a: CourseParticipant, b: CourseParticipant): number {
 		let lhs = null;
 		let rhs = null;
+		let cpr = null;
 
 		switch (this.sortProperty) {
 			case ParticipantSortProperty.FirstName:
 				lhs = a.firstName;
 				rhs = b.firstName;
+				cpr = StringComparator;
 				break;
 
 			case ParticipantSortProperty.LastName:
 				lhs = a.familyName;
 				rhs = b.familyName;
+				cpr = StringComparator;
+				break;
+
+			case ParticipantSortProperty.Affiliation:
+				lhs = a.participantType;
+				rhs = b.participantType;
+				cpr = ParticipantTypeComparator;
 				break;
 		}
 
 		if (this.sortOrder === SortOrder.Ascending) {
-			return lhs.localeCompare(rhs);
+			return cpr(lhs, rhs);
 		}
 
-		return rhs.localeCompare(lhs);
+		return cpr(rhs, lhs);
 	}
 }

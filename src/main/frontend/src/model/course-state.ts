@@ -19,6 +19,8 @@ export interface QuizState extends CourseFeatureState<QuizFeature> {
 
 }
 
+export type ParticipantType = "ORGANISATOR" | "CO_ORGANISATOR" | "PARTICIPANT";
+
 export interface CourseParticipant {
 
 	readonly userId: string;
@@ -27,7 +29,7 @@ export interface CourseParticipant {
 
 	readonly familyName: string;
 
-	readonly participantType: "ORGANISATOR" | "CO_ORGANISATOR" | "PARTICIPANT";
+	readonly participantType: ParticipantType;
 
 }
 

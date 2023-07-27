@@ -5,7 +5,7 @@ import { tooltipStyles } from './tooltip.styles';
 import tippy, { Instance, Props, sticky } from 'tippy.js';
 
 @customElement('ui-tooltip')
-export class PlayerLoading extends I18nLitElement {
+export class PlayerTooltip extends I18nLitElement {
 
 	static styles = [
 		tooltipStyles,
