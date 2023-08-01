@@ -8,6 +8,7 @@ import { FeatureViewController } from './feature-view.controller';
 import { featureViewStyles } from './feature-view.styles';
 import { course } from '../../model/course';
 import { SlSplitPanel, SlTab, SlTabGroup } from '@shoelace-style/shoelace';
+import { SwipeObserver } from '../../utils/swipe-observer';
 
 @customElement('player-feature-view')
 export class PlayerFeatureView extends I18nLitElement {
@@ -18,6 +19,8 @@ export class PlayerFeatureView extends I18nLitElement {
 	];
 
 	private controller = new FeatureViewController(this);
+
+	private swipeObserver: SwipeObserver;
 
 	private readonly maxWidth600Query: MediaQueryList;
 
@@ -65,6 +68,23 @@ export class PlayerFeatureView extends I18nLitElement {
 		this.requestUpdate();
 	}
 
+	protected firstUpdated(): void {
+		// Register and observe horizontal swipe events.
+		this.tabGroup.addEventListener("swiped-left", (e: CustomEvent) => {
+			const tabs = this.tabGroup.querySelectorAll("sl-tab");
+
+			this.selectTabSibling(tabs, -1);
+
+		});
+		this.tabGroup.addEventListener("swiped-right", (e: CustomEvent) => {
+			const tabs = this.tabGroup.querySelectorAll("sl-tab");
+
+			this.selectTabSibling(tabs, 1);
+		});
+
+		this.swipeObserver = new SwipeObserver(this.tabGroup);
+	}
+
 	protected willUpdate(changedProperties: PropertyValues): void {
 		super.willUpdate(changedProperties);
 
@@ -95,9 +115,9 @@ export class PlayerFeatureView extends I18nLitElement {
 					<div slot="end" class="center-container">
 						<div class="feature-container">
 							<sl-tab-group>
-								${this.renderChat()}
-								${this.renderQuiz()}
 								${this.renderParticipants()}
+								${this.renderQuiz()}
+								${this.renderChat()}
 							</sl-tab-group>
 						</div>
 					</div>
@@ -112,7 +132,9 @@ export class PlayerFeatureView extends I18nLitElement {
 		}
 
 		return html`
-			<sl-tab slot="nav" panel="chat">${t("course.feature.message")}</sl-tab>
+			<sl-tab slot="nav" panel="chat">
+				${t("course.feature.message")}
+			</sl-tab>
 			<sl-tab-panel name="chat">
 				<chat-box .messageService="${this.messageService}" .privilegeService="${this.privilegeService}"></chat-box>
 			</sl-tab-panel>
@@ -184,5 +206,20 @@ export class PlayerFeatureView extends I18nLitElement {
 			return this.tabGroup.querySelector("sl-tab:first-of-type");
 		}
 		return tab;
+	}
+
+	private selectTabSibling(tabs: NodeListOf<SlTab>, delta: number) {
+		for (let i = 0; i < tabs.length; i++) {
+			const tab = tabs[i];
+
+			if (tab.active) {
+				const nextTab = tabs[i + delta];
+
+				if (nextTab) {
+					this.tabGroup.show(nextTab.panel);
+					break;
+				}
+			}
+		}
 	}
 }
