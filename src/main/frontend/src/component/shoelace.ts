@@ -1,5 +1,6 @@
 export * from '@shoelace-style/shoelace/dist/themes/light.css';
 export * from '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
+export * from '@shoelace-style/shoelace/dist/components/badge/badge.js';
 export * from '@shoelace-style/shoelace/dist/components/button/button.js';
 export * from '@shoelace-style/shoelace/dist/components/checkbox/checkbox.js';
 export * from '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js';

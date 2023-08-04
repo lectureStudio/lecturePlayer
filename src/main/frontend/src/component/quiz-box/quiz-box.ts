@@ -1,14 +1,15 @@
 import { html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
-import { CourseFeatureResponse, QuizFeature } from '../../model/course-feature';
+import { CourseFeatureResponse } from '../../model/course-feature';
 import { QuizService } from '../../service/quiz.service';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { Toaster } from '../toast/toaster';
 import { quizBoxStyles } from './quiz-box.styles';
 import { QuizForm } from '../quiz-form/quiz-form';
+import { Component } from '../component';
 
 @customElement('quiz-box')
-export class QuizBox extends I18nLitElement {
+export class QuizBox extends Component {
 
 	static styles = [
 		I18nLitElement.styles,
@@ -17,9 +18,6 @@ export class QuizBox extends I18nLitElement {
 
 	@property()
 	courseId: number;
-
-	@property()
-	feature: QuizFeature;
 
 	@query('quiz-form')
 	quizForm: QuizForm;
@@ -64,7 +62,7 @@ export class QuizBox extends I18nLitElement {
 				${t("course.feature.quiz")}
 			</header>
 			<section part="section">
-				<quiz-form .feature="${this.feature}"></quiz-form>
+				<quiz-form></quiz-form>
 			</section>
 			<footer part="footer">
 				<sl-button @click="${this.post}" form="quiz-form" id="quiz-submit" size="small">

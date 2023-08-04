@@ -29,10 +29,12 @@ import { ToastGravity, ToastPosition } from '../toast/toast';
 import { Toaster } from '../toast/toaster';
 import { LecturePlayer } from './player';
 import { course } from '../../model/course';
-import { participants } from '../../model/participants';
-import { chatHistory } from '../../model/chat-history';
 import { ParticipantsModal } from '../participants-modal/participants.modal';
 import { VpnModal } from '../vpn-modal/vpn.modal';
+import { featureStore } from '../../store/feature.store';
+import { chatStore } from '../../store/chat.store';
+import { privilegeStore } from '../../store/privilege.store';
+import { participantStore } from '../../store/participants.store';
 
 export class PlayerController implements ReactiveController {
 
@@ -155,9 +157,12 @@ export class PlayerController implements ReactiveController {
 		course.title = state.title;
 		course.description = state.description;
 		course.userId = state.userId;
-		course.userPrivileges = state.userPrivileges;
-		course.chatFeature = state.messageFeature;
-		course.quizFeature = state.quizFeature;
+
+		privilegeStore.setPrivileges(state.userPrivileges);
+
+		featureStore.chatFeature = state.messageFeature;
+		featureStore.quizFeature = state.quizFeature;
+
 		course.documentMap = state.documentMap;
 		course.activeDocument = state.activeDocument;
 		course.mediaState = state.mediaState;
@@ -177,8 +182,8 @@ export class PlayerController implements ReactiveController {
 	private connect() {
 		console.log("connect");
 
-		participants.clear();
-		chatHistory.clear();
+		participantStore.clear();
+		chatStore.clear();
 
 		this.getCourseState()
 			.then(courseState => {
@@ -226,8 +231,8 @@ export class PlayerController implements ReactiveController {
 		this.playbackService.dispose();
 		this.viewController.setDisconnected();
 
-		participants.clear();
-		chatHistory.clear();
+		participantStore.clear();
+		chatStore.clear();
 	}
 
 	private setReconnecting() {
@@ -322,7 +327,6 @@ export class PlayerController implements ReactiveController {
 	private onQuizAction() {
 		const quizModal = new QuizModal();
 		quizModal.courseId = course.courseId;
-		quizModal.feature = course.quizFeature;
 
 		this.registerModal("QuizModal", quizModal);
 	}
@@ -331,7 +335,6 @@ export class PlayerController implements ReactiveController {
 		if (this.maxWidth576Query.matches) {
 			const chatModal = new ChatModal();
 			chatModal.messageService = this.messageService;
-			chatModal.privilegeService = this.privilegeService;
 
 			this.registerModal("ChatModal", chatModal);
 		}
@@ -373,15 +376,15 @@ export class PlayerController implements ReactiveController {
 
 		promises.push(this.getParticipants());
 
-		if (course.chatFeature != null) {
+		if (featureStore.hasChatFeature()) {
 			promises.push(this.getChatHistory());
 		}
 
 		Promise.all(promises).then(values => {
-			participants.participants = values[0];
+			participantStore.setParticipants(values[0]);
 
 			if (values.length > 1) {
-				chatHistory.history = values[1].messages;
+				chatStore.setMessages(values[1].messages);
 			}
 		});
 	}
@@ -393,7 +396,7 @@ export class PlayerController implements ReactiveController {
 			return;
 		}
 
-		course.chatFeature = state.started ? state.feature : null;
+		featureStore.setChatFeature(state.started ? state.feature : null);
 
 		if (state.started) {
 			this.fetchState();
@@ -401,7 +404,7 @@ export class PlayerController implements ReactiveController {
 		else {
 			this.closeAndDeleteModal("ChatModal");
 
-			chatHistory.clear();
+			chatStore.clear();
 		}
 
 		if (this.isClassroomProfile() || !this.hasStream()) {
@@ -420,7 +423,7 @@ export class PlayerController implements ReactiveController {
 			this.closeAndDeleteModal("QuizModal");
 		}
 
-		course.quizFeature = state.started ? state.feature : null;
+		featureStore.setQuizFeature(state.started ? state.feature : null);
 
 		if (this.isClassroomProfile() || !this.hasStream()) {
 			this.updateConnectionState();
@@ -468,8 +471,9 @@ export class PlayerController implements ReactiveController {
 			this.closeAllModals();
 
 			course.activeDocument = null;
-			course.chatFeature = null;
-			course.quizFeature = null;
+
+			featureStore.setChatFeature(null);
+			featureStore.setQuizFeature(null);
 
 			this.janusServiceState = State.DISCONNECTED;
 
@@ -502,10 +506,10 @@ export class PlayerController implements ReactiveController {
 		}
 
 		if (participant.presence === "CONNECTED") {
-			participants.add(participant);
+			participantStore.addParticipant(participant);
 		}
 		else if (participant.presence === "DISCONNECTED") {
-			participants.remove(participant);
+			participantStore.removeParticipant(participant);
 		}
 	}
 
@@ -515,7 +519,7 @@ export class PlayerController implements ReactiveController {
 
 	private updateConnectionState() {
 		const isClassroom = this.isClassroomProfile();
-		const hasFeatures = course.chatFeature != null || course.quizFeature != null;
+		const hasFeatures = featureStore.hasChatFeature() || featureStore.hasQuizFeature();
 
 		if (this.hasStream() && !isClassroom) {
 			this.setConnectionState(State.CONNECTED);

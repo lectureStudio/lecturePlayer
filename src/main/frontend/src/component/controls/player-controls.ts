@@ -1,10 +1,12 @@
 import { html } from 'lit';
+import { autorun } from 'mobx';
 import { customElement, property, query } from 'lit/decorators.js';
 import { PrivilegeService } from '../../service/privilege.service';
 import { Utils } from '../../utils/utils';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { playerControlsStyles } from './player-controls.styles';
-import { course } from '../../model/course';
+import { featureStore } from '../../store/feature.store';
+import { privilegeStore } from '../../store/privilege.store';
 
 @customElement('player-controls')
 export class PlayerControls extends I18nLitElement {
@@ -59,14 +61,16 @@ export class PlayerControls extends I18nLitElement {
 	override connectedCallback() {
 		super.connectedCallback()
 
-		course.addEventListener("course-chat-feature", this.onChatState.bind(this));
-		course.addEventListener("course-quiz-feature", this.onQuizState.bind(this));
-		course.addEventListener("course-user-privileges", () => {
-			this.hasParticipants = this.privilegeService.canViewParticipants();
+		autorun(() => {
+			this.hasParticipants = privilegeStore.canViewParticipants();
 		});
 
-		this.hasChat = course.chatFeature != null && course.chatFeature.featureId != null;
-		this.hasQuiz = course.quizFeature != null && course.quizFeature.featureId != null;
+		autorun(() => {
+			this.hasChat = featureStore.hasChatFeature();
+			this.hasQuiz = featureStore.hasQuizFeature();
+
+			this.requestUpdate();
+		});
 	}
 
 	protected firstUpdated(): void {
@@ -122,16 +126,6 @@ export class PlayerControls extends I18nLitElement {
 		this.dispatchEvent(Utils.createEvent("player-hand-action", {
 			handUp: this.handUp
 		}));
-	}
-
-	private onChatState() {
-		this.hasChat = course.chatFeature != null && course.chatFeature.featureId != null;
-		this.requestUpdate();
-	}
-
-	private onQuizState() {
-		this.hasQuiz = course.quizFeature != null && course.quizFeature.featureId != null;
-		this.requestUpdate();
 	}
 
 	private onQuiz(): void {

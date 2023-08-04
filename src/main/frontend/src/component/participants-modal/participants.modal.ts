@@ -15,7 +15,7 @@ export class ParticipantsModal extends Modal {
 		return html`
 			<web-dialog @open="${this.opened}" ?open="${this.show}" @close="${this.closed}" @closing="${this.closing}">
 				<article>
-					<participants-box .privilegeService="${this.privilegeService}"></participants-box>
+					<participants-box></participants-box>
 				</article>
 				<footer>
 					<button type="button" @click="${this.close}" class="btn btn-outline-secondary btn-sm">

@@ -8,11 +8,12 @@ import { ParticipantView } from '../participant-view/participant-view';
 import { SlideView } from '../slide-view/slide-view';
 import { PlayerViewController } from './player-view.controller';
 import { playerViewStyles } from './player-view.styles';
-import { course } from '../../model/course';
 import { ScreenView } from '../screen-view/screen-view';
 import { SlideLayout } from '../../model/slide-layout';
 import { State } from '../../utils/state';
 import Split from 'split.js'
+import { autorun } from 'mobx';
+import { privilegeStore } from '../../store/privilege.store';
 
 @customElement('player-view')
 export class PlayerView extends I18nLitElement {
@@ -97,8 +98,8 @@ export class PlayerView extends I18nLitElement {
 	override connectedCallback() {
 		super.connectedCallback()
 
-		course.addEventListener("course-user-privileges", () => {
-			this.participantsVisible = this.privilegeService.canViewParticipants();
+		autorun(() => {
+			this.participantsVisible = privilegeStore.canViewParticipants();
 		});
 
 		this.addEventListener("screen-view-video", (event: CustomEvent) => {
@@ -180,7 +181,7 @@ export class PlayerView extends I18nLitElement {
 				<div class="left-container">
 					<div class="feature-container">
 						${this.privilegeService.canViewParticipants() ? html`
-						<participants-box .privilegeService="${this.privilegeService}"></participants-box>
+						<participants-box></participants-box>
 						` : ''}
 					</div>
 				</div>
@@ -198,7 +199,7 @@ export class PlayerView extends I18nLitElement {
 					</div>
 					<div class="feature-container">
 						${this.privilegeService.canUseChat() ? html`
-						<chat-box .messageService="${this.messageService}" .privilegeService="${this.privilegeService}"></chat-box>
+						<chat-box .messageService="${this.messageService}"></chat-box>
 						` : ''}
 					</div>
 				</div>

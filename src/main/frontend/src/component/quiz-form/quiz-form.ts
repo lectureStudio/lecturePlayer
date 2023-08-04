@@ -3,19 +3,18 @@ import { when } from "lit/directives/when.js";
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { customElement, property } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
-import { CourseFeatureResponse, QuizFeature, QuizMinMaxRule, QuizType } from '../../model/course-feature';
+import { CourseFeatureResponse, QuizMinMaxRule, QuizType } from '../../model/course-feature';
 import { quizFormStyles } from './quiz-form.styles';
+import { featureStore } from '../../store/feature.store';
+import { Component } from '../component';
 
 @customElement('quiz-form')
-export class QuizForm extends I18nLitElement {
+export class QuizForm extends Component {
 
 	static styles = [
 		I18nLitElement.styles,
 		quizFormStyles,
 	];
-
-	@property()
-	feature: QuizFeature;
 
 	@property()
 	fieldErrors: any = {};
@@ -26,12 +25,13 @@ export class QuizForm extends I18nLitElement {
 	}
 
 	render() {
+		const feature = featureStore.quizFeature;
 		const itemTemplates = new Array<TemplateResult>();
-		const inputRules = this.feature.fieldFilter?.rules;
-		const type = this.feature?.type;
+		const inputRules = feature?.fieldFilter?.rules;
+		const type = feature?.type;
 
 		if (type === QuizType.Multiple) {
-			this.feature?.options.forEach((option: string, index: number) => {
+			feature?.options.forEach((option: string, index: number) => {
 				itemTemplates.push(html`
 					<sl-checkbox name="options" class="quiz-option" value="${index}" id="option-${index}">${option}</sl-checkbox>
 				`);
@@ -40,14 +40,14 @@ export class QuizForm extends I18nLitElement {
 		else if (type === QuizType.Single) {
 			itemTemplates.push(html`
 				<sl-radio-group name="options" class="quiz-option">
-					${this.feature?.options.map((option: string, index: number) =>
+					${feature?.options.map((option: string, index: number) =>
 						html`<sl-radio value="${index}" id="option-${index}">${option}</sl-radio>`
 					)}
 				</sl-radio-group>
 			`);
 		}
 		else if (type === QuizType.Numeric) {
-			this.feature?.options.forEach((option: string, index: number) => {
+			feature?.options.forEach((option: string, index: number) => {
 				// Currently there is only one rule implemented for the numeric type.
 				const rule = inputRules[index] as QuizMinMaxRule;
 				const error = this.fieldErrors[index];
@@ -70,10 +70,10 @@ export class QuizForm extends I18nLitElement {
 
 		return html`
 			<form id="quiz-form">
-				<input type="hidden" name="serviceId" value="${this.feature?.featureId}" />
+				<input type="hidden" name="serviceId" value="${feature?.featureId}" />
 
 				<div class="quiz-question">
-					${unsafeHTML(this.feature?.question)}
+					${unsafeHTML(feature?.question)}
 				</div>
 				<div class="quiz-options">
 					${itemTemplates}

@@ -1,23 +1,22 @@
 import { html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { when } from 'lit/directives/when.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { chatMessageStyles } from './chat-message.styles';
+import { Component } from '../component';
+import { ChatMessage, DirectChatMessage } from '../../service/message.service';
+import { course } from '../../model/course';
 
-@customElement('chat-message')
-export class ChatMessage extends I18nLitElement {
+@customElement('chat-box-message')
+export class ChatBoxMessage extends Component {
 
 	static styles = [
 		I18nLitElement.styles,
 		chatMessageStyles,
 	];
 
-	timestamp: string;
-
-	content: string;
-
-	sender: string;
-
-	recipient: string;
+	@property()
+	message: ChatMessage;
 
 	@property({ type: Boolean, reflect: true })
 	myself: boolean;
@@ -25,28 +24,30 @@ export class ChatMessage extends I18nLitElement {
 	@property({ type: Boolean, reflect: true })
 	private: boolean;
 
+	timestamp: string;
 
-	protected render() {
-		let src;
+	content: string;
 
-		if (this.private) {
-			src = t("course.feature.message.recipient", {
-				sender: this.sender,
-				recipient: this.recipient
-			});
-		}
-		else {
-			src = this.sender;
-		}
+	sender: string;
 
+
+	protected override firstUpdated() {
+		this.private = this.message._type === "MessengerDirectMessage";
+		this.timestamp = ChatBoxMessage.getMessageDate(this.message);
+		this.sender = ChatBoxMessage.getMessageSender(this.message, this.private);
+		this.content = this.message.text;
+		this.myself = this.message.userId === course.userId;
+	}
+
+	protected override render() {
 		return html`
 			<div class="message-head">
 				<span class="message-time">${this.timestamp}</span>
-				<span class="message-sender">${src}</span>
+				<span class="message-sender">${this.sender}</span>
 
-				${this.private ? html`
-				<span class="message-private">${t("course.feature.message.privately")}</span>
-				` : ''}
+				${when(this.private, () => html`
+					<span class="message-private">${t("course.feature.message.privately")}</span>
+				`)}
 			</div>
 			<div class="chat-message-boxed">
 				<div class="chat-message-content">
@@ -54,5 +55,35 @@ export class ChatMessage extends I18nLitElement {
 				</div>
 			</div>
 		`;
+	}
+
+	private static getMessageRecipient(message: DirectChatMessage) {
+		const toMe = message.recipientId === course.userId;
+		const toOrganisers = message.recipientId === "organisers";
+
+		return toMe
+			? `${t("course.feature.message.to.me")}`
+			: toOrganisers
+				? `${t("course.feature.message.to.organisers")}`
+				: `${message.recipientFirstName} ${message.recipientFamilyName}`;
+	}
+
+	private static getMessageSender(message: ChatMessage, direct: boolean) {
+		const byMe = message.userId === course.userId;
+		const sender = byMe ? `${t("course.feature.message.me")}` : `${message.firstName} ${message.familyName}`;
+		const recipient = direct ? ChatBoxMessage.getMessageRecipient(message as DirectChatMessage) : null;
+
+		if (direct) {
+			return t("course.feature.message.recipient", {
+				sender: sender,
+				recipient: recipient
+			});
+		}
+
+		return sender;
+	}
+
+	private static getMessageDate(message: ChatMessage) {
+		return new Date(message.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 	}
 }

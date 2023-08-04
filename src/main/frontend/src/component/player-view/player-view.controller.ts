@@ -3,6 +3,8 @@ import { State } from "../../utils/state";
 import { ParticipantView } from "../participant-view/participant-view";
 import { PlayerView } from "./player-view";
 import { course } from '../../model/course';
+import { featureStore } from "../../store/feature.store";
+import { autorun } from "mobx";
 
 interface BreakpointConfig {
 
@@ -33,15 +35,21 @@ export class PlayerViewController implements ReactiveController {
 	}
 
 	hostConnected() {
-		course.addEventListener("course-chat-feature", this.onChatState.bind(this));
-		course.addEventListener("course-quiz-feature", this.onQuizState.bind(this));
+		autorun(() => {
+			this.host.chatVisible = featureStore.hasChatFeature();
+			this.host.requestUpdate();
+		});
+		autorun(() => {
+			featureStore.hasQuizFeature();
+			this.host.requestUpdate();
+		});
 
 		document.addEventListener("participant-state", this.onParticipantState.bind(this));
 
 		this.host.addEventListener("player-chat-visibility", this.onChatVisibility.bind(this), false);
 		this.host.addEventListener("player-participants-visibility", this.onParticipantsVisibility.bind(this), false);
 
-		this.host.chatVisible = course.chatFeature != null;
+		this.host.chatVisible = featureStore.hasChatFeature();
 
 		this.breakpointConfig = {
 			chatVisible: this.host.chatVisible,
@@ -68,15 +76,6 @@ export class PlayerViewController implements ReactiveController {
 		window.clearInterval(this.clockIntervalId);
 
 		this.host.cleanup();
-	}
-
-	private onChatState() {
-		this.host.chatVisible = course.chatFeature != null;
-		this.host.requestUpdate();
-	}
-
-	private onQuizState() {
-		this.host.requestUpdate();
 	}
 
 	private onParticipantState(event: CustomEvent) {

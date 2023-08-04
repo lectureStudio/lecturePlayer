@@ -35,7 +35,19 @@ export const featureViewStyles = css`
 	:host(:not([participantsVisible])) .left-container {
 		display: none;
 	}
+	:host(:not([unreadMessagesVisible])) sl-tab sl-badge {
+		display: none;
+	}
 
+	sl-tab {
+		position: relative;
+	}
+	sl-tab sl-badge {
+		position: absolute;
+		right: 0px;
+		translate: 50% -50%;
+		pointer-events: none;
+	}
 	sl-split-panel,
 	sl-tab-group {
 		width: 100%;
@@ -64,9 +76,7 @@ export const featureViewStyles = css`
 
 
 	@media (max-width: 400px) {
-		.feature-container {
-			padding: 0 0.5rem;
-		}
+		
 	}
 	@media (max-width: 600px) {
 		:host #outer-split-panel {
@@ -75,6 +85,9 @@ export const featureViewStyles = css`
 		:host #outer-split-panel::part(divider),
 		:host .left-container {
 			display: none;
+		}
+		.feature-container {
+			padding: 0 0.5rem;
 		}
 	}
 	@media (min-width: 992px) {

@@ -18,6 +18,10 @@ export interface SwipeObserverConfig {
  */
 export class SwipeObserver {
 
+	private touchStartHandler = this.handleTouchStart.bind(this);
+	private touchMoveHandler = this.handleTouchMove.bind(this);
+	private touchEndHandler = this.handleTouchEnd.bind(this);
+
 	private config: SwipeObserverConfig;
 	private xDown: number = null;
 	private yDown: number = null;
@@ -25,23 +29,46 @@ export class SwipeObserver {
 	private yDiff: number = null;
 	private timeDown: number = null;
 	private startEl: HTMLElement = null;
+	private target: HTMLElement = null;
 
 
 	/**
-	 * Create a new SwipeObserver for the given element to observe.
+	 * Create a new SwipeObserver with the criteria given by the provided options.
 	 * 
-	 * @param {object} element - the element to observe.
+	 * @param {object} config - the element to observe.
 	 */
-	constructor(element: HTMLElement, config?: SwipeObserverConfig) {
+	constructor(config?: SwipeObserverConfig) {
 		this.config = config || {
 			threshold: 20,
 			timeout: 500,
 			unit: "px"
 		};
+	}
 
-		element.addEventListener('touchstart', this.handleTouchStart.bind(this), false);
-		element.addEventListener('touchmove', this.handleTouchMove.bind(this), false);
-		element.addEventListener('touchend', this.handleTouchEnd.bind(this), false);
+	/**
+	 * Observe the given target element and report any swipe gestures based on the criteria given by options.
+	 * 
+	 * @param {object} target - the element to observe.
+	 */
+	observe(target: HTMLElement) {
+		this.target = target;
+
+		target.addEventListener("touchstart", this.touchStartHandler, false);
+		target.addEventListener("touchmove", this.touchMoveHandler, false);
+		target.addEventListener("touchend", this.touchEndHandler, false);
+	}
+
+	/**
+	 * Stops observing any swipe gestures.
+	 */
+	disconnect() {
+		if (!this.target) {
+			return;
+		}
+
+		this.target.removeEventListener("touchstart", this.touchStartHandler);
+		this.target.removeEventListener("touchmove", this.touchMoveHandler);
+		this.target.removeEventListener("touchend", this.touchEndHandler);
 	}
 
 	/**

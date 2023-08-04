@@ -2,7 +2,7 @@ import { html } from "lit";
 import { Modal } from "../modal/modal";
 import { customElement, property, query } from "lit/decorators.js";
 import { t } from '../i18n-mixin';
-import { CourseFeatureResponse, QuizFeature } from "../../model/course-feature";
+import { CourseFeatureResponse } from "../../model/course-feature";
 import { QuizService } from "../../service/quiz.service";
 import { Toaster } from "../toast/toaster";
 import { QuizForm } from "../quiz-form/quiz-form";
@@ -12,9 +12,6 @@ export class QuizModal extends Modal {
 
 	@property()
 	courseId: number;
-
-	@property()
-	feature: QuizFeature;
 
 	@query('quiz-form')
 	quizForm: QuizForm;
@@ -62,7 +59,7 @@ export class QuizModal extends Modal {
 					<span>${t("course.feature.quiz")}</span>
 				</header>
 				<article>
-					<quiz-form .feature="${this.feature}"></quiz-form>
+					<quiz-form></quiz-form>
 				</article>
 				<footer>
 					<button type="button" @click="${this.close}" class="btn btn-outline-secondary btn-sm">

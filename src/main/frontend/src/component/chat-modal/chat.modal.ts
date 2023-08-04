@@ -3,7 +3,6 @@ import { Modal } from "../modal/modal";
 import { customElement, property } from "lit/decorators.js";
 import { t } from '../i18n-mixin';
 import { MessageService } from "../../service/message.service";
-import { PrivilegeService } from "../../service/privilege.service";
 import { chatModalStyles } from "./chat.modal.tyles";
 import { ChatBox } from "../chat-box/chat-box";
 
@@ -18,9 +17,6 @@ export class ChatModal extends Modal {
 	@property()
 	messageService: MessageService;
 
-	@property()
-	privilegeService: PrivilegeService;
-
 
 	protected post() {
 		const chatBox: ChatBox = this.shadowRoot.querySelector("chat-box");
@@ -31,7 +27,7 @@ export class ChatModal extends Modal {
 		return html`
 			<web-dialog @open="${this.opened}" ?open="${this.show}" @close="${this.closed}" @closing="${this.closing}">
 				<article>
-					<chat-box .messageService="${this.messageService}" .privilegeService="${this.privilegeService}"></chat-box>
+					<chat-box .messageService="${this.messageService}"></chat-box>
 				</article>
 				<footer>
 					<button type="button" @click="${this.close}" class="btn btn-outline-secondary btn-sm">

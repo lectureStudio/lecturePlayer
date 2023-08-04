@@ -57,7 +57,7 @@ export class LecturePlayer extends I18nLitElement {
 		return html`
 			<player-loading .text="${t("course.loading")}"></player-loading>
 			<player-view .messageService="${this.messageService}" .privilegeService="${this.privilegeService}"></player-view>
-			<player-feature-view .messageService="${this.messageService}" .privilegeService="${this.privilegeService}"></player-feature-view>
+			<player-feature-view .messageService="${this.messageService}"></player-feature-view>
 			<player-offline .description="${this.description}"></player-offline>
 		`;
 	}

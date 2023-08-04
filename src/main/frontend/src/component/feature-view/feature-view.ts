@@ -2,33 +2,31 @@ import { PropertyValues, html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { MessageService } from '../../service/message.service';
-import { PrivilegeService } from '../../service/privilege.service';
 import { I18nLitElement, t } from '../i18n-mixin';
-import { FeatureViewController } from './feature-view.controller';
 import { featureViewStyles } from './feature-view.styles';
 import { course } from '../../model/course';
-import { SlSplitPanel, SlTab, SlTabGroup } from '@shoelace-style/shoelace';
+import { SlSplitPanel, SlTab, SlTabGroup, SlTabHideEvent } from '@shoelace-style/shoelace';
 import { SwipeObserver } from '../../utils/swipe-observer';
+import { Component } from '../component';
+import { featureStore } from '../../store/feature.store';
+import { autorun } from 'mobx';
+import { privilegeStore } from '../../store/privilege.store';
+import { chatStore } from '../../store/chat.store';
 
 @customElement('player-feature-view')
-export class PlayerFeatureView extends I18nLitElement {
+export class PlayerFeatureView extends Component {
 
 	static styles = [
 		I18nLitElement.styles,
 		featureViewStyles,
 	];
 
-	private controller = new FeatureViewController(this);
-
-	private swipeObserver: SwipeObserver;
+	private tabSwipeObserver: SwipeObserver;
 
 	private readonly maxWidth600Query: MediaQueryList;
 
 	@property()
 	messageService: MessageService;
-
-	@property()
-	privilegeService: PrivilegeService;
 
 	@query("#outer-split-panel")
 	outerSplitPanel: SlSplitPanel;
@@ -36,12 +34,21 @@ export class PlayerFeatureView extends I18nLitElement {
 	@query("sl-tab-group")
 	tabGroup: SlTabGroup;
 
-	@property({ reflect: true })
+	@property({ type: Boolean, reflect: true })
 	participantsVisible: boolean = true;
+
+	@property({ type: Boolean, reflect: true })
+	unreadMessagesVisible: boolean = false;
+
+	unreadMessagesExist: boolean = false;
 
 	section: string = "chat";
 
+	prevSection: string = null;
+
 	isCompactMode: boolean = false;
+
+	isChatVisible: boolean = false;
 
 	hasChat: boolean = false;
 
@@ -51,6 +58,8 @@ export class PlayerFeatureView extends I18nLitElement {
 	constructor() {
 		super();
 
+		this.tabSwipeObserver = new SwipeObserver();
+
 		// Matches with the css query.
 		this.maxWidth600Query = window.matchMedia("(max-width: 600px)");
 		this.maxWidth600Query.onchange = (event) => {
@@ -58,23 +67,71 @@ export class PlayerFeatureView extends I18nLitElement {
 		};
 
 		this.isCompactMode = this.maxWidth600Query.matches;
+
+		autorun(async () => {
+			this.hasChat = featureStore.hasChatFeature();
+
+			if (!this.hasChat) {
+				// Chat is gone.
+				this.section = this.section === "chat" ? this.prevSection : this.section;
+			}
+
+			this.refresh();
+		});
+		autorun(async () => {
+			this.hasQuiz = featureStore.hasQuizFeature();
+
+			if (this.hasQuiz) {
+				// Quiz has been started, show it automatically.
+				this.section = "quiz";
+			}
+			else {
+				// Quiz is gone.
+				this.section = this.section === "quiz" ? this.prevSection : this.section;
+			}
+
+			this.refresh();
+		});
+		autorun(() => {
+			this.participantsVisible = privilegeStore.canViewParticipants();
+
+			this.requestUpdate();
+		});
 	}
 
-	async refresh() {
-		this.updateState();
-		this.requestUpdate();
-		// Update once again for smooth tab selection as tabs come and go.
-		await this.updateComplete;
-		this.requestUpdate();
+	override disconnectedCallback() {
+		this.tabSwipeObserver.disconnect();
+
+		super.disconnectedCallback();
+	}
+
+	protected willUpdate(): void {
+		// Check if all received messages have been read or at least visible to the user.
+		if (this.unreadMessagesExist && chatStore.unreadMessages === 0) {
+			this.unreadMessagesExist = false;
+		}
+
+		if (this.isChatVisible) {
+			this.unreadMessagesVisible = this.unreadMessagesExist;
+		}
+		else {
+			this.unreadMessagesVisible = chatStore.unreadMessages > 0;
+		}
 	}
 
 	protected firstUpdated(): void {
+		this.tabGroup.addEventListener("sl-tab-show", (e: SlTabHideEvent) => {
+			this.section = e.detail.name;
+		});
+		this.tabGroup.addEventListener("sl-tab-hide", (e: SlTabHideEvent) => {
+			this.prevSection = e.detail.name;
+		});
+
 		// Register and observe horizontal swipe events.
 		this.tabGroup.addEventListener("swiped-left", (e: CustomEvent) => {
 			const tabs = this.tabGroup.querySelectorAll("sl-tab");
 
 			this.selectTabSibling(tabs, -1);
-
 		});
 		this.tabGroup.addEventListener("swiped-right", (e: CustomEvent) => {
 			const tabs = this.tabGroup.querySelectorAll("sl-tab");
@@ -82,17 +139,17 @@ export class PlayerFeatureView extends I18nLitElement {
 			this.selectTabSibling(tabs, 1);
 		});
 
-		this.swipeObserver = new SwipeObserver(this.tabGroup);
+		this.tabSwipeObserver.observe(this.tabGroup);
 	}
 
-	protected willUpdate(changedProperties: PropertyValues): void {
-		super.willUpdate(changedProperties);
+	protected updated(changedProperties: PropertyValues): void {
+		super.updated(changedProperties);
 
 		if (this.tabGroup) {
 			let showSection = this.section;
-			let tab: SlTab = this.tabGroup.querySelector(`sl-tab[panel=${this.section}]`);
+			let tab: SlTab = this.tabGroup.querySelector(`sl-tab[panel=${showSection}]`);
 
-			tab = this.checkOrGetDefault(tab);
+			tab = this.checkOrGetDefaultTab(tab);
 			if (tab) {
 				showSection = tab.panel;
 			}
@@ -134,9 +191,10 @@ export class PlayerFeatureView extends I18nLitElement {
 		return html`
 			<sl-tab slot="nav" panel="chat">
 				${t("course.feature.message")}
+				<sl-badge pill>${chatStore.unreadMessages}</sl-badge>
 			</sl-tab>
 			<sl-tab-panel name="chat">
-				<chat-box .messageService="${this.messageService}" .privilegeService="${this.privilegeService}"></chat-box>
+				<chat-box @chat-visibility="${this.onChatVisibility}" .messageService="${this.messageService}"></chat-box>
 			</sl-tab-panel>
 		`;
 	}
@@ -147,9 +205,11 @@ export class PlayerFeatureView extends I18nLitElement {
 		}
 
 		return html`
-			<sl-tab slot="nav" panel="quiz">${t("course.feature.quiz")}</sl-tab>
+			<sl-tab slot="nav" panel="quiz">
+				${t("course.feature.quiz")}
+			</sl-tab>
 			<sl-tab-panel name="quiz">
-				<quiz-box .courseId="${course.courseId}" .feature="${course.quizFeature}"></quiz-box>	
+				<quiz-box .courseId="${course.courseId}"></quiz-box>	
 			</sl-tab-panel>
 		`;
 	}
@@ -167,18 +227,11 @@ export class PlayerFeatureView extends I18nLitElement {
 		`;
 	}
 
-	private updateState() {
-		if (this.privilegeService) {
-			this.participantsVisible = this.privilegeService.canViewParticipants();
-
-			this.hasChat = this.privilegeService.canReadMessages() ? (course.chatFeature != null) : false;
-			this.hasQuiz = this.privilegeService.canParticipateInQuiz() ? (course.quizFeature != null) : false;
-		}
-
-		const tab: SlTab = this.tabGroup.querySelector("sl-tab[active]");
-
-		// Quiz has priority.
-		this.section = this.hasQuiz ? "quiz" : (tab ? tab.panel : this.section);
+	private async refresh() {
+		this.requestUpdate();
+		// Update once again for smooth tab selection as tabs come and go.
+		await this.updateComplete;
+		this.requestUpdate();
 	}
 
 	private onCompactLayout(compact: boolean) {
@@ -191,8 +244,8 @@ export class PlayerFeatureView extends I18nLitElement {
 			this.section = tab.panel;
 		}
 		else {
-			// Select first tab as default one.
-			tab = this.checkOrGetDefault(null);
+			// Participants tab is selected and disapeared due to layout change.
+			tab = this.checkOrGetDefaultTab(null);
 			if (tab) {
 				this.section = tab.panel;
 			}
@@ -201,9 +254,27 @@ export class PlayerFeatureView extends I18nLitElement {
 		this.requestUpdate();
 	}
 
-	private checkOrGetDefault(tab: SlTab): SlTab {
+	private onChatVisibility(event: CustomEvent) {
+		this.isChatVisible = event.detail.visible;
+
+		if (this.isChatVisible) {
+			this.unreadMessagesVisible = chatStore.unreadMessages > 0;
+
+			if (this.unreadMessagesVisible) {
+				this.unreadMessagesExist = true;
+			}
+		}
+		else {
+			this.unreadMessagesVisible = false;
+		}
+	}
+
+	private checkOrGetDefaultTab(tab: SlTab): SlTab {
 		if (!tab) {
-			return this.tabGroup.querySelector("sl-tab:first-of-type");
+			tab = this.tabGroup.querySelector(`sl-tab[panel=${this.prevSection}]`);
+			if (!tab) {
+				tab = this.tabGroup.querySelectorAll("sl-tab:not([panel=participants])").item(0) as SlTab;
+			}
 		}
 		return tab;
 	}

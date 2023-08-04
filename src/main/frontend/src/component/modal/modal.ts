@@ -1,10 +1,11 @@
+import { Component } from "../component";
 import { property } from "lit/decorators.js";
 import { Utils } from "../../utils/utils";
 import { I18nLitElement } from "../i18n-mixin";
 import { modalStyles } from "./modal.styles";
 import "web-dialog/index";
 
-export abstract class Modal extends I18nLitElement {
+export abstract class Modal extends Component {
 
 	static styles = [
 		I18nLitElement.styles,

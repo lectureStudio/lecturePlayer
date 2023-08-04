@@ -18,17 +18,9 @@ export class ParticipantItem extends I18nLitElement {
 
 
 	protected render() {
-		let name = `${this.participant.firstName} ${this.participant.familyName}`;
-
-		if (this.participant.userId === course.userId) {
-			name += ` (${t("course.participants.me")})`;
-		}
-
-		const initials = `${this.participant.firstName.charAt(0)}${this.participant.familyName.charAt(0)}`;
-
 		return html`
-			<sl-avatar shape="rounded" initials="${initials}" label="${name}"></sl-avatar>
-			<span>${name}</span>
+			<sl-avatar shape="rounded" initials="${ParticipantItem.getInitials(this.participant)}"></sl-avatar>
+			<span>${ParticipantItem.getName(this.participant)}</span>
 			${this.renderType()}
 		`;
 	}
@@ -45,5 +37,19 @@ export class ParticipantItem extends I18nLitElement {
 		}
 
 		return null;
+	}
+
+	static getInitials(participant: CourseParticipant) {
+		return `${participant.firstName.charAt(0)}${participant.familyName.charAt(0)}`;
+	}
+
+	static getName(participant: CourseParticipant) {
+		let name = `${participant.firstName} ${participant.familyName}`;
+
+		if (participant.userId === course.userId) {
+			name += ` (${t("course.participants.me")})`;
+		}
+
+		return name;
 	}
 }

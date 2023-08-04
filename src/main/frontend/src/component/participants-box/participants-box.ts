@@ -1,24 +1,21 @@
 import { html } from 'lit';
-import { customElement, property, query, state } from 'lit/decorators.js';
+import { customElement, query, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { participantBoxStyles } from './participants-box.styles';
-import { ParticipantSortProperty, ParticipantSortPropertyType, ParticipantSortPropertyUtil, participants } from '../../model/participants';
-import { PrivilegeService } from '../../service/privilege.service';
-import { SortOrder, SortConfig, compare } from '../../utils/sort';
+import { SortOrder, SortConfig } from '../../utils/sort';
 import { CourseParticipant } from '../../model/course-state';
 import { SlMenu, SlMenuItem } from '@shoelace-style/shoelace';
+import { FirstNameComparator, LastNameComparator, ParticipantSortProperty, ParticipantSortPropertyType, ParticipantSortPropertyUtil, ParticipantTypeComparator, participantStore } from '../../store/participants.store';
+import { Component } from '../component';
 
 @customElement('participants-box')
-export class ParticipantsBox extends I18nLitElement {
+export class ParticipantsBox extends Component {
 
 	static styles = [
 		I18nLitElement.styles,
 		participantBoxStyles
 	];
-
-	@state()
-	participants: CourseParticipant[] = [];
 
 	@state()
 	sortProperty = ParticipantSortProperty.LastName;
@@ -29,32 +26,20 @@ export class ParticipantsBox extends I18nLitElement {
 		comparators: []
 	};
 
-	@property()
-	privilegeService: PrivilegeService;
-
 	@query('#custom-sort-menu')
 	customSortMenu: SlMenu;
 
-	@query(".participant-log")
-	participantContainer: HTMLElement;
-
 
 	override connectedCallback() {
-		super.connectedCallback()
-
-		participants.addEventListener("all", () => { this.setParticipants() }, false);
-		participants.addEventListener("added", () => { this.setParticipants() }, false);
-		participants.addEventListener("removed", () => { this.setParticipants() }, false);
-		participants.addEventListener("cleared", () => { this.setParticipants() }, false);
+		super.connectedCallback();
 
 		this.setSortComparators(this.sortProperty);
-		this.setParticipants();
 	}
 
 	protected render() {
 		return html`
 			<header>
-				<span class="title">${t("course.participants")} (${this.participants.length})</span>
+				<span class="title">${t("course.participants")} (${participantStore.count})</span>
 				<div class="control-buttons">
 					<sl-tooltip .content="${this.getSortOrderTooltip()}" trigger="hover">
 						<sl-icon-button @click="${this.onSortOrder}" .name="${this.getSortOrderIcon()}" id="iconSortAsc"></sl-icon-button>
@@ -93,7 +78,7 @@ export class ParticipantsBox extends I18nLitElement {
 			<section>
 				<div class="participants">
 					<div class="participant-log">
-					${repeat(this.participants, (participant) => participant.userId, (participant, index) => html`
+					${repeat(participantStore.sort(this.sortConfig), (participant) => participant.userId, (participant, index) => html`
 						<course-participant .participant="${participant}"></course-participant>
 					`)}
 					</div>
@@ -102,19 +87,10 @@ export class ParticipantsBox extends I18nLitElement {
 		`;
 	}
 
-	private sort(array: CourseParticipant[]) {
-		this.participants = array.sort(this.comparator.bind(this));
-		this.requestUpdate();
-	}
-
-	private setParticipants() {
-		this.sort([...participants.participants]);
-	}
-
 	private onSortOrder() {
 		this.sortConfig.order = (this.sortConfig.order === SortOrder.Ascending) ? SortOrder.Descending : SortOrder.Ascending
 
-		this.sort(this.participants);
+		this.requestUpdate();
 	}
 
 	private getSortOrderIcon() {
@@ -151,10 +127,8 @@ export class ParticipantsBox extends I18nLitElement {
 			}
 		}
 
-		this.sortProperty = property;
 		this.setSortComparators(property);
-
-		this.sort(this.participants);
+		this.sortProperty = property;
 	}
 
 	private setSortComparators(sortProperty: ParticipantSortProperty) {
@@ -164,52 +138,13 @@ export class ParticipantsBox extends I18nLitElement {
 	private getSortComparators(sortProperty: ParticipantSortProperty) {
 		switch (sortProperty) {
 			case ParticipantSortProperty.FirstName:
-				return [this.FirstNameComparator, this.LastNameComparator];
+				return [FirstNameComparator, LastNameComparator];
 
 			case ParticipantSortProperty.LastName:
-				return [this.LastNameComparator, this.FirstNameComparator];
+				return [LastNameComparator, FirstNameComparator];
 
 			case ParticipantSortProperty.Affiliation:
-				return [this.ParticipantTypeComparator, this.FirstNameComparator];
+				return [ParticipantTypeComparator, FirstNameComparator];
 		}
 	}
-
-	private comparator(a: CourseParticipant, b: CourseParticipant): number {
-		if (this.sortConfig.order === SortOrder.Ascending) {
-			return compare(this.sortConfig, a, b);
-		}
-
-		return compare(this.sortConfig, b, a);
-	}
-
-	private FirstNameComparator = (a: CourseParticipant, b: CourseParticipant) => {
-		return a.firstName.localeCompare(b.firstName);
-	};
-
-	private LastNameComparator = (a: CourseParticipant, b: CourseParticipant) => {
-		return a.familyName.localeCompare(b.familyName);
-	};
-
-	private ParticipantTypeComparator = (a: CourseParticipant, b: CourseParticipant) => {
-		const lhs = a.participantType;
-		const rhs = b.participantType;
-
-		if (lhs === rhs) {
-			return 0;
-		}
-		if (lhs === "ORGANISATOR") {
-			return 1;
-		}
-		if (rhs === "ORGANISATOR") {
-			return -1;
-		}
-		if (lhs === "CO_ORGANISATOR") {
-			return 1;
-		}
-		if (rhs === "CO_ORGANISATOR") {
-			return -1;
-		}
-
-		return 0;
-	};
 }

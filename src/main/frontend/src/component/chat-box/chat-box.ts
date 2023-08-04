@@ -1,16 +1,19 @@
+import { Component } from '../component';
 import { html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
+import { when } from 'lit/directives/when.js';
+import { repeat } from 'lit/directives/repeat.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { chatBoxStyles } from './chat-box.styles';
 import { Toaster } from '../../component/toast/toaster';
-import { MessageService, MessageServiceDirectMessage, MessageServiceMessage } from '../../service/message.service';
-import { ChatMessage } from './chat-message';
-import { PrivilegeService } from '../../service/privilege.service';
-import { chatHistory } from '../../model/chat-history';
-import { course } from '../../model/course';
+import { MessageService } from '../../service/message.service';
+import { ChatBoxMessage } from './chat-message';
+import { privilegeStore } from '../../store/privilege.store';
+import { chatStore } from '../../store/chat.store';
+import { Utils } from '../../utils/utils';
 
 @customElement('chat-box')
-export class ChatBox extends I18nLitElement {
+export class ChatBox extends Component {
 
 	static styles = [
 		I18nLitElement.styles,
@@ -20,20 +23,40 @@ export class ChatBox extends I18nLitElement {
 	@property()
 	messageService: MessageService;
 
-	@property()
-	privilegeService: PrivilegeService;
-
 	@query(".chat-history-log")
 	messageContainer: HTMLElement;
+
+	messageObserver: IntersectionObserver;
+
+	visibilityObserver: IntersectionObserver;
+
+	mutationObserver: MutationObserver;
 
 
 	override connectedCallback() {
 		super.connectedCallback()
 
-		chatHistory.addEventListener("all", this.addAllMessages.bind(this), false);
-		chatHistory.addEventListener("added", this.addMessage.bind(this), false);
-		chatHistory.addEventListener("removed", this.removeMessage.bind(this), false);
-		chatHistory.addEventListener("cleared", this.clearMessages.bind(this), false);
+		// Observe the messsage container and register added message elements for visibility observation.
+		this.mutationObserver = new MutationObserver(this.onMessageContainerMutation.bind(this));
+
+		// Get notified whenever a message element is hidden or gets visible to the user.
+		this.messageObserver = new IntersectionObserver(this.onMessageIntersection.bind(this), {
+			root: null,
+			threshold: 0.9	// When 90% of content is visible to the user.
+		});
+
+		this.visibilityObserver = new IntersectionObserver(this.onVisibility.bind(this), {
+			threshold: 0.9
+		});
+		this.visibilityObserver.observe(this);
+	}
+
+	override disconnectedCallback() {
+		this.mutationObserver.disconnect();
+		this.messageObserver.disconnect();
+		this.visibilityObserver.disconnect();
+
+		super.disconnectedCallback();
 	}
 
 	send() {
@@ -42,7 +65,7 @@ export class ChatBox extends I18nLitElement {
 	}
 
 	protected firstUpdated(): void {
-		this.addAllMessages();
+		this.mutationObserver.observe(this.messageContainer, { childList: true });
 	}
 
 	protected post(event: Event): void {
@@ -90,128 +113,72 @@ export class ChatBox extends I18nLitElement {
 			<section part="section">
 				<div class="chat-history">
 					<div class="chat-history-log">
+					${when(privilegeStore.canReadMessages(), () => html`
+						${repeat(chatStore.messages, (message) => message.id, (message, index) => html`
+							<chat-box-message .message="${message}"></chat-box-message>
+						`)}
+					`)}
 					</div>
 				</div>
 			</section>
 
 			<footer part="footer">
-				${this.privilegeService.canWriteMessages() ? html`
-				<message-form .privilegeService="${this.privilegeService}">
+				${when(privilegeStore.canWriteMessages(), () => html`
+				<message-form>
 					<sl-button slot="right-pane" @click="${this.post}" type="submit" form="course-message-form" id="message-submit" size="medium" circle>
 						<sl-icon name="send"></sl-icon>
 					</sl-button>
 				</message-form>
-				` : ''}
+				`)}
 			</footer>
 		`;
 	}
 
-	private addAllMessages() {
-		this.clearMessages();
-
-		for (const message of chatHistory.history) {
-			this.insertMessage(message);
-		}
-
-		this.requestUpdate();
-
-		if (!this.privilegeService.canReadMessages()) {
-			// No privilege to read/receive messages.
-			return;
-		}
-
-		this.updateComplete.then(() => {
-			window.setTimeout(() => {
-				const lastMessage = this.messageContainer.lastElementChild as ChatMessage;
-	
-				if (lastMessage) {
-					this.scrollToMessage(lastMessage);
+	private onMessageContainerMutation(mutations: MutationRecord[]) {
+		for (const mutation of mutations) {
+			if (mutation.type === "childList") {
+				// Observe added message elements for visibility.
+				for (const node of mutation.addedNodes) {
+					if (node instanceof ChatBoxMessage) {
+						this.messageObserver.observe(node);
+					}
 				}
-			}, 500);
-		});
-	}
 
-	private addMessage(event: CustomEvent) {
-		const message: MessageServiceMessage = event.detail;
-
-		const chatMessage = this.insertMessage(message);
-		this.scrollToMessage(chatMessage);
-	}
-
-	private removeMessage(event: CustomEvent) {
-		const message: MessageServiceMessage = event.detail;
-
-		// const chatMessage = this.insertMessage(message);
-		// this.scrollToMessage(chatMessage);
-	}
-
-	private clearMessages() {
-		if (!this.privilegeService.canReadMessages()) {
-			// No privilege to read/receive messages.
-			return;
-		}
-
-		this.messageContainer.remove;
-
-		while (this.messageContainer.firstChild) {
-			this.messageContainer.removeChild(this.messageContainer.firstChild);
+				// Unobserve removed message elements.
+				for (const node of mutation.removedNodes) {
+					if (node instanceof ChatBoxMessage) {
+						this.messageObserver.unobserve(node);
+					}
+				}
+			}
 		}
 	}
 
-	private insertMessage(message: MessageServiceMessage) {
-		if (!this.privilegeService.canReadMessages()) {
-			// No privilege to read/receive messages.
-			return null;
+	private onMessageIntersection(entries: IntersectionObserverEntry[]) {
+		for (const entry of entries) {
+			if (entry.isIntersecting) {
+				// Message is visible to the user. Mark it as read.
+				const message = (entry.target as ChatBoxMessage).message;
+				message.read = true;
+
+				// Not necessary to observe any more.
+				this.messageObserver.unobserve(entry.target);
+			}
+			else {
+				// Message was added to the container but is not visible.
+				if (chatStore.unreadMessages < 2) {
+					// Show the recent message only if there are no other unread messages left.
+					this.messageContainer.scrollTo({ top: this.messageContainer.scrollHeight, left: 0, behavior: "smooth" });
+				}
+			}
 		}
+	}
 
-		if (message._type === "MessengerDirectMessage") {
-			return this.insertDirectMessage(message as MessageServiceDirectMessage);
+	private onVisibility(entries: IntersectionObserverEntry[]) {
+		for (const entry of entries) {
+			this.dispatchEvent(Utils.createEvent("chat-visibility", {
+				visible: entry.isIntersecting
+			}));
 		}
-		else {
-			return this.insertPublicMessage(message);
-		}
-	}
-
-	private insertPublicMessage(message: MessageServiceMessage): ChatMessage {
-		const chatMessage = this.createMessage(message);
-
-		this.messageContainer.appendChild(chatMessage);
-
-		return chatMessage;
-	}
-
-	private insertDirectMessage(message: MessageServiceDirectMessage): ChatMessage {
-		const toMe = message.recipientId === course.userId;
-		const toOrganisers = message.recipientId === "organisers";
-
-		const chatMessage = this.createMessage(message);
-		chatMessage.recipient = toMe
-			? `${t("course.feature.message.to.me")}`
-			: toOrganisers
-				? `${t("course.feature.message.to.organisers")}`
-				: `${message.recipientFirstName} ${message.recipientFamilyName}`;
-		chatMessage.private = true;
-
-		this.messageContainer.appendChild(chatMessage);
-
-		return chatMessage;
-	}
-
-	private scrollToMessage(chatMessage: ChatMessage) {
-		chatMessage.updateComplete.then(() => {
-			chatMessage.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
-		});
-	}
-
-	private createMessage(message: MessageServiceMessage) {
-		const byMe = message.userId === course.userId;
-
-		const chatMessage = new ChatMessage();
-		chatMessage.sender = byMe ? `${t("course.feature.message.me")}` : `${message.firstName} ${message.familyName}`;
-		chatMessage.timestamp = new Date(message.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-		chatMessage.content = message.text;
-		chatMessage.myself = byMe;
-
-		return chatMessage;
 	}
 }

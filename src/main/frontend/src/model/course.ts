@@ -1,5 +1,4 @@
 import { Utils } from '../utils/utils';
-import { MessageFeature, QuizFeature } from './course-feature';
 import { CourseMediaState, CoursePrivilege } from './course-state';
 import { CourseStateDocument } from './course-state-document';
 import { StreamStats } from './stream-stats';
@@ -17,10 +16,6 @@ class Course extends EventTarget {
 	private _userId: string;
 
 	private _userPrivileges: CoursePrivilege[] = [];
-
-	private _chatFeature: MessageFeature;
-
-	private _quizFeature: QuizFeature;
 
 	private _documentMap: Map<bigint, CourseStateDocument>;
 
@@ -89,26 +84,6 @@ class Course extends EventTarget {
 		this._userPrivileges = privileges;
 
 		this.dispatchEvent(Utils.createEvent("course-user-privileges", privileges));
-	}
-
-	get chatFeature() {
-		return this._chatFeature;
-	}
-
-	set chatFeature(feature: MessageFeature) {
-		this._chatFeature = feature;
-
-		this.dispatchEvent(Utils.createEvent("course-chat-feature", feature));
-	}
-
-	get quizFeature() {
-		return this._quizFeature;
-	}
-
-	set quizFeature(feature: QuizFeature) {
-		this._quizFeature = feature;
-
-		this.dispatchEvent(Utils.createEvent("course-quiz-feature", feature));
 	}
 
 	get documentMap() {
