@@ -2,9 +2,9 @@ import { ReactiveController } from "lit";
 import { State } from "../../utils/state";
 import { ParticipantView } from "../participant-view/participant-view";
 import { PlayerView } from "./player-view";
-import { course } from '../../model/course';
 import { featureStore } from "../../store/feature.store";
-import { autorun } from "mobx";
+import { courseStore } from "../../store/course.store";
+import { autorun } from "mobx"
 
 interface BreakpointConfig {
 
@@ -64,7 +64,7 @@ export class PlayerViewController implements ReactiveController {
 
 		this.clockIntervalId = window.setInterval(() => {
 			try {
-				this.host.controls.duration = (Date.now() - course.timeStarted);
+				this.host.controls.duration = (Date.now() - courseStore.timeStarted);
 			}
 			catch (error) {
 				window.clearInterval(this.clockIntervalId);

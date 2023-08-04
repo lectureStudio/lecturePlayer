@@ -3,10 +3,10 @@ import { html } from 'lit';
 import { customElement, query } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { messageFormStyles } from './message-form.styles';
-import { course } from '../../model/course';
 import { ChatRecipientType } from '../../service/message.service';
 import { privilegeStore } from '../../store/privilege.store';
 import { participantStore } from '../../store/participants.store';
+import { userStore } from '../../store/user.store';
 
 @customElement('message-form')
 export class MessageForm extends Component {
@@ -48,7 +48,7 @@ export class MessageForm extends Component {
 
 		if (privilegeStore.canWritePrivateMessages()) {
 			for (const participant of participantStore.participants) {
-				if (participant.userId !== course.userId) {
+				if (participant.userId !== userStore.userId) {
 					optionTemplates.push(html`<sl-option value="${participant.userId}">${participant.firstName} ${participant.familyName}</sl-option>`);
 				}
 			}

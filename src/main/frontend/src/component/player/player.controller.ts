@@ -34,6 +34,8 @@ import { featureStore } from '../../store/feature.store';
 import { chatStore } from '../../store/chat.store';
 import { privilegeStore } from '../../store/privilege.store';
 import { participantStore } from '../../store/participants.store';
+import { courseStore } from '../../store/course.store';
+import { userStore } from '../../store/user.store';
 
 export class PlayerController implements ReactiveController {
 
@@ -147,11 +149,12 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private setCourseState(state: CourseState) {
-		course.courseId = state.courseId;
-		course.timeStarted = state.timeStarted;
-		course.title = state.title;
-		course.description = state.description;
-		course.userId = state.userId;
+		courseStore.courseId = state.courseId;
+		courseStore.timeStarted = state.timeStarted;
+		courseStore.title = state.title;
+		courseStore.description = state.description;
+
+		userStore.userId = state.userId;
 
 		privilegeStore.setPrivileges(state.userPrivileges);
 
@@ -321,7 +324,6 @@ export class PlayerController implements ReactiveController {
 
 	private onQuizAction() {
 		const quizModal = new QuizModal();
-		quizModal.courseId = course.courseId;
 
 		this.registerModal("QuizModal", quizModal);
 	}
@@ -495,7 +497,7 @@ export class PlayerController implements ReactiveController {
 		const participant: CourseParticipantPresence = event.detail;
 
 		// React only to events originated from other participants.
-		if (participant.userId === course.userId) {
+		if (participant.userId === userStore.userId) {
 			return;
 		}
 

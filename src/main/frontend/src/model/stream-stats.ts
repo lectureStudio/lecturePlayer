@@ -58,19 +58,3 @@ export interface DocumentStats {
 	bytesSent?: number;
 
 }
-
-export interface StreamStats {
-
-	audioStats?: AudioStats;
-
-	cameraStats?: VideoStats;
-
-	screenStats?: VideoStats;
-
-	dataStats?: DataStats;
-
-	documentStats?: DocumentStats;
-
-	[key: string]: AudioStats | VideoStats | DataStats;
-
-}

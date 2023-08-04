@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import { customElement, property, query } from 'lit/decorators.js';
+import { customElement, query } from 'lit/decorators.js';
 import { CourseFeatureResponse } from '../../model/course-feature';
 import { QuizService } from '../../service/quiz.service';
 import { I18nLitElement, t } from '../i18n-mixin';
@@ -7,6 +7,7 @@ import { Toaster } from '../toast/toaster';
 import { quizBoxStyles } from './quiz-box.styles';
 import { QuizForm } from '../quiz-form/quiz-form';
 import { Component } from '../component';
+import { courseStore } from '../../store/course.store';
 
 @customElement('quiz-box')
 export class QuizBox extends Component {
@@ -15,9 +16,6 @@ export class QuizBox extends Component {
 		I18nLitElement.styles,
 		quizBoxStyles
 	];
-
-	@property()
-	courseId: number;
 
 	@query('quiz-form')
 	quizForm: QuizForm;
@@ -31,7 +29,7 @@ export class QuizBox extends Component {
 		submitButton.disabled = true;
 
 		const service = new QuizService();
-		service.postAnswerFromForm(this.courseId, quizForm)
+		service.postAnswerFromForm(courseStore.courseId, quizForm)
 			.then(response => {
 				this.quizForm.setResponse(response);
 

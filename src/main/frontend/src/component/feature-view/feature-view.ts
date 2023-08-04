@@ -4,7 +4,6 @@ import { when } from 'lit/directives/when.js';
 import { MessageService } from '../../service/message.service';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { featureViewStyles } from './feature-view.styles';
-import { course } from '../../model/course';
 import { SlSplitPanel, SlTab, SlTabGroup, SlTabHideEvent } from '@shoelace-style/shoelace';
 import { SwipeObserver } from '../../utils/swipe-observer';
 import { Component } from '../component';
@@ -209,7 +208,7 @@ export class PlayerFeatureView extends Component {
 				${t("course.feature.quiz")}
 			</sl-tab>
 			<sl-tab-panel name="quiz">
-				<quiz-box .courseId="${course.courseId}"></quiz-box>	
+				<quiz-box></quiz-box>	
 			</sl-tab-panel>
 		`;
 	}

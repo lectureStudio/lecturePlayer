@@ -1,12 +1,12 @@
 import { ProgressiveDataView } from "../action/parser/progressive-data-view";
 import { RecordedPageParser } from "../action/parser/recorded-page.parser";
 import { SimpleActionExecutor } from "../action/simple-action-executor";
-import { course } from "../model/course";
 import { CourseState } from "../model/course-state";
 import { CourseStateDocument } from "../model/course-state-document";
 import { SlideDocument } from "../model/document";
 import { RecordedPage } from "../model/recorded-page";
 import { WhiteboardDocument } from "../model/whiteboard.document";
+import { streamStatsStore } from "../store/stream-stats.store";
 import { HttpRequest } from "../utils/http-request";
 import { DocumentService } from "./document.service";
 
@@ -171,7 +171,7 @@ export class CourseStateService {
 	}
 
 	private updateDocumentStats(stateDoc: CourseStateDocument, byteSize: number) {
-		let stats = course.streamStats.documentStats;
+		let stats = streamStatsStore.documentStats;
 
 		if (!stats) {
 			stats = {
@@ -181,7 +181,7 @@ export class CourseStateService {
 				bytesSent: 0
 			};
 
-			course.streamStats.documentStats = stats;
+			streamStatsStore.documentStats = stats;
 		}
 
 		stats.countReceived += 1;

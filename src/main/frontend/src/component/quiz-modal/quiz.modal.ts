@@ -1,17 +1,15 @@
 import { html } from "lit";
 import { Modal } from "../modal/modal";
-import { customElement, property, query } from "lit/decorators.js";
+import { customElement, query } from "lit/decorators.js";
 import { t } from '../i18n-mixin';
 import { CourseFeatureResponse } from "../../model/course-feature";
 import { QuizService } from "../../service/quiz.service";
 import { Toaster } from "../toast/toaster";
 import { QuizForm } from "../quiz-form/quiz-form";
+import { courseStore } from "../../store/course.store";
 
 @customElement("quiz-modal")
 export class QuizModal extends Modal {
-
-	@property()
-	courseId: number;
 
 	@query('quiz-form')
 	quizForm: QuizForm;
@@ -25,7 +23,7 @@ export class QuizModal extends Modal {
 		submitButton.disabled = true;
 
 		const service = new QuizService();
-		service.postAnswerFromForm(this.courseId, quizForm)
+		service.postAnswerFromForm(courseStore.courseId, quizForm)
 			.then(response => {
 				this.quizForm.setResponse(response);
 

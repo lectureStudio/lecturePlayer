@@ -1,9 +1,9 @@
 import { html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
-import { course } from '../../model/course';
 import { CourseParticipant } from '../../model/course-state';
 import { participantStyles } from './participant.styles';
+import { userStore } from '../../store/user.store';
 
 @customElement('course-participant')
 export class ParticipantItem extends I18nLitElement {
@@ -46,7 +46,7 @@ export class ParticipantItem extends I18nLitElement {
 	static getName(participant: CourseParticipant) {
 		let name = `${participant.firstName} ${participant.familyName}`;
 
-		if (participant.userId === course.userId) {
+		if (participant.userId === userStore.userId) {
 			name += ` (${t("course.participants.me")})`;
 		}
 

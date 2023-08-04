@@ -5,7 +5,7 @@ import { I18nLitElement, t } from '../i18n-mixin';
 import { chatMessageStyles } from './chat-message.styles';
 import { Component } from '../component';
 import { ChatMessage, DirectChatMessage } from '../../service/message.service';
-import { course } from '../../model/course';
+import { userStore } from '../../store/user.store';
 
 @customElement('chat-box-message')
 export class ChatBoxMessage extends Component {
@@ -36,7 +36,7 @@ export class ChatBoxMessage extends Component {
 		this.timestamp = ChatBoxMessage.getMessageDate(this.message);
 		this.sender = ChatBoxMessage.getMessageSender(this.message, this.private);
 		this.content = this.message.text;
-		this.myself = this.message.userId === course.userId;
+		this.myself = this.message.userId === userStore.userId;
 	}
 
 	protected override render() {
@@ -58,7 +58,7 @@ export class ChatBoxMessage extends Component {
 	}
 
 	private static getMessageRecipient(message: DirectChatMessage) {
-		const toMe = message.recipientId === course.userId;
+		const toMe = message.recipientId === userStore.userId;
 		const toOrganisers = message.recipientId === "organisers";
 
 		return toMe
@@ -69,7 +69,7 @@ export class ChatBoxMessage extends Component {
 	}
 
 	private static getMessageSender(message: ChatMessage, direct: boolean) {
-		const byMe = message.userId === course.userId;
+		const byMe = message.userId === userStore.userId;
 		const sender = byMe ? `${t("course.feature.message.me")}` : `${message.firstName} ${message.familyName}`;
 		const recipient = direct ? ChatBoxMessage.getMessageRecipient(message as DirectChatMessage) : null;
 

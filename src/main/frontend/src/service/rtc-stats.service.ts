@@ -1,5 +1,5 @@
-import { course } from "../model/course";
-import { AudioStats, DataStats, StreamAudioStats, StreamStats, StreamVideoStats, VideoStats } from "../model/stream-stats";
+import { AudioStats, DataStats, StreamAudioStats, StreamVideoStats, VideoStats } from "../model/stream-stats";
+import { streamStatsStore } from "../store/stream-stats.store";
 
 export class RTCStatsService {
 
@@ -15,8 +15,6 @@ export class RTCStatsService {
 
 		this.pc.getStats()
 			.then(report => {
-				const streamStats = course.streamStats;
-
 				for (const entry of report.values()) {
 					const type: RTCStatsType = entry.type;
 
@@ -25,19 +23,19 @@ export class RTCStatsService {
 					}
 
 					if (type === "inbound-rtp") {
-						this.getRtpStats(report, entry, streamStats, true);
+						this.getRtpStats(report, entry, true);
 					}
 					else if (type === "outbound-rtp") {
-						this.getRtpStats(report, entry, streamStats, false);
+						this.getRtpStats(report, entry, false);
 					}
 					else if (type === "data-channel") {
-						this.getDataChannelStats(report, entry, streamStats);
+						this.getDataChannelStats(report, entry);
 					}
 				}
 			});
 	}
 
-	private getRtpStats(report: RTCStatsReport, stats: RTCInboundRtpStreamStats | RTCOutboundRtpStreamStats, streamStats: StreamStats, inbound: boolean) {
+	private getRtpStats(report: RTCStatsReport, stats: RTCInboundRtpStreamStats | RTCOutboundRtpStreamStats, inbound: boolean) {
 		const codecStats: RTCCodecStats = report.get(stats.codecId);
 
 		if (!codecStats) {
@@ -48,7 +46,7 @@ export class RTCStatsService {
 		if (stats.kind === "audio") {
 			const audioStats = this.createAudioStats(stats, codecStats, inbound);
 
-			this.setStats(streamStats, "audioStats", audioStats, inbound);
+			this.setStats(streamStatsStore.audioStats, audioStats, inbound);
 		}
 		else if (stats.kind === "video") {
 			// Find the track for the given stats, since not all browsers provide us the 'mid' in the stats.
@@ -57,10 +55,10 @@ export class RTCStatsService {
 			const videoStats = this.createVideoStats(stats, codecStats, inbound);
 
 			if (trackDesc === "camera") {
-				this.setStats(streamStats, "cameraStats", videoStats, inbound);
+				this.setStats(streamStatsStore.cameraStats, videoStats, inbound);
 			}
 			else if (trackDesc === "screen") {
-				this.setStats(streamStats, "screenStats", videoStats, inbound);
+				this.setStats(streamStatsStore.screenStats, videoStats, inbound);
 			}
 		}
 	}
@@ -118,13 +116,13 @@ export class RTCStatsService {
 		return videoStats;
 	}
 
-	private getDataChannelStats(report: RTCStatsReport, channelStats: RTCDataChannelStats, streamStats: StreamStats) {
+	private getDataChannelStats(report: RTCStatsReport, channelStats: RTCDataChannelStats) {
 		const dataStats: DataStats = {
 			bytesReceived: channelStats.bytesReceived,
 			bytesSent: channelStats.bytesSent
 		};
 
-		streamStats.dataStats = dataStats;
+		streamStatsStore.dataStats = dataStats;
 	}
 
 	private getTrackDescription(ssrc: number) {
@@ -146,34 +144,28 @@ export class RTCStatsService {
 		return this.streamIds.get(mid);
 	}
 
-	private setStats(streamStats: StreamStats, target: string, stats: StreamAudioStats | StreamVideoStats, inbound: boolean) {
-		if (!streamStats[target]) {
-			streamStats[target] = {};
-		}
-
-		const targetStats = <AudioStats | VideoStats> streamStats[target];
-
+	private setStats(stats: AudioStats | VideoStats, streamStats: StreamAudioStats | StreamVideoStats, inbound: boolean) {
 		if (inbound) {
 			// Calculate bitrate
-			const timestamp = targetStats.inboundStats?.timestamp;
-			const bytesReceived = targetStats.inboundStats?.bytesReceived;
+			const timestamp = stats.inboundStats?.timestamp;
+			const bytesReceived = stats.inboundStats?.bytesReceived;
 
-			this.getBitrate(timestamp, bytesReceived, stats, inbound);
+			this.getBitrate(timestamp, bytesReceived, streamStats, inbound);
 
-			this.getPacketLossPercent(stats);
+			this.getPacketLossPercent(streamStats);
 
-			targetStats.inboundStats = stats;
+			stats.inboundStats = streamStats;
 		}
 		else {
 			// Calculate bitrate
-			const timestamp = targetStats.outboundStats?.timestamp;
-			const bytesSent = targetStats.outboundStats?.bytesSent;
+			const timestamp = stats.outboundStats?.timestamp;
+			const bytesSent = stats.outboundStats?.bytesSent;
 
-			this.getBitrate(timestamp, bytesSent, stats, inbound);
+			this.getBitrate(timestamp, bytesSent, streamStats, inbound);
 
-			this.getPacketLossPercent(stats);
+			this.getPacketLossPercent(streamStats);
 
-			targetStats.outboundStats = stats;
+			stats.outboundStats = streamStats;
 		}
 	}
 

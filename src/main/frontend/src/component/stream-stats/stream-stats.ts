@@ -1,10 +1,11 @@
 import { html } from "lit";
 import { customElement } from "lit/decorators.js";
 import { I18nLitElement, t } from '../i18n-mixin';
-import { course } from "../../model/course";
 import { AudioStats, DataStats, DocumentStats, VideoStats } from "../../model/stream-stats";
 import { JanusService } from "../../service/janus.service";
 import { streamStatsStyles } from "./stream-stats.styles";
+import { streamStatsStore } from "../../store/stream-stats.store";
+import { Component } from "../component";
 
 interface StatsEntry {
 
@@ -15,7 +16,7 @@ interface StatsEntry {
 }
 
 @customElement("stream-stats")
-export class StreamStats extends I18nLitElement {
+export class StreamStats extends Component {
 
 	static styles = [
 		I18nLitElement.styles,
@@ -50,19 +51,19 @@ export class StreamStats extends I18nLitElement {
 		return html`
 			<player-tabs>
 				<p slot="tab">${t("stats.audio")}</p>
-				<p slot="panel">${this.renderStatsTable(this.getAudioStats(course.streamStats.audioStats))}</p>
+				<p slot="panel">${this.renderStatsTable(this.getAudioStats(streamStatsStore.audioStats))}</p>
 
 				<p slot="tab">${t("stats.camera")}</p>
-				<p slot="panel">${this.renderStatsTable(this.getVideoStats(course.streamStats.cameraStats))}</p>
+				<p slot="panel">${this.renderStatsTable(this.getVideoStats(streamStatsStore.cameraStats))}</p>
 
 				<p slot="tab">${t("stats.screen")}</p>
-				<p slot="panel">${this.renderStatsTable(this.getVideoStats(course.streamStats.screenStats))}</p>
+				<p slot="panel">${this.renderStatsTable(this.getVideoStats(streamStatsStore.screenStats))}</p>
 
 				<p slot="tab">${t("stats.documents")}</p>
-				<p slot="panel">${this.renderStatsTable(this.getDocumentStats(course.streamStats.documentStats))}</p>
+				<p slot="panel">${this.renderStatsTable(this.getDocumentStats(streamStatsStore.documentStats))}</p>
 
 				<p slot="tab">${t("stats.events")}</p>
-				<p slot="panel">${this.renderStatsTable(this.getDataStats(course.streamStats.dataStats))}</p>
+				<p slot="panel">${this.renderStatsTable(this.getDataStats(streamStatsStore.dataStats))}</p>
 			</player-tabs>
 		`;
 	}
