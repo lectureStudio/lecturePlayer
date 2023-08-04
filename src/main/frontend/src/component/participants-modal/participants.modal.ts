@@ -1,15 +1,10 @@
 import { html } from "lit";
 import { Modal } from "../modal/modal";
-import { customElement, property } from "lit/decorators.js";
+import { customElement } from "lit/decorators.js";
 import { t } from '../i18n-mixin';
-import { PrivilegeService } from "../../service/privilege.service";
 
 @customElement("participants-modal")
 export class ParticipantsModal extends Modal {
-
-	@property()
-	privilegeService: PrivilegeService;
-
 
 	protected render() {
 		return html`

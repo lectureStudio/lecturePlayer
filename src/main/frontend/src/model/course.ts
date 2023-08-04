@@ -15,8 +15,6 @@ class Course extends EventTarget {
 
 	private _userId: string;
 
-	private _userPrivileges: CoursePrivilege[] = [];
-
 	private _documentMap: Map<bigint, CourseStateDocument>;
 
 	private _activeDocument: CourseStateDocument;
@@ -74,16 +72,6 @@ class Course extends EventTarget {
 		this._userId = userId;
 
 		this.dispatchEvent(Utils.createEvent("course-user-id"));
-	}
-
-	get userPrivileges() {
-		return this._userPrivileges;
-	}
-
-	set userPrivileges(privileges: CoursePrivilege[]) {
-		this._userPrivileges = privileges;
-
-		this.dispatchEvent(Utils.createEvent("course-user-privileges", privileges));
 	}
 
 	get documentMap() {

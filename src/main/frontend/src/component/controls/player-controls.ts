@@ -1,7 +1,6 @@
 import { html } from 'lit';
 import { autorun } from 'mobx';
 import { customElement, property, query } from 'lit/decorators.js';
-import { PrivilegeService } from '../../service/privilege.service';
 import { Utils } from '../../utils/utils';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { playerControlsStyles } from './player-controls.styles';
@@ -15,9 +14,6 @@ export class PlayerControls extends I18nLitElement {
 		I18nLitElement.styles,
 		playerControlsStyles,
 	];
-
-	@property()
-	privilegeService: PrivilegeService;
 
 	@query('#volumeIndicator')
 	volumeIndicator: HTMLElement;
@@ -184,13 +180,13 @@ export class PlayerControls extends I18nLitElement {
 				<span id="duration">${this.getFormattedDuration()}</span>
 			</div>
 			<div class="col nav-center">
-				${this.privilegeService.canContributeBySpeech() ? html`
+				${privilegeStore.canContributeBySpeech() ? html`
 				<button @click="${this.onHand}" class="icon-speech" id="hand-button">
 					<ui-tooltip for="hand-button" .text="${this.handUp ? t("controls.speech.abort") : t("controls.speech.start")}"></ui-tooltip>
 				</button>
 				` : ''}
 
-				${this.privilegeService.canParticipateInQuiz() ? html`
+				${privilegeStore.canParticipateInQuiz() ? html`
 				<button @click="${this.onQuiz}" class="icon-quiz" id="quiz-button">
 					<ui-tooltip for="quiz-button" .text="${t("controls.quiz.show")}"></ui-tooltip>
 				</button>
@@ -201,7 +197,7 @@ export class PlayerControls extends I18nLitElement {
 					<ui-tooltip for="participants-button" .text="${t(this.participantsVisible ? "controls.participants.hide" : "controls.participants.show")}" sticky="true"></ui-tooltip>
 				</button>
 
-				${this.privilegeService.canUseChat() ? html`
+				${privilegeStore.canUseChat() ? html`
 				<button @click="${this.onChatVisibility}" class="icon-chat" id="chat-button">
 					<ui-tooltip for="chat-button" .text="${this.chatVisible ? t("controls.chat.hide") : t("controls.chat.show")}" sticky="true"></ui-tooltip>
 				</button>

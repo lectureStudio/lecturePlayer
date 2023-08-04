@@ -1,7 +1,6 @@
 import { html, PropertyValues } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { MessageService } from '../../service/message.service';
-import { PrivilegeService } from '../../service/privilege.service';
 import { PlayerControls } from '../controls/player-controls';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { ParticipantView } from '../participant-view/participant-view';
@@ -30,9 +29,6 @@ export class PlayerView extends I18nLitElement {
 	private splitSizes: number[];
 
 	private slideLayout: SlideLayout = SlideLayout.Card;
-
-	@property()
-	privilegeService: PrivilegeService;
 
 	@property()
 	messageService: MessageService;
@@ -180,7 +176,7 @@ export class PlayerView extends I18nLitElement {
 			<div>
 				<div class="left-container">
 					<div class="feature-container">
-						${this.privilegeService.canViewParticipants() ? html`
+						${privilegeStore.canViewParticipants() ? html`
 						<participants-box></participants-box>
 						` : ''}
 					</div>
@@ -191,14 +187,14 @@ export class PlayerView extends I18nLitElement {
 						<screen-view></screen-view>
 					</div>
 					<div class="controls-container">
-						<player-controls .chatVisible="${this.chatVisible}" .participantsVisible="${this.participantsVisible}" .privilegeService="${this.privilegeService}"></player-controls>
+						<player-controls .chatVisible="${this.chatVisible}" .participantsVisible="${this.participantsVisible}"></player-controls>
 					</div>
 				</div>
 				<div class="right-container">
 					<div class="video-feeds">
 					</div>
 					<div class="feature-container">
-						${this.privilegeService.canUseChat() ? html`
+						${privilegeStore.canUseChat() ? html`
 						<chat-box .messageService="${this.messageService}"></chat-box>
 						` : ''}
 					</div>
