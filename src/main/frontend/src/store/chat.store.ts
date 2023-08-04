@@ -15,11 +15,11 @@ class ChatStore {
 	}
 
 	removeMessage(message: ChatMessage) {
-		this.messages = this.messages.filter((m) => m.id !== message.id);
+		this.messages = this.messages.filter((m) => m.messageId !== message.messageId);
 	}
 
 	updateMessage(updated: ChatMessage) {
-		this.messages = this.messages.map((m) => m.id !== updated.id ? m : updated);
+		this.messages = this.messages.map((m) => m.messageId !== updated.messageId ? m : updated);
 	}
 
 	setMessages(messages: ChatMessage[]) {

@@ -114,7 +114,7 @@ export class ChatBox extends Component {
 				<div class="chat-history">
 					<div class="chat-history-log">
 					${when(privilegeStore.canReadMessages(), () => html`
-						${repeat(chatStore.messages, (message) => message.id, (message, index) => html`
+						${repeat(chatStore.messages, (message) => message.messageId, (message, index) => html`
 							<chat-box-message .message="${message}"></chat-box-message>
 						`)}
 					`)}

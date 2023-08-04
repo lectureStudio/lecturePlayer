@@ -22,7 +22,7 @@ export interface ChatMessage {
 
 	_type: string;
 
-	id: string;
+	messageId: string;
 
 	time: string;
 
