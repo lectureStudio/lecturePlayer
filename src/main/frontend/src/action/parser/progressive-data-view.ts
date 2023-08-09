@@ -110,6 +110,11 @@ class ProgressiveDataView {
 
 		return value;
 	}
+
+	toUint8Array(): Uint8Array{
+		//create new Uint8Array from the buffer with the Offset = 0 and length = buffer.byteLength-this.offset
+		return new Uint8Array(this.dataView.buffer.slice(this.offset),0,this.dataView.buffer.byteLength-this.offset);
+	}
 }
 
 export { ProgressiveDataView };

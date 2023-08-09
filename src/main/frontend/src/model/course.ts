@@ -3,6 +3,7 @@ import { MessageFeature, QuizFeature } from './course-feature';
 import { CourseMediaState, CoursePrivilege } from './course-state';
 import { CourseStateDocument } from './course-state-document';
 import { StreamStats } from './stream-stats';
+import * as Y from "yjs";
 
 class Course extends EventTarget {
 
@@ -34,6 +35,25 @@ class Course extends EventTarget {
 
 	private _recorded: boolean;
 
+	private _YDoc: Y.Doc = new Y.Doc();
+
+	private _publicYDoc: Y.Doc = new Y.Doc();
+
+	get YDoc(){
+		return this._YDoc;
+	}
+
+	set YDoc(doc: Y.Doc){
+		this._YDoc = doc;
+	}
+
+	get publicYDoc(){
+		return this._publicYDoc;
+	}
+
+	set publicYDoc(doc:Y.Doc){
+		this._publicYDoc = doc;
+	}
 
 	get courseId() {
 		return this._courseId;

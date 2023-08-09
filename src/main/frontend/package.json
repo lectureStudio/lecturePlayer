@@ -62,6 +62,8 @@
 		"janus-gateway": "git://github.com/meetecho/janus-gateway.git",
 		"jspdf": "^2.5.1",
 		"lit": "^2.2.7",
-		"pdfjs-dist": "^2.16.105"
+		"pdfjs-dist": "^2.16.105",
+		"y-webrtc": "^10.2.5",
+		"yjs": "^13.6.6"
 	}
 }

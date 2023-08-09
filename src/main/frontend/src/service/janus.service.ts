@@ -10,8 +10,11 @@ import { StreamDocumentSelectedAction } from "../action/stream.document.selected
 import { StreamPageSelectedAction } from "../action/stream.page.selected.action";
 import { addStreamAction } from "../model/action-store";
 import { StreamAction } from "../action/stream.action";
+import{ ydocAction} from "../action/ydoc.action";
 import $settingsStore, { DeviceSettings } from "../model/device-settings-store";
 import { SlideDocument } from "../model/document";
+import { StreamPagePlaybackAction } from "../action/stream.playback.action";
+import { ToolEndAction } from "../action/tool-end.action";
 
 export class JanusService extends EventTarget {
 
@@ -146,6 +149,12 @@ export class JanusService extends EventTarget {
 		}
 	}
 
+	sendYDocAction(action: ydocAction){
+		if(this.myPublisher){
+			this.myPublisher.sendData(action.toBuffer());
+		}
+	}
+
 	sendStreamAction(action: StreamAction) {
 		if (this.myPublisher) {
 			this.myPublisher.sendData(action.toBuffer());
@@ -199,6 +208,11 @@ export class JanusService extends EventTarget {
 
 						addStreamAction.watch(streamAction => {
 							this.sendStreamAction(streamAction);
+							if(streamAction instanceof StreamPagePlaybackAction){
+								if(streamAction.action instanceof ToolEndAction){
+									this.sendYDocAction(new ydocAction(new Uint8Array()));
+								}
+							}
 						});
 					}
 

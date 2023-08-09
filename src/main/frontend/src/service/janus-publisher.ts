@@ -8,6 +8,8 @@ import { Utils } from "../utils/utils";
 import { JanusParticipant, JanusStreamType } from "./janus-participant";
 import $deviceSettingsStore from "../model/device-settings-store";
 
+import * as Y from 'yjs'
+
 export class JanusPublisher extends JanusParticipant {
 
 	private readonly roomId: number;
@@ -30,9 +32,11 @@ export class JanusPublisher extends JanusParticipant {
 
 		document.addEventListener("lect-device-change", this.onDeviceChange.bind(this));
 		document.addEventListener("lect-share-screen", this.onShareScreen.bind(this));
+		course.YDoc.getMap("annotations").set(course.userId, new Y.Map()); //Max
+		
 	}
 
-	override connect() {
+	override connect() { 
 		this.janus.attach({
 			plugin: "janus.plugin.videoroom",
 			opaqueId: this.opaqueId,
@@ -72,10 +76,10 @@ export class JanusPublisher extends JanusParticipant {
 		}
 
 		this.handle.data({
-			data: data,
-			error: function (error: any) { console.error(error) }
-		});
-	}
+				data: data,
+				error: function (error: any) { console.error(error) }
+			});
+		}
 
 	private onConnected(handle: PluginHandle) {
 		this.handle = handle;

@@ -7,6 +7,10 @@ import { StreamActionParser } from "../action/parser/stream.action.parser";
 import { StreamMediaChangeAction } from "../action/stream.media.change.action";
 import { Devices } from "../utils/devices";
 
+import * as Y from 'yjs'
+import { course } from "../model/course";
+import { ydocAction } from "../action/ydoc.action";
+
 export class JanusSubscriber extends JanusParticipant {
 
 	private readonly publisherId: any;
@@ -144,21 +148,21 @@ export class JanusSubscriber extends JanusParticipant {
 	}
 
 	private onData(data: ArrayBuffer | Blob) {
-		if (data instanceof Blob) {
-			// Firefox...
-			data.arrayBuffer().then(buffer => {
-				this.processData(buffer);
-			});
+			if (data instanceof Blob) {
+				// Firefox...
+				data.arrayBuffer().then(buffer => {
+					this.processData(buffer); 
+				});
+			}
+			else {
+				this.processData(data);
+			}
+		 
+			this.dispatchEvent(Utils.createEvent("janus-participant-data", {
+				participant: this,
+				data: data
+			}));
 		}
-		else {
-			this.processData(data);
-		}
-
-		this.dispatchEvent(Utils.createEvent("janus-participant-data", {
-			participant: this,
-			data: data
-		}));
-	}
 
 	private processData(data: ArrayBuffer) {
 		const dataView = new ProgressiveDataView(data);
@@ -169,6 +173,12 @@ export class JanusSubscriber extends JanusParticipant {
 
 		if (action instanceof StreamMediaChangeAction) {
 			this.view.setMediaChange(action.type, action.enabled);
+		}
+
+		if( action instanceof ydocAction){
+			//update YDoc in course
+			Y.applyUpdate(course.YDoc, action.diff);
+			Y.applyUpdate(course.publicYDoc, action.diff);
 		}
 	}
 

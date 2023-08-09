@@ -16,6 +16,7 @@ import { ProgressiveDataView } from "./progressive-data-view";
 import { RecordedPageParser } from "./recorded-page.parser";
 import { StreamMediaChangeAction } from "../stream.media.change.action";
 import { MediaType } from "../../model/media-type";
+import { ydocAction } from "../ydoc.action";
 
 export class StreamActionParser {
 
@@ -47,6 +48,8 @@ export class StreamActionParser {
 			case StreamActionType.STREAM_MICROPHONE_CHANGE:
 			case StreamActionType.STREAM_SCREEN_SHARE_CHANGE:
 				return this.mediaChangeAction(dataView, type);
+			case StreamActionType.YDOC:
+				return this.yDocAction(dataView);
 
 			default:
 				throw new Error("StreamAction not implemented");
@@ -131,5 +134,12 @@ export class StreamActionParser {
 		}
 
 		return new StreamMediaChangeAction(mediaType, enabled);
+	}
+
+	private static yDocAction(dataview: ProgressiveDataView) : ydocAction{
+		//Delta auslesen;
+		let diff = new Uint8Array(dataview.toUint8Array(),1,4);
+		console.log("parse YdocAction, diff:", diff);
+		return new ydocAction(diff); //TODO diff von dataView in ydocAction
 	}
 }
