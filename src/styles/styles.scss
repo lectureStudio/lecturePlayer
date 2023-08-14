@@ -1,0 +1,15 @@
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+form {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75em;
+}
+
+sl-option::part(base) {
+	font-size: var(--sl-font-size-small);
+}

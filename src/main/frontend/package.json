@@ -57,15 +57,11 @@
 		"@adobe/lit-mobx": "^2.2.0",
 		"@shoelace-style/shoelace": "^2.5.2",
 		"@stomp/stompjs": "^6.1.2",
-		"bootstrap": "^5.2.1",
 		"i18next": "^21.8.12",
 		"i18next-browser-languagedetector": "^6.1.4",
 		"janus-gateway": "git://github.com/meetecho/janus-gateway.git",
 		"lit": "^2.7.6",
 		"mobx": "^6.10.0",
-		"pdfjs-dist": "^3.7.107",
-		"split.js": "^1.6.5",
-		"tippy.js": "^6.3.7",
-		"web-dialog": "^0.0.11"
+		"pdfjs-dist": "^3.7.107"
 	}
 }

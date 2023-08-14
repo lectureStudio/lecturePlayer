@@ -1,0 +1,16 @@
+:host {
+	display: flex;
+	align-items: flex-start;
+	column-gap: 0.5em;
+}
+
+sl-avatar {
+	--size: 1.75em;
+	display: flex;
+	align-items: center;
+}
+
+sl-icon {
+	font-size: 1.4em;
+	margin-left: auto;
+}

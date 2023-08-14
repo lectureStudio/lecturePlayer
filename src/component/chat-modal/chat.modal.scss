@@ -1,0 +1,25 @@
+:host sl-dialog::part(panel) {
+	height: 100%;
+}
+:host sl-dialog::part(footer) {
+	border-top: 0;
+	padding: 0;
+}
+
+:host article {
+	height: 100%;
+	padding: 0;
+}
+
+:host chat-box {
+	--send-button-display: none;
+	height: 100%;
+}
+:host chat-box::part(header) {
+	display: none;
+}
+
+:host button > span {
+	font-size: 1.4em;
+	vertical-align: text-top !important;
+}

@@ -1,0 +1,31 @@
+import { html } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { I18nLitElement, t } from '../i18n-mixin';
+import playerOfflineStyles from './player-offline.scss';
+
+@customElement('player-offline')
+export class PlayerOffline extends I18nLitElement {
+
+	static styles = [
+		I18nLitElement.styles,
+		playerOfflineStyles,
+	];
+
+	@property({ type: String })
+	description: string;
+
+
+	protected render() {
+		return html`
+			<div>
+				<sl-icon name="course-not-available"></sl-icon>
+				<strong class="text-muted py-2">${t("course.unavailable")}</strong>
+				<hr>
+				<small>
+					${unsafeHTML(this.description)}
+				</small>
+			</div>
+		`;
+	}
+}

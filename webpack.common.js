@@ -1,6 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
@@ -12,17 +11,17 @@ module.exports = {
 		contentBase: './dist'
 	},
 	plugins: [
-		new CleanWebpackPlugin(['dist']),
-
-		new MiniCssExtractPlugin(),
+		new MiniCssExtractPlugin({
+			filename: "css/[name].css"
+		}),
 
 		new CopyPlugin({
 			patterns: [
 				// Copy icons to dist/icons
 				{
 					from: path.resolve(__dirname, 'src/icons'),
-					to: path.resolve(__dirname, 'D:\\WORK\\web-backend\\src\\main\\resources\\static\\icons')
-				},
+					to: path.resolve(__dirname, './dist/icons')
+				}
 			]
 		}),
 
@@ -32,8 +31,9 @@ module.exports = {
 		new webpack.ProvidePlugin({ adapter: ['webrtc-adapter', 'default'] }),
 	],
 	output: {
-		path: path.resolve(__dirname, 'D:\\WORK\\web-backend\\src\\main\\resources\\static\\js'),
-		filename: '[name].js',
+		filename: 'js/[name].js',
+		path: path.resolve(__dirname, 'dist'),
+		clean: true,
 		library: "lect",
 		libraryTarget: 'umd',
 	},
@@ -56,10 +56,9 @@ module.exports = {
 				test: /\.css$/,
 				loader: 'lit-css-loader',
 				options: {
-					specifier: 'lit-element' // defaults to `lit`
+					specifier: 'lit' // defaults to `lit`
 				}
 			},
-			// Bundle styles into main.css
 			{
 				test: /\.css$/i,
 				use: [MiniCssExtractPlugin.loader, 'css-loader']
