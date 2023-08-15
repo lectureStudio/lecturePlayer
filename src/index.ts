@@ -21,7 +21,7 @@ class lectPlayer {
 
 	initPDF() {
 		const pdfjs = require('pdfjs-dist');
-		const PdfjsWorker = require("worker-loader?esModule=false&filename=[name].js!pdfjs-dist/build/pdf.worker.js");
+		const PdfjsWorker = require("worker-loader?esModule=false&filename=js/[name].js!pdfjs-dist/build/pdf.worker.js");
 
 		if (typeof window !== "undefined" && "Worker" in window) {
 			pdfjs.GlobalWorkerOptions.workerPort = new PdfjsWorker();
