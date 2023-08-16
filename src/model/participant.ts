@@ -16,13 +16,15 @@ export interface CourseParticipant {
 
 	streamState: State;
 
-	microphoneMuted: boolean;
+	microphoneActive: boolean;
 
 	microphoneStream: MediaStream;
 
-	cameraMuted: boolean;
+	cameraActive: boolean;
 
 	cameraStream: MediaStream;
+
+	screenActive: boolean;
 
 	screenStream: MediaStream;
 

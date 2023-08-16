@@ -10,7 +10,9 @@ class ParticipantStore {
 
 
 	constructor() {
-		makeAutoObservable(this);
+		makeAutoObservable(this, null, {
+			deep: true
+		});
 	}
 
 	addParticipant(participant: CourseParticipant) {
@@ -29,52 +31,48 @@ class ParticipantStore {
 		this.participants = participants;
 	}
 
-	setParticipantCameraMute(userId: string, muted: boolean) {
+	setParticipantCameraActive(userId: string, active: boolean) {
 		const participant = this.findByUserId(userId);
 
 		if (participant) {
-			participant.cameraMuted = muted;
+			participant.cameraActive = active;
 		}
 		else {
-			console.warn("Set camera mute failed. Participant with user ID not found", userId);
+			console.error("Set camera active failed. Participant with user ID not found", userId);
 		}
 	}
 
 	setParticipantCameraStream(userId: string, stream: MediaStream) {
 		const participant = this.findByUserId(userId);
 
-		console.log(" ** set video stream", participant, stream)
-
 		if (participant) {
 			participant.cameraStream = stream;
 		}
 		else {
-			console.warn("Set camera stream failed. Participant with user ID not found", userId);
+			console.error("Set camera stream failed. Participant with user ID not found", userId);
 		}
 	}
 
 	removeParticipantCameraStream(userId: string) {
 		const participant = this.findByUserId(userId);
 
-		console.log(" ** remove video stream", participant)
-
 		if (participant) {
 			Devices.stopMediaTracks(participant.cameraStream);
 			participant.cameraStream = null;
 		}
 		else {
-			console.warn("Remove camera stream failed. Participant with user ID not found", userId);
+			console.error("Remove camera stream failed. Participant with user ID not found", userId);
 		}
 	}
 
-	setParticipantMicrophoneMute(userId: string, muted: boolean) {
+	setParticipantMicrophoneActive(userId: string, active: boolean) {
 		const participant = this.findByUserId(userId);
 
 		if (participant) {
-			participant.microphoneMuted = muted;
+			participant.microphoneActive = active;
 		}
 		else {
-			console.warn("Set microphone mute failed. Participant with user ID not found", userId);
+			console.error("Set microphone active failed. Participant with user ID not found", userId);
 		}
 	}
 
@@ -85,7 +83,7 @@ class ParticipantStore {
 			participant.microphoneStream = stream;
 		}
 		else {
-			console.warn("Set microphone stream failed. Participant with user ID not found", userId);
+			console.error("Set microphone stream failed. Participant with user ID not found", userId);
 		}
 	}
 
@@ -97,7 +95,18 @@ class ParticipantStore {
 			participant.microphoneStream = null;
 		}
 		else {
-			console.warn("Remove microphone stream failed. Participant with user ID not found", userId);
+			console.error("Remove microphone stream failed. Participant with user ID not found", userId);
+		}
+	}
+
+	setParticipantScreenActive(userId: string, active: boolean) {
+		const participant = this.findByUserId(userId);
+
+		if (participant) {
+			participant.screenActive = active;
+		}
+		else {
+			console.error("Set screen active failed. Participant with user ID not found", userId);
 		}
 	}
 
@@ -108,7 +117,7 @@ class ParticipantStore {
 			participant.screenStream = stream;
 		}
 		else {
-			console.warn("Set screen stream failed. Participant with user ID not found", userId);
+			console.error("Set screen stream failed. Participant with user ID not found", userId);
 		}
 	}
 
@@ -120,7 +129,7 @@ class ParticipantStore {
 			participant.screenStream = null;
 		}
 		else {
-			console.warn("Remove screen stream failed. Participant with user ID not found", userId);
+			console.error("Remove screen stream failed. Participant with user ID not found", userId);
 		}
 	}
 
@@ -131,12 +140,20 @@ class ParticipantStore {
 			participant.streamState = state;
 		}
 		else {
-			console.warn("Set stream state failed. Participant with user ID not found", userId);
+			console.error("Set stream state failed. Participant with user ID not found", userId);
 		}
 	}
 
 	getWithStream() {
 		return this.participants.filter(participant => participant.streamState === State.CONNECTED);
+	}
+
+	getWithScreenStream() {
+		return this.participants.find(participant => participant.screenStream != null);
+	}
+
+	hasScreenStream() {
+		return this.participants.find(participant => participant.screenStream != null && participant.screenActive) != null;
 	}
 
 	clear() {

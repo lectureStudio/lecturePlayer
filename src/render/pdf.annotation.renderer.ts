@@ -22,19 +22,19 @@ export class PdfAnnotationRenderer {
 			// Open links in new tab.
 			linkService.externalLinkTarget = 2;
 
-			AnnotationLayer.render({
-				viewport: viewport,
-				div: root,
-				annotations: annotations,
-				page: pageProxy,
-				linkService: linkService,
-				downloadManager: null,
-				renderForms: false,
-				enableScripting: false,
-			});
+			// AnnotationLayer.render({
+			// 	viewport: viewport,
+			// 	div: root,
+			// 	annotations: annotations,
+			// 	page: pageProxy,
+			// 	linkService: linkService,
+			// 	downloadManager: null,
+			// 	renderForms: false,
+			// 	enableScripting: false,
+			// });
 
-			// Process interpolated text.
-			this.l10n.translate(root);
+			// // Process interpolated text.
+			// this.l10n.translate(root);
 		}
 	}
 }

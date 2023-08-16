@@ -1,51 +1,43 @@
 import { html } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
-import { MediaType } from "../../model/media-type";
 import { Devices } from "../../utils/devices";
-import { State } from "../../utils/state";
 import { Utils } from "../../utils/utils";
 import { I18nLitElement } from "../i18n-mixin";
 import { courseStore } from "../../store/course.store";
 import { autorun, observable } from "mobx";
 import { deviceStore } from "../../store/device.store";
 import { CourseParticipant, Participant } from "../../model/participant";
+import { Component } from "../component";
 import participantViewStyles from "./participant-view.scss";
 
 @customElement('participant-view')
-export class ParticipantView extends I18nLitElement {
+export class ParticipantView extends Component {
 
 	static styles = [
 		I18nLitElement.styles,
 		participantViewStyles
 	];
 
-	@property()
 	@observable
 	participant: CourseParticipant;
-
-	@property({ type: Boolean, reflect: true })
-	camActive: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
 	micActive: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
-	micMute: boolean = false;
-
-	@property({ type: Boolean, reflect: true })
-	camMute: boolean = false;
-
-	@property({ type: Boolean, reflect: true })
-	hasVideo: boolean = false;
-
-	@property({ type: Boolean, reflect: true })
-	isLocal: boolean = false;
+	camActive: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
 	isVisible: boolean = true;
 
 	@property({ type: Boolean, reflect: true })
 	isTalking: boolean = false;
+
+	@property({ type: Boolean, reflect: true })
+	isConference: boolean = false;
+
+	@property()
+	isLocal: boolean = false;
 
 	publisherId: bigint;
 
@@ -57,9 +49,6 @@ export class ParticipantView extends I18nLitElement {
 
 	@query("video")
 	video: HTMLVideoElement;
-
-	@property({ type: Boolean, reflect: true })
-	isConference: boolean = false;
 
 
 	constructor() {
@@ -78,37 +67,38 @@ export class ParticipantView extends I18nLitElement {
 		this.isConference = courseStore.conference;
 	}
 
-	addScreenVideo(video: HTMLVideoElement) {
-		this.dispatchEvent(Utils.createEvent("participant-screen-stream", {
-			participant: this,
-			state: State.CONNECTED,
-			video: video,
-		}));
+	protected firstUpdated() {
+		autorun(() => {
+			this.setAudioStream(this.participant.microphoneStream);
+		});
+		autorun(() => {
+			this.setVideoStream(this.participant.cameraStream);
+		});
 	}
 
-	removeScreenVideo() {
-		this.dispatchEvent(Utils.createEvent("participant-screen-stream", {
-			participant: this,
-			state: State.DISCONNECTED,
-		}));
+	protected render() {
+		this.micActive = this.participant.microphoneActive ?? false;
+		this.camActive = this.participant.cameraActive ?? false;
+
+		return html`
+			<div part="base" class="container">
+				<span class="name">${Participant.getFullName(this.participant)}</span>
+				<div class="controls">
+					<div class="media-state">
+						<div class="mic-state">
+							<sl-icon .name="${this.getMicrophoneIcon()}" id="mic-remote"></sl-icon>
+						</div>
+					</div>
+				</div>
+
+				<audio autoplay></audio>
+				<video autoplay playsInline></video>
+			</div>
+		`;
 	}
 
-	setMediaChange(type: MediaType, active: boolean) {
-		if (type === MediaType.Audio) {
-			this.micActive = active;
-			this.micMute = !active;
-		}
-		else if (type === MediaType.Camera) {
-			this.camActive = active;
-			this.camMute = !active;
-			this.hasVideo = active;
-		}
-		else if (type === MediaType.Screen) {
-			this.dispatchEvent(Utils.createEvent("participant-screen-visibility", {
-				participant: this,
-				visible: active,
-			}));
-		}
+	private getMicrophoneIcon() {
+		return (this.participant.microphoneActive ?? false) ? "microphone" : "microphone-mute";
 	}
 
 	private onStartMediaPlayback(e: CustomEvent) {
@@ -142,65 +132,8 @@ export class ParticipantView extends I18nLitElement {
 		}
 	}
 
-	private onAudioMute(e: CustomEvent) {
-		this.micMute = !this.micMute;
-		this.dispatchEvent(Utils.createEvent("participant-mic-mute", {
-			mute: this.micMute
-		}));
-	}
-
-	private onVideoMute() {
-		this.camMute = !this.camMute;
-		this.dispatchEvent(Utils.createEvent("participant-cam-mute", {
-			camMute: this.camMute
-		}));
-	}
-
-	protected firstUpdated() {
-		console.log(this.participant)
-
-		autorun(() => {
-			this.setAudioStream(this.participant.microphoneStream);
-		});
-		autorun(() => {
-			console.log(" * autorun camera stream")
-			this.setVideoStream(this.participant.cameraStream);
-		});
-	}
-
-	protected render() {
-		return html`
-			<div part="base" class="container">
-				<span class="name">${Participant.getFullName(this.participant)}</span>
-				<div class="controls">
-					<div class="media-state">
-						<div class="mic-state">
-							<sl-icon name="microphone" id="mic-remote"></sl-icon>
-							<sl-icon name="microphone-mute" id="mic-remote-muted"></sl-icon>
-						</div>
-					</div>
-					<div class="buttons">
-						<sl-button @click="${this.onAudioMute}" class="conference-control">
-							<sl-icon name="microphone" id="mic-local"></sl-icon>
-							<sl-icon name="microphone-mute" id="mic-local-muted"></sl-icon>
-						</sl-button>
-						<sl-button @click="${this.onVideoMute}" class="conference-control">
-							<sl-icon name="camera" id="cam-local"></sl-icon>
-							<sl-icon name="camera-mute" id="cam-local-muted"></sl-icon>
-						</sl-button>
-					</div>
-				</div>
-
-				<audio autoplay></audio>
-				<video autoplay playsInline></video>
-			</div>
-		`;
-	}
-
 	private setAudioStream(stream: MediaStream) {
-console.log(" * set audio stream", stream)
-
-		this.attachMediaStream(this.audio, stream);
+		Devices.attachMediaStream(this.audio, stream);
 
 		if (!stream) {
 			return;
@@ -219,9 +152,7 @@ console.log(" * set audio stream", stream)
 	}
 
 	private setVideoStream(stream: MediaStream) {
-console.log(" * set video stream", stream)
-
-		this.attachMediaStream(this.video, stream);
+		Devices.attachMediaStream(this.video, stream);
 
 		if (!stream) {
 			return;
@@ -233,15 +164,13 @@ console.log(" * set video stream", stream)
 			const track = tracks[0];
 
 			track.addEventListener("mute", (e) => {
-				this.hasVideo = false;
+				this.camActive = false;
 			});
 			track.addEventListener("unmute", (e) => {
-				this.hasVideo = !track.muted && !this.participant.cameraMuted;
+				this.camActive = !track.muted && this.participant.cameraActive;
 			});
 
-			this.hasVideo = this.isLocal || (!track.muted && !this.participant.cameraMuted);
-
-			console.log(" * set video play", this.isLocal, track.muted, this.participant.cameraMuted)
+			this.camActive = this.isLocal || (!track.muted && this.participant.cameraActive);
 		}
 
 		this.video.play()
@@ -250,14 +179,5 @@ console.log(" * set video stream", stream)
 					this.dispatchEvent(Utils.createEvent("participant-video-play-error"));
 				}
 			});
-	}
-
-	private attachMediaStream(element: HTMLMediaElement, stream: MediaStream) {
-		try {
-			element.srcObject = stream;
-		}
-		catch (e) {
-			console.error("Error attaching stream to element", e);
-		}
 	}
 }

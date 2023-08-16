@@ -8,7 +8,6 @@ import { I18nLitElement } from '../i18n-mixin';
 import { ParticipantView } from '../participant-view/participant-view';
 import { PlayerViewController } from './player-view.controller';
 import { ScreenView } from '../screen-view/screen-view';
-import { State } from '../../utils/state';
 import { autorun } from 'mobx';
 import { privilegeStore } from '../../store/privilege.store';
 import { courseStore } from '../../store/course.store';
@@ -70,10 +69,6 @@ export class PlayerView extends Component {
 		if (courseStore.conference) {
 			this.conferenceView.addGridElement(view);
 		}
-		else {
-			view.addEventListener("participant-screen-stream", this.onParticipantScreenStream.bind(this));
-			view.addEventListener("participant-screen-visibility", this.onParticipantScreenVisibility.bind(this));
-		}
 	}
 
 	cleanup() {
@@ -83,8 +78,6 @@ export class PlayerView extends Component {
 
 		// Cleanup screen view.
 		this.screenVisible = false;
-		this.screenView.removeVideo();
-		this.screenView.setState(State.DISCONNECTED);
 	}
 
 	override connectedCallback() {
@@ -99,10 +92,6 @@ export class PlayerView extends Component {
 		autorun(() => {
 			this.chatVisible = uiStateStore.chatVisible;
 		});
-
-		this.addEventListener("screen-view-video", (event: CustomEvent) => {
-			this.screenVisible = event.detail.hasVideo;
-		});
 	}
 
 	protected override firstUpdated() {
@@ -114,6 +103,8 @@ export class PlayerView extends Component {
 			// Course not loaded, nothing to show.
 			return null;
 		}
+
+		this.screenVisible = participantStore.hasScreenStream();
 
 		return html`
 			<sl-split-panel position="0" id="outer-split-panel">
@@ -136,7 +127,9 @@ export class PlayerView extends Component {
 								() => html`
 								<div class="slide-container">
 									<slide-view class="slides" .playerController="${this.playerController}"></slide-view>
-									<screen-view></screen-view>
+									${when(this.screenVisible, () => html`
+									<screen-view .participant="${participantStore.getWithScreenStream()}"></screen-view>
+									`)}
 								</div>
 								`)
 							}
@@ -160,26 +153,5 @@ export class PlayerView extends Component {
 				</div>
 			</sl-split-panel>
 		`;
-	}
-
-	private onParticipantState(event: CustomEvent) {
-		this.screenView.setState(event.detail.state);
-	}
-
-	private onParticipantScreenStream(event: CustomEvent) {
-		const state: State = event.detail.state;
-
-		if (state === State.CONNECTED) {
-			this.screenView.addVideo(event.detail.video);
-		}
-		else if (state === State.DISCONNECTED) {
-			this.screenView.removeVideo();
-		}
-	}
-
-	private onParticipantScreenVisibility(event: CustomEvent) {
-		const visible: boolean = event.detail.visible;
-
-		this.screenView.setVideoVisible(visible);
 	}
 }

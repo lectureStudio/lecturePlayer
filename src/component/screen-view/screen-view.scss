@@ -23,7 +23,6 @@
 	z-index: 1;
 }
 
-:host(:not([hasVideo])),
-:host(:not([state="1"])) {
+:host(:not([hasVideo])) {
 	display: none;
 }

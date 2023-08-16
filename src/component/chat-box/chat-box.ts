@@ -34,7 +34,7 @@ export class ChatBox extends Component {
 
 
 	override connectedCallback() {
-		super.connectedCallback()
+		super.connectedCallback();
 
 		// Observe the messsage container and register added message elements for visibility observation.
 		this.mutationObserver = new MutationObserver(this.onMessageContainerMutation.bind(this));

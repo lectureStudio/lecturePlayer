@@ -1,29 +1,27 @@
 import { html } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
-import { State } from "../../utils/state";
 import { Utils } from "../../utils/utils";
 import { I18nLitElement } from "../i18n-mixin";
+import { CourseParticipant } from "../../model/participant";
+import { Component } from "../component";
+import { Devices } from "../../utils/devices";
 import screenViewStyles from "./screen-view.scss";
 
 @customElement('screen-view')
-export class ScreenView extends I18nLitElement {
+export class ScreenView extends Component {
 
 	static styles = [
 		I18nLitElement.styles,
 		screenViewStyles
 	];
 
-	@property({ type: State, reflect: true })
-	private state: State = State.DISCONNECTED;
-
 	@property({ type: Boolean, reflect: true })
 	private hasVideo: boolean = false;
 
-	@query(".container")
-	private container: HTMLElement;
-
 	@query("video")
 	private video: HTMLVideoElement;
+
+	participant: CourseParticipant;
 
 
 	constructor() {
@@ -32,35 +30,60 @@ export class ScreenView extends I18nLitElement {
 		document.addEventListener("player-start-media", this.onStartMediaPlayback.bind(this));
 	}
 
-	addVideo(video: HTMLVideoElement) {
-		if (!video) {
-			if (Utils.isFirefox()) {
-				// Firefox does not remove/close the media stream. The stream starts playing again,
-				// if the remote peer starts sharing media.
-				this.setHasVideo(true);
-			}
+	protected firstUpdated() {
+		this.setVideoStream(this.participant.screenStream);
+	}
+
+	protected render() {
+		return html`
+			<div class="container">
+				<video autoplay playsInline></video>
+			</div>
+		`;
+	}
+
+	private setHasVideo(has: boolean) {
+		this.hasVideo = has;
+	}
+
+	private setVideoVisibility() {
+		if (!this.video) {
 			return;
 		}
 
-		const stream = video.srcObject as MediaStream;
+		const stream = this.video.srcObject as MediaStream;
 		const tracks = stream.getVideoTracks();
 
 		if (stream.getVideoTracks().length > 0) {
+			const track = tracks[0];
+
+			this.setHasVideo(!track.muted && this.participant.screenActive);
+		}
+	}
+
+	private setVideoStream(stream: MediaStream) {
+		Devices.attachMediaStream(this.video, stream);
+
+		if (!stream) {
+			return;
+		}
+
+		const tracks = stream.getVideoTracks();
+
+		if (tracks.length > 0) {
 			const track = tracks[0];
 
 			track.addEventListener("mute", (e) => {
 				this.setHasVideo(false);
 			});
 			track.addEventListener("unmute", (e) => {
-				this.setHasVideo(!track.muted && this.state === State.CONNECTED);
+				this.setHasVideo(!track.muted && !this.participant.screenActive);
 			});
 
-			this.setHasVideo(!track.muted && this.state === State.CONNECTED);
+			this.setHasVideo(!track.muted && this.participant.screenActive);
 		}
 
-		this.container.appendChild(video);
-
-		video.play()
+		this.video.play()
 			.catch(error => {
 				if (error.name == "NotAllowedError") {
 					this.dispatchEvent(Utils.createEvent("participant-video-play-error"));
@@ -68,68 +91,12 @@ export class ScreenView extends I18nLitElement {
 			});
 	}
 
-	removeVideo() {
-		if (!Utils.isFirefox()) {
-			// Firefox does not remove/close the media stream. The stream starts playing again,
-			// if the remote peer starts sharing media. Other browsers do.
-			// Thus do not remove the video element.
-			this.removeMedia("video");
-		}
-
-		this.setHasVideo(false);
-	}
-
-	setVideoVisible(visible: boolean) {
-		this.setHasVideo(visible);
-	}
-
-	setState(state: State) {
-		this.state = state;
-	}
-
-	private setHasVideo(has: boolean) {
-		this.hasVideo = has;
-
-		this.dispatchEvent(Utils.createEvent("screen-view-video", {
-			hasVideo: this.hasVideo
-		}));
-	}
-
-	private setVideoVisibility(video: HTMLVideoElement) {
-		if (!video) {
-			return;
-		}
-
-		const stream = video.srcObject as MediaStream;
-		const tracks = stream.getVideoTracks();
-
-		if (stream.getVideoTracks().length > 0) {
-			const track = tracks[0];
-
-			this.setHasVideo(!track.muted && this.state === State.CONNECTED);
-		}
-	}
-
 	private onStartMediaPlayback(e: CustomEvent) {
 		if (this.video) {
 			this.video.play()
 				.then(() => {
-					this.setVideoVisibility(this.video);
+					this.setVideoVisibility();
 				});
 		}
-	}
-
-	private removeMedia(type: string) {
-		const element = this.container.querySelector(type);
-
-		if (element) {
-			this.container.removeChild(element);
-		}
-	}
-
-	render() {
-		return html`
-			<div class="container"></div>
-		`;
 	}
 }

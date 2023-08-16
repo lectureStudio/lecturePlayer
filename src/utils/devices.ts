@@ -279,4 +279,13 @@ export class Devices {
 				console.error(error);
 			});
 	}
+
+	static attachMediaStream(mediaElement: HTMLMediaElement, stream: MediaStream) {
+		try {
+			mediaElement.srcObject = stream;
+		}
+		catch (e) {
+			console.error("Error attaching stream to element", e);
+		}
+	}
 }

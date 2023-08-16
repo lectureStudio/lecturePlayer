@@ -1,5 +1,6 @@
 import { Utils } from "../utils/utils";
 import { Client, Message } from '@stomp/stompjs';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface EventSubService {
 
@@ -31,7 +32,8 @@ export class EventService extends EventTarget {
 		const client = new Client({
 			brokerURL: "wss://" + window.location.host + "/ws-state",
 			connectHeaders: {
-				courseId: this.courseId.toString()
+				"course-id": this.courseId.toString(),
+				"client-id": uuidv4()
 			},
 			reconnectDelay: 1000,
 			heartbeatIncoming: 1000,
@@ -80,6 +82,13 @@ export class EventService extends EventTarget {
 				// console.log("Quiz state", state);
 
 				this.dispatchEvent(Utils.createEvent("quiz-state", state));
+			});
+			client.subscribe("/topic/course/event/" + this.courseId + "/media", (message: Message) => {
+				const state = JSON.parse(message.body);
+
+				// console.log("Media", state);
+
+				this.dispatchEvent(Utils.createEvent("media-state", state));
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/presence", (message: Message) => {
 				const state = JSON.parse(message.body);

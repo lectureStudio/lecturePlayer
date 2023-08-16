@@ -85,9 +85,6 @@ export class ConferenceView extends I18nLitElement {
 			view.isVisible = true;
 		}
 
-		view.addEventListener("participant-screen-stream", this.onParticipantScreenStream.bind(this));
-		view.addEventListener("participant-screen-visibility", this.onParticipantScreenVisibility.bind(this));
-
 		this.gridContainer.appendChild(view);
 
 		this.updateGridState();
@@ -331,15 +328,9 @@ export class ConferenceView extends I18nLitElement {
 		}
 
 		if (state === State.CONNECTED) {
-			this.screenView.setState(State.CONNECTED);
-			this.screenView.addVideo(event.detail.video);
-
 			uiStateStore.setContentFocus(ContentFocus.ScreenShare);
 		}
 		else if (state === State.DISCONNECTED) {
-			this.screenView.setState(State.DISCONNECTED);
-			this.screenView.removeVideo();
-
 			if (uiStateStore.contentFocus === ContentFocus.ScreenShare) {
 				// Change focus only if screen-share is active.
 				uiStateStore.setContentFocus(uiStateStore.previousContentFocus);
@@ -349,8 +340,6 @@ export class ConferenceView extends I18nLitElement {
 
 	private onParticipantScreenVisibility(event: CustomEvent) {
 		const visible: boolean = event.detail.visible;
-
-		this.screenView.setVideoVisible(visible);
 
 		uiStateStore.setContentFocus(visible ? ContentFocus.ScreenShare : uiStateStore.previousContentFocus);
 	}

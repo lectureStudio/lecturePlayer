@@ -48,13 +48,6 @@
 	margin: 0.25em;
 	z-index: 2;
 }
-:host .controls .buttons {
-	display: grid;
-	grid-auto-flow: column;
-	column-gap: 3px;
-	width: 100%;
-	justify-content: end;
-}
 :host .controls .media-state {
 	display: flex;
 	background: #F3F4F633;
@@ -70,19 +63,6 @@
 	min-height: 20px;
 	height: 20px;
 }
-.controls button {
-	display: flex;
-	align-items: center;
-	background-color: #CBD5E1;
-	border: none;
-	color: #334155;
-	height: 1.5em;
-	width: 1.5em;
-}
-.controls button:hover {
-	background-color: #F1F5F9;
-	color: #334155;
-}
 
 :host(:not([isVisible])) {
 	display: none;
@@ -92,49 +72,13 @@
 	border: 3px solid rgb(60, 217, 60);
 }
 
-:host(:not([hasVideo])) video {
+:host(:not([camActive])) video {
 	display: none;
 }
 
-:host(:not([isLocal])) .controls .buttons {
-	display: none;
-}
-:host([micActive]) #mic-remote-muted,
 :not([micActive]) #mic-remote {
-	display: none;
-}
-:host([micActive]) #mic-remote,
-:not([micActive]) #mic-remote-muted {
-	display: initial;
-}
-:not([micActive]) #mic-remote-muted {
-	color: #DC2626;
-}
-:host([micMute]) #mic-local,
-:not([micMute]) #mic-local-muted {
-	display: none;
-}
-:host([micMute]) #mic-local-muted,
-:not([micMute]) #mic-local {
-	display: initial;
-}
-:host([micMute]) #mic-local-muted {
-	color: #DC2626;
-}
-:host([camMute]) #cam-local,
-:not([camMute]) #cam-local-muted {
-	display: none;
-}
-:host([camMute]) #cam-local-muted,
-:not([camMute]) #cam-local {
-	display: initial;
-}
-:host([camMute]) #cam-local-muted {
 	color: #DC2626;
 }
 :host([isConference]) .conference-control {
-	display: none;
-}
-:host([camMute]) video {
 	display: none;
 }

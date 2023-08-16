@@ -42,6 +42,7 @@ import { MouseListener } from '../../event/mouse-listener';
 import { RenderController } from '../../render/render-controller';
 import { SlideView } from '../slide-view/slide-view';
 import { deviceStore } from '../../store/device.store';
+import { MediaStateMessage } from '../../model/message/media-state.message';
 
 export class PlayerController implements ReactiveController {
 
@@ -120,6 +121,7 @@ export class PlayerController implements ReactiveController {
 		this.eventService.addEventListener("recording-state", this.onRecordingState.bind(this));
 		this.eventService.addEventListener("stream-state", this.onStreamState.bind(this));
 		this.eventService.addEventListener("speech-state", this.onSpeechState.bind(this));
+		this.eventService.addEventListener("media-state", this.onMediaState.bind(this));
 		this.eventService.addEventListener("participant-presence", this.onParticipantPresence.bind(this));
 
 		this.janusService.addEventListener("janus-connection-established", this.onJanusConnectionEstablished.bind(this));
@@ -147,8 +149,6 @@ export class PlayerController implements ReactiveController {
 	}
 
 	setSlideView(slideView: SlideView) {
-		console.log("~ set slide view")
-
 		this.renderController.setSlideView(slideView);
 
 		const toolController = new ToolController(this.renderController);
@@ -300,7 +300,10 @@ export class PlayerController implements ReactiveController {
 	private setDisconnected() {
 		this.setFullscreen(false);
 		this.playbackService.dispose();
-		this.viewController.setDisconnected();
+
+		if (this.viewController) {
+			this.viewController.setDisconnected();
+		}
 
 		participantStore.clear();
 		chatStore.clear();
@@ -566,6 +569,21 @@ export class PlayerController implements ReactiveController {
 
 				Toaster.showInfo(`${t("course.speech.request.rejected")}`);
 			}
+		}
+	}
+
+	private onMediaState(event: CustomEvent) {
+		const message: MediaStateMessage = event.detail;
+		const userId = message.userId;
+
+		if (message.state.Audio != null) {
+			participantStore.setParticipantMicrophoneActive(userId, message.state.Audio);
+		}
+		if (message.state.Camera != null) {
+			participantStore.setParticipantCameraActive(userId, message.state.Camera);
+		}
+		if (message.state.Screen != null) {
+			participantStore.setParticipantScreenActive(userId, message.state.Screen);
 		}
 	}
 
