@@ -12,6 +12,7 @@ import { autorun } from 'mobx';
 import { ToolType } from '../../tool/tool';
 import { toolStore } from '../../store/tool.store';
 import { PlayerController } from '../player/player.controller';
+import { uiStateStore } from '../../store/ui-state.store';
 import slideViewStyles from './slide-view.scss';
 import textLayerStyles from './text-layer.scss';
 import annotationLayerStyles from './annotation-layer.scss';
@@ -109,36 +110,7 @@ export class SlideView extends LitElement {
 		listener.unregisterElement(this.volatileCanvas);
 	}
 
-	getViewSize(page: Page) {
-		const bounds = page.getPageBounds();
-
-		let width = this.clientWidth;
-		let height = this.clientHeight;
-
-		const slideRatio = bounds.width / bounds.height;
-		const viewRatio = width / height;
-
-		if (viewRatio > slideRatio) {
-			width = height * slideRatio;
-		}
-		else {
-			height = width / slideRatio;
-		}
-
-		if (width === 0 || height === 0) {
-			return null;
-		}
-
-		const pixelRatio = window.devicePixelRatio || 1;
-		const sfx = this.approximateFraction(pixelRatio);
-
-		width = this.roundToDivide(width, sfx[1]);
-		height = this.roundToDivide(height, sfx[1]);
-
-		return new Dimension(width, height);
-	}
-
-	checkSize() {
+	updateSurfaceSize() {
 		this.resize();
 	}
 
@@ -177,7 +149,38 @@ export class SlideView extends LitElement {
 		this.actionRenderSurface.setSize(size.width, size.height);
 		this.volatileRenderSurface.setSize(size.width, size.height);
 
+		uiStateStore.setSlideSurfaceSize(this.slideRenderSurface.getSize());
+
 		this.renderController.render();
+	}
+
+	private getViewSize(page: Page) {
+		const bounds = page.getPageBounds();
+
+		let width = this.clientWidth;
+		let height = this.clientHeight;
+
+		const slideRatio = bounds.width / bounds.height;
+		const viewRatio = width / height;
+
+		if (viewRatio > slideRatio) {
+			width = height * slideRatio;
+		}
+		else {
+			height = width / slideRatio;
+		}
+
+		if (width === 0 || height === 0) {
+			return null;
+		}
+
+		const pixelRatio = window.devicePixelRatio || 1;
+		const sfx = this.approximateFraction(pixelRatio);
+
+		width = this.roundToDivide(width, sfx[1]);
+		height = this.roundToDivide(height, sfx[1]);
+
+		return new Dimension(width, height);
 	}
 
 	private setLayerDimensions(div: HTMLElement, pageWidth: number, pageHeight: number) {

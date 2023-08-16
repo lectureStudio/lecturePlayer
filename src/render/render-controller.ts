@@ -33,7 +33,6 @@ import { PenRenderer } from "./pen.renderer";
 import { Brush } from "../paint/brush";
 import { SlideView } from "../component/slide-view/slide-view";
 import { AnnotationLayerSurface } from "./annotation-layer-surface";
-import { uiStateStore } from "../store/ui-state.store";
 
 export class RenderController {
 
@@ -99,15 +98,15 @@ export class RenderController {
 
 		this.page = page;
 
+		if (!this.seek) {
+			this.enableRendering();
+		}
+
 		if (!this.slideView) {
 			return;
 		}
 
-		this.updateSurfaceSize(page);
-
-		if (!this.seek) {
-			this.enableRendering();
-		}
+		this.slideView.updateSurfaceSize();
 
 		this.renderAllLayers(page);
 	}
@@ -156,22 +155,6 @@ export class RenderController {
 		if (this.page) {
 			this.page.removeChangeListener(this.pageChangeListener);
 		}
-	}
-
-	private updateSurfaceSize(page: Page): void {
-		this.slideView.checkSize();
-
-		const size = this.slideView.getViewSize(page);
-
-		if (!size) {
-			return;
-		}
-
-		this.slideRenderSurface.setSize(size.width, size.height);
-		this.actionRenderSurface.setSize(size.width, size.height);
-		this.volatileRenderSurface.setSize(size.width, size.height);
-
-		uiStateStore.setSlideSurfaceSize(this.slideRenderSurface.getSize());
 	}
 
 	private enableRendering(): void {

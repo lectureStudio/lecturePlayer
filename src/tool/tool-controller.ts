@@ -13,7 +13,6 @@ import { Tool, ToolType } from "./tool";
 import { ToolContext } from "./tool-context";
 import { UndoTool } from "./undo.tool";
 import { Action } from "../action/action";
-import { StreamPagePlaybackAction } from "../action/stream.playback.action";
 import { autorun } from "mobx";
 import { documentStore } from "../store/document.store";
 import { toolStore } from "../store/tool.store";
