@@ -56,7 +56,7 @@ export class SpeechAcceptedModal extends Modal {
 
 	protected render() {
 		return html`
-			<wsl-dialog label="${t("course.speech.request.accepted")}">
+			<sl-dialog label="${t("course.speech.request.accepted")}">
 				<article>
 					<label class="form-label pb-2">
 						${t("course.speech.request.accepted.description")}
@@ -80,7 +80,7 @@ export class SpeechAcceptedModal extends Modal {
 						${t("course.speech.request.start")}
 					</sl-button>
 				</div>
-			</wsl-dialog>
+			</sl-dialog>
 		`;
 	}
 }

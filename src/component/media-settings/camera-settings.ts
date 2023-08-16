@@ -1,10 +1,12 @@
 import { html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
+import { when } from 'lit/directives/when.js';
 import { t } from '../i18n-mixin';
 import { DeviceInfo, Devices } from '../../utils/devices';
 import { SlSelect } from '@shoelace-style/shoelace';
 import { MediaSettings } from './media-settings';
 import { deviceStore } from '../../store/device.store';
+import { courseStore } from '../../store/course.store';
 import cameraSettingsStyles from './camera-settings.scss';
 
 @customElement("camera-settings")
@@ -28,12 +30,8 @@ export class CameraSettings extends MediaSettings {
 	cameraSelect: SlSelect;
 
 
-	override connectedCallback() {
-		super.connectedCallback();
-	}
-
 	override disconnectedCallback() {
-		Devices.stopMediaTracks(<MediaStream> this.video.srcObject);
+		Devices.stopVideoTracks(<MediaStream> this.video.srcObject);
 
 		this.video.srcObject = null;
 
@@ -54,6 +52,8 @@ export class CameraSettings extends MediaSettings {
 
 	protected override updateModel(result: DeviceInfo, cameraBlocked: boolean) {
 		const devices = result.devices;
+
+		Devices.stopVideoTracks(this.video.srcObject as MediaStream);
 
 		this.videoInputDevices = devices.filter(device => device.kind === "videoinput");
 		this.videoInputBlocked = cameraBlocked;
@@ -145,7 +145,10 @@ export class CameraSettings extends MediaSettings {
 			</sl-alert>
 
 			<form id="device-select-form">
+				${when(courseStore.conference, () => html`
 				<sl-switch id="cameraMuteOnEntry" name="cameraMuteOnEntry" size="small" ?checked=${deviceStore.cameraMuteOnEntry}>${t("devices.camera.mute.on.entry")}</sl-switch>
+				`)}
+
 				<div class="container2">
 					<video id="cameraPreview" class="video" playsinline autoplay muted></video>
 					<div class="controls">

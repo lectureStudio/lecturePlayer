@@ -27,17 +27,8 @@ class DeviceStore {
 	loadDeviceSettings() {
 		const json = localStorage.getItem("device.store");
 
-		if (!json) {
-			return;
-		}
-
-		const settings: any = JSON.parse(json);
-		const propertyNames = Object.getOwnPropertyNames(this);
-
-		for (const name of propertyNames) {
-			if (settings.hasOwnProperty(name)) {
-				Object.defineProperty(this, name, settings[name]);
-			}
+		if (json) {
+			Object.assign(this, JSON.parse(json));
 		}
 	}
 }

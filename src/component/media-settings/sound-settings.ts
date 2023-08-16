@@ -1,10 +1,12 @@
 import { html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
+import { when } from 'lit/directives/when.js';
 import { t } from '../i18n-mixin';
 import { DeviceInfo, Devices } from '../../utils/devices';
 import { SlSelect } from '@shoelace-style/shoelace';
 import { MediaSettings } from './media-settings';
 import { deviceStore } from '../../store/device.store';
+import { courseStore } from '../../store/course.store';
 
 @customElement("sound-settings")
 export class SoundSettings extends MediaSettings {
@@ -27,10 +29,6 @@ export class SoundSettings extends MediaSettings {
 	@query('#meter')
 	meterCanvas: HTMLCanvasElement;
 
-
-	override connectedCallback() {
-		super.connectedCallback();
-	}
 
 	override disconnectedCallback() {
 		Devices.stopMediaTracks(<MediaStream> this.audio.srcObject);
@@ -57,6 +55,8 @@ export class SoundSettings extends MediaSettings {
 
 	protected override updateModel(result: DeviceInfo, cameraBlocked: boolean) {
 		const devices = result.devices;
+
+		Devices.stopMediaTracks(<MediaStream> this.audio.srcObject);
 
 		this.audioInputDevices = devices.filter(device => device.kind === "audioinput");
 		this.audioOutputDevices = devices.filter(device => device.kind === "audiooutput");
@@ -99,6 +99,8 @@ export class SoundSettings extends MediaSettings {
 			}
 		};
 
+		deviceStore.microphoneDeviceId = audioSource;
+
 		navigator.mediaDevices.getUserMedia(audioConstraints)
 			.then(audioStream => {
 				audioStream.getAudioTracks().forEach(track => (<MediaStream> this.audio.srcObject).addTrack(track));
@@ -117,6 +119,8 @@ export class SoundSettings extends MediaSettings {
 	private onSpeakerChange(event: Event) {
 		const audioSink = (<HTMLInputElement> event.target).value;
 
+		deviceStore.speakerDeviceId = audioSink;
+
 		Devices.setAudioSink(this.audio, audioSink);
 	}
 
@@ -130,7 +134,10 @@ export class SoundSettings extends MediaSettings {
 			</sl-alert>
 
 			<form id="device-select-form">
+				${when(courseStore.conference, () => html`
 				<sl-switch id="microphoneMuteOnEntry" name="microphoneMuteOnEntry" size="small" ?checked=${deviceStore.microphoneMuteOnEntry}>${t("devices.microphone.mute.on.entry")}</sl-switch>
+				`)}
+
 				${this.renderDevices(this.audioInputDevices, this.onMicrophoneChange, "microphoneDeviceId", "microphoneSelect", t("devices.microphone"))}
 				${this.renderDevices(this.audioOutputDevices, this.onSpeakerChange, "speakerDeviceId", "speakerSelect", t("devices.speaker"))}
 			</form>
