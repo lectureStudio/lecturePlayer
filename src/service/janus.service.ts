@@ -11,6 +11,7 @@ import { StreamPageSelectedAction } from "../action/stream.page.selected.action"
 import { StreamAction } from "../action/stream.action";
 import { SlideDocument } from "../model/document";
 import { participantStore } from "../store/participants.store";
+import { userStore } from "../store/user.store";
 
 export class JanusService extends EventTarget {
 
@@ -291,6 +292,8 @@ export class JanusService extends EventTarget {
 		else if (state === State.DISCONNECTED) {
 			document.dispatchEvent(Utils.createEvent("speech-canceled"));
 		}
+
+		participantStore.setParticipantStreamState(userStore.userId, state);
 	}
 
 	private onPublisherDestroyed(event: CustomEvent) {

@@ -6,6 +6,7 @@ import { Utils } from "../utils/utils";
 import { JanusParticipant, JanusStreamType } from "./janus-participant";
 import { userStore } from "../store/user.store";
 import { deviceStore } from "../store/device.store";
+import { participantStore } from "../store/participants.store";
 
 export class JanusPublisher extends JanusParticipant {
 
@@ -23,9 +24,7 @@ export class JanusPublisher extends JanusParticipant {
 
 		this.roomId = roomId;
 		this.opaqueId = opaqueId;
-		this.view.isLocal = true;
 		this.publisherName = userName;
-		this.view.name = userName;
 
 		document.addEventListener("lect-device-change", this.onDeviceChange.bind(this));
 		document.addEventListener("lect-share-screen", this.onShareScreen.bind(this));
@@ -121,8 +120,6 @@ export class JanusPublisher extends JanusParticipant {
 			if (event === "joined") {
 				this.publisherId = BigInt(message["id"]);
 
-				this.view.publisherId = this.publisherId;
-
 				this.createOffer();
 				this.setState(State.CONNECTING);
 			}
@@ -212,9 +209,8 @@ export class JanusPublisher extends JanusParticipant {
 			// A new track needs to be added and other participants notified of its existence.
 			this.addNewTrack(JanusStreamType.screen, true, Devices.screenErrorHandler)
 				.then(() => {
-					const muteAction = new StreamMediaChangeAction(MediaType.Screen, true);
-
-					this.sendData(muteAction.toBuffer());
+					// TODO: send event
+					participantStore.setParticipantScreenActive(userStore.userId, true);
 				});
 		}
 	}
@@ -323,20 +319,14 @@ export class JanusPublisher extends JanusParticipant {
 
 		if (track.kind === "audio") {
 			// Ignore local audio tracks, they'd generate echo anyway.
+			participantStore.setParticipantMicrophoneActive(userStore.userId, true);
 			return;
 		}
 		else if (track.kind === "video") {
-			const mediaElement = document.createElement("video");
-			mediaElement.playsInline = true;
-			mediaElement.autoplay = true;
-			mediaElement.muted = true;
-
 			const stream = new MediaStream();
 			stream.addTrack(track);
 
 			this.streams.set(id, stream);
-
-			Janus.attachMediaStream(mediaElement, stream);
 
 			const constraints = track.getConstraints();
 
@@ -345,13 +335,16 @@ export class JanusPublisher extends JanusParticipant {
 				console.log("---- add video");
 
 				// Must be a camera device.
-				this.view.addVideo(mediaElement);
+
+				participantStore.setParticipantCameraStream(userStore.userId, stream);
+				participantStore.setParticipantCameraActive(userStore.userId, true);
 			}
 			else {
 
 				console.log("---- add screen");
 
-				this.view.addScreenVideo(mediaElement);
+				participantStore.setParticipantScreenStream(userStore.userId, stream);
+				participantStore.setParticipantScreenActive(userStore.userId, true);
 			}
 		}
 	}
@@ -376,7 +369,7 @@ export class JanusPublisher extends JanusParticipant {
 		this.streams.delete(id);
 
 		if (kind === "audio") {
-			this.view.removeAudio();
+			participantStore.removeParticipantMicrophoneStream(userStore.userId);
 		}
 		else if (kind === "video") {
 			if (deviceId) {
@@ -384,13 +377,13 @@ export class JanusPublisher extends JanusParticipant {
 				console.log("---- remove video");
 
 				// Must be a camera device.
-				this.view.removeVideo();
+				participantStore.removeParticipantCameraStream(userStore.userId);
 			}
 			else {
 
 				console.log("---- remove screen");
 
-				this.view.removeScreenVideo();
+				participantStore.removeParticipantScreenStream(userStore.userId);
 			}
 		}
 	}
@@ -398,9 +391,8 @@ export class JanusPublisher extends JanusParticipant {
 	protected override onMuteAudio(mute: boolean) {
 		super.onMuteAudio(mute);
 
-		const micMuteAction = new StreamMediaChangeAction(MediaType.Audio, !mute);
-
-		this.sendData(micMuteAction.toBuffer());
+		// TODO: send event
+		participantStore.setParticipantMicrophoneActive(userStore.userId, !mute);
 	}
 
 	protected override onMuteVideo(mute: boolean) {
@@ -422,9 +414,8 @@ export class JanusPublisher extends JanusParticipant {
 
 			this.addNewTrack(JanusStreamType.video, captureSettings, Devices.cameraErrorHandler)
 				.then(() => {
-					const muteAction = new StreamMediaChangeAction(MediaType.Camera, true);
-
-					this.sendData(muteAction.toBuffer());
+					// TODO: send event
+					participantStore.setParticipantCameraActive(userStore.userId, true);
 				});
 		}
 	}
@@ -588,9 +579,20 @@ export class JanusPublisher extends JanusParticipant {
 	private async muteTrack(mid: string, enable: boolean, mediaType: MediaType, onError: (error: any) => void) {
 		this.enableTrack(mid, enable)
 			.then(() => {
-				const muteAction = new StreamMediaChangeAction(mediaType, enable);
+				// TODO: send event
+				switch (mediaType) {
+					case MediaType.Audio:
+						participantStore.setParticipantMicrophoneActive(userStore.userId, enable);
+						break;
 
-				this.sendData(muteAction.toBuffer());
+					case MediaType.Camera:
+						participantStore.setParticipantCameraActive(userStore.userId, enable);
+						break;
+
+					case MediaType.Screen:
+						participantStore.setParticipantScreenActive(userStore.userId, enable);
+						break;
+				}
 			})
 			.catch(onError);
 	}
