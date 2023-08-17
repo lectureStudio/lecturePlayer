@@ -75,31 +75,32 @@ export class Devices {
 		return this.getUserMedia(constraints);
 	}
 
-	static enumerateVideoDevices(useSettings: boolean): Promise<DeviceInfo> {
+	static enumerateVideoDevices(): Promise<DeviceInfo> {
 		let constraints: MediaStreamConstraints = {};
 
-		if (useSettings) {
-			const videoSource = deviceStore.cameraDeviceId;
+		const videoSource = deviceStore.cameraDeviceId;
 
-			if (videoSource) {
-				constraints.video = {
-					deviceId: { exact: videoSource },
-					width: { ideal: 1280 },
-					height: { ideal: 720 },
-					facingMode: "user"
-				}
-			}
-			else {
-				constraints.video = {
-					width: { ideal: 1280 },
-					height: { ideal: 720 }
-				}
+		if (videoSource) {
+			constraints.video = {
+				deviceId: { exact: videoSource },
+				width: { ideal: 1280 },
+				height: { ideal: 720 },
+				facingMode: "user"
 			}
 		}
+		else {
+			constraints.video = {
+				width: { ideal: 1280 },
+				height: { ideal: 720 },
+				facingMode: "user"
+			}
+		}
+
 		if (!constraints.video) {
 			constraints.video = {
 				width: { ideal: 1280 },
-				height: { ideal: 720 }
+				height: { ideal: 720 },
+				facingMode: "user"
 			}
 		}
 

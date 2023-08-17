@@ -20,9 +20,6 @@ export class CameraSettings extends MediaSettings {
 	@property()
 	videoInputDevices: MediaDeviceInfo[] = [];
 
-	@property()
-	videoInputBlocked: boolean;
-
 	@query('#cameraPreview')
 	video: HTMLVideoElement;
 
@@ -31,15 +28,28 @@ export class CameraSettings extends MediaSettings {
 
 
 	override disconnectedCallback() {
-		Devices.stopVideoTracks(<MediaStream> this.video.srcObject);
+		if (this.video) {
+			Devices.stopVideoTracks(<MediaStream> this.video.srcObject);
 
-		this.video.srcObject = null;
+			this.video.srcObject = null;
+		}
 
 		super.disconnectedCallback();
 	}
 
 	queryDevices(): void {
-		this.enumerateDevices();
+		Devices.enumerateVideoDevices()
+			.then((result: DeviceInfo) => {
+				this.error = false;
+
+				this.updateBlockedSettings(result);
+				this.updateModel(result, false);
+			})
+			.catch(error => {
+				console.error(error);
+
+				this.setDeviceError(error, true);
+			});
 	}
 
 	protected override setEnabled(enabled: boolean) {
@@ -56,7 +66,7 @@ export class CameraSettings extends MediaSettings {
 		Devices.stopVideoTracks(this.video.srcObject as MediaStream);
 
 		this.videoInputDevices = devices.filter(device => device.kind === "videoinput");
-		this.videoInputBlocked = cameraBlocked;
+		this.inputBlocked = cameraBlocked;
 
 		this.video.srcObject = result.stream;
 		this.video.muted = true;
@@ -66,20 +76,6 @@ export class CameraSettings extends MediaSettings {
 		}
 
 		this.setEnabled(true);
-	}
-
-	private enumerateDevices() {
-		Devices.enumerateVideoDevices(true)
-			.then((result: DeviceInfo) => {
-				this.updateBlockedSettings(result);
-				this.updateModel(result, false);
-			})
-			.catch(error => {
-				console.error(error);
-
-				this.devicesBlocked = true;
-				this.setError();
-			});
 	}
 
 	private updateBlockedSettings(info: DeviceInfo) {
@@ -96,7 +92,7 @@ export class CameraSettings extends MediaSettings {
 
 		if (videoSource === "none") {
 			this.video.style.display = "none";
-			this.videoInputBlocked = false;
+			this.inputBlocked = false;
 			return;
 		}
 
@@ -117,17 +113,12 @@ export class CameraSettings extends MediaSettings {
 				this.video.srcObject = newStream;
 				this.video.style.display = "block";
 
-				this.videoInputBlocked = false;
+				this.inputBlocked = false;
 			})
 			.catch(error => {
 				console.error(error);
 
-				if (error.name == "NotReadableError") {
-					this.videoInputBlocked = true;
-				}
-				else if (error.name == "NotAllowedError" || error.name == "PermissionDeniedError") {
-					this.devicesBlocked = true;
-				}
+				this.setDeviceError(error, false);
 			});
 	}
 
@@ -139,23 +130,25 @@ export class CameraSettings extends MediaSettings {
 				<sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
 				<strong>${t("devices.permission")}</strong>
 			</sl-alert>
-			<sl-alert variant="warning" .open="${this.videoInputBlocked}">
+			<sl-alert variant="warning" .open="${this.inputBlocked}">
 				<sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
 				<strong>${t("devices.camera.blocked")}</strong>
 			</sl-alert>
 
+			${when(!this.error, () => html`
 			<form id="device-select-form">
 				${when(courseStore.conference, () => html`
 				<sl-switch id="cameraMuteOnEntry" name="cameraMuteOnEntry" size="small" ?checked=${deviceStore.cameraMuteOnEntry}>${t("devices.camera.mute.on.entry")}</sl-switch>
 				`)}
 
-				<div class="container2">
+				<div class="video-container">
 					<video id="cameraPreview" class="video" playsinline autoplay muted></video>
 					<div class="controls">
 						${this.renderDevices(this.videoInputDevices, this.onCameraChange, "cameraDeviceId", "cameraSelect", t("devices.camera"))}
 					</div>
 				</div>
 			</form>
+			`)}
 		`;
 	}
 }

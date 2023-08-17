@@ -105,8 +105,6 @@ export class ChatBox extends Component {
 	}
 
 	protected render() {
-		console.log("render chat", this)
-
 		return html`
 			<header part="header">
 				${t("course.feature.message")}

@@ -31,15 +31,28 @@ export class SoundSettings extends MediaSettings {
 
 
 	override disconnectedCallback() {
-		Devices.stopMediaTracks(<MediaStream> this.audio.srcObject);
+		if (this.audio) {
+			Devices.stopMediaTracks(<MediaStream> this.audio.srcObject);
 
-		this.audio.srcObject = null;
+			this.audio.srcObject = null;
+		}
 
 		super.disconnectedCallback();
 	}
 
 	queryDevices(): void {
-		this.enumerateDevices();
+		Devices.enumerateAudioDevices(true)
+			.then((result: DeviceInfo) => {
+				this.error = false;
+
+				this.updateBlockedSettings(result);
+				this.updateModel(result, false);
+			})
+			.catch(error => {
+				console.error(error);
+
+				this.setDeviceError(error, true);
+			});
 	}
 
 	protected override setEnabled(enabled: boolean) {
@@ -71,20 +84,6 @@ export class SoundSettings extends MediaSettings {
 		this.setEnabled(true);
 	}
 
-	private enumerateDevices() {
-		Devices.enumerateAudioDevices(true)
-			.then((result: DeviceInfo) => {
-				this.updateBlockedSettings(result);
-				this.updateModel(result, false);
-			})
-			.catch(error => {
-				console.error(error);
-
-				this.devicesBlocked = true;
-				this.setError();
-			});
-	}
-
 	private updateBlockedSettings(info: DeviceInfo) {
 		deviceStore.microphoneBlocked = info ? info.stream.getAudioTracks().length < 1 : true;
 	}
@@ -110,9 +109,7 @@ export class SoundSettings extends MediaSettings {
 			.catch(error => {
 				console.error(error);
 
-				if (error.name == "NotAllowedError" || error.name == "PermissionDeniedError") {
-					this.devicesBlocked = true;
-				}
+				this.setDeviceError(error, false);
 			});
 	}
 
@@ -133,6 +130,7 @@ export class SoundSettings extends MediaSettings {
 				<strong>${t("devices.permission")}</strong>
 			</sl-alert>
 
+			${when(!this.error, () => html`
 			<form id="device-select-form">
 				${when(courseStore.conference, () => html`
 				<sl-switch id="microphoneMuteOnEntry" name="microphoneMuteOnEntry" size="small" ?checked=${deviceStore.microphoneMuteOnEntry}>${t("devices.microphone.mute.on.entry")}</sl-switch>
@@ -144,6 +142,7 @@ export class SoundSettings extends MediaSettings {
 
 			<audio id="audio" playsinline autoplay muted></audio>
 			<canvas id="meter" width="300" height="5"></canvas>
+			`)}
 		`;
 	}
 }

@@ -1,6 +1,6 @@
 import { html, TemplateResult } from 'lit';
 import { property } from 'lit/decorators.js';
-import { I18nLitElement, t } from '../i18n-mixin';
+import { I18nLitElement } from '../i18n-mixin';
 import { DeviceInfo, Devices } from '../../utils/devices';
 import { Utils } from '../../utils/utils';
 import { Component } from '../component';
@@ -21,6 +21,9 @@ export abstract class MediaSettings extends Component {
 
 	@property()
 	devicesBlocked: boolean;
+
+	@property()
+	inputBlocked: boolean;
 
 
 	abstract queryDevices(): void;
@@ -48,6 +51,19 @@ export abstract class MediaSettings extends Component {
 		this.renderRoot.querySelectorAll("footer button").forEach((element: HTMLInputElement) => {
 			element.disabled = false;
 		});
+	}
+
+	protected setDeviceError(error: any, lock: boolean) {
+		if (error.name == "NotReadableError") {
+			this.inputBlocked = true;
+		}
+		else if (error.name == "NotAllowedError" || error.name == "PermissionDeniedError") {
+			this.devicesBlocked = true;
+		}
+
+		if (lock) {
+			this.setError();
+		}
 	}
 
 	protected renderDevices(devices: MediaDeviceInfo[], onChange: (event: Event) => void, name: string, id: string, label: string) {
