@@ -42,7 +42,7 @@ import { MouseListener } from '../../event/mouse-listener';
 import { RenderController } from '../../render/render-controller';
 import { SlideView } from '../slide-view/slide-view';
 import { deviceStore } from '../../store/device.store';
-import { MediaStateMessage } from '../../model/message/media-state.message';
+import { MediaStateEvent, RecordingStateEvent, SpeechStateEvent, StreamStateEvent } from '../../model/event/queue-events';
 
 export class PlayerController implements ReactiveController {
 
@@ -228,7 +228,6 @@ export class PlayerController implements ReactiveController {
 
 		this.janusService.setRoomId(courseStore.courseId);
 		this.janusService.setUserId(userStore.userId);
-		this.janusService.setUserName(`${userStore.firstName} ${userStore.lastName}`);
 
 		return new Promise<void>((resolve) => {
 			if (courseStore.conference) {
@@ -319,7 +318,7 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private getDocument(stateDoc: CourseStateDocument): Promise<SlideDocument> {
-		return this.courseStateService.getStateDocument(this.host.courseId, stateDoc);
+		return this.courseStateService.getStateDocument(courseStore.courseId, stateDoc);
 	}
 
 	private getDocuments(documentMap: Map<bigint, CourseStateDocument>): Promise<SlideDocument[]> {
@@ -344,11 +343,11 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private getCourseState(): Promise<CourseState> {
-		return this.courseStateService.getCourseState(this.host.courseId);
+		return this.courseStateService.getCourseState(courseStore.courseId);
 	}
 
 	private getParticipants(): Promise<CourseParticipant[]> {
-		return new HttpRequest().get("/course/participants/" + this.host.courseId);
+		return new HttpRequest().get("/course/participants/" + courseStore.courseId);
 	}
 
 	private getCourseParticipant(): Promise<CourseParticipant> {
@@ -356,7 +355,7 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private getChatHistory(): Promise<MessageServiceHistory> {
-		return new HttpRequest().get("/course/chat/history/" + this.host.courseId);
+		return new HttpRequest().get("/course/chat/history/" + courseStore.courseId);
 	}
 
 	private onPeerConnected(peerId: bigint) {
@@ -467,7 +466,7 @@ export class PlayerController implements ReactiveController {
 	private onChatState(event: CustomEvent) {
 		const state: MessengerState = event.detail;
 
-		if (this.host.courseId !== state.courseId) {
+		if (courseStore.courseId !== state.courseId) {
 			return;
 		}
 
@@ -490,7 +489,7 @@ export class PlayerController implements ReactiveController {
 	private onQuizState(event: CustomEvent) {
 		const state: QuizState = event.detail;
 
-		if (this.host.courseId !== state.courseId) {
+		if (courseStore.courseId !== state.courseId) {
 			return;
 		}
 
@@ -506,14 +505,13 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onRecordingState(event: CustomEvent) {
-		const courseId = event.detail.courseId;
-		const started = event.detail.started;
+		const recordingEvent: RecordingStateEvent = event.detail;
 
-		if (this.host.courseId !== courseId) {
+		if (courseStore.courseId !== recordingEvent.courseId) {
 			return;
 		}
 
-		if (started) {
+		if (recordingEvent.recorded) {
 			this.openModal("RecordedModal");
 		}
 		else {
@@ -522,19 +520,20 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onStreamState(event: CustomEvent) {
-		const courseId = event.detail.courseId;
-		const started = event.detail.started;
+		const streamEvent: StreamStateEvent = event.detail;
 
-		console.log("stream state", started);
+		console.log("stream state", streamEvent.started);
 
-		if (this.host.courseId !== courseId) {
+		if (courseStore.courseId !== streamEvent.courseId) {
 			return;
 		}
 		if (this.isClassroomProfile()) {
 			return;
 		}
 
-		if (started) {
+		if (streamEvent.started) {
+			courseStore.timeStarted = streamEvent.timeStarted;
+
 			if (uiStateStore.state === State.CONNECTED) {
 				console.log("reconnecting ...");
 				this.janusService.disconnect();
@@ -557,11 +556,10 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onSpeechState(event: CustomEvent) {
-		const accepted = event.detail.accepted;
-		const requestId = event.detail.requestId;
+		const speechEvent: SpeechStateEvent = event.detail;
 
-		if (this.speechRequestId && requestId === this.speechRequestId) {
-			if (accepted) {
+		if (this.speechRequestId && speechEvent.requestId === this.speechRequestId) {
+			if (speechEvent.accepted) {
 				this.speechAccepted();
 			}
 			else {
@@ -573,17 +571,17 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onMediaState(event: CustomEvent) {
-		const message: MediaStateMessage = event.detail;
-		const userId = message.userId;
+		const mediaEvent: MediaStateEvent = event.detail;
+		const userId = mediaEvent.userId;
 
-		if (message.state.Audio != null) {
-			participantStore.setParticipantMicrophoneActive(userId, message.state.Audio);
+		if (mediaEvent.state.Audio != null) {
+			participantStore.setParticipantMicrophoneActive(userId, mediaEvent.state.Audio);
 		}
-		if (message.state.Camera != null) {
-			participantStore.setParticipantCameraActive(userId, message.state.Camera);
+		if (mediaEvent.state.Camera != null) {
+			participantStore.setParticipantCameraActive(userId, mediaEvent.state.Camera);
 		}
-		if (message.state.Screen != null) {
-			participantStore.setParticipantScreenActive(userId, message.state.Screen);
+		if (mediaEvent.state.Screen != null) {
+			participantStore.setParticipantScreenActive(userId, mediaEvent.state.Screen);
 		}
 	}
 
@@ -694,7 +692,7 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private sendSpeechRequest() {
-		this.speechService.requestSpeech(this.host.courseId)
+		this.speechService.requestSpeech(courseStore.courseId)
 			.then(requestId => {
 				this.speechRequestId = requestId;
 			})
@@ -707,7 +705,7 @@ export class PlayerController implements ReactiveController {
 			return;
 		}
 
-		this.speechService.cancelSpeech(this.host.courseId, this.speechRequestId)
+		this.speechService.cancelSpeech(courseStore.courseId, this.speechRequestId)
 			.then(() => {
 				this.speechCanceled();
 			})

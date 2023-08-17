@@ -33,8 +33,6 @@ export class JanusService extends EventTarget {
 
 	private opaqueId: string;
 
-	private userName: string;
-
 	private isConference: boolean;
 
 	private intervalId: number;
@@ -57,10 +55,6 @@ export class JanusService extends EventTarget {
 
 	setRoomId(roomId: number) {
 		this.roomId = roomId;
-	}
-
-	setUserName(userName: string) {
-		this.userName = userName;
 	}
 
 	setConference(isConference: boolean) {
@@ -136,7 +130,7 @@ export class JanusService extends EventTarget {
 	}
 
 	startSpeech(camEnabled: boolean) {
-		const publisher = new JanusPublisher(this.janus, this.roomId, this.opaqueId, this.userName);
+		const publisher = new JanusPublisher(this.janus, this.roomId, this.opaqueId);
 		publisher.addEventListener("janus-participant-error", this.onPublisherError.bind(this));
 		publisher.addEventListener("janus-participant-state", this.onPublisherState.bind(this));
 		publisher.addEventListener("janus-participant-destroyed", this.onPublisherDestroyed.bind(this));
@@ -151,7 +145,7 @@ export class JanusService extends EventTarget {
 	}
 
 	attachAsPublisher() {
-		const publisher = new JanusPublisher(this.janus, this.roomId, this.opaqueId, this.userName);
+		const publisher = new JanusPublisher(this.janus, this.roomId, this.opaqueId);
 		publisher.addEventListener("janus-participant-error", this.onPublisherError.bind(this));
 		publisher.addEventListener("janus-participant-state", this.onPublisherState.bind(this));
 		publisher.addEventListener("janus-participant-destroyed", this.onPublisherDestroyed.bind(this));

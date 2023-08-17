@@ -16,17 +16,14 @@ export class JanusPublisher extends JanusParticipant {
 
 	private publisherId: bigint;
 
-	private publisherName: string;
-
 	cameraEnabled: boolean;
 
 
-	constructor(janus: Janus, roomId: number, opaqueId: string, userName: string) {
+	constructor(janus: Janus, roomId: number, opaqueId: string) {
 		super(janus);
 
 		this.roomId = roomId;
 		this.opaqueId = opaqueId;
-		this.publisherName = userName;
 		this.cameraEnabled = true;
 
 		document.addEventListener("lect-device-change", this.onDeviceChange.bind(this));
@@ -89,7 +86,7 @@ export class JanusPublisher extends JanusParticipant {
 			request: "join",
 			ptype: "publisher",
 			room: this.roomId,
-			display: this.publisherName ? this.publisherName : userStore.userId
+			display: userStore.userId
 		};
 
 		this.handle.send({ message: subscribe });
