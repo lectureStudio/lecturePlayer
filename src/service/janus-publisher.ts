@@ -82,14 +82,14 @@ export class JanusPublisher extends JanusParticipant {
 	private onConnected(handle: PluginHandle) {
 		this.handle = handle;
 
-		const subscribe = {
+		const join = {
 			request: "join",
 			ptype: "publisher",
 			room: this.roomId,
 			display: userStore.userId
 		};
 
-		this.handle.send({ message: subscribe });
+		this.handle.send({ message: join });
 	}
 
 	protected onWebRtcState(isConnected: boolean) {

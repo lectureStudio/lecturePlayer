@@ -358,8 +358,8 @@ export class PlayerController implements ReactiveController {
 		return new HttpRequest().get("/course/chat/history/" + courseStore.courseId);
 	}
 
-	private onPeerConnected(peerId: bigint) {
-		this.janusService.addPeer(peerId);
+	private onPeerConnected(peerId: bigint, displayName: string) {
+		this.janusService.addPeer(peerId, displayName);
 	}
 
 	private setFullscreen(enable: boolean) {

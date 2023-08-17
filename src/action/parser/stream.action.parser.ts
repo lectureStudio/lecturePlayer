@@ -99,12 +99,14 @@ export class StreamActionParser {
 		return new type(docId, docType, docTitle, docName);
 	}
 
-	private static speechAction<T>(dataView: ProgressiveDataView, type: { new(publisherId: bigint): T }): T {
+	private static speechAction<T>(dataView: ProgressiveDataView, type: { new(publisherId: bigint, displayName: string): T }): T {
 		const idLength = dataView.getInt32();
 		const idStr = dataView.getString(idLength);
-
 		const publisherId = BigInt(idStr);
 
-		return new type(publisherId);
+		const nameLength = dataView.getInt32();
+		const nameStr = dataView.getString(nameLength);
+
+		return new type(publisherId, nameStr);
 	}
 }

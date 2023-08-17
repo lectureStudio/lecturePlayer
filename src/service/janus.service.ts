@@ -120,13 +120,16 @@ export class JanusService extends EventTarget {
 		this.subscribers = [];
 	}
 
-	addPeer(peerId: bigint) {
+	addPeer(peerId: bigint, displayName: string) {
 		if (this.publishers.some(pub => pub.getPublisherId() === peerId)) {
 			// Do not subscribe to our own publisher.
 			return;
 		}
 
-		this.attachToPublisher({ id: Number(peerId) });
+		this.attachToPublisher({
+			id: Number(peerId),
+			display: displayName
+		});
 	}
 
 	startSpeech(camEnabled: boolean) {

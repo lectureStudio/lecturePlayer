@@ -4,11 +4,14 @@ export class StreamSpeechAction extends StreamAction {
 
 	readonly publisherId: bigint;
 
+	readonly displayName: string;
 
-	constructor(publisherId: bigint) {
+
+	constructor(publisherId: bigint, displayName: string) {
 		super();
 
 		this.publisherId = publisherId;
+		this.displayName = displayName;
 	}
 
 	toBuffer(): ArrayBuffer {

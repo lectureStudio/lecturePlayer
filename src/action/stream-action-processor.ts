@@ -27,7 +27,7 @@ export class StreamActionProcessor {
 
 	onGetDocument: (stateDoc: CourseStateDocument) => Promise<SlideDocument>;
 
-	onPeerConnected: (peerId: bigint) => void;
+	onPeerConnected: (peerId: bigint, displayName: string) => void;
 
 
 	constructor(playbackService: PlaybackService) {
@@ -104,7 +104,7 @@ export class StreamActionProcessor {
 			}
 		}
 		else if (action instanceof StreamSpeechPublishedAction) {
-			this.onPeerConnected(action.publisherId);
+			this.onPeerConnected(action.publisherId, action.displayName);
 		}
 	}
 
