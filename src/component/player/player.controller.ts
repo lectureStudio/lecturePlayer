@@ -97,7 +97,7 @@ export class PlayerController implements ReactiveController {
 		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus", actionProcessor);
 		this.modals = new Map();
 
-		this.maxWidth576Query = window.matchMedia("(max-width: 576px)");
+		this.maxWidth576Query = window.matchMedia("(max-width: 575px) , (orientation: portrait)");
 	}
 
 	hostConnected() {

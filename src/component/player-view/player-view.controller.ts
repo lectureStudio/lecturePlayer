@@ -1,6 +1,4 @@
 import { ReactiveController } from "lit";
-import { State } from "../../utils/state";
-import { ParticipantView } from "../participant-view/participant-view";
 import { PlayerView } from "./player-view";
 import { featureStore } from "../../store/feature.store";
 import { courseStore } from "../../store/course.store";
@@ -30,7 +28,7 @@ export class PlayerViewController implements ReactiveController {
 		this.host = host;
 		this.host.addController(this);
 
-		this.maxWidth576Query = window.matchMedia("(max-width: 576px)");
+		this.maxWidth576Query = window.matchMedia("(max-width: 575px) , (orientation: portrait)");
 		this.maxWidth576Query.onchange = (event) => {
 			this.onCompactLayout(event.matches);
 		};

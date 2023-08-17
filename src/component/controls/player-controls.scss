@@ -31,6 +31,9 @@
 	flex: 1;
 	justify-content: flex-end;
 }
+:host .course-duration {
+	padding: 0 0.5em;
+}
 
 .col sl-button::part(base),
 .col sl-button::part(label) {

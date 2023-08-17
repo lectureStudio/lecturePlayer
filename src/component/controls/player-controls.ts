@@ -6,6 +6,7 @@ import { Utils } from '../../utils/utils';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { featureStore } from '../../store/feature.store';
 import { privilegeStore } from '../../store/privilege.store';
+import { deviceStore } from '../../store/device.store';
 import playerControlsStyles from './player-controls.scss';
 
 @customElement('player-controls')
@@ -22,7 +23,7 @@ export class PlayerControls extends I18nLitElement {
 	@query('.text-layer')
 	textLayer: HTMLElement;
 
-	@property({ type: Number, reflect: true, attribute: false })
+	@property()
 	duration: number;
 
 	@property({ type: Boolean, reflect: true })
@@ -120,9 +121,11 @@ export class PlayerControls extends I18nLitElement {
 	render() {
 		return html`
 			<div class="col nav-left">
-				<audio-volume-button></audio-volume-button>
+				${when(deviceStore.canSetSpeakerVolume, () => html`
+					<audio-volume-button></audio-volume-button>
+				`)}
 
-				<span id="duration">${this.getFormattedDuration()}</span>
+				<span class="course-duration">${this.getFormattedDuration()}</span>
 			</div>
 			<div class="col nav-center">
 				${when(privilegeStore.canContributeBySpeech(), () => html`
@@ -164,12 +167,14 @@ export class PlayerControls extends I18nLitElement {
 					</sl-button>
 				</sl-tooltip>
 
-				<sl-tooltip content="${this.fullscreen ? t("controls.fullscreen.off") : t("controls.fullscreen.on")}" trigger="hover">
-					<sl-button @click="${this.onFullscreen}" id="fullscreen-button">
-						<sl-icon slot="prefix" name="fullscreen" id="fullscreen"></sl-icon>
-						<sl-icon slot="prefix" name="fullscreen-exit" id="fullscreen-exit"></sl-icon>
-					</sl-button>
-				</sl-tooltip>
+				${when(this.requestFullscreen, () => html`
+					<sl-tooltip content="${this.fullscreen ? t("controls.fullscreen.off") : t("controls.fullscreen.on")}" trigger="hover">
+						<sl-button @click="${this.onFullscreen}" id="fullscreen-button">
+							<sl-icon slot="prefix" name="fullscreen" id="fullscreen"></sl-icon>
+							<sl-icon slot="prefix" name="fullscreen-exit" id="fullscreen-exit"></sl-icon>
+						</sl-button>
+					</sl-tooltip>
+				`)}
 			</div>
 		`;
 	}

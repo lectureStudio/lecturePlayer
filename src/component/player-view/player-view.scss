@@ -118,7 +118,7 @@ sl-split-panel {
 		display: block;
 	}
 }
-@media (max-width: 575px) {
+@media (max-width: 575px) , (orientation: portrait) {
 	:host .center-container,
 	:host .right-container {
 		flex-basis: initial !important;

@@ -131,17 +131,20 @@ export class SoundSettings extends MediaSettings {
 			</sl-alert>
 
 			${when(!this.error, () => html`
-			<form id="device-select-form">
-				${when(courseStore.conference, () => html`
-				<sl-switch id="microphoneMuteOnEntry" name="microphoneMuteOnEntry" size="small" ?checked=${deviceStore.microphoneMuteOnEntry}>${t("devices.microphone.mute.on.entry")}</sl-switch>
-				`)}
+				<form id="device-select-form">
+					${when(courseStore.conference, () => html`
+						<sl-switch id="microphoneMuteOnEntry" name="microphoneMuteOnEntry" size="small" ?checked=${deviceStore.microphoneMuteOnEntry}>${t("devices.microphone.mute.on.entry")}</sl-switch>
+					`)}
 
-				${this.renderDevices(this.audioInputDevices, this.onMicrophoneChange, "microphoneDeviceId", "microphoneSelect", t("devices.microphone"))}
-				${this.renderDevices(this.audioOutputDevices, this.onSpeakerChange, "speakerDeviceId", "speakerSelect", t("devices.speaker"))}
-			</form>
+					${this.renderDevices(this.audioInputDevices, this.onMicrophoneChange, "microphoneDeviceId", "microphoneSelect", t("devices.microphone"))}
 
-			<audio id="audio" playsinline autoplay muted></audio>
-			<canvas id="meter" width="300" height="5"></canvas>
+					${when(deviceStore.canSelectSpeaker, () => html`
+						${this.renderDevices(this.audioOutputDevices, this.onSpeakerChange, "speakerDeviceId", "speakerSelect", t("devices.speaker"))}
+					`)}
+				</form>
+
+				<audio id="audio" playsinline autoplay muted></audio>
+				<canvas id="meter" width="300" height="5"></canvas>
 			`)}
 		`;
 	}

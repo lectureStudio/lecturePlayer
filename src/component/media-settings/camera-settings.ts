@@ -73,6 +73,8 @@ export class CameraSettings extends MediaSettings {
 
 		if (!this.videoInputDevices.find(devInfo => { return devInfo.deviceId === deviceStore.cameraDeviceId })) {
 			Devices.stopVideoTracks(this.video.srcObject as MediaStream);
+
+			this.video.style.visibility = "hidden";
 		}
 
 		this.setEnabled(true);
@@ -91,7 +93,7 @@ export class CameraSettings extends MediaSettings {
 		deviceStore.cameraDeviceId = videoSource;
 
 		if (videoSource === "none") {
-			this.video.style.display = "none";
+			this.video.style.visibility = "hidden";
 			this.inputBlocked = false;
 			return;
 		}
@@ -111,7 +113,7 @@ export class CameraSettings extends MediaSettings {
 				videoStream.getVideoTracks().forEach(track => newStream.addTrack(track));
 
 				this.video.srcObject = newStream;
-				this.video.style.display = "block";
+				this.video.style.visibility = "visible";
 
 				this.inputBlocked = false;
 			})
@@ -142,10 +144,10 @@ export class CameraSettings extends MediaSettings {
 				`)}
 
 				<div class="video-container">
-					<video id="cameraPreview" class="video" playsinline autoplay muted></video>
 					<div class="controls">
 						${this.renderDevices(this.videoInputDevices, this.onCameraChange, "cameraDeviceId", "cameraSelect", t("devices.camera"))}
 					</div>
+					<video id="cameraPreview" class="video" playsinline autoplay muted></video>
 				</div>
 			</form>
 			`)}
