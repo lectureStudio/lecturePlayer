@@ -108,6 +108,7 @@
 	"course.speech.request.speak": "You can speak now",
 	"course.speech.request.ended": "Speech ended",
 	"course.speech.request.without.camera": "Speech is performed without camera.",
+	"course.speech.request.aborted": "Speech aborted",
 	"course.recorded.modal.title": "This course is being recorded",
 	"course.recorded.modal.message": "The recording can be published later. As a digital event, this affects your contributions during active requests to speak.",
 	"course.recorded.modal.accept": "Got it",

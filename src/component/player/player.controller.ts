@@ -675,7 +675,21 @@ export class PlayerController implements ReactiveController {
 			.catch(error => {
 				console.error(error.name);
 
-				this.showSpeechAcceptedModal(null, true);
+				// Try again without camera which might be blocked.
+				constraints.video = undefined;
+
+				navigator.mediaDevices.getUserMedia(constraints)
+					.then(stream => {
+						this.showSpeechAcceptedModal(stream, true);
+					})
+					.catch(error => {
+						console.error(error.name);
+
+						// Give up. Show error message.
+						this.cancelSpeech();
+
+						Toaster.showError(t("course.speech.request.aborted"));
+					});
 			});
 	}
 
@@ -710,12 +724,12 @@ export class PlayerController implements ReactiveController {
 		if (this.speechRequestId) {
 			const speechModal = new SpeechAcceptedModal();
 			speechModal.stream = stream;
-			speechModal.videoInputBlocked = camBlocked;
+			speechModal.cameraBlocked = camBlocked;
 			speechModal.addEventListener("speech-accepted-canceled", () => {
 				this.cancelSpeech();
 			});
 			speechModal.addEventListener("speech-accepted-start", () => {
-				this.janusService.startSpeech();
+				this.janusService.startSpeech(!camBlocked);
 			});
 
 			this.registerModal("SpeechAcceptedModal", speechModal);

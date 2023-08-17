@@ -20,8 +20,8 @@ export class SpeechAcceptedModal extends Modal {
 	@query('#meter')
 	meterCanvas: HTMLCanvasElement;
 
-	@property()
-	videoInputBlocked: boolean;
+	@property({ type: Boolean, reflect: true })
+	cameraBlocked: boolean;
 
 	stream: MediaStream;
 
@@ -62,7 +62,7 @@ export class SpeechAcceptedModal extends Modal {
 					<label>
 						${t("course.speech.request.accepted.description")}
 					</label>
-					<sl-alert variant="warning" .open="${this.videoInputBlocked}">
+					<sl-alert variant="warning" .open="${this.cameraBlocked}">
 						<sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
 						<strong>${t("devices.camera.blocked")}</strong>
 						<strong>${t("course.speech.request.without.camera")}</strong>

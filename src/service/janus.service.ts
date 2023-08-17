@@ -135,11 +135,12 @@ export class JanusService extends EventTarget {
 		this.attachToPublisher({ id: Number(peerId) });
 	}
 
-	startSpeech() {
+	startSpeech(camEnabled: boolean) {
 		const publisher = new JanusPublisher(this.janus, this.roomId, this.opaqueId, this.userName);
 		publisher.addEventListener("janus-participant-error", this.onPublisherError.bind(this));
 		publisher.addEventListener("janus-participant-state", this.onPublisherState.bind(this));
 		publisher.addEventListener("janus-participant-destroyed", this.onPublisherDestroyed.bind(this));
+		publisher.setCameraEnabled(camEnabled);
 		publisher.connect();
 	}
 

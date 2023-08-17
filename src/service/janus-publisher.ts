@@ -18,6 +18,8 @@ export class JanusPublisher extends JanusParticipant {
 
 	private publisherName: string;
 
+	cameraEnabled: boolean;
+
 
 	constructor(janus: Janus, roomId: number, opaqueId: string, userName: string) {
 		super(janus);
@@ -25,6 +27,7 @@ export class JanusPublisher extends JanusParticipant {
 		this.roomId = roomId;
 		this.opaqueId = opaqueId;
 		this.publisherName = userName;
+		this.cameraEnabled = true;
 
 		document.addEventListener("lect-device-change", this.onDeviceChange.bind(this));
 		document.addEventListener("lect-share-screen", this.onShareScreen.bind(this));
@@ -62,6 +65,10 @@ export class JanusPublisher extends JanusParticipant {
 
 	getPublisherId(): bigint {
 		return this.publisherId;
+	}
+
+	setCameraEnabled(enabled: boolean) {
+		this.cameraEnabled = enabled;
 	}
 
 	sendData(data: ArrayBuffer) {
@@ -256,7 +263,7 @@ export class JanusPublisher extends JanusParticipant {
 	}
 
 	private createOffer() {
-		const videoEnable = deviceStore.cameraDeviceId != null && !deviceStore.cameraMuteOnEntry;
+		const videoEnable = this.cameraEnabled ? deviceStore.cameraDeviceId != null && !deviceStore.cameraMuteOnEntry : false;
 		const videoCapture = videoEnable
 			? {
 				deviceId: deviceStore.cameraDeviceId,

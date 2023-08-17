@@ -107,6 +107,7 @@
 	"course.speech.request.speak": "Sie können jetzt sprechen",
 	"course.speech.request.ended": "Redebeitrag beendet",
 	"course.speech.request.without.camera": "Redebeitrag erfolgt ohne Kamera.",
+	"course.speech.request.aborted": "Redebeitrag abgebrochen",
 	"course.recorded.modal.title": "Dieser Kurs wird aufgezeichnet",
 	"course.recorded.modal.message": "Die Aufzeichnung kann nachträglich veröffentlicht werden. Dies betrifft als digitale Veranstaltung Ihre Beiträge bei aktiven Wortmeldungen.",
 	"course.recorded.modal.accept": "Verstanden",
