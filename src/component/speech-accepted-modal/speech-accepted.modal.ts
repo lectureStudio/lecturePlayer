@@ -1,6 +1,5 @@
 import { html } from "lit";
 import { Modal } from "../modal/modal";
-import { classMap } from "lit/directives/class-map.js";
 import { customElement, property, query } from "lit/decorators.js";
 import { Utils } from "../../utils/utils";
 import { t } from '../i18n-mixin';
@@ -15,7 +14,7 @@ export class SpeechAcceptedModal extends Modal {
 		speechAcceptedModalStyles
 	];
 
-	@query('#camera-preview')
+	@query('video')
 	video: HTMLVideoElement;
 
 	@query('#meter')
@@ -36,14 +35,16 @@ export class SpeechAcceptedModal extends Modal {
 		if (audioTrack) {
 			Devices.getAudioLevel(audioTrack, this.meterCanvas);
 		}
+
+		super.firstUpdated();
 	}
 
-	protected start() {
+	protected startSpeech() {
 		this.dispatchEvent(Utils.createEvent("speech-accepted-start"));
 		this.close();
 	}
 
-	protected cancel() {
+	protected cancelSpeech() {
 		this.dispatchEvent(Utils.createEvent("speech-accepted-canceled"));
 		this.close();
 	}
@@ -58,14 +59,16 @@ export class SpeechAcceptedModal extends Modal {
 		return html`
 			<sl-dialog label="${t("course.speech.request.accepted")}">
 				<article>
-					<label class="form-label pb-2">
+					<label>
 						${t("course.speech.request.accepted.description")}
 					</label>
-					<div class="row alert alert-warning m-2 ${classMap({ "d-none": !this.videoInputBlocked })}" role="alert">
-						<span>${t("devices.camera.blocked")}</span>
-						<span>${t("course.speech.request.without.camera")}</span>
-					</div>
-					<div class="d-flex justify-content-center">
+					<sl-alert variant="warning" .open="${this.videoInputBlocked}">
+						<sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
+						<strong>${t("devices.camera.blocked")}</strong>
+						<strong>${t("course.speech.request.without.camera")}</strong>
+					</sl-alert>
+
+					<div class="video-container">
 						<video id="camera-preview" playsinline autoplay muted></video>
 					</div>
 					<div>
@@ -73,10 +76,10 @@ export class SpeechAcceptedModal extends Modal {
 					</div>
 				</article>
 				<div slot="footer">
-					<sl-button @click="${this.cancel}" size="small">
+					<sl-button @click="${this.cancelSpeech}" size="small">
 						${t("course.speech.request.cancel")}
 					</sl-button>
-					<sl-button @click="${this.start}" variant="primary" size="small">
+					<sl-button @click="${this.startSpeech}" variant="primary" size="small">
 						${t("course.speech.request.start")}
 					</sl-button>
 				</div>

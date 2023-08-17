@@ -12,7 +12,7 @@ import { PlaybackService } from '../../service/playback.service';
 import { SpeechService } from '../../service/speech.service';
 import { Devices } from '../../utils/devices';
 import { HttpRequest } from '../../utils/http-request';
-import { DeviceSettings, MediaProfile, Settings } from '../../utils/settings';
+import { MediaProfile, Settings } from '../../utils/settings';
 import { State } from '../../utils/state';
 import { Utils } from '../../utils/utils';
 import { ChatModal } from '../chat-modal/chat.modal';
@@ -656,30 +656,26 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private speechAccepted() {
-		const speechConstraints = Settings.getDeviceSettings();
-
 		const constraints = {
 			audio: {
-				deviceId: speechConstraints.audioInput ? { exact: speechConstraints.audioInput } : undefined
+				deviceId: deviceStore.microphoneDeviceId ? { exact: deviceStore.microphoneDeviceId } : undefined
 			},
 			video: {
-				deviceId: speechConstraints.videoInput ? { exact: speechConstraints.videoInput } : undefined,
-				width: 1280,
-				height: 720,
+				deviceId: deviceStore.cameraDeviceId ? { exact: deviceStore.cameraDeviceId } : undefined,
+				width: { ideal: 1280 },
+				height: { ideal: 720 },
 				facingMode: "user"
 			}
 		};
 
 		navigator.mediaDevices.getUserMedia(constraints)
 			.then(stream => {
-				this.showSpeechAcceptedModal(stream, speechConstraints, false);
+				this.showSpeechAcceptedModal(stream, false);
 			})
 			.catch(error => {
 				console.error(error.name);
 
-				speechConstraints.videoInput = undefined;
-
-				this.showSpeechAcceptedModal(null, speechConstraints, true);
+				this.showSpeechAcceptedModal(null, true);
 			});
 	}
 
@@ -710,7 +706,7 @@ export class PlayerController implements ReactiveController {
 		this.host.dispatchEvent(Utils.createEvent("speech-canceled"));
 	}
 
-	private showSpeechAcceptedModal(stream: MediaStream, deviceSettings: DeviceSettings, camBlocked: boolean) {
+	private showSpeechAcceptedModal(stream: MediaStream, camBlocked: boolean) {
 		if (this.speechRequestId) {
 			const speechModal = new SpeechAcceptedModal();
 			speechModal.stream = stream;
