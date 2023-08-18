@@ -69,6 +69,10 @@ class PrivilegeStore {
 	canShareDocuments(): boolean {
 		return this.privileges.findIndex(privilege => privilege.name === "COURSE_STREAM") > -1;
 	}
+
+	reset() {
+		this.privileges = [];
+	}
 }
 
 export const privilegeStore = new PrivilegeStore();

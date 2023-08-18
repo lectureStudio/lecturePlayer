@@ -156,7 +156,7 @@ class ParticipantStore {
 		return this.participants.find(participant => participant.screenStream != null && participant.screenActive) != null;
 	}
 
-	clear() {
+	reset() {
 		this.participants = [];
 	}
 

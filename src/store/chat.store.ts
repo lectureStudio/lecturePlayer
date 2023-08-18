@@ -26,7 +26,7 @@ class ChatStore {
 		this.messages = messages;
 	}
 
-	clear() {
+	reset() {
 		this.messages = [];
 	}
 

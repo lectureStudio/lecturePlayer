@@ -202,10 +202,8 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private connect() {
-		console.log("connect");
-
-		participantStore.clear();
-		chatStore.clear();
+		participantStore.reset();
+		chatStore.reset();
 
 		this.courseStateService.getCourseState(this.host.courseId)
 			.then(this.onCourseState.bind(this))
@@ -315,8 +313,8 @@ export class PlayerController implements ReactiveController {
 			this.viewController.setDisconnected();
 		}
 
-		participantStore.clear();
-		chatStore.clear();
+		participantStore.reset();
+		chatStore.reset();
 	}
 
 	private setReconnecting() {
@@ -439,8 +437,6 @@ export class PlayerController implements ReactiveController {
 
 		this.eventServiceState = connected ? State.CONNECTED : State.DISCONNECTED;
 
-		console.log("event service state", connected, "host", uiStateStore.state, "janus", this.janusServiceState);
-
 		if (connected) {
 			switch (uiStateStore.state) {
 				case State.CONNECTING:
@@ -489,7 +485,7 @@ export class PlayerController implements ReactiveController {
 		else {
 			this.closeAndDeleteModal("ChatModal");
 
-			chatStore.clear();
+			chatStore.reset();
 		}
 
 		if (this.isClassroomProfile() || !this.hasStream()) {
@@ -533,8 +529,6 @@ export class PlayerController implements ReactiveController {
 	private onStreamState(event: CustomEvent) {
 		const streamEvent: StreamStateEvent = event.detail;
 
-		console.log("stream state", streamEvent.started);
-
 		if (this.host.courseId !== streamEvent.courseId) {
 			return;
 		}
@@ -553,17 +547,22 @@ export class PlayerController implements ReactiveController {
 			this.connect();
 		}
 		else {
-			this.closeAllModals();
+			location.reload();
 
-			documentStore.activeDocument = null;
+			// this.closeAllModals();
 
-			featureStore.setChatFeature(null);
-			featureStore.setQuizFeature(null);
+			// this.documentState = State.DISCONNECTED;
+			// this.janusServiceState = State.DISCONNECTED;
 
-			this.documentState = State.DISCONNECTED;
-			this.janusServiceState = State.DISCONNECTED;
+			// this.updateConnectionState();
 
-			this.updateConnectionState();
+			// courseStore.reset();
+			// privilegeStore.reset();
+			// documentStore.reset();
+			// featureStore.reset();
+			// participantStore.reset();
+			// userStore.reset();
+			// chatStore.reset();
 		}
 	}
 
@@ -620,8 +619,6 @@ export class PlayerController implements ReactiveController {
 	private updateConnectionState() {
 		const isClassroom = this.isClassroomProfile();
 		const hasFeatures = featureStore.hasChatFeature() || featureStore.hasQuizFeature();
-
-		console.log("** update connection state", this.janusServiceState, this.documentState);
 
 		if (this.hasStream() && !isClassroom) {
 			if (this.janusServiceState === State.CONNECTED && this.documentState === State.CONNECTED) {

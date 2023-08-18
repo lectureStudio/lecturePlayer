@@ -55,8 +55,15 @@ class DocumentStore {
 		this.selectedPageNumber = pageNumber;
 	}
 
-	clear() {
+	reset() {
 		this.documents = [];
+		this.documentStateMap = null;
+		this.activeDocument = null;
+		this.documentMap = null;
+
+		this.selectedDocument = null;
+		this.selectedPage = null;
+		this.selectedPageNumber = null;
 	}
 }
 

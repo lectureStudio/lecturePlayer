@@ -28,6 +28,11 @@ class FeatureStore {
 	hasQuizFeature() {
 		return this.quizFeature != null && privilegeStore.canParticipateInQuiz();
 	}
+
+	reset() {
+		this.chatFeature = null;
+		this.quizFeature = null;
+	}
 }
 
 export const featureStore = new FeatureStore();

@@ -1,5 +1,5 @@
 import { makeAutoObservable } from "mobx";
-import { ParticipantType } from "../model/course-state";
+import { ParticipantType } from "../model/participant";
 
 class UserStore {
 
@@ -27,6 +27,13 @@ class UserStore {
 
 	setParticipantType(type: ParticipantType) {
 		this.participantType = type;
+	}
+
+	reset() {
+		this.userId = null;
+		this.firstName = null;
+		this.lastName = null;
+		this.participantType = null;
 	}
 }
 
