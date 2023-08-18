@@ -1,7 +1,6 @@
 export enum StreamActionType {
 
 	STREAM_INIT,
-	STREAM_START,
 
 	STREAM_PAGE_ACTION,
 	STREAM_PAGE_ACTIONS,

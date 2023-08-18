@@ -101,7 +101,7 @@ export class JanusPublisher extends JanusParticipant {
 	}
 
 	private onMessage(message: any, jsep?: JSEP) {
-		console.log("message pub", message);
+		// console.log("message pub", message);
 
 		const event = message["videoroom"];
 
@@ -161,7 +161,7 @@ export class JanusPublisher extends JanusParticipant {
 						this.setStream(stream);
 					}
 
-					console.log("pub streamMids", this.streamMids);
+					// console.log("pub streamMids", this.streamMids);
 
 					this.setState(State.CONNECTED);
 				}
@@ -336,7 +336,7 @@ export class JanusPublisher extends JanusParticipant {
 
 			if (constraints.deviceId) {
 
-				console.log("---- add video");
+				// console.log("---- add video");
 
 				// Must be a camera device.
 
@@ -345,7 +345,7 @@ export class JanusPublisher extends JanusParticipant {
 			}
 			else {
 
-				console.log("---- add screen");
+				// console.log("---- add screen");
 
 				participantStore.setParticipantScreenStream(userStore.userId, stream);
 				participantStore.setParticipantScreenActive(userStore.userId, true);
@@ -378,14 +378,14 @@ export class JanusPublisher extends JanusParticipant {
 		else if (kind === "video") {
 			if (deviceId) {
 
-				console.log("---- remove video");
+				// console.log("---- remove video");
 
 				// Must be a camera device.
 				participantStore.removeParticipantCameraStream(userStore.userId);
 			}
 			else {
 
-				console.log("---- remove screen");
+				// console.log("---- remove screen");
 
 				participantStore.removeParticipantScreenStream(userStore.userId);
 			}

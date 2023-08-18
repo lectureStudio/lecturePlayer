@@ -258,11 +258,14 @@ export class JanusService extends EventTarget {
 				const canJoin = res.participants && res.participants.length > 0;
 
 				if (canJoin) {
-					console.log("publishers", res.participants);
+					// console.log("publishers", res.participants);
 
 					for (let i in res.participants) {
 						const publisher: JanusRoomParticipant = res.participants[i];
-						this.attachToPublisher(publisher);
+
+						if (publisher.publisher) {
+							this.attachToPublisher(publisher);
+						}
 					}
 				}
 				else {

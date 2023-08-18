@@ -9,8 +9,8 @@ export class DocumentService {
 		return new Promise<PdfJsDocument>((resolve, reject) => {
 			const loadingTask = getDocument(source);
 			loadingTask.promise
-				.then((pdf: PDFDocumentProxy) => {
-					resolve(new PdfJsDocument(pdf));
+				.then(async (pdf: PDFDocumentProxy) => {
+					resolve(await PdfJsDocument.create(pdf));
 				})
 				.catch((reason: string) => {
 					reject(reason);

@@ -4,6 +4,14 @@ import { PDFDocumentProxy } from 'pdfjs-dist/types/src/display/api';
 
 export class PdfJsDocument extends SlideDocument {
 
+	static async create(document: PDFDocumentProxy) {
+		const pdfjsDoc = new PdfJsDocument(document);
+		await pdfjsDoc.loadPages(document);
+
+		return pdfjsDoc;
+	}
+
+
 	constructor(document: PDFDocumentProxy) {
 		super();
 

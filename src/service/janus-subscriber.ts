@@ -177,7 +177,7 @@ export class JanusSubscriber extends JanusParticipant {
 	}
 
 	private subscribeStream(stream: any) {
-		console.log("subscribe to stream", stream);
+		// console.log("subscribe to stream", stream);
 
 		const message = {
 			request: "subscribe",
@@ -193,7 +193,7 @@ export class JanusSubscriber extends JanusParticipant {
 	}
 
 	private unsubscribeStream(stream: any) {
-		console.log("unsubscribe from stream", stream);
+		// console.log("unsubscribe from stream", stream);
 
 		const message = {
 			request: "unsubscribe",
@@ -232,7 +232,7 @@ export class JanusSubscriber extends JanusParticipant {
 
 			if (type === JanusStreamType.screen) {
 
-				console.log("---- sub add screen");
+				// console.log("---- sub add screen");
 
 				participantStore.setParticipantScreenStream(this.getPublisherUserId(), stream);
 
@@ -242,7 +242,7 @@ export class JanusSubscriber extends JanusParticipant {
 			}
 			else if (type === JanusStreamType.video) {
 
-				console.log("---- sub add video");
+				// console.log("---- sub add video");
 
 				participantStore.setParticipantCameraStream(this.getPublisherUserId(), stream);
 			}
@@ -250,8 +250,7 @@ export class JanusSubscriber extends JanusParticipant {
 	}
 
 	private removeTrack(mid: string, kind: string) {
-		console.log("---- sub remove track", mid);
-
+		// console.log("---- sub remove track", mid);
 
 		const stream = this.streams.get(mid);
 
@@ -276,7 +275,7 @@ export class JanusSubscriber extends JanusParticipant {
 
 			if (type === JanusStreamType.screen) {
 
-				console.log("---- sub remove screen");
+				// console.log("---- sub remove screen");
 
 				participantStore.removeParticipantScreenStream(this.getPublisherUserId());
 
@@ -286,7 +285,7 @@ export class JanusSubscriber extends JanusParticipant {
 			}
 			else if (type === JanusStreamType.video) {
 
-				console.log("---- sub remove video");
+				// console.log("---- sub remove video");
 
 				participantStore.removeParticipantCameraStream(this.getPublisherUserId());
 			}
