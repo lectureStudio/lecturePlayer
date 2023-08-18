@@ -72,8 +72,6 @@ export class PlayerViewController implements ReactiveController {
 
 	setDisconnected() {
 		window.clearInterval(this.clockIntervalId);
-
-		this.host.cleanup();
 	}
 
 	private onChatVisibility() {

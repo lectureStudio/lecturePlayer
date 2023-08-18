@@ -71,15 +71,6 @@ export class PlayerView extends Component {
 		}
 	}
 
-	cleanup() {
-		// Reset controls.
-		this.controls.handUp = false;
-		this.controls.fullscreen = false;
-
-		// Cleanup screen view.
-		this.screenVisible = false;
-	}
-
 	override connectedCallback() {
 		super.connectedCallback()
 
