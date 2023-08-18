@@ -226,7 +226,7 @@ export class PlayerController implements ReactiveController {
 		userStore.setName(courseUser.firstName, courseUser.familyName);
 		userStore.setParticipantType(courseUser.participantType);
 
-		this.janusService.setRoomId(courseStore.courseId);
+		this.janusService.setRoomId(this.host.courseId);
 		this.janusService.setUserId(userStore.userId);
 
 		return new Promise<void>((resolve) => {
@@ -318,7 +318,7 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private getDocument(stateDoc: CourseStateDocument): Promise<SlideDocument> {
-		return this.courseStateService.getStateDocument(courseStore.courseId, stateDoc);
+		return this.courseStateService.getStateDocument(this.host.courseId, stateDoc);
 	}
 
 	private getDocuments(documentMap: Map<bigint, CourseStateDocument>): Promise<SlideDocument[]> {
@@ -347,7 +347,7 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private getParticipants(): Promise<CourseParticipant[]> {
-		return new HttpRequest().get("/course/participants/" + courseStore.courseId);
+		return new HttpRequest().get("/course/participants/" + this.host.courseId);
 	}
 
 	private getCourseParticipant(): Promise<CourseParticipant> {
@@ -355,7 +355,7 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private getChatHistory(): Promise<MessageServiceHistory> {
-		return new HttpRequest().get("/course/chat/history/" + courseStore.courseId);
+		return new HttpRequest().get("/course/chat/history/" + this.host.courseId);
 	}
 
 	private onPeerConnected(peerId: bigint, displayName: string) {
@@ -466,7 +466,7 @@ export class PlayerController implements ReactiveController {
 	private onChatState(event: CustomEvent) {
 		const state: MessengerState = event.detail;
 
-		if (courseStore.courseId !== state.courseId) {
+		if (this.host.courseId !== state.courseId) {
 			return;
 		}
 
@@ -489,7 +489,7 @@ export class PlayerController implements ReactiveController {
 	private onQuizState(event: CustomEvent) {
 		const state: QuizState = event.detail;
 
-		if (courseStore.courseId !== state.courseId) {
+		if (this.host.courseId !== state.courseId) {
 			return;
 		}
 
@@ -507,7 +507,7 @@ export class PlayerController implements ReactiveController {
 	private onRecordingState(event: CustomEvent) {
 		const recordingEvent: RecordingStateEvent = event.detail;
 
-		if (courseStore.courseId !== recordingEvent.courseId) {
+		if (this.host.courseId !== recordingEvent.courseId) {
 			return;
 		}
 
@@ -524,7 +524,7 @@ export class PlayerController implements ReactiveController {
 
 		console.log("stream state", streamEvent.started);
 
-		if (courseStore.courseId !== streamEvent.courseId) {
+		if (this.host.courseId !== streamEvent.courseId) {
 			return;
 		}
 		if (this.isClassroomProfile()) {
@@ -692,7 +692,7 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private sendSpeechRequest() {
-		this.speechService.requestSpeech(courseStore.courseId)
+		this.speechService.requestSpeech(this.host.courseId)
 			.then(requestId => {
 				this.speechRequestId = requestId;
 			})
@@ -705,7 +705,7 @@ export class PlayerController implements ReactiveController {
 			return;
 		}
 
-		this.speechService.cancelSpeech(courseStore.courseId, this.speechRequestId)
+		this.speechService.cancelSpeech(this.host.courseId, this.speechRequestId)
 			.then(() => {
 				this.speechCanceled();
 			})

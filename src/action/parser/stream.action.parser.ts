@@ -9,7 +9,6 @@ import { StreamPageDeletedAction } from "../stream.page.deleted.action";
 import { StreamPageSelectedAction } from "../stream.page.selected.action";
 import { StreamPagePlaybackAction } from "../stream.playback.action";
 import { StreamPageActionsAction } from "../stream.playbacks.action";
-import { StreamStartAction } from "../stream.start.action";
 import { StreamSpeechPublishedAction } from "../stream.speech.published.action";
 import { ActionParser } from "./action.parser";
 import { ProgressiveDataView } from "./progressive-data-view";
@@ -20,9 +19,7 @@ export class StreamActionParser {
 	static parse(dataView: ProgressiveDataView, type: StreamActionType, length: number): StreamAction {
 		switch (type) {
 			case StreamActionType.STREAM_INIT:
-				//return this.initAction(dataView);
-			case StreamActionType.STREAM_START:
-				return this.startAction(dataView);
+				break;
 			case StreamActionType.STREAM_PAGE_ACTION:
 				return this.playbackAction(dataView);
 			case StreamActionType.STREAM_PAGE_ACTIONS:
@@ -45,12 +42,6 @@ export class StreamActionParser {
 			default:
 				throw new Error("StreamAction not implemented");
 		}
-	}
-
-	private static startAction(dataView: ProgressiveDataView): StreamStartAction {
-		const courseId = dataView.getUint32();
-
-		return new StreamStartAction(courseId);
 	}
 
 	private static playbackAction(dataView: ProgressiveDataView): StreamPagePlaybackAction {
