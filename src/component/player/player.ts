@@ -28,6 +28,9 @@ export class LecturePlayer extends Component {
 	@property({ type: String })
 	description: string;
 
+	@property({ type: Boolean })
+	isClassroom: boolean;
+
 
 	protected render() {
 		return html`

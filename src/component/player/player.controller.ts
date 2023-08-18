@@ -134,7 +134,7 @@ export class PlayerController implements ReactiveController {
 
 		// Early state recognition to avoid view flickering.
 		if (isLive) {
-			if (Settings.getMediaProfile() === MediaProfile.Classroom) {
+			if (this.isClassroomProfile() || this.host.isClassroom) {
 				uiStateStore.setState(State.CONNECTED_FEATURES);
 			}
 		}
@@ -654,7 +654,7 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private isClassroomProfile() {
-		return Settings.getMediaProfile() === MediaProfile.Classroom;
+		return Settings.getMediaProfile() === MediaProfile.Classroom || this.host.isClassroom;
 	}
 
 	private initSpeech() {
