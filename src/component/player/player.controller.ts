@@ -453,21 +453,11 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private fetchState() {
-		const promises = new Array<Promise<any>>();
-
-		promises.push(this.getParticipants());
-
 		if (featureStore.hasChatFeature()) {
-			promises.push(this.getChatHistory());
+			this.getChatHistory().then(history => {
+				chatStore.setMessages(history.messages);
+			});
 		}
-
-		Promise.all(promises).then(values => {
-			participantStore.setParticipants(values[0]);
-
-			if (values.length > 1) {
-				chatStore.setMessages(values[1].messages);
-			}
-		});
 	}
 
 	private onChatState(event: CustomEvent) {

@@ -5,17 +5,15 @@ import { PDFDocumentProxy } from 'pdfjs-dist/types/src/display/api';
 export class PdfJsDocument extends SlideDocument {
 
 	static async create(document: PDFDocumentProxy) {
-		const pdfjsDoc = new PdfJsDocument(document);
+		const pdfjsDoc = new PdfJsDocument();
 		await pdfjsDoc.loadPages(document);
 
 		return pdfjsDoc;
 	}
 
 
-	constructor(document: PDFDocumentProxy) {
+	constructor() {
 		super();
-
-		this.loadPages(document)
 	}
 
 	private async loadPages(document: PDFDocumentProxy): Promise<void> {
