@@ -43,6 +43,8 @@ export class ScreenView extends Component {
 	}
 
 	private setHasVideo(has: boolean) {
+console.log("** has video", has)
+
 		this.hasVideo = has;
 	}
 
@@ -77,7 +79,7 @@ export class ScreenView extends Component {
 				this.setHasVideo(false);
 			});
 			track.addEventListener("unmute", (e) => {
-				this.setHasVideo(!track.muted && !this.participant.screenActive);
+				this.setHasVideo(!track.muted && this.participant.screenActive);
 			});
 
 			this.setHasVideo(!track.muted && this.participant.screenActive);
