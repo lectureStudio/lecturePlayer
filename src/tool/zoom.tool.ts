@@ -15,7 +15,7 @@ export class ZoomTool extends Tool {
 	begin(point: PenPoint, context: ToolContext): void {
 		this.shape = new ZoomShape();
 
-		this.context.page.addShape(this.shape);
+		context.page.addShape(this.shape);
 
 		super.begin(point, context);
 	}

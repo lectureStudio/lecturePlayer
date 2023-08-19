@@ -532,7 +532,6 @@ export class PlayerController implements ReactiveController {
 			this.janusServiceState = State.DISCONNECTED;
 
 			courseStore.reset();
-			privilegeStore.reset();
 			documentStore.reset();
 			featureStore.reset();
 			participantStore.reset();
@@ -594,15 +593,12 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private updateConnectionState() {
-		const isClassroom = this.isClassroomProfile();
-		const hasFeatures = featureStore.hasChatFeature() || featureStore.hasQuizFeature();
-
-		if (this.hasStream() && !isClassroom) {
+		if (this.hasStream() && !this.isClassroomProfile()) {
 			if (this.janusServiceState === State.CONNECTED && this.documentState === State.CONNECTED) {
 				this.setConnectionState(State.CONNECTED);
 			}
 		}
-		else if (hasFeatures) {
+		else if (featureStore.hasFeatures()) {
 			this.setConnectionState(State.CONNECTED_FEATURES);
 		}
 		else {
@@ -617,16 +613,12 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onJanusConnectionFailure() {
-console.log("~ janus connection failure")
-
 		this.janusServiceState = State.DISCONNECTED;
 
 		this.setConnectionState(State.RECONNECTING);
 	}
 
 	private onJanusSessionError() {
-console.log("~ janus session failure")
-
 		this.janusServiceState = State.DISCONNECTED;
 
 		const vpnModal = new VpnModal();
