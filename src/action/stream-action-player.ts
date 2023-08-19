@@ -30,7 +30,7 @@ export class StreamActionPlayer extends ActionPlayer {
 	stop(): void {
 		cancelAnimationFrame(this.requestID);
 
-		this.actions.length = 0;
+		this.actions = null;
 	}
 
 	suspend(): void {

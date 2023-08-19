@@ -17,10 +17,10 @@ export const I18nMixin = <T extends Constructor<LitElement>>(superClass: T) => {
 		override connectedCallback() {
 			super.connectedCallback();
 
-			this.initialize();
+			this.initializeI18N();
 		}
 
-		private initialize() {
+		private initializeI18N() {
 			i18next.on("languageChanged", options => {
 				this.requestUpdate()
 			});

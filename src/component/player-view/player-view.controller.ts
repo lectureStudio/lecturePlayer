@@ -36,13 +36,12 @@ export class PlayerViewController implements ReactiveController {
 
 	hostConnected() {
 		autorun(() => {
-			uiStateStore.setChatVisible(featureStore.hasChatFeature());
-		});
-		autorun(() => {
 			uiStateStore.setRightContainerVisible(privilegeStore.canUseChat() && uiStateStore.chatVisible);
 		});
 		autorun(() => {
+			featureStore.hasChatFeature();
 			featureStore.hasQuizFeature();
+
 			this.host.requestUpdate();
 		});
 

@@ -82,7 +82,7 @@ export class JanusService extends EventTarget {
 	reconnect() {
 		const connected = this.janus.isConnected();
 
-		console.log("~ janus reconnect, is connected:", connected);
+		console.log("~ called janus reconnect, is connected:", connected);
 
 		// Try to reconnect individual participants.
 		for (const participant of this.publishers) {

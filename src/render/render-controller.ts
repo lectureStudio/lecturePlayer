@@ -68,8 +68,6 @@ export class RenderController {
 
 		this.pageChangeListener = this.pageChanged.bind(this);
 		this.visibilityChangeListener = this.visibilityChanged.bind(this);
-
-		document.addEventListener("visibilitychange", this.visibilityChangeListener);
 	}
 
 	setSlideView(slideView: SlideView) {
@@ -84,6 +82,18 @@ export class RenderController {
 
 		this.registerShapeRenderers(this.actionRenderSurface);
 		this.registerShapeRenderers(this.volatileRenderSurface);
+	}
+
+	start() {
+		document.addEventListener("visibilitychange", this.visibilityChangeListener);
+	}
+
+	stop() {
+		document.removeEventListener("visibilitychange", this.visibilityChangeListener);
+
+		if (this.page) {
+			this.page.removeChangeListener(this.pageChangeListener);
+		}
 	}
 
 	getPage(): Page {
@@ -147,14 +157,6 @@ export class RenderController {
 
 	render(): void {
 		this.renderAllLayers(this.page);
-	}
-
-	dispose() {
-		document.removeEventListener("visibilitychange", this.visibilityChangeListener);
-
-		if (this.page) {
-			this.page.removeChangeListener(this.pageChangeListener);
-		}
 	}
 
 	private enableRendering(): void {

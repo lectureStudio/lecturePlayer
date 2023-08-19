@@ -47,6 +47,14 @@ class DocumentStore {
 		this.selectedDocument = document;
 	}
 
+	setActiveDocument(document: CourseStateDocument) {
+		this.activeDocument = document;
+	}
+
+	setDocumentMap(map: Map<bigint, CourseStateDocument>) {
+		this.documentMap = map;
+	}
+
 	setSelectedPage(page: Page) {
 		this.selectedPage = page;
 	}

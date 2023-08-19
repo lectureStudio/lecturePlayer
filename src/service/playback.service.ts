@@ -14,25 +14,31 @@ export class PlaybackService {
 	private renderController: RenderController;
 
 
-	constructor() {
-		this.documents = new Map();
-	}
-
 	initialize(controller: RenderController) {
 		this.renderController = controller;
+
+		this.documents = new Map();
 
 		const executor = new StreamActionExecutor(this.renderController);
 
 		this.actionPlayer = new StreamActionPlayer(executor);
-		this.actionPlayer.start();
 	}
 
-	dispose() {
+	start() {
+		if (this.actionPlayer) {
+			this.actionPlayer.start();
+		}
+		if (this.renderController) {
+			this.renderController.start();
+		}
+	}
+
+	stop() {
 		if (this.actionPlayer) {
 			this.actionPlayer.stop();
 		}
 		if (this.renderController) {
-			this.renderController.dispose();
+			this.renderController.stop();
 		}
 	}
 

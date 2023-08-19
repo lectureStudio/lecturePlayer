@@ -44,6 +44,10 @@ import { SlideView } from '../slide-view/slide-view';
 import { deviceStore } from '../../store/device.store';
 import { MediaStateEvent, RecordingStateEvent, SpeechStateEvent, StreamStateEvent } from '../../model/event/queue-events';
 
+class CourseNotLiveError extends Error {
+
+}
+
 export class PlayerController implements ReactiveController {
 
 	private readonly host: LecturePlayer;
@@ -58,13 +62,11 @@ export class PlayerController implements ReactiveController {
 
 	private readonly playbackService: PlaybackService;
 
-	private readonly messageService: MessageService;
+	readonly messageService: MessageService;
 
 	private documentState: State;
 
 	private janusServiceState: State;
-
-	private eventServiceState: State;
 
 	private eventService: EventService;
 
@@ -87,8 +89,8 @@ export class PlayerController implements ReactiveController {
 
 		this.messageService = new MessageService();
 		this.speechService = new SpeechService();
-		this.playbackService = new PlaybackService();
 
+		this.playbackService = new PlaybackService();
 		this.playbackService.initialize(this.renderController);
 
 		const actionProcessor = new StreamActionProcessor(this.playbackService);
@@ -106,8 +108,6 @@ export class PlayerController implements ReactiveController {
 		this.eventService = new EventService(this.host.courseId);
 		this.eventService.addEventSubService(this.messageService);
 		this.eventService.connect();
-
-		this.host.messageService = this.messageService;
 
 		this.host.addEventListener("player-fullscreen", this.onFullscreen.bind(this));
 		this.host.addEventListener("player-settings", this.onSettings.bind(this), false);
@@ -164,8 +164,6 @@ export class PlayerController implements ReactiveController {
 			return;
 		}
 
-		console.log("set connection state:", state, "event:", this.eventServiceState, "janus:", this.janusServiceState);
-
 		uiStateStore.setState(state);
 
 		if (uiStateStore.state !== State.RECONNECTING) {
@@ -184,27 +182,7 @@ export class PlayerController implements ReactiveController {
 		}
 	}
 
-	private setCourseState(state: CourseState) {
-		courseStore.courseId = state.courseId;
-		courseStore.timeStarted = state.timeStarted;
-		courseStore.title = state.title;
-		courseStore.description = state.description;
-		courseStore.conference = state.conference;
-		courseStore.recorded = state.recorded;
-
-		privilegeStore.setPrivileges(state.userPrivileges);
-
-		featureStore.chatFeature = state.messageFeature;
-		featureStore.quizFeature = state.quizFeature;
-
-		documentStore.activeDocument = state.activeDocument;
-		documentStore.documentMap = state.documentMap;
-	}
-
 	private connect() {
-		participantStore.reset();
-		chatStore.reset();
-
 		this.courseStateService.getCourseState(this.host.courseId)
 			.then(this.onCourseState.bind(this))
 			.then(this.onCourseParticipant.bind(this))
@@ -214,10 +192,25 @@ export class PlayerController implements ReactiveController {
 			.catch(this.onConnectionError.bind(this));
 	}
 
-	private onCourseState(courseState: CourseState) {
-		console.log("~ course state", courseState);
+	private onCourseState(state: CourseState) {
+		courseStore.setCourseId(state.courseId);
+		courseStore.setTimeStarted(state.timeStarted);
+		courseStore.setTitle(state.title);
+		courseStore.setDescription(state.description);
+		courseStore.setConference(state.conference);
+		courseStore.setRecorded(state.recorded);
 
-		this.setCourseState(courseState);
+		privilegeStore.setPrivileges(state.userPrivileges);
+
+		featureStore.setChatFeature(state.messageFeature);
+		featureStore.setQuizFeature(state.quizFeature);
+
+		documentStore.setActiveDocument(state.activeDocument);
+		documentStore.setDocumentMap(state.documentMap);
+
+		if (!documentStore.activeDocument && !featureStore.hasFeatures()) {
+			return Promise.reject(new CourseNotLiveError());
+		}
 
 		return this.getCourseParticipant();
 	}
@@ -259,6 +252,8 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onMediaDevicesHandled() {
+		console.log("~ connecting janus");
+
 		this.janusService.setRoomId(courseStore.courseId);
 		this.janusService.setUserId(userStore.userId);
 
@@ -280,6 +275,7 @@ export class PlayerController implements ReactiveController {
 
 			this.getDocuments(documentStore.documentMap)
 				.then(documents => {
+					this.playbackService.start();
 					this.playbackService.addDocuments(documents);
 					this.playbackService.setActiveDocument(documentStore.activeDocument.documentId, documentStore.activeDocument.activePage.pageNumber);
 
@@ -297,24 +293,23 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onConnectionError(cause: any) {
-		// If any of the previous executions fail, panic.
-		console.error(cause);
+		// Ignore 'not live' errors, since this will only interrupt the procedure chain.
+		if (!(cause instanceof CourseNotLiveError)) {
+			// If any of the previous executions fail, panic.
+			console.error(cause);
+		}
 
 		this.setConnectionState(State.DISCONNECTED);
-
-		this.onJanusSessionError();
 	}
 
 	private setDisconnected() {
 		this.setFullscreen(false);
-		this.playbackService.dispose();
+
+		this.playbackService.stop();
 
 		if (this.viewController) {
 			this.viewController.setDisconnected();
 		}
-
-		participantStore.reset();
-		chatStore.reset();
 	}
 
 	private setReconnecting() {
@@ -349,10 +344,6 @@ export class PlayerController implements ReactiveController {
 					reject(error);
 				});
 		});
-	}
-
-	private getCourseState(): Promise<CourseState> {
-		return this.courseStateService.getCourseState(courseStore.courseId);
 	}
 
 	private getParticipants(): Promise<CourseParticipant[]> {
@@ -434,8 +425,6 @@ export class PlayerController implements ReactiveController {
 
 	private onEventServiceState(event: CustomEvent) {
 		const connected = event.detail.connected;
-
-		this.eventServiceState = connected ? State.CONNECTED : State.DISCONNECTED;
 
 		if (connected) {
 			switch (uiStateStore.state) {
@@ -527,7 +516,7 @@ export class PlayerController implements ReactiveController {
 		}
 
 		if (streamEvent.started) {
-			courseStore.timeStarted = streamEvent.timeStarted;
+			courseStore.setTimeStarted(streamEvent.timeStarted);
 
 			if (uiStateStore.state === State.CONNECTED) {
 				console.log("reconnecting ...");
@@ -537,22 +526,20 @@ export class PlayerController implements ReactiveController {
 			this.connect();
 		}
 		else {
-			location.reload();
+			this.closeAllModals();
 
-			// this.closeAllModals();
+			this.documentState = State.DISCONNECTED;
+			this.janusServiceState = State.DISCONNECTED;
 
-			// this.documentState = State.DISCONNECTED;
-			// this.janusServiceState = State.DISCONNECTED;
+			courseStore.reset();
+			privilegeStore.reset();
+			documentStore.reset();
+			featureStore.reset();
+			participantStore.reset();
+			userStore.reset();
+			chatStore.reset();
 
-			// this.updateConnectionState();
-
-			// courseStore.reset();
-			// privilegeStore.reset();
-			// documentStore.reset();
-			// featureStore.reset();
-			// participantStore.reset();
-			// userStore.reset();
-			// chatStore.reset();
+			this.updateConnectionState();
 		}
 	}
 
@@ -630,12 +617,16 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onJanusConnectionFailure() {
+console.log("~ janus connection failure")
+
 		this.janusServiceState = State.DISCONNECTED;
 
 		this.setConnectionState(State.RECONNECTING);
 	}
 
 	private onJanusSessionError() {
+console.log("~ janus session failure")
+
 		this.janusServiceState = State.DISCONNECTED;
 
 		const vpnModal = new VpnModal();

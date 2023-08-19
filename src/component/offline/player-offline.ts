@@ -1,19 +1,18 @@
 import { html } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { I18nLitElement, t } from '../i18n-mixin';
+import { courseStore } from '../../store/course.store';
+import { Component } from '../component';
 import playerOfflineStyles from './player-offline.scss';
 
 @customElement('player-offline')
-export class PlayerOffline extends I18nLitElement {
+export class PlayerOffline extends Component {
 
 	static styles = [
 		I18nLitElement.styles,
 		playerOfflineStyles,
 	];
-
-	@property({ type: String })
-	description: string;
 
 
 	protected render() {
@@ -23,7 +22,7 @@ export class PlayerOffline extends I18nLitElement {
 				<strong class="text-muted py-2">${t("course.unavailable")}</strong>
 				<hr>
 				<small>
-					${unsafeHTML(this.description)}
+					${unsafeHTML(courseStore.description)}
 				</small>
 			</div>
 		`;

@@ -19,11 +19,33 @@ class CourseStore {
 		makeAutoObservable(this);
 	}
 
+	setCourseId(id: number) {
+		this.courseId = id;
+	}
+
+	setTimeStarted(timestamp: number) {
+		this.timeStarted = timestamp;
+	}
+
+	setTitle(title: string) {
+		this.title = title;
+	}
+
+	setDescription(description: string) {
+		this.description = description;
+	}
+
+	setConference(conference: boolean) {
+		this.conference = conference;
+	}
+
+	setRecorded(recorded: boolean) {
+		this.recorded = recorded;
+	}
+
 	reset() {
-		this.courseId = null;
+		// Do not reset fields that are used in any state.
 		this.timeStarted = null;
-		this.title = null;
-		this.description = null;
 		this.conference = null;
 		this.recorded = null;
 	}

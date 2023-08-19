@@ -1,6 +1,7 @@
 import { makeAutoObservable } from "mobx";
 import { MessageFeature, QuizFeature } from "../model/course-feature";
 import { privilegeStore } from "./privilege.store";
+import { uiStateStore } from "./ui-state.store";
 
 class FeatureStore {
 
@@ -15,6 +16,8 @@ class FeatureStore {
 
 	setChatFeature(feature: MessageFeature) {
 		this.chatFeature = feature;
+
+		uiStateStore.setChatVisible(this.hasChatFeature());
 	}
 
 	setQuizFeature(feature: QuizFeature) {
@@ -27,6 +30,10 @@ class FeatureStore {
 
 	hasQuizFeature() {
 		return this.quizFeature != null && privilegeStore.canParticipateInQuiz();
+	}
+
+	hasFeatures() {
+		return this.hasChatFeature() || this.hasQuizFeature();
 	}
 
 	reset() {
