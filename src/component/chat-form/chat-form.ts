@@ -19,11 +19,25 @@ export class ChatForm extends Component {
 	@query('#recipients')
 	private recipientSelect: HTMLSelectElement;
 
+	@query('form')
+	private form: HTMLFormElement;
+
 	private selectedRecipient: string;
 
 
 	override connectedCallback() {
 		super.connectedCallback()
+	}
+
+	getFormData() {
+		return new FormData(this.form);
+	}
+
+	resetForm() {
+		this.form.querySelectorAll('[resettable]')
+			.forEach((element: HTMLInputElement) => {
+				element.value = null;
+			});
 	}
 
 	protected override updated() {
@@ -77,7 +91,7 @@ export class ChatForm extends Component {
 					</sl-select>
 				</div>
 				<div class="message-container">
-					<sl-textarea name="text" placeholder="${t("course.feature.message.placeholder")}" rows="2" resize="none" size="small"></sl-textarea>
+					<sl-textarea name="text" placeholder="${t("course.feature.message.placeholder")}" rows="2" resize="none" size="small" resettable></sl-textarea>
 					<slot name="right-pane"></slot>
 				</div>
 			</form>

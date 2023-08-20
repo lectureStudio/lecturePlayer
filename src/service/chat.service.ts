@@ -77,8 +77,7 @@ export class ChatService extends EventTarget implements EventSubService {
 		});
 	}
 
-	postMessage(form: HTMLFormElement): Promise<void> {
-		const data = new FormData(form);
+	postMessage(data: FormData): Promise<void> {
 		const message: ChatMessageDto = {
 			serviceId: featureStore.chatFeature.featureId,
 			text: data.get("text").toString()

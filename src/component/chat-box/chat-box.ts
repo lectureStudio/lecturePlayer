@@ -10,6 +10,7 @@ import { privilegeStore } from '../../store/privilege.store';
 import { chatStore } from '../../store/chat.store';
 import { Utils } from '../../utils/utils';
 import { Toaster } from '../../utils/toaster';
+import { ChatForm } from '../chat-form/chat-form';
 import chatBoxStyles from './chat-box.scss';
 
 @customElement('chat-box')
@@ -74,18 +75,17 @@ export class ChatBox extends Component {
 	}
 
 	protected post(event: Event): void {
-		const messageForm: HTMLFormElement = this.renderRoot.querySelector("chat-form")
-			.shadowRoot.querySelector("form");
-
 		const submitButton = <HTMLButtonElement> event.target;
 		submitButton.disabled = true;
 
-		this.messageService.postMessage(messageForm)
+		const chatForm: ChatForm = this.renderRoot.querySelector("chat-form");
+
+		this.messageService.postMessage(chatForm.getFormData())
 			.then(() => {
 				Toaster.showSuccess(`${t("course.feature.message.sent")}`);
 
 				// Reset form only on success.
-				messageForm.reset();
+				chatForm.resetForm();
 			})
 			.catch(error => {
 				console.error(error);
