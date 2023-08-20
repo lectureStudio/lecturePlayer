@@ -1,6 +1,5 @@
 import { Utils } from "../utils/utils";
 import { Client, Message } from '@stomp/stompjs';
-import { v4 as uuidv4 } from 'uuid';
 
 export interface EventSubService {
 
@@ -32,8 +31,7 @@ export class EventService extends EventTarget {
 		const client = new Client({
 			brokerURL: "wss://" + window.location.host + "/ws-state",
 			connectHeaders: {
-				"course-id": this.courseId.toString(),
-				"client-id": uuidv4()
+				"course-id": this.courseId.toString()
 			},
 			reconnectDelay: 1000,
 			heartbeatIncoming: 1000,

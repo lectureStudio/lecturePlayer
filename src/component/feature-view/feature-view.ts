@@ -1,7 +1,7 @@
 import { PropertyValues, html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
-import { MessageService } from '../../service/message.service';
+import { ChatService } from '../../service/chat.service';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { SlSplitPanel, SlTab, SlTabGroup, SlTabHideEvent } from '@shoelace-style/shoelace';
 import { SwipeObserver } from '../../utils/swipe-observer';
@@ -25,7 +25,7 @@ export class PlayerFeatureView extends Component {
 	private readonly maxWidth600Query: MediaQueryList;
 
 	@property()
-	messageService: MessageService;
+	messageService: ChatService;
 
 	@query("#outer-split-panel")
 	outerSplitPanel: SlSplitPanel;

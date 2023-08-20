@@ -7,11 +7,9 @@ import { SlideDocument } from '../../model/document';
 import { CourseStateService } from '../../service/course.service';
 import { EventService } from '../../service/event.service';
 import { JanusService } from '../../service/janus.service';
-import { MessageService, MessageServiceHistory } from '../../service/message.service';
+import { ChatHistory, ChatService } from '../../service/chat.service';
 import { PlaybackService } from '../../service/playback.service';
-import { SpeechService } from '../../service/speech.service';
 import { Devices } from '../../utils/devices';
-import { HttpRequest } from '../../utils/http-request';
 import { MediaProfile, Settings } from '../../utils/settings';
 import { State } from '../../utils/state';
 import { Utils } from '../../utils/utils';
@@ -43,10 +41,12 @@ import { RenderController } from '../../render/render-controller';
 import { SlideView } from '../slide-view/slide-view';
 import { deviceStore } from '../../store/device.store';
 import { MediaStateEvent, RecordingStateEvent, SpeechStateEvent, StreamStateEvent } from '../../model/event/queue-events';
-
-class CourseNotLiveError extends Error {
-
-}
+import { CourseStateApi } from '../../transport/course-state-api';
+import { CourseSpeechApi } from '../../transport/course-speech-api';
+import { CourseUserApi } from '../../transport/course-user-api';
+import { CourseParticipantApi } from '../../transport/course-participant-api';
+import { CourseChatApi } from '../../transport/course-chat-api';
+import { CourseNotLiveError } from '../../error/course-not-live.error';
 
 export class PlayerController implements ReactiveController {
 
@@ -54,15 +54,13 @@ export class PlayerController implements ReactiveController {
 
 	private readonly maxWidth576Query: MediaQueryList;
 
-	private readonly speechService: SpeechService;
-
 	private readonly courseStateService: CourseStateService;
 
 	private readonly janusService: JanusService;
 
 	private readonly playbackService: PlaybackService;
 
-	readonly messageService: MessageService;
+	readonly chatService: ChatService;
 
 	private documentState: State;
 
@@ -87,8 +85,7 @@ export class PlayerController implements ReactiveController {
 
 		this.renderController = new RenderController();
 
-		this.messageService = new MessageService();
-		this.speechService = new SpeechService();
+		this.chatService = new ChatService();
 
 		this.playbackService = new PlaybackService();
 		this.playbackService.initialize(this.renderController);
@@ -97,7 +94,7 @@ export class PlayerController implements ReactiveController {
 		actionProcessor.onGetDocument = this.getDocument.bind(this);
 		actionProcessor.onPeerConnected = this.onPeerConnected.bind(this);
 
-		this.courseStateService = new CourseStateService("https://" + window.location.host);
+		this.courseStateService = new CourseStateService();
 		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus", actionProcessor);
 		this.modals = new Map();
 
@@ -106,7 +103,7 @@ export class PlayerController implements ReactiveController {
 
 	hostConnected() {
 		this.eventService = new EventService(this.host.courseId);
-		this.eventService.addEventSubService(this.messageService);
+		this.eventService.addEventSubService(this.chatService);
 		this.eventService.connect();
 
 		this.host.addEventListener("player-fullscreen", this.onFullscreen.bind(this));
@@ -183,10 +180,11 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private connect() {
-		this.courseStateService.getCourseState(this.host.courseId)
+		CourseStateApi.getCourseState(this.host.courseId)
 			.then(this.onCourseState.bind(this))
-			.then(this.onCourseParticipant.bind(this))
+			.then(this.onUserInformation.bind(this))
 			.then(this.onCourseParticipants.bind(this))
+			.then(this.onChatHistory.bind(this))
 			.then(this.onMediaDevicesHandled.bind(this))
 			.then(this.onConnected.bind(this))
 			.catch(this.onConnectionError.bind(this));
@@ -208,23 +206,36 @@ export class PlayerController implements ReactiveController {
 		documentStore.setActiveDocument(state.activeDocument);
 		documentStore.setDocumentMap(state.documentMap);
 
-		if (!documentStore.activeDocument && !featureStore.hasFeatures()) {
-			return Promise.reject(new CourseNotLiveError());
-		}
-
-		return this.getCourseParticipant();
+		return CourseUserApi.getUserInformation();
 	}
 
-	private onCourseParticipant(courseUser: CourseParticipant) {
+	private onUserInformation(courseUser: CourseParticipant) {
 		userStore.setUserId(courseUser.userId);
 		userStore.setName(courseUser.firstName, courseUser.familyName);
 		userStore.setParticipantType(courseUser.participantType);
 
-		return this.getParticipants();
+		if (!documentStore.activeDocument && !featureStore.hasFeatures()) {
+			return Promise.reject(new CourseNotLiveError());
+		}
+
+		return CourseParticipantApi.getParticipants(courseStore.courseId);
 	}
 
 	private onCourseParticipants(participants: CourseParticipant[]) {
 		participantStore.setParticipants(participants);
+
+		if (featureStore.hasChatFeature()) {
+			return CourseChatApi.getChatHistory(courseStore.courseId)
+		}
+		else {
+			return Promise.resolve(null);
+		}
+	}
+
+	private onChatHistory(history: ChatHistory) {
+		if (history) {
+			chatStore.setMessages(history.messages);
+		}
 
 		return new Promise<void>((resolve) => {
 			if (courseStore.conference) {
@@ -322,7 +333,7 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private getDocument(stateDoc: CourseStateDocument): Promise<SlideDocument> {
-		return this.courseStateService.getStateDocument(this.host.courseId, stateDoc);
+		return this.courseStateService.getDocument(this.host.courseId, stateDoc);
 	}
 
 	private getDocuments(documentMap: Map<bigint, CourseStateDocument>): Promise<SlideDocument[]> {
@@ -344,18 +355,6 @@ export class PlayerController implements ReactiveController {
 					reject(error);
 				});
 		});
-	}
-
-	private getParticipants(): Promise<CourseParticipant[]> {
-		return new HttpRequest().get("/course/participants/" + this.host.courseId);
-	}
-
-	private getCourseParticipant(): Promise<CourseParticipant> {
-		return new HttpRequest().get<CourseParticipant>("/course/user");
-	}
-
-	private getChatHistory(): Promise<MessageServiceHistory> {
-		return new HttpRequest().get("/course/chat/history/" + this.host.courseId);
 	}
 
 	private onPeerConnected(peerId: bigint, displayName: string) {
@@ -409,7 +408,7 @@ export class PlayerController implements ReactiveController {
 	private onChatVisibility() {
 		if (this.maxWidth576Query.matches) {
 			const chatModal = new ChatModal();
-			chatModal.messageService = this.messageService;
+			chatModal.messageService = this.chatService;
 
 			this.registerModal("ChatModal", chatModal);
 		}
@@ -431,7 +430,7 @@ export class PlayerController implements ReactiveController {
 				case State.CONNECTING:
 				case State.CONNECTED:
 				case State.CONNECTED_FEATURES:
-					this.fetchState();
+					this.fetchChatHistory();
 					break;
 			}
 		}
@@ -441,11 +440,17 @@ export class PlayerController implements ReactiveController {
 		}
 	}
 
-	private fetchState() {
+	private fetchChatHistory() {
 		if (featureStore.hasChatFeature()) {
-			this.getChatHistory().then(history => {
-				chatStore.setMessages(history.messages);
-			});
+			CourseParticipantApi.getParticipants(courseStore.courseId)
+				.then(participants => {
+					participantStore.setParticipants(participants);
+				});
+
+			CourseChatApi.getChatHistory(courseStore.courseId)
+				.then(history => {
+					chatStore.setMessages(history.messages);
+				});
 		}
 	}
 
@@ -459,7 +464,7 @@ export class PlayerController implements ReactiveController {
 		featureStore.setChatFeature(state.started ? state.feature : null);
 
 		if (state.started) {
-			this.fetchState();
+			this.fetchChatHistory();
 		}
 		else {
 			this.closeAndDeleteModal("ChatModal");
@@ -678,7 +683,7 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private sendSpeechRequest() {
-		this.speechService.requestSpeech(this.host.courseId)
+		CourseSpeechApi.requestSpeech(this.host.courseId)
 			.then(requestId => {
 				this.speechRequestId = requestId;
 			})
@@ -691,7 +696,7 @@ export class PlayerController implements ReactiveController {
 			return;
 		}
 
-		this.speechService.cancelSpeech(this.host.courseId, this.speechRequestId)
+		CourseSpeechApi.cancelSpeech(this.host.courseId, this.speechRequestId)
 			.then(() => {
 				this.speechCanceled();
 			})

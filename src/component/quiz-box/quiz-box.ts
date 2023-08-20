@@ -1,12 +1,12 @@
 import { html } from 'lit';
 import { customElement, query } from 'lit/decorators.js';
-import { CourseFeatureResponse } from '../../model/course-feature';
-import { QuizService } from '../../service/quiz.service';
+import { CourseFeatureResponse, QuizAnswer } from '../../model/course-feature';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { QuizForm } from '../quiz-form/quiz-form';
 import { Component } from '../component';
 import { courseStore } from '../../store/course.store';
 import { Toaster } from '../../utils/toaster';
+import { CourseQuizApi } from '../../transport/course-quiz-api';
 import quizBoxStyles from './quiz-box.scss';
 
 @customElement('quiz-box')
@@ -28,8 +28,13 @@ export class QuizBox extends Component {
 		const submitButton = <HTMLButtonElement> event.target;
 		submitButton.disabled = true;
 
-		const service = new QuizService();
-		service.postAnswerFromForm(courseStore.courseId, quizForm)
+		const data = new FormData(quizForm);
+		const answer: QuizAnswer = {
+			serviceId: data.get("serviceId").toString(),
+			options: data.getAll("options") as string[]
+		};
+
+		CourseQuizApi.postQuizAnswer(courseStore.courseId, answer)
 			.then(response => {
 				this.quizForm.setResponse(response);
 

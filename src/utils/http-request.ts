@@ -96,7 +96,7 @@ export class HttpRequest {
 		return this.request("PATCH", url, body);
 	}
 
-	post<T>(url: string, body: any): Promise<T> {
+	post<T>(url: string, body?: any): Promise<T> {
 		return this.request("POST", url, body);
 	}
 

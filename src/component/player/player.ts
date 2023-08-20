@@ -29,8 +29,8 @@ export class LecturePlayer extends Component {
 		return html`
 			${choose(uiStateStore.state, [
 				[State.CONNECTING,			() => html`<player-loading .text="${t("course.loading")}"></player-loading>`],
-				[State.CONNECTED,			() => html`<player-view .playerController="${this.controller}" .messageService="${this.controller.messageService}"></player-view>`],
-				[State.CONNECTED_FEATURES,	() => html`<player-feature-view .messageService="${this.controller.messageService}"></player-feature-view>`],
+				[State.CONNECTED,			() => html`<player-view .playerController="${this.controller}" .messageService="${this.controller.chatService}"></player-view>`],
+				[State.CONNECTED_FEATURES,	() => html`<player-feature-view .messageService="${this.controller.chatService}"></player-feature-view>`],
 				[State.DISCONNECTED,		() => html`<player-offline></player-offline>`]
 			],
 			() => html`<h1>Error</h1>`)}

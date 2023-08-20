@@ -2,11 +2,11 @@ import { html } from "lit";
 import { Modal } from "../modal/modal";
 import { customElement, property, query } from "lit/decorators.js";
 import { t } from '../i18n-mixin';
-import { CourseFeatureResponse, QuizFeature } from "../../model/course-feature";
-import { QuizService } from "../../service/quiz.service";
+import { CourseFeatureResponse, QuizAnswer, QuizFeature } from "../../model/course-feature";
 import { QuizForm } from "../quiz-form/quiz-form";
 import { courseStore } from "../../store/course.store";
 import { Toaster } from "../../utils/toaster";
+import { CourseQuizApi } from "../../transport/course-quiz-api";
 
 @customElement("quiz-modal")
 export class QuizModal extends Modal {
@@ -28,8 +28,13 @@ export class QuizModal extends Modal {
 		const submitButton = <HTMLButtonElement>event.target;
 		submitButton.disabled = true;
 
-		const service = new QuizService();
-		service.postAnswerFromForm(courseStore.courseId, quizForm)
+		const data = new FormData(quizForm);
+		const answer: QuizAnswer = {
+			serviceId: data.get("serviceId").toString(),
+			options: data.getAll("options") as string[]
+		};
+
+		CourseQuizApi.postQuizAnswer(courseStore.courseId, answer)
 			.then(response => {
 				this.quizForm.setResponse(response);
 

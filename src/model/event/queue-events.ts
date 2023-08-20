@@ -1,11 +1,15 @@
+export interface MediaStreamState {
+
+	Audio?: boolean,
+	Camera?: boolean,
+	Screen?: boolean
+
+}
+
 export interface MediaStateEvent {
 
 	userId: string;
-	state: {
-		Audio: boolean,
-		Camera: boolean,
-		Screen: boolean
-	};
+	state: MediaStreamState;
 
 }
 

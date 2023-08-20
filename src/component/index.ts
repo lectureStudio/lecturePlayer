@@ -12,7 +12,7 @@ export * from './loading/player-loading';
 export * from './offline/player-offline';
 export * from './feature-view/feature-view';
 export * from './chat-box/chat-box';
-export * from './message-form/message-form';
+export * from './chat-form/chat-form';
 export * from './participant-list/participant-list-item';
 export * from './participant-list/participant-list';
 export * from './participant-view/participant-view';

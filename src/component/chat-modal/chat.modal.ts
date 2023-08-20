@@ -2,7 +2,7 @@ import { html } from "lit";
 import { Modal } from "../modal/modal";
 import { customElement, property } from "lit/decorators.js";
 import { t } from '../i18n-mixin';
-import { MessageService } from "../../service/message.service";
+import { ChatService } from "../../service/chat.service";
 import chatModalStyles from "./chat.modal.scss";
 
 @customElement("chat-modal")
@@ -14,7 +14,7 @@ export class ChatModal extends Modal {
 	];
 
 	@property()
-	messageService: MessageService;
+	messageService: ChatService;
 
 
 	protected render() {

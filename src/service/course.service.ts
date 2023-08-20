@@ -1,70 +1,37 @@
-import { ProgressiveDataView } from "../action/parser/progressive-data-view";
 import { RecordedPageParser } from "../action/parser/recorded-page.parser";
 import { SimpleActionExecutor } from "../action/simple-action-executor";
-import { CourseState } from "../model/course-state";
 import { CourseStateDocument } from "../model/course-state-document";
 import { SlideDocument } from "../model/document";
 import { RecordedPage } from "../model/recorded-page";
-import { WhiteboardDocument } from "../model/whiteboard.document";
 import { streamStatsStore } from "../store/stream-stats.store";
-import { HttpRequest } from "../utils/http-request";
+import { CourseFileApi } from "../transport/course-file-api";
+import { CourseStateApi } from "../transport/course-state-api";
 import { DocumentService } from "./document.service";
 
 export class CourseStateService {
 
-	private readonly apiPath = "/course/state";
-
-	private readonly host: string;
-
-
-	constructor(host: string) {
-		this.host = host;
-	}
-
-	getCourseState(courseId: number): Promise<CourseState> {
-		return new HttpRequest().get(this.getFullPath("/" + courseId));
-	}
-
-	getStateDocument(courseId: number, stateDoc: CourseStateDocument): Promise<SlideDocument> {
-		if (stateDoc.documentFile) {
-			return new Promise<SlideDocument>((resolve, reject) => {
-				new HttpRequest().setResponseType("arraybuffer").get<ArrayBuffer>(stateDoc.documentFile)
-					.then((dataBuffer: ArrayBuffer) => {
-						if (!dataBuffer) {
-							throw new Error("Received empty course document");
-						}
-
-						this.updateDocumentStats(stateDoc, dataBuffer.byteLength);
-
-						const byteBuffer = new Uint8Array(dataBuffer);
-						const docService = new DocumentService();
-
-						return docService.loadDocument(byteBuffer);
-					})
-					.then((slideDoc: SlideDocument) => {
-						slideDoc.setDocumentId(stateDoc.documentId);
-
-						this.preloadSlideDocument(courseId, stateDoc, slideDoc)
-							.then(() => {
-								resolve(slideDoc);
-							})
-							.catch((error: any) => {
-								reject(error);
-							});
-					})
-					.catch((error: any) => {
-						reject(error);
-					});
-			});
-		}
-
+	getDocument(courseId: number, stateDoc: CourseStateDocument): Promise<SlideDocument> {
 		return new Promise<SlideDocument>((resolve, reject) => {
-			const slideDoc = new WhiteboardDocument();
-			slideDoc.setDocumentId(stateDoc.documentId);
+			CourseFileApi.downloadFile(stateDoc.documentFile)
+				.then((dataBuffer: ArrayBuffer) => {
+					if (!dataBuffer) {
+						throw new Error("Received empty course document");
+					}
 
-			this.preloadSlideDocument(courseId, stateDoc, slideDoc)
-				.then(() => {
-					resolve(slideDoc);
+					this.updateDocumentStats(dataBuffer.byteLength);
+
+					return DocumentService.loadDocument(new Uint8Array(dataBuffer));
+				})
+				.then((slideDoc: SlideDocument) => {
+					slideDoc.setDocumentId(stateDoc.documentId);
+
+					this.preloadSlideDocument(courseId, stateDoc, slideDoc)
+						.then(() => {
+							resolve(slideDoc);
+						})
+						.catch((error: any) => {
+							reject(error);
+						});
 				})
 				.catch((error: any) => {
 					reject(error);
@@ -72,25 +39,11 @@ export class CourseStateService {
 		});
 	}
 
-	getPageActions(courseId: number, documentId: number, pageNumber: number): Promise<RecordedPage> {
+	getPageActions(courseId: number, documentId: bigint, pageNumber: number): Promise<RecordedPage> {
 		return new Promise<RecordedPage>((resolve, reject) => {
-			return new HttpRequest().setResponseType("arraybuffer").get<ArrayBuffer>(this.getFullPath("/" + courseId + "/pages/" + documentId + "/" + pageNumber))
+			return CourseStateApi.getPageActions(courseId, documentId, pageNumber)
 				.then((dataBuffer: ArrayBuffer) => {
-					if (!dataBuffer) {
-						reject("Received empty page actions");
-						return;
-					}
-
-					console.log(dataBuffer);
-
-					const dataView = new ProgressiveDataView(dataBuffer);
-					const bufferLength = dataBuffer.byteLength;
-					const entryLength = dataView.getInt32();
-
-					const pageParser = new RecordedPageParser();
-					const recordedPage = pageParser.parse(dataView);
-
-					console.log(recordedPage);
+					const recordedPage = RecordedPageParser.parseBuffer(dataBuffer)[0];
 
 					resolve(recordedPage);
 				})
@@ -102,30 +55,9 @@ export class CourseStateService {
 
 	private getStateDocumentActions(courseId: number, stateDoc: CourseStateDocument): Promise<RecordedPage[]> {
 		return new Promise<RecordedPage[]>((resolve, reject) => {
-			return new HttpRequest().setResponseType("arraybuffer").get<ArrayBuffer>(this.getFullPath("/" + courseId + "/pages/" + stateDoc.documentId))
+			return CourseStateApi.getDocummentActions(courseId, stateDoc.documentId)
 				.then((dataBuffer: ArrayBuffer) => {
-					if (!dataBuffer) {
-						reject("Received empty course document");
-						return;
-					}
-
-					const dataView = new ProgressiveDataView(dataBuffer);
-					const bufferLength = dataBuffer.byteLength;
-
-					const recordedPages: RecordedPage[] = [];
-
-					while (dataView.byteOffset < bufferLength) {
-						const entryLength = dataView.getInt32();
-
-						const pageParser = new RecordedPageParser();
-						const recordedPage = pageParser.parse(dataView);
-
-						if (recordedPage) {
-							recordedPages.push(recordedPage);
-						}
-					}
-
-					resolve(recordedPages);
+					resolve(RecordedPageParser.parseBuffer(dataBuffer));
 				})
 				.catch((error: any) => {
 					reject(error);
@@ -166,11 +98,7 @@ export class CourseStateService {
 		}
 	}
 
-	private getFullPath(path: string): string {
-		return this.host + this.apiPath + path;
-	}
-
-	private updateDocumentStats(stateDoc: CourseStateDocument, byteSize: number) {
+	private updateDocumentStats(byteSize: number) {
 		let stats = streamStatsStore.documentStats;
 
 		if (!stats) {

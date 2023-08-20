@@ -48,13 +48,13 @@ export interface DirectChatMessage extends ChatMessage {
 
 }
 
-export interface MessageServiceHistory {
+export interface ChatHistory {
 
 	messages: ChatMessage[];
 
 }
 
-export class MessageService extends EventTarget implements EventSubService {
+export class ChatService extends EventTarget implements EventSubService {
 
 	private courseId: number;
 
@@ -101,7 +101,7 @@ export class MessageService extends EventTarget implements EventSubService {
 			}
 
 			this.client.publish({
-				destination: "/app/message/" + this.courseId,
+				destination: `/app/message/${this.courseId}`,
 				body: JSON.stringify(message),
 				headers: headers,
 			});

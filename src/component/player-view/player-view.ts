@@ -2,7 +2,7 @@ import { html } from 'lit';
 import { when } from 'lit/directives/when.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { customElement, property, query } from 'lit/decorators.js';
-import { MessageService } from '../../service/message.service';
+import { ChatService } from '../../service/chat.service';
 import { PlayerControls } from '../controls/player-controls';
 import { I18nLitElement } from '../i18n-mixin';
 import { ParticipantView } from '../participant-view/participant-view';
@@ -32,7 +32,7 @@ export class PlayerView extends Component {
 	playerController: PlayerController;
 
 	@property()
-	messageService: MessageService;
+	messageService: ChatService;
 
 	@property({ type: Boolean, reflect: true })
 	chatVisible: boolean = true;

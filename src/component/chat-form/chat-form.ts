@@ -2,18 +2,18 @@ import { Component } from '../component';
 import { html } from 'lit';
 import { customElement, query } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
-import { ChatRecipientType } from '../../service/message.service';
+import { ChatRecipientType } from '../../service/chat.service';
 import { privilegeStore } from '../../store/privilege.store';
 import { participantStore } from '../../store/participants.store';
 import { userStore } from '../../store/user.store';
-import messageFormStyles from './message-form.scss';
+import chatFormStyles from './chat-form.scss';
 
-@customElement('message-form')
-export class MessageForm extends Component {
+@customElement('chat-form')
+export class ChatForm extends Component {
 
 	static styles = [
 		I18nLitElement.styles,
-		messageFormStyles,
+		chatFormStyles,
 	];
 
 	@query('#recipients')

@@ -4,7 +4,7 @@ import { customElement, property, query } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { I18nLitElement, t } from '../i18n-mixin';
-import { MessageService } from '../../service/message.service';
+import { ChatService } from '../../service/chat.service';
 import { ChatBoxMessage } from './chat-message';
 import { privilegeStore } from '../../store/privilege.store';
 import { chatStore } from '../../store/chat.store';
@@ -21,7 +21,7 @@ export class ChatBox extends Component {
 	];
 
 	@property()
-	messageService: MessageService;
+	messageService: ChatService;
 
 	@query(".chat-history-log")
 	messageContainer: HTMLElement;
@@ -66,10 +66,15 @@ export class ChatBox extends Component {
 
 	protected firstUpdated(): void {
 		this.mutationObserver.observe(this.messageContainer, { childList: true });
+
+		// Mark already added messages as read.
+		for (const child of this.messageContainer.children) {
+			(child as ChatBoxMessage).message.read = true;
+		}
 	}
 
 	protected post(event: Event): void {
-		const messageForm: HTMLFormElement = this.renderRoot.querySelector("message-form")
+		const messageForm: HTMLFormElement = this.renderRoot.querySelector("chat-form")
 			.shadowRoot.querySelector("form");
 
 		const submitButton = <HTMLButtonElement> event.target;
@@ -124,11 +129,11 @@ export class ChatBox extends Component {
 
 			<footer part="footer">
 				${when(privilegeStore.canWriteMessages(), () => html`
-				<message-form>
+				<chat-form>
 					<sl-button slot="right-pane" @click="${this.post}" type="submit" form="course-message-form" id="message-submit" size="medium" circle>
 						<sl-icon name="send"></sl-icon>
 					</sl-button>
-				</message-form>
+				</chat-form>
 				`)}
 			</footer>
 		`;

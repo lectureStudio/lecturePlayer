@@ -3,7 +3,7 @@ import { customElement, property } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { Component } from '../component';
-import { ChatMessage, DirectChatMessage } from '../../service/message.service';
+import { ChatMessage, DirectChatMessage } from '../../service/chat.service';
 import { userStore } from '../../store/user.store';
 import chatMessageStyles from './chat-message.scss';
 

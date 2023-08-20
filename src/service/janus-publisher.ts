@@ -7,6 +7,8 @@ import { JanusParticipant, JanusStreamType } from "./janus-participant";
 import { userStore } from "../store/user.store";
 import { deviceStore } from "../store/device.store";
 import { participantStore } from "../store/participants.store";
+import { courseStore } from "../store/course.store";
+import { CourseMediaApi } from "../transport/course-media-api";
 
 export class JanusPublisher extends JanusParticipant {
 
@@ -213,8 +215,7 @@ export class JanusPublisher extends JanusParticipant {
 			// A new track needs to be added and other participants notified of its existence.
 			this.addNewTrack(JanusStreamType.screen, true, Devices.screenErrorHandler)
 				.then(() => {
-					// TODO: send event
-					participantStore.setParticipantScreenActive(userStore.userId, true);
+					this.setScreenState(true);
 				});
 		}
 	}
@@ -323,7 +324,7 @@ export class JanusPublisher extends JanusParticipant {
 
 		if (track.kind === "audio") {
 			// Ignore local audio tracks, they'd generate echo anyway.
-			participantStore.setParticipantMicrophoneActive(userStore.userId, true);
+			this.setMicrophoneState(true);
 			return;
 		}
 		else if (track.kind === "video") {
@@ -335,20 +336,19 @@ export class JanusPublisher extends JanusParticipant {
 			const constraints = track.getConstraints();
 
 			if (constraints.deviceId) {
-
 				// console.log("---- add video");
 
 				// Must be a camera device.
-
 				participantStore.setParticipantCameraStream(userStore.userId, stream);
-				participantStore.setParticipantCameraActive(userStore.userId, true);
+
+				this.setCameraState(true);
 			}
 			else {
-
 				// console.log("---- add screen");
 
 				participantStore.setParticipantScreenStream(userStore.userId, stream);
-				participantStore.setParticipantScreenActive(userStore.userId, true);
+
+				this.setScreenState(true);
 			}
 		}
 	}
@@ -395,8 +395,7 @@ export class JanusPublisher extends JanusParticipant {
 	protected override onMuteAudio(mute: boolean) {
 		super.onMuteAudio(mute);
 
-		// TODO: send event
-		participantStore.setParticipantMicrophoneActive(userStore.userId, !mute);
+		this.setMicrophoneState(!mute);
 	}
 
 	protected override onMuteVideo(mute: boolean) {
@@ -418,8 +417,7 @@ export class JanusPublisher extends JanusParticipant {
 
 			this.addNewTrack(JanusStreamType.video, captureSettings, Devices.cameraErrorHandler)
 				.then(() => {
-					// TODO: send event
-					participantStore.setParticipantCameraActive(userStore.userId, true);
+					this.setCameraState(true);
 				});
 		}
 	}
@@ -583,21 +581,47 @@ export class JanusPublisher extends JanusParticipant {
 	private async muteTrack(mid: string, enable: boolean, mediaType: MediaType, onError: (error: any) => void) {
 		this.enableTrack(mid, enable)
 			.then(() => {
-				// TODO: send event
 				switch (mediaType) {
 					case MediaType.Audio:
-						participantStore.setParticipantMicrophoneActive(userStore.userId, enable);
+						this.setMicrophoneState(enable);
 						break;
 
 					case MediaType.Camera:
-						participantStore.setParticipantCameraActive(userStore.userId, enable);
+						this.setCameraState(enable);
 						break;
 
 					case MediaType.Screen:
-						participantStore.setParticipantScreenActive(userStore.userId, enable);
+						this.setScreenState(enable);
 						break;
 				}
 			})
 			.catch(onError);
+	}
+
+	private setMicrophoneState(active: boolean) {
+		participantStore.setParticipantMicrophoneActive(userStore.userId, active);
+
+		CourseMediaApi.updateMediaStreamState(courseStore.courseId, { Audio: active })
+			.catch(error => {
+				console.error("Update media state failed", error);
+			});
+	}
+
+	private setCameraState(active: boolean) {
+		participantStore.setParticipantCameraActive(userStore.userId, active);
+
+		CourseMediaApi.updateMediaStreamState(courseStore.courseId, { Camera: active })
+			.catch(error => {
+				console.error("Update media state failed", error);
+			});
+	}
+
+	private setScreenState(active: boolean) {
+		participantStore.setParticipantScreenActive(userStore.userId, active);
+
+		CourseMediaApi.updateMediaStreamState(courseStore.courseId, { Screen: active })
+			.catch(error => {
+				console.error("Update media state failed", error);
+			});
 	}
 }

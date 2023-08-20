@@ -1,4 +1,4 @@
-import { ChatMessage } from "../service/message.service";
+import { ChatMessage } from "../service/chat.service";
 import { makeAutoObservable } from "mobx";
 
 class ChatStore {

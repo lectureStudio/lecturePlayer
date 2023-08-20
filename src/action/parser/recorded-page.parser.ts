@@ -2,11 +2,34 @@ import { ProgressiveDataView } from "./progressive-data-view";
 import { ActionParser } from "./action.parser";
 import { RecordedPage } from "../../model/recorded-page";
 
-class RecordedPageParser {
+export namespace RecordedPageParser {
 
-	parse(dataView: ProgressiveDataView): RecordedPage {
+	export function parseBuffer(buffer: ArrayBuffer): RecordedPage[] {
+		if (!buffer) {
+			throw Error("Received empty course document");
+		}
+
+		const dataView = new ProgressiveDataView(buffer);
+		const bufferLength = buffer.byteLength;
+
+		const recordedPages: RecordedPage[] = [];
+
+		while (dataView.byteOffset < bufferLength) {
+			const entryLength = dataView.getInt32();
+
+			const recordedPage = RecordedPageParser.parse(dataView);
+
+			if (recordedPage) {
+				recordedPages.push(recordedPage);
+			}
+		}
+
+		return recordedPages;
+	}
+
+	export function parse(dataView: ProgressiveDataView): RecordedPage {
 		const recordedPage = new RecordedPage();
-		
+
 		const number = dataView.getInt32();
 		const timestamp = dataView.getInt32();
 
@@ -54,5 +77,3 @@ class RecordedPageParser {
 	}
 
 }
-
-export { RecordedPageParser };

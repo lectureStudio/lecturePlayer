@@ -62,8 +62,7 @@ export class StreamActionParser {
 		const docId = dataView.getInt64();
 
 		const entryLength = dataView.getInt32();
-		const pageParser = new RecordedPageParser();
-		const recordedPage = pageParser.parse(dataView);
+		const recordedPage = RecordedPageParser.parse(dataView);
 
 		return new StreamPageActionsAction(docId, recordedPage);
 	}
