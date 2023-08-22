@@ -56,6 +56,18 @@ export class Devices {
 		return await navigator.mediaDevices.getUserMedia(constraints);
 	}
 
+	static getDefaultDevice(devices: MediaDeviceInfo[]) {
+		// Find a device with the default id.
+		for (const dev of devices) {
+			if (dev.deviceId === "default") {
+				return dev;
+			}
+		}
+
+		// If no default one found, return the first available device.
+		return devices[0];
+	}
+
 	static enumerateAudioDevices(useSettings: boolean): Promise<DeviceInfo> {
 		let constraints: MediaStreamConstraints = {};
 

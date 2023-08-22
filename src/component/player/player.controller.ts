@@ -9,7 +9,7 @@ import { EventService } from '../../service/event.service';
 import { JanusService } from '../../service/janus.service';
 import { ChatHistory, ChatService } from '../../service/chat.service';
 import { PlaybackService } from '../../service/playback.service';
-import { Devices } from '../../utils/devices';
+import { DeviceInfo, Devices } from '../../utils/devices';
 import { MediaProfile, Settings } from '../../utils/settings';
 import { State } from '../../utils/state';
 import { Utils } from '../../utils/utils';
@@ -248,27 +248,35 @@ export class PlayerController implements ReactiveController {
 		}
 
 		return new Promise<void>((resolve) => {
-			if (courseStore.conference) {
-				navigator.mediaDevices.getUserMedia({
-					audio: true
-				})
-					.then((stream: MediaStream) => {
-						// Stream is not needed.
-						Devices.stopMediaTracks(stream);
+			Devices.enumerateAudioDevices(false)
+				.then((deviceInfo: DeviceInfo) => {
+					// Stream is not needed.
+					Devices.stopMediaTracks(deviceInfo.stream);
 
-						deviceStore.microphoneBlocked = false;
-					})
-					.catch(error => {
-						deviceStore.microphoneBlocked = true;
-					})
-					.finally(() => {
-						// Allways resolve, since we are only probing the permissions.
-						resolve();
-					});
-			}
-			else {
-				resolve();
-			}
+					// Select default devices.
+					if (!deviceStore.microphoneDeviceId) {
+						const audioInputDevices = deviceInfo.devices.filter(device => device.kind === "audioinput");
+
+						deviceStore.microphoneDeviceId = Devices.getDefaultDevice(audioInputDevices).deviceId;
+					}
+					if (!deviceStore.speakerDeviceId && deviceStore.canSelectSpeaker && !Utils.isFirefox()) {
+						const audioOutputDevices = deviceInfo.devices.filter(device => device.kind === "audiooutput");
+
+						deviceStore.speakerDeviceId = Devices.getDefaultDevice(audioOutputDevices).deviceId;
+					}
+					if (!deviceStore.cameraDeviceId) {
+						deviceStore.cameraDeviceId = "none";
+					}
+
+					deviceStore.microphoneBlocked = false;
+				})
+				.catch(error => {
+					deviceStore.microphoneBlocked = true;
+				})
+				.finally(() => {
+					// Allways resolve, since we are only probing the permissions.
+					resolve();
+				});
 		});
 	}
 
