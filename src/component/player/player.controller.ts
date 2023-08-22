@@ -74,6 +74,8 @@ export class PlayerController implements ReactiveController {
 
 	private speechRequestId: string;
 
+	private speechStarted: boolean;
+
 	private devicesSelected: boolean;
 
 	private modals: Map<string, Modal>;
@@ -574,9 +576,11 @@ export class PlayerController implements ReactiveController {
 				this.speechAccepted();
 			}
 			else {
-				this.speechCanceled();
+				Toaster.showInfo(`${this.speechStarted
+					? t("course.speech.request.ended")
+					: t("course.speech.request.rejected")}`);
 
-				Toaster.showInfo(`${t("course.speech.request.rejected")}`);
+				this.speechCanceled();
 			}
 		}
 	}
@@ -730,6 +734,7 @@ export class PlayerController implements ReactiveController {
 
 	private speechCanceled() {
 		this.speechRequestId = null;
+		this.speechStarted = false;
 
 		// Close dialog in case the request was initially accepted.
 		this.closeAndDeleteModal("SpeechAcceptedModal");
@@ -747,6 +752,8 @@ export class PlayerController implements ReactiveController {
 			});
 			speechModal.addEventListener("speech-accepted-start", () => {
 				this.janusService.startSpeech(!camBlocked);
+
+				this.speechStarted = true;
 			});
 
 			this.registerModal("SpeechAcceptedModal", speechModal);
