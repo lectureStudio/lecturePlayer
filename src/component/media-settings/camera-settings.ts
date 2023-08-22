@@ -145,7 +145,10 @@ export class CameraSettings extends MediaSettings {
 
 				<div class="video-container">
 					<div class="controls">
-						${this.renderDevices(this.videoInputDevices, this.onCameraChange, "cameraDeviceId", "cameraSelect", t("devices.camera"))}
+						<sl-select @sl-change="${this.onCameraChange}" name="cameraDeviceId" label="${t("devices.camera")}" id="cameraSelect" size="small" hoist>
+							<sl-option value="none">${t("devices.none")}</sl-option>
+							${this.renderDeviceOptions(this.videoInputDevices)}
+						</sl-select>
 					</div>
 					<video id="cameraPreview" class="video" playsinline autoplay muted></video>
 				</div>

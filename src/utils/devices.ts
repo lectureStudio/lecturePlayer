@@ -80,7 +80,7 @@ export class Devices {
 
 		const videoSource = deviceStore.cameraDeviceId;
 
-		if (videoSource) {
+		if (videoSource && videoSource !== "none") {
 			constraints.video = {
 				deviceId: { exact: videoSource },
 				width: { ideal: 1280 },

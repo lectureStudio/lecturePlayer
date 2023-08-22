@@ -191,6 +191,8 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onCourseState(state: CourseState) {
+		console.log("* on course state")
+
 		courseStore.setCourseId(state.courseId);
 		courseStore.setTimeStarted(state.timeStarted);
 		courseStore.setTitle(state.title);
@@ -210,6 +212,8 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onUserInformation(courseUser: CourseParticipant) {
+		console.log("* on user info")
+
 		userStore.setUserId(courseUser.userId);
 		userStore.setName(courseUser.firstName, courseUser.familyName);
 		userStore.setParticipantType(courseUser.participantType);
@@ -222,6 +226,8 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onCourseParticipants(participants: CourseParticipant[]) {
+		console.log("* on participants", participants)
+
 		participantStore.setParticipants(participants);
 
 		if (featureStore.hasChatFeature()) {
@@ -233,6 +239,8 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onChatHistory(history: ChatHistory) {
+		console.log("* on chat history")
+
 		if (history) {
 			chatStore.setMessages(history.messages);
 		}
@@ -263,7 +271,7 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onMediaDevicesHandled() {
-		console.log("~ connecting janus");
+		console.log("* on devices handled");
 
 		this.janusService.setRoomId(courseStore.courseId);
 		this.janusService.setUserId(userStore.userId);
@@ -272,6 +280,8 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onConnected() {
+		console.log("* on connected")
+
 		if (!this.hasStream()) {
 			// Update early, if not streaming.
 			this.updateConnectionState();
@@ -282,7 +292,7 @@ export class PlayerController implements ReactiveController {
 		}
 
 		if (documentStore.activeDocument) {
-			this.documentState = State.DISCONNECTED;
+			this.documentState = State.CONNECTING;
 
 			this.getDocuments(documentStore.documentMap)
 				.then(documents => {
@@ -297,6 +307,8 @@ export class PlayerController implements ReactiveController {
 					}
 
 					this.documentState = State.CONNECTED;
+
+					console.log("* on documents loaded")
 
 					this.updateConnectionState();
 				});
@@ -464,6 +476,11 @@ export class PlayerController implements ReactiveController {
 		featureStore.setChatFeature(state.started ? state.feature : null);
 
 		if (state.started) {
+			if (this.documentState === State.CONNECTING) {
+				// Do not proceed with chat loading if the stream is connecting.
+				return;
+			}
+
 			this.fetchChatHistory();
 		}
 		else {
@@ -521,6 +538,8 @@ export class PlayerController implements ReactiveController {
 		}
 
 		if (streamEvent.started) {
+			this.documentState = State.CONNECTING;
+
 			courseStore.setTimeStarted(streamEvent.timeStarted);
 
 			if (uiStateStore.state === State.CONNECTED) {
@@ -612,6 +631,8 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private onJanusConnectionEstablished() {
+		console.log("* on janus connected")
+
 		this.janusServiceState = State.CONNECTED;
 
 		this.updateConnectionState();
@@ -645,16 +666,20 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private speechAccepted() {
+		const audioSource = deviceStore.microphoneDeviceId;
+		const videoSource = deviceStore.cameraDeviceId;
 		const constraints = {
 			audio: {
-				deviceId: deviceStore.microphoneDeviceId ? { exact: deviceStore.microphoneDeviceId } : undefined
+				deviceId: audioSource ? { exact: audioSource } : undefined
 			},
-			video: {
-				deviceId: deviceStore.cameraDeviceId ? { exact: deviceStore.cameraDeviceId } : undefined,
-				width: { ideal: 1280 },
-				height: { ideal: 720 },
-				facingMode: "user"
-			}
+			video: videoSource !== "none"
+				? {
+					deviceId: videoSource ? { exact: videoSource } : undefined,
+					width: { ideal: 1280 },
+					height: { ideal: 720 },
+					facingMode: "user"
+				}
+				: undefined
 		};
 
 		navigator.mediaDevices.getUserMedia(constraints)
@@ -705,6 +730,9 @@ export class PlayerController implements ReactiveController {
 
 	private speechCanceled() {
 		this.speechRequestId = null;
+
+		// Close dialog in case the request was initially accepted.
+		this.closeAndDeleteModal("SpeechAcceptedModal");
 
 		this.host.dispatchEvent(Utils.createEvent("speech-canceled"));
 	}

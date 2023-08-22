@@ -30,6 +30,11 @@ export class SpeechAcceptedModal extends Modal {
 		this.video.srcObject = this.stream;
 		this.video.muted = true;
 
+		if (this.stream.getVideoTracks().length < 1) {
+			// No camera selected for the speech.
+			this.video.style.display = "none";
+		}
+
 		const audioTrack = this.stream.getAudioTracks()[0];
 
 		if (audioTrack) {
