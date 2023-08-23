@@ -94,6 +94,8 @@ export class RenderController {
 		if (this.page) {
 			this.page.removeChangeListener(this.pageChangeListener);
 		}
+
+		this.slideView = null;
 	}
 
 	getPage(): Page {

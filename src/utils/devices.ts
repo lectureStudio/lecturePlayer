@@ -145,67 +145,15 @@ export class Devices {
 
 	static getAudioLevel(audioTrack: MediaStreamTrack, canvas: HTMLCanvasElement) {
 		const meterContext = canvas.getContext("2d");
-	
+
 		Devices.pollAudioLevel(audioTrack, (level: number) => {
 			meterContext.fillStyle = "lightgrey";
-			meterContext.fillRect(0, 0, canvas.width, canvas.height);
+			meterContext.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
 			meterContext.fillStyle = "#0d6efd";
-			meterContext.fillRect(0, 0, level * canvas.width, canvas.height);
+			meterContext.fillRect(0, 0, level * canvas.clientWidth, canvas.clientHeight);
 		});
 	}
-	
-	static createAudioMeter(audioContext: AudioContext, clipLevel: number, averaging: number, clipLag: number) {
-		const processor: ScriptProcessorNode = audioContext.createScriptProcessor(512);
-		processor.clipping = false;
-		processor.lastClip = 0;
-		processor.volume = 0;
-		processor.clipLevel = clipLevel || 0.98;
-		processor.averaging = averaging || 0.95;
-		processor.clipLag = clipLag || 750;
-		processor.onaudioprocess = function(event) {
-			const inputBuffer = event.inputBuffer;
-			let rmsSum = 0;
-		
-			for (let c = 0; c < inputBuffer.numberOfChannels; c++) {
-				const inputData = inputBuffer.getChannelData(c);
-				const bufLength = inputData.length;
-				let sum = 0;
-				let x;
-		
-				for (var i = 0; i < bufLength; i++) {
-					x = inputData[i];
-		
-					if (Math.abs(x) >= this.clipLevel) {
-						this.clipping = true;
-						this.lastClip = window.performance.now();
-					}
-		
-					sum += x * x;
-				}
-		
-				rmsSum += Math.sqrt(sum / bufLength);
-			}
-		
-			this.volume = Math.max(rmsSum / 2, this.volume * this.averaging);
-		};
-		processor.checkClipping = function() {
-			if (!this.clipping) {
-				return false;
-			}
-			if ((this.lastClip + this.clipLag) < window.performance.now()) {
-				this.clipping = false;
-			}
-	
-			return this.clipping;
-		};
-		processor.shutdown = function() {
-			this.disconnect();
-			this.onaudioprocess = null;
-		};
-	
-		return processor;
-	}
-	
+
 	static async pollAudioLevel(track: MediaStreamTrack, onLevelChanged: (value: number) => void) {
 		const audioContext = new AudioContext();
 	
