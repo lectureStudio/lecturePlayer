@@ -20,7 +20,7 @@ export class PlayerOffline extends Component {
 			<div>
 				<sl-icon name="course-not-available"></sl-icon>
 				<strong class="text-muted py-2">${t("course.unavailable")}</strong>
-				<hr>
+				<sl-divider></sl-divider>
 				<small>
 					${unsafeHTML(courseStore.description)}
 				</small>

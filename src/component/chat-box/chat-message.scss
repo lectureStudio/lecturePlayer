@@ -7,7 +7,7 @@
 	font-weight: bold;
 }
 .message-time {
-	color: #64748B;
+	color: var(--sl-color-neutral-700);
 	align-items: end;
 	justify-content: end;
 	margin: 0 1em 0 0;
@@ -16,7 +16,7 @@
 	-webkit-border-radius: 0 5px 5px 5px;
 	-moz-border-radius: 0 5px 5px 5px;
 	border-radius: 0 5px 5px 5px;
-	background: #F3F4F6;
+	background: var(--sl-color-neutral-100);
 	overflow-wrap: break-word;
 	padding: 0.4rem 1rem;
 	margin: 0 15% 0 0;
@@ -27,7 +27,7 @@
 	overflow-wrap: break-word;
 }
 .message-private {
-	background: #FEE2E2;
+	background: var(--sl-color-rose-200);
 	border-radius: 4px;
 	padding: 1px 6px;
 	margin: 0 0 0 1em;
@@ -47,7 +47,7 @@
 	-webkit-border-radius: 5px 0 5px 5px;
 	-moz-border-radius: 5px 0 5px 5px;
 	border-radius: 5px 0 5px 5px;
-	background: #e3effd;
+	background: var(--sl-color-primary-100);
 	margin: 0 0 0 15%;
 	margin-left: auto;
 }

@@ -3,6 +3,7 @@
 	flex-direction: column;
 	align-items: center;
 	height: inherit;
+	color: var(--sl-color-neutral-700);
 }
 :host > div {
 	display: flex;
@@ -12,23 +13,29 @@
 	padding-top: 3rem;
 }
 :host > div > strong {
-	color: #6c757d;
 	padding: 0.5rem 0;
 	align-self: center;
 }
 :host > div > sl-icon {
-	color: #0d6efd;
+	fill: var(--sl-color-primary-600);
 	font-size: 3em;
 	align-self: center;
 }
-:host > div > hr {
-	width: 100%;
-	border-width: 1px;
-	border: 0;
-	border-top: 1px solid #dee2e6;
-	margin: 1rem 0;
+:host > div > sl-divider {
+	--spacing: 1rem;
 }
 :host p {
 	margin-top: 0;
 	margin-bottom: 1rem;
+}
+
+@media (max-width: 1000px) {
+	:host > div {
+		width: 60%;
+	}
+}
+@media (max-width: 800px) {
+	:host > div {
+		width: 80%;
+	}
 }

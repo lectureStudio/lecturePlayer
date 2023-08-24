@@ -147,9 +147,9 @@ export class Devices {
 		const meterContext = canvas.getContext("2d");
 
 		Devices.pollAudioLevel(audioTrack, (level: number) => {
-			meterContext.fillStyle = "lightgrey";
+			meterContext.fillStyle = getComputedStyle(canvas).getPropertyValue("background-color");
 			meterContext.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-			meterContext.fillStyle = "#0d6efd";
+			meterContext.fillStyle = getComputedStyle(canvas).getPropertyValue("fill");
 			meterContext.fillRect(0, 0, level * canvas.clientWidth, canvas.clientHeight);
 		});
 	}

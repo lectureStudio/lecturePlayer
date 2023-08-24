@@ -3,7 +3,7 @@
 	position: relative;
 	display: flex;
 	flex-direction: row;
-	background-color: rgba(233, 236, 239, 0.8);
+	background-color: var(--sl-color-neutral-100);
 	padding: 0;
 	margin: 0;
 	align-items: center;
@@ -48,8 +48,10 @@ sl-button::part(base) {
 	border-radius: 0.333em;
 }
 sl-button::part(base):hover {
-	background-color: rgba(222, 226, 230, 0.9);
-	color: rgba(0, 125, 181, 1);
+	background-color: var(--sl-color-primary-50);
+}
+sl-button:hover sl-icon {
+	fill: var(--sl-color-primary-600);
 }
 
 :host([fullscreen]) #fullscreen,
@@ -65,9 +67,9 @@ sl-button::part(base):hover {
 :host(:not([hasParticipants])) #participants-button {
 	display: none;
 }
-:host([chatVisible]) #chat-button::part(base),
-:host([participantsVisible]) #participants-button::part(base) {
-	color: #007db5;
+:host([chatVisible]) #chat-button sl-icon,
+:host([participantsVisible]) #participants-button sl-icon {
+	
 }
 :host([hasQuiz]) #quiz-button {
 	animation: button-pulse 2s 5;
@@ -83,8 +85,8 @@ sl-button::part(base):hover {
 :not([mutedMic]) #microphone {
 	display: initial;
 }
-:host([mutedMic]) #microphone-mute {
-	color: #DC2626;
+:host([mutedMic]) #microphone-mute sl-icon {
+	fill: var(--sl-color-danger-700);
 }
 :host([mutedCam]) #camera,
 :not([mutedCam]) #camera-mute {
@@ -95,12 +97,11 @@ sl-button::part(base):hover {
 	display: initial;
 }
 :host([mutedCam]) #camera-mute {
-	color: #DC2626;
+	fill: var(--sl-color-danger-700);
 }
-:host([handUp]) #hand-button::part(base),
-:host([shareScreen]) #share-screen-button::part(base) {
-	background-color: rgba(21, 128, 61, 0.2);
-	color: #166534;
+:host([handUp]) #hand-button sl-icon,
+:host([shareScreen]) #share-screen-button sl-icon {
+	fill: var(--sl-color-emerald-600);
 }
 :host(:not([isConference])) .conference-control {
 	display: none;
@@ -113,8 +114,11 @@ sl-button::part(base):hover {
 	background-color: transparent;
 }
 
-#quiz-button {
-	color: #15803D;
+:host #quiz-button {
+	border-radius: 0.333em;
+}
+:host #quiz-button sl-icon {
+	fill: var(--sl-color-emerald-600);
 }
 media-device-button {
 	margin-right: 0.75em;
@@ -123,13 +127,12 @@ media-device-button {
 
 @keyframes button-pulse {
 	0% {
-		background: rgba(21, 128, 61, 0);
+		background-color: transparent;
 	}
 	50% {
-		background: rgba(21, 128, 61, 0.2);
-		color: #166534;
+		background-color: var(--sl-color-emerald-200);
 	}
 	100% {
-		background: rgba(21, 128, 61, 0.0);
+		background-color: transparent;
 	}
 }

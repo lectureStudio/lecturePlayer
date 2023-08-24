@@ -37,8 +37,10 @@ sl-button::part(label) {
 	border-radius: 0.333em;
 }
 #volumeIndicator::part(base):hover {
-	background-color: rgba(222, 226, 230, 0.9);
-	color: rgba(0, 125, 181, 1);
+	background-color: var(--sl-color-primary-50);
+}
+sl-button:hover sl-icon {
+	fill: var(--sl-color-primary-600);
 }
 
 #volumeIndicator > sl-icon {

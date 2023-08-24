@@ -4,6 +4,15 @@
 	box-sizing: border-box;
 }
 
+:root,
+:host {
+	color: var(--sl-color-neutral-900);
+}
+
+sl-icon {
+	fill: var(--sl-color-neutral-800);
+}
+
 form {
 	display: flex;
 	flex-direction: column;

@@ -2,8 +2,8 @@
 	display: flex;
 	width: 100%;
 	height: 100%;
-	background: #E2E8F0;
-	border: 2px solid #94A3B8;
+	background: var(--sl-color-neutral-100);
+	border: 1px solid var(--sl-color-neutral-300);
 	box-sizing: border-box;
 	overflow: hidden;
 }
@@ -34,7 +34,6 @@
 	width: 100%;
 	height: 100%;
 	padding: 0.25em;
-	color: #334155;
 }
 :host .controls {
 	position: absolute;
@@ -50,7 +49,7 @@
 }
 :host .controls .media-state {
 	display: flex;
-	background: #F3F4F633;
+	background: var(--sl-color-gray-100);
 	bottom: 0;
 	border-radius: 0.25em;
 }
@@ -69,7 +68,7 @@
 }
 
 :host([isTalking]) {
-	border: 3px solid rgb(60, 217, 60);
+	border: 2px solid var(--sl-color-emerald-500);
 }
 
 :host(:not([camActive])) video {
@@ -77,7 +76,7 @@
 }
 
 :not([micActive]) #mic-remote {
-	color: #DC2626;
+	color: var(--sl-color-danger-700);
 }
 :host([isConference]) .conference-control {
 	display: none;
