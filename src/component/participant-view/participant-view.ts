@@ -146,7 +146,7 @@ export class ParticipantView extends Component {
 		this.audio.play()
 			.catch(error => {
 				if (error.name == "NotAllowedError") {
-					this.dispatchEvent(Utils.createEvent("participant-video-play-error"));
+					this.dispatchEvent(Utils.createEvent("participant-audio-play-error"));
 				}
 			});
 	}

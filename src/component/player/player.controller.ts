@@ -114,7 +114,8 @@ export class PlayerController implements ReactiveController {
 		this.host.addEventListener("player-quiz-action", this.onQuizAction.bind(this), false);
 		this.host.addEventListener("player-chat-visibility", this.onChatVisibility.bind(this), false);
 		this.host.addEventListener("player-participants-visibility", this.onParticipantsVisibility.bind(this), false);
-		this.host.addEventListener("participant-video-play-error", this.onMediaPlayError.bind(this), false);
+		this.host.addEventListener("participant-audio-play-error", this.onAudioPlayError.bind(this), false);
+		this.host.addEventListener("participant-video-play-error", this.onVideoPlayError.bind(this), false);
 
 		this.eventService.addEventListener("event-service-state", this.onEventServiceState.bind(this));
 		this.eventService.addEventListener("chat-state", this.onChatState.bind(this));
@@ -785,7 +786,24 @@ export class PlayerController implements ReactiveController {
 		this.registerModal("SettingsModal", settingsModal);
 	}
 
-	private onMediaPlayError() {
+	private onAudioPlayError() {
+		console.log("** audio play error");
+
+		Devices.enumerateAudioDevices(false)
+			.then((deviceInfo: DeviceInfo) => {
+				// Stream is not needed.
+				Devices.stopMediaTracks(deviceInfo.stream);
+
+				this.host.dispatchEvent(Utils.createEvent("player-start-media"));
+			})
+			.catch(error => {
+				console.error(error);
+			});
+	}
+
+	private onVideoPlayError() {
+		console.log("** video play error");
+
 		if (this.modals.has("EntryModal")) {
 			return;
 		}
