@@ -7,6 +7,7 @@ import { SoundSettings } from '../media-settings/sound-settings';
 import { CameraSettings } from '../media-settings/camera-settings';
 import { SlTab, SlTabPanel } from '@shoelace-style/shoelace';
 import { deviceStore } from '../../store/device.store';
+import { uiStateStore } from '../../store/ui-state.store';
 
 @customElement("settings-modal")
 export class SettingsModal extends Modal {
@@ -22,7 +23,8 @@ export class SettingsModal extends Modal {
 
 
 	save() {
-		deviceStore.persistDeviceSettings();
+		deviceStore.persist();
+		uiStateStore.persist();
 
 		this.dispatchEvent(Utils.createEvent("device-settings-saved"));
 		this.close();
@@ -56,12 +58,16 @@ export class SettingsModal extends Modal {
 				<sl-tab-group @sl-tab-show="${(event: CustomEvent) => { this.onTab(event.detail.name) }}">
 					<sl-tab slot="nav" panel="audio">${t("settings.audio")}</sl-tab>
 					<sl-tab slot="nav" panel="video">${t("settings.camera")}</sl-tab>
+					<sl-tab slot="nav" panel="theme">${t("settings.theme")}</sl-tab>
 
 					<sl-tab-panel name="audio">
 						<sound-settings></sound-settings>
 					</sl-tab-panel>
 					<sl-tab-panel name="video">
 						<camera-settings></camera-settings>
+					</sl-tab-panel>
+					<sl-tab-panel name="theme">
+						<theme-settings></theme-settings>
 					</sl-tab-panel>
 				</sl-tab-group>
 				<div slot="footer">

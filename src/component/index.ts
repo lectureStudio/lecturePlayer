@@ -8,6 +8,7 @@ export * from './controls/audio-volume-button';
 export * from './controls/media-device-button';
 export * from './controls/documents-button';
 export * from './controls/document-navigation';
+export * from './controls/settings-button';
 export * from './loading/player-loading';
 export * from './offline/player-offline';
 export * from './feature-view/feature-view';
@@ -21,6 +22,7 @@ export * from './quiz-form/quiz-form';
 export * from './modal/modal';
 export * from './screen-view/screen-view';
 export * from './stream-stats/stream-stats';
+export * from './theme-settings/theme-settings';
 export * from './media-settings/camera-settings';
 export * from './media-settings/sound-settings';
 

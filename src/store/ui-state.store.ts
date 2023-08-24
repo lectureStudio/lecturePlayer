@@ -3,7 +3,22 @@ import { Dimension } from "../geometry/dimension";
 import { ContentFocus, ContentLayout } from "../model/content";
 import { State } from "../utils/state";
 
+export enum ColorScheme {
+
+	DARK = "dark",
+	LIGHT = "light",
+	SYSTEM = "system"
+
+}
+
+
 class UiStateStore {
+
+	private readonly colorSchemeQuery;
+
+	systemColorScheme: ColorScheme;
+
+	colorScheme: ColorScheme;
 
 	state: State = State.CONNECTING;
 
@@ -26,6 +41,26 @@ class UiStateStore {
 
 	constructor() {
 		makeAutoObservable(this);
+
+		if (window.matchMedia) {
+			this.colorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+			this.setSystemColorScheme(this.colorSchemeQuery.matches ? ColorScheme.DARK : ColorScheme.LIGHT);
+
+			this.colorSchemeQuery.addEventListener("change", event => {
+				this.setSystemColorScheme(event.matches ? ColorScheme.DARK : ColorScheme.LIGHT);
+			});
+		}
+
+		this.load();
+
+		console.log("++ color scheme:", this.colorScheme, this.systemColorScheme)
+	}
+
+	setColorScheme(scheme: ColorScheme) {
+		this.colorScheme = scheme;
+
+		this.applyColorScheme();
 	}
 
 	setState(state: State) {
@@ -70,6 +105,49 @@ class UiStateStore {
 
 	setRightContainerVisible(visible: boolean) {
 		this.rightContainerVisible = visible;
+	}
+
+	persist() {
+		const { colorScheme } = this;
+
+		localStorage.setItem("ui.store", JSON.stringify({ colorScheme }));
+	}
+
+	applyColorScheme() {
+		if (!document.body) {
+			return;
+		}
+
+		const isDark = this.isSystemAndUserDark();
+
+		if (isDark) {
+			document.body.classList.add("sl-theme-dark");
+		}
+		else {
+			document.body.classList.remove("sl-theme-dark");
+		}
+	}
+
+	private load() {
+		const json = localStorage.getItem("ui.store");
+
+		if (json) {
+			Object.assign(this, JSON.parse(json));
+		}
+
+		if (!this.colorScheme) {
+			this.setColorScheme(ColorScheme.SYSTEM);
+		}
+	}
+
+	private setSystemColorScheme(scheme: ColorScheme) {
+		this.systemColorScheme = scheme;
+
+		this.applyColorScheme();
+	}
+
+	private isSystemAndUserDark() {
+		return (this.systemColorScheme === ColorScheme.DARK && this.colorScheme === ColorScheme.SYSTEM) || this.colorScheme === ColorScheme.DARK;
 	}
 }
 

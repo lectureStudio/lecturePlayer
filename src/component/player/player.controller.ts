@@ -47,6 +47,7 @@ import { CourseUserApi } from '../../transport/course-user-api';
 import { CourseParticipantApi } from '../../transport/course-participant-api';
 import { CourseChatApi } from '../../transport/course-chat-api';
 import { CourseNotLiveError } from '../../error/course-not-live.error';
+import { StreamStatsModal } from '../stream-stats-modal/stream-stats.modal';
 
 export class PlayerController implements ReactiveController {
 
@@ -104,12 +105,15 @@ export class PlayerController implements ReactiveController {
 	}
 
 	hostConnected() {
+		uiStateStore.applyColorScheme();
+
 		this.eventService = new EventService(this.host.courseId);
 		this.eventService.addEventSubService(this.chatService);
 		this.eventService.connect();
 
 		this.host.addEventListener("player-fullscreen", this.onFullscreen.bind(this));
 		this.host.addEventListener("player-settings", this.onSettings.bind(this), false);
+		this.host.addEventListener("player-statistics", this.onStatistics.bind(this), false);
 		this.host.addEventListener("player-hand-action", this.onHandAction.bind(this), false);
 		this.host.addEventListener("player-quiz-action", this.onQuizAction.bind(this), false);
 		this.host.addEventListener("player-chat-visibility", this.onChatVisibility.bind(this), false);
@@ -407,6 +411,12 @@ export class PlayerController implements ReactiveController {
 		const settingsModal = new SettingsModal();
 
 		this.registerModal("SettingsModal", settingsModal);
+	}
+
+	private onStatistics() {
+		const statisticsModal = new StreamStatsModal();
+
+		this.registerModal("StreamStatsModal", statisticsModal);
 	}
 
 	private onHandAction(event: CustomEvent) {

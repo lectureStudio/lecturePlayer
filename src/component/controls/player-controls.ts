@@ -101,10 +101,6 @@ export class PlayerControls extends I18nLitElement {
 		}));
 	}
 
-	private onSettings(): void {
-		this.dispatchEvent(Utils.createEvent("player-settings"));
-	}
-
 	private getFormattedDuration(): string {
 		if (!this.duration) {
 			return "";
@@ -161,12 +157,6 @@ export class PlayerControls extends I18nLitElement {
 					</sl-tooltip>
 				`)}
 
-				<sl-tooltip content="${t("controls.settings")}" trigger="hover">
-					<sl-button @click="${this.onSettings}" id="settings-button">
-						<sl-icon slot="prefix" name="settings"></sl-icon>
-					</sl-button>
-				</sl-tooltip>
-
 				${when(this.requestFullscreen, () => html`
 					<sl-tooltip content="${this.fullscreen ? t("controls.fullscreen.off") : t("controls.fullscreen.on")}" trigger="hover">
 						<sl-button @click="${this.onFullscreen}" id="fullscreen-button">
@@ -175,6 +165,8 @@ export class PlayerControls extends I18nLitElement {
 						</sl-button>
 					</sl-tooltip>
 				`)}
+
+				<settings-button></settings-button>
 			</div>
 		`;
 	}

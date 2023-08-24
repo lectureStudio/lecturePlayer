@@ -67,10 +67,6 @@ sl-button:hover sl-icon {
 :host(:not([hasParticipants])) #participants-button {
 	display: none;
 }
-:host([chatVisible]) #chat-button sl-icon,
-:host([participantsVisible]) #participants-button sl-icon {
-	
-}
 :host([hasQuiz]) #quiz-button {
 	animation: button-pulse 2s 5;
 }
@@ -120,6 +116,7 @@ sl-button:hover sl-icon {
 :host #quiz-button sl-icon {
 	fill: var(--sl-color-emerald-600);
 }
+
 media-device-button {
 	margin-right: 0.75em;
 }

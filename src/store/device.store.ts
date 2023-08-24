@@ -23,14 +23,14 @@ class DeviceStore {
 			canSetSpeakerVolume: false
 		});
 
-		this.loadDeviceSettings();
+		this.load();
 	}
 
-	persistDeviceSettings() {
+	persist() {
 		localStorage.setItem("device.store", JSON.stringify(this));
 	}
 
-	loadDeviceSettings() {
+	private load() {
 		const json = localStorage.getItem("device.store");
 
 		if (json) {
