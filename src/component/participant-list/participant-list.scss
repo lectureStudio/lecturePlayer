@@ -1,12 +1,15 @@
 :host {
 	display: flex;
 	flex-direction: column;
-	height: 100%;
 }
 header {
 	font-weight: 600;
 	padding: 0.25em;
 	line-height: 1.2;
+	position: sticky;
+	top: 0;
+	background: var(--sl-color-neutral-0);
+	z-index: 1;
 }
 section {
 	display: flex;
