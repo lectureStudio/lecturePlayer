@@ -1,4 +1,5 @@
-import { uiStateStore } from "../../store/ui-state.store";
+import { autorun } from "mobx";
+import { ColorScheme, uiStateStore } from "../../store/ui-state.store";
 import { ChatModal } from "../chat-modal/chat.modal";
 import { ParticipantsModal } from "../participants-modal/participants.modal";
 import { QuizModal } from "../quiz-modal/quiz.modal";
@@ -16,6 +17,8 @@ interface BreakpointConfig {
 }
 
 export class ViewController extends Controller {
+
+	private readonly colorSchemeQuery: MediaQueryList;
 
 	private readonly maxWidth576Query: MediaQueryList;
 
@@ -37,10 +40,25 @@ export class ViewController extends Controller {
 			participantsVisible: uiStateStore.participantsVisible
 		};
 
+		if (window.matchMedia) {
+			this.colorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+			this.colorSchemeQuery.addEventListener("change", event => {
+				uiStateStore.setSystemColorScheme(event.matches ? ColorScheme.DARK : ColorScheme.LIGHT);
+			});
+
+			uiStateStore.setSystemColorScheme(this.colorSchemeQuery.matches ? ColorScheme.DARK : ColorScheme.LIGHT);
+		}
+
 		this.maxWidth576Query = window.matchMedia("(max-width: 575px) , (orientation: portrait)");
 		this.maxWidth576Query.onchange = (event) => {
 			this.onCompactLayout(event.matches);
 		};
+
+		autorun(() => {
+			this.applyColorScheme();
+		});
+
+		console.log("++ color scheme:", uiStateStore.colorScheme, uiStateStore.systemColorScheme);
 	}
 
 	setFullscreen(enable: boolean) {
@@ -61,6 +79,21 @@ export class ViewController extends Controller {
 	update() {
 		if (this.maxWidth576Query.matches) {
 			this.onCompactLayout(true);
+		}
+	}
+
+	applyColorScheme() {
+		if (!document.body) {
+			return;
+		}
+
+		const isDark = uiStateStore.isSystemAndUserDark();
+
+		if (isDark) {
+			document.body.classList.add("sl-theme-dark");
+		}
+		else {
+			document.body.classList.remove("sl-theme-dark");
 		}
 	}
 

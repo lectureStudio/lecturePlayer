@@ -14,8 +14,6 @@ export enum ColorScheme {
 
 class UiStateStore {
 
-	private readonly colorSchemeQuery;
-
 	systemColorScheme: ColorScheme;
 
 	colorScheme: ColorScheme;
@@ -46,25 +44,11 @@ class UiStateStore {
 	constructor() {
 		makeAutoObservable(this);
 
-		if (window.matchMedia) {
-			this.colorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
-
-			this.setSystemColorScheme(this.colorSchemeQuery.matches ? ColorScheme.DARK : ColorScheme.LIGHT);
-
-			this.colorSchemeQuery.addEventListener("change", event => {
-				this.setSystemColorScheme(event.matches ? ColorScheme.DARK : ColorScheme.LIGHT);
-			});
-		}
-
 		this.load();
-
-		console.log("++ color scheme:", this.colorScheme, this.systemColorScheme)
 	}
 
 	setColorScheme(scheme: ColorScheme) {
 		this.colorScheme = scheme;
-
-		this.applyColorScheme();
 	}
 
 	setState(state: State) {
@@ -119,25 +103,18 @@ class UiStateStore {
 		this.rightContainerVisible = visible;
 	}
 
+	setSystemColorScheme(scheme: ColorScheme) {
+		this.systemColorScheme = scheme;
+	}
+
+	isSystemAndUserDark() {
+		return (this.systemColorScheme === ColorScheme.DARK && this.colorScheme === ColorScheme.SYSTEM) || this.colorScheme === ColorScheme.DARK;
+	}
+
 	persist() {
 		const { colorScheme } = this;
 
 		localStorage.setItem("ui.store", JSON.stringify({ colorScheme }));
-	}
-
-	applyColorScheme() {
-		if (!document.body) {
-			return;
-		}
-
-		const isDark = this.isSystemAndUserDark();
-
-		if (isDark) {
-			document.body.classList.add("sl-theme-dark");
-		}
-		else {
-			document.body.classList.remove("sl-theme-dark");
-		}
 	}
 
 	private load() {
@@ -147,19 +124,10 @@ class UiStateStore {
 			Object.assign(this, JSON.parse(json));
 		}
 
+		// Set default values.
 		if (!this.colorScheme) {
 			this.setColorScheme(ColorScheme.SYSTEM);
 		}
-	}
-
-	private setSystemColorScheme(scheme: ColorScheme) {
-		this.systemColorScheme = scheme;
-
-		this.applyColorScheme();
-	}
-
-	private isSystemAndUserDark() {
-		return (this.systemColorScheme === ColorScheme.DARK && this.colorScheme === ColorScheme.SYSTEM) || this.colorScheme === ColorScheme.DARK;
 	}
 }
 

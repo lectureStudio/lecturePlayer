@@ -53,49 +53,49 @@ export class EventService extends EventTarget {
 
 				// console.log("Stream state", state);
 
-				this.eventEmitter.dispatchEvent(Utils.createEvent("stream-state", state));
+				this.eventEmitter.dispatchEvent(Utils.createEvent("event-service-stream-state", state));
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/recording", (message: Message) => {
 				const state = JSON.parse(message.body);
 
 				// console.log("Recording state", state);
 
-				this.eventEmitter.dispatchEvent(Utils.createEvent("recording-state", state));
+				this.eventEmitter.dispatchEvent(Utils.createEvent("event-service-recording-state", state));
 			});
 			client.subscribe("/user/queue/course/" + this.courseId + "/speech", (message: Message) => {
 				const state = JSON.parse(message.body);
 
 				// console.log("Speech state", state);
 
-				this.eventEmitter.dispatchEvent(Utils.createEvent("speech-state", state));
+				this.eventEmitter.dispatchEvent(Utils.createEvent("event-service-speech-state", state));
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/chat", (message: Message) => {
 				const state = JSON.parse(message.body);
 
 				// console.log("Chat state", state);
 
-				this.eventEmitter.dispatchEvent(Utils.createEvent("chat-state", state));
+				this.eventEmitter.dispatchEvent(Utils.createEvent("event-service-chat-state", state));
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/quiz", (message: Message) => {
 				const state = JSON.parse(message.body);
 
 				// console.log("Quiz state", state);
 
-				this.eventEmitter.dispatchEvent(Utils.createEvent("quiz-state", state));
+				this.eventEmitter.dispatchEvent(Utils.createEvent("event-service-quiz-state", state));
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/media", (message: Message) => {
 				const state = JSON.parse(message.body);
 
 				// console.log("Media", state);
 
-				this.eventEmitter.dispatchEvent(Utils.createEvent("media-state", state));
+				this.eventEmitter.dispatchEvent(Utils.createEvent("event-service-media-state", state));
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/presence", (message: Message) => {
 				const state = JSON.parse(message.body);
 
 				// console.log("Presence", state);
 
-				this.eventEmitter.dispatchEvent(Utils.createEvent("participant-presence", state));
+				this.eventEmitter.dispatchEvent(Utils.createEvent("event-service-participant-presence", state));
 			});
 
 			for (const subService of this.subServices) {

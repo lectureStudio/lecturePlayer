@@ -61,8 +61,6 @@ export class PlayerController extends Controller implements ReactiveController {
 	hostConnected() {
 		this.setInitialState();
 
-		uiStateStore.applyColorScheme();
-
 		this.eventService = new EventService(this.host.courseId, this.eventEmitter);
 		this.eventService.addEventSubService(this.context.chatService);
 		this.eventService.connect();
@@ -71,12 +69,12 @@ export class PlayerController extends Controller implements ReactiveController {
 		this.host.addEventListener("participant-video-play-error", this.onVideoPlayError.bind(this), false);
 
 		this.eventEmitter.addEventListener("event-service-state", this.onEventServiceState.bind(this));
-		this.eventEmitter.addEventListener("chat-state", this.onChatState.bind(this));
-		this.eventEmitter.addEventListener("quiz-state", this.onQuizState.bind(this));
-		this.eventEmitter.addEventListener("recording-state", this.onRecordingState.bind(this));
-		this.eventEmitter.addEventListener("stream-state", this.onStreamState.bind(this));
-		this.eventEmitter.addEventListener("media-state", this.onMediaState.bind(this));
-		this.eventEmitter.addEventListener("participant-presence", this.onParticipantPresence.bind(this));
+		this.eventEmitter.addEventListener("event-service-chat-state", this.onChatState.bind(this));
+		this.eventEmitter.addEventListener("event-service-quiz-state", this.onQuizState.bind(this));
+		this.eventEmitter.addEventListener("event-service-recording-state", this.onRecordingState.bind(this));
+		this.eventEmitter.addEventListener("event-service-stream-state", this.onStreamState.bind(this));
+		this.eventEmitter.addEventListener("event-service-media-state", this.onMediaState.bind(this));
+		this.eventEmitter.addEventListener("event-service-participant-presence", this.onParticipantPresence.bind(this));
 
 		this.eventEmitter.addEventListener("stream-connection-state", this.onStreamConnectionState.bind(this));
 

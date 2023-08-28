@@ -24,7 +24,7 @@ export class SpeechController extends Controller {
 	constructor(rootController: RootController, context: ApplicationContext) {
 		super(rootController, context);
 
-		context.eventEmitter.addEventListener("speech-state", this.onSpeechState.bind(this));
+		context.eventEmitter.addEventListener("event-service-speech-state", this.onSpeechState.bind(this));
 		context.eventEmitter.addEventListener("player-hand-action", this.onHandAction.bind(this), false);
 	}
 

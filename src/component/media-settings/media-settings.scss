@@ -22,8 +22,3 @@
 :host([error]) #save-button {
 	display: none;
 }
-
-:host #meter {
-	background-color: var(--sl-color-neutral-200);
-	fill: var(--sl-color-primary-500);
-}

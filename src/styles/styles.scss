@@ -22,3 +22,8 @@ form {
 sl-option::part(base) {
 	font-size: var(--sl-font-size-small);
 }
+
+#meter {
+	background-color: var(--sl-color-neutral-200);
+	fill: var(--sl-color-primary-500);
+}
