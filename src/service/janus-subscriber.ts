@@ -45,6 +45,17 @@ export class JanusSubscriber extends JanusParticipant {
 		}
 	}
 
+	setReceiveCameraFeed(receive: boolean) {
+		const mid = this.streamMids.get("video");
+
+		if (receive) {
+			this.subscribeStream({ mid: mid });
+		}
+		else {
+			this.unsubscribeStream({ mid: mid });
+		}
+	}
+
 	override connect() {
 		this.janus.attach({
 			plugin: "janus.plugin.videoroom",

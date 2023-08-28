@@ -22,8 +22,9 @@ export class StreamController extends Controller {
 		this.janusService.addEventListener("janus-connection-failure", this.onJanusConnectionFailure.bind(this));
 		this.janusService.addEventListener("janus-session-error", this.onJanusSessionError.bind(this));
 
-		this.eventEmitter.addEventListener("player-stats-start", this.startStatsCapture.bind(this));
-		this.eventEmitter.addEventListener("player-stats-stop", this.stopStatsCapture.bind(this));
+		this.eventEmitter.addEventListener("stream-stats-start", this.startStatsCapture.bind(this));
+		this.eventEmitter.addEventListener("stream-stats-stop", this.stopStatsCapture.bind(this));
+		this.eventEmitter.addEventListener("stream-receive-camera-feed", this.onReceiveCameraFeed.bind(this));
 	}
 
 	startSpeech(withCamera: boolean) {
@@ -69,6 +70,13 @@ export class StreamController extends Controller {
 		const vpnModal = new VpnModal();
 
 		this.modalController.registerModal("VpnModal", vpnModal);
+	}
+
+	private onReceiveCameraFeed() {
+		// Toggle state.
+		uiStateStore.setReceiveCameraFeed(!uiStateStore.receiveCameraFeed);
+
+		this.janusService.setReceiveCameraFeed(uiStateStore.receiveCameraFeed);
 	}
 
 	private startStatsCapture() {

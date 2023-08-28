@@ -61,6 +61,12 @@ export class JanusService extends EventTarget {
 		this.isConference = isConference;
 	}
 
+	setReceiveCameraFeed(receive: boolean) {
+		for (const participant of this.subscribers) {
+			participant.setReceiveCameraFeed(receive);
+		}
+	}
+
 	connect() {
 		return new Promise<void>((resolve, reject) => {
 			// Initialize the library (all console debuggers enabled).

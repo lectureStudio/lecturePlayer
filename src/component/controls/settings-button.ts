@@ -5,6 +5,7 @@ import { SlMenu, SlMenuItem, SlTooltip } from '@shoelace-style/shoelace';
 import { Utils } from '../../utils/utils';
 import { Component } from '../component';
 import { EventEmitter } from '../../utils/event-emitter';
+import { uiStateStore } from '../../store/ui-state.store';
 import settingsButtonStyles from './settings-button.scss';
 
 @customElement('settings-button')
@@ -22,8 +23,15 @@ export class SettingsButton extends Component {
 	@query('sl-tooltip')
 	tooltip: SlTooltip;
 
+	@query('#camera-feed')
+	cameraFeed: SlMenuItem;
+
 	selectedDocId: string;
 
+
+	protected firstUpdated(): void {
+		this.cameraFeed.checked = uiStateStore.receiveCameraFeed;
+	}
 
 	protected render() {
 		return html`
@@ -36,6 +44,11 @@ export class SettingsButton extends Component {
 					</sl-tooltip>
 				</div>
 				<sl-menu @sl-select="${this.onItemSelected}">
+					<sl-menu-item type="checkbox" @click="${this.onReceiveCameraFeed}" id="camera-feed">
+						${t("controls.receive.camera")}
+						<sl-icon slot="prefix" name="camera-video"></sl-icon>
+					</sl-menu-item>
+					<sl-divider></sl-divider>
 					<sl-menu-item @click="${this.onStatistics}">
 						${t("settings.stats")}
 						<sl-icon slot="prefix" name="stats"></sl-icon>
@@ -61,34 +74,17 @@ export class SettingsButton extends Component {
 		this.eventEmitter.dispatchEvent(Utils.createEvent("player-settings"));
 	}
 
+	private onReceiveCameraFeed() {
+		this.eventEmitter.dispatchEvent(Utils.createEvent("stream-receive-camera-feed"));
+	}
+
 	private onItemSelected(event: CustomEvent) {
 		const selectedItem: SlMenuItem = event.detail.item;
-		const docId = selectedItem.value;
-
-		if (!docId) {
-			// Document control item selected.
-			return;
-		}
-
-		// Keep selected item checked, e.g. when double-checked.
-		selectedItem.checked = true;
-
-		if (this.selectedDocId === docId) {
-			// Same item selected.
-			return;
-		}
 
 		for (let item of this.menu.getAllItems()) {
-			// Uncheck all items, except the selected one.
-			if (item.value !== docId) {
-				item.checked = false;
-			}
+			item.checked = false;
 		}
 
-		this.selectedDocId = docId;
-
-		this.dispatchEvent(Utils.createEvent("lect-select-document", {
-			documentId: docId
-		}));
+		selectedItem.checked = uiStateStore.receiveCameraFeed;
 	}
 }

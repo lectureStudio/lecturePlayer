@@ -8,10 +8,11 @@ import { featureStore } from '../../store/feature.store';
 import { privilegeStore } from '../../store/privilege.store';
 import { deviceStore } from '../../store/device.store';
 import { EventEmitter } from '../../utils/event-emitter';
+import { Component } from '../component';
 import playerControlsStyles from './player-controls.scss';
 
 @customElement('player-controls')
-export class PlayerControls extends I18nLitElement {
+export class PlayerControls extends Component {
 
 	static styles = [
 		I18nLitElement.styles,

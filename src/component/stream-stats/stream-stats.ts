@@ -30,11 +30,11 @@ export class StreamStats extends Component {
 	override connectedCallback() {
 		super.connectedCallback();
 
-		this.eventEmitter.dispatchEvent(Utils.createEvent("player-stats-start"));
+		this.eventEmitter.dispatchEvent(Utils.createEvent("stream-stats-start"));
 	}
 
 	override disconnectedCallback() {
-		this.eventEmitter.dispatchEvent(Utils.createEvent("player-stats-stop"));
+		this.eventEmitter.dispatchEvent(Utils.createEvent("stream-stats-stop"));
 
 		super.disconnectedCallback();
 	}

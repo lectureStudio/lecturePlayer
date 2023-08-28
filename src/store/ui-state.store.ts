@@ -40,6 +40,8 @@ class UiStateStore {
 
 	rightContainerVisible: boolean;
 
+	receiveCameraFeed: boolean = true;
+
 
 	constructor() {
 		makeAutoObservable(this);
@@ -101,6 +103,10 @@ class UiStateStore {
 
 	setRightContainerVisible(visible: boolean) {
 		this.rightContainerVisible = visible;
+	}
+
+	setReceiveCameraFeed(receive: boolean) {
+		this.receiveCameraFeed = receive;
 	}
 
 	setSystemColorScheme(scheme: ColorScheme) {
