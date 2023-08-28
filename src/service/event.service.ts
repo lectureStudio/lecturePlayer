@@ -1,3 +1,4 @@
+import { EventEmitter } from "../utils/event-emitter";
 import { Utils } from "../utils/utils";
 import { Client, Message } from '@stomp/stompjs';
 
@@ -11,15 +12,16 @@ export class EventService extends EventTarget {
 
 	private readonly courseId: number;
 
-	private client: Client;
+	private readonly eventEmitter: EventEmitter;
 
-	private subServices: EventSubService[];
+	private readonly subServices: EventSubService[];
 
 
-	constructor(courseId: number) {
+	constructor(courseId: number, eventEmitter: EventEmitter) {
 		super();
 
 		this.courseId = courseId;
+		this.eventEmitter = eventEmitter;
 		this.subServices = [];
 	}
 
@@ -42,7 +44,7 @@ export class EventService extends EventTarget {
 			},
 		});
 		client.onConnect = () => {
-			this.dispatchEvent(Utils.createEvent("event-service-state", {
+			this.eventEmitter.dispatchEvent(Utils.createEvent("event-service-state", {
 				connected: true
 			}));
 
@@ -51,49 +53,49 @@ export class EventService extends EventTarget {
 
 				// console.log("Stream state", state);
 
-				this.dispatchEvent(Utils.createEvent("stream-state", state));
+				this.eventEmitter.dispatchEvent(Utils.createEvent("stream-state", state));
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/recording", (message: Message) => {
 				const state = JSON.parse(message.body);
 
 				// console.log("Recording state", state);
 
-				this.dispatchEvent(Utils.createEvent("recording-state", state));
+				this.eventEmitter.dispatchEvent(Utils.createEvent("recording-state", state));
 			});
 			client.subscribe("/user/queue/course/" + this.courseId + "/speech", (message: Message) => {
 				const state = JSON.parse(message.body);
 
 				// console.log("Speech state", state);
 
-				this.dispatchEvent(Utils.createEvent("speech-state", state));
+				this.eventEmitter.dispatchEvent(Utils.createEvent("speech-state", state));
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/chat", (message: Message) => {
 				const state = JSON.parse(message.body);
 
 				// console.log("Chat state", state);
 
-				this.dispatchEvent(Utils.createEvent("chat-state", state));
+				this.eventEmitter.dispatchEvent(Utils.createEvent("chat-state", state));
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/quiz", (message: Message) => {
 				const state = JSON.parse(message.body);
 
 				// console.log("Quiz state", state);
 
-				this.dispatchEvent(Utils.createEvent("quiz-state", state));
+				this.eventEmitter.dispatchEvent(Utils.createEvent("quiz-state", state));
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/media", (message: Message) => {
 				const state = JSON.parse(message.body);
 
 				// console.log("Media", state);
 
-				this.dispatchEvent(Utils.createEvent("media-state", state));
+				this.eventEmitter.dispatchEvent(Utils.createEvent("media-state", state));
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/presence", (message: Message) => {
 				const state = JSON.parse(message.body);
 
 				// console.log("Presence", state);
 
-				this.dispatchEvent(Utils.createEvent("participant-presence", state));
+				this.eventEmitter.dispatchEvent(Utils.createEvent("participant-presence", state));
 			});
 
 			for (const subService of this.subServices) {

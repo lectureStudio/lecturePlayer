@@ -14,6 +14,10 @@ class CourseStore {
 
 	recorded: boolean;
 
+	isClassroom: boolean;
+
+	isLive: boolean;
+
 
 	constructor() {
 		makeAutoObservable(this);

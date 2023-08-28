@@ -51,10 +51,9 @@ export class RTCStatsService {
 		else if (stats.kind === "video") {
 			// Find the track for the given stats, since not all browsers provide us the 'mid' in the stats.
 			const trackDesc = this.getTrackDescription(stats.ssrc);
-
 			const videoStats = this.createVideoStats(stats, codecStats, inbound);
 
-			if (trackDesc === "camera") {
+			if (trackDesc === "video") {
 				this.setStats(streamStatsStore.cameraStats, videoStats, inbound);
 			}
 			else if (trackDesc === "screen") {

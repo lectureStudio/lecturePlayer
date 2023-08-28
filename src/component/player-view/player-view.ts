@@ -17,6 +17,7 @@ import { uiStateStore } from '../../store/ui-state.store';
 import { PlayerController } from '../player/player.controller';
 import { participantStore } from '../../store/participants.store';
 import { Component } from '../component';
+import { EventEmitter } from '../../utils/event-emitter';
 import playerViewStyles from './player-view.scss';
 
 @customElement('player-view')
@@ -30,6 +31,8 @@ export class PlayerView extends Component {
 	private controller = new PlayerViewController(this);
 
 	playerController: PlayerController;
+
+	eventEmitter: EventEmitter;
 
 	@property()
 	messageService: ChatService;
@@ -125,7 +128,7 @@ export class PlayerView extends Component {
 								`)
 							}
 							<div class="controls-container">
-								<player-controls .chatVisible="${this.chatVisible}" .participantsVisible="${this.participantsVisible}"></player-controls>
+								<player-controls .eventEmitter="${this.eventEmitter}" .chatVisible="${this.chatVisible}" .participantsVisible="${this.participantsVisible}"></player-controls>
 							</div>
 						</div>
 						<div slot="end" class="right-container">

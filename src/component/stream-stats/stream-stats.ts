@@ -2,9 +2,10 @@ import { html } from "lit";
 import { customElement } from "lit/decorators.js";
 import { I18nLitElement, t } from '../i18n-mixin';
 import { AudioStats, DataStats, DocumentStats, VideoStats } from "../../model/stream-stats";
-import { JanusService } from "../../service/janus.service";
 import { Component } from "../component";
 import { streamStatsStore } from "../../store/stream-stats.store";
+import { EventEmitter } from "../../utils/event-emitter";
+import { Utils } from "../../utils/utils";
 import streamStatsStyles from "./stream-stats.scss";
 
 interface StatsEntry {
@@ -23,26 +24,17 @@ export class StreamStats extends Component {
 		streamStatsStyles
 	];
 
-	private readonly intervalMs: number = 1000;
-
-	private timerId: number;
-
-	janusService: JanusService;
+	eventEmitter: EventEmitter;
 
 
 	override connectedCallback() {
 		super.connectedCallback();
 
-		this.janusService.startStatsCapture();
-
-		this.timerId = window.setInterval(this.requestUpdate.bind(this), this.intervalMs);
+		this.eventEmitter.dispatchEvent(Utils.createEvent("player-stats-start"));
 	}
 
 	override disconnectedCallback() {
-		this.janusService.stopStatsCapture();
-
-		window.clearInterval(this.timerId);
-		delete this.timerId;
+		this.eventEmitter.dispatchEvent(Utils.createEvent("player-stats-stop"));
 
 		super.disconnectedCallback();
 	}

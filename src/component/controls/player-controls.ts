@@ -7,6 +7,7 @@ import { I18nLitElement, t } from '../i18n-mixin';
 import { featureStore } from '../../store/feature.store';
 import { privilegeStore } from '../../store/privilege.store';
 import { deviceStore } from '../../store/device.store';
+import { EventEmitter } from '../../utils/event-emitter';
 import playerControlsStyles from './player-controls.scss';
 
 @customElement('player-controls')
@@ -16,6 +17,8 @@ export class PlayerControls extends I18nLitElement {
 		I18nLitElement.styles,
 		playerControlsStyles,
 	];
+
+	readonly eventEmitter: EventEmitter;
 
 	@query('#volumeIndicator')
 	volumeIndicator: HTMLElement;
@@ -68,7 +71,7 @@ export class PlayerControls extends I18nLitElement {
 		document.addEventListener("fullscreenchange", () => {
 			this.fullscreen = document.fullscreenElement !== null;
 		});
-		document.addEventListener("speech-canceled", (e: CustomEvent) => {
+		this.eventEmitter.addEventListener("speech-canceled", (e: CustomEvent) => {
 			this.handUp = false;
 		});
 	}
@@ -76,27 +79,27 @@ export class PlayerControls extends I18nLitElement {
 	private onHand(): void {
 		this.handUp = !this.handUp;
 
-		this.dispatchEvent(Utils.createEvent("player-hand-action", {
+		this.eventEmitter.dispatchEvent(Utils.createEvent("player-hand-action", {
 			handUp: this.handUp
 		}));
 	}
 
 	private onQuiz(): void {
-		this.dispatchEvent(Utils.createEvent("player-quiz-action"));
+		this.eventEmitter.dispatchEvent(Utils.createEvent("player-quiz-action"));
 	}
 
 	private onChatVisibility(): void {
-		this.dispatchEvent(Utils.createEvent("player-chat-visibility"));
+		this.eventEmitter.dispatchEvent(Utils.createEvent("player-chat-visibility"));
 	}
 
 	private onParticipantsVisibility(): void {
-		this.dispatchEvent(Utils.createEvent("player-participants-visibility"));
+		this.eventEmitter.dispatchEvent(Utils.createEvent("player-participants-visibility"));
 	}
 
 	private onFullscreen(): void {
 		this.fullscreen = !this.fullscreen;
 
-		this.dispatchEvent(Utils.createEvent("player-fullscreen", {
+		this.eventEmitter.dispatchEvent(Utils.createEvent("player-fullscreen", {
 			fullscreen: this.fullscreen
 		}));
 	}
@@ -166,7 +169,7 @@ export class PlayerControls extends I18nLitElement {
 					</sl-tooltip>
 				`)}
 
-				<settings-button></settings-button>
+				<settings-button .eventEmitter="${this.eventEmitter}"></settings-button>
 			</div>
 		`;
 	}

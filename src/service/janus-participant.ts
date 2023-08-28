@@ -69,7 +69,7 @@ export abstract class JanusParticipant extends EventTarget {
 
 	getStats() {
 		this.statsService.pc = this.handle.webrtcStuff.pc;
-		this.statsService.streamIds = this.streamMids;
+		this.statsService.streamIds = new Map(Array.from(this.streamMids, entry => [entry[1], entry[0]]));
 		this.statsService.getStats();
 	}
 

@@ -21,15 +21,14 @@ export class LecturePlayer extends Component {
 	@property({ type: Number })
 	courseId: number;
 
-	@property({ type: Boolean })
-	isClassroom: boolean;
-
 
 	protected render() {
+		console.log("** state", uiStateStore.state);
+
 		return html`
 			${choose(uiStateStore.state, [
 				[State.CONNECTING,			() => html`<player-loading .text="${t("course.loading")}"></player-loading>`],
-				[State.CONNECTED,			() => html`<player-view .playerController="${this.controller}" .messageService="${this.controller.chatService}"></player-view>`],
+				[State.CONNECTED,			() => html`<player-view .eventEmitter="${this.controller.eventEmitter}" .playerController="${this.controller}" .messageService="${this.controller.chatService}"></player-view>`],
 				[State.CONNECTED_FEATURES,	() => html`<player-feature-view .messageService="${this.controller.chatService}"></player-feature-view>`],
 				[State.DISCONNECTED,		() => html`<player-offline></player-offline>`]
 			],

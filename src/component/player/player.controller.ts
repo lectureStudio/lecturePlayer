@@ -1,31 +1,17 @@
 import { ReactiveController } from 'lit';
-import { StreamActionProcessor } from '../../action/stream-action-processor';
-import { CourseState, MessengerState, QuizState } from '../../model/course-state';
-import { CourseParticipant, CourseParticipantPresence } from '../../model/participant';
-import { CourseStateDocument } from '../../model/course-state-document';
-import { SlideDocument } from '../../model/document';
-import { CourseStateService } from '../../service/course.service';
+import { MessengerState, QuizState } from '../../model/course-state';
+import { CourseParticipantPresence } from '../../model/participant';
 import { EventService } from '../../service/event.service';
-import { JanusService } from '../../service/janus.service';
-import { ChatHistory, ChatService } from '../../service/chat.service';
-import { PlaybackService } from '../../service/playback.service';
+import { ChatService } from '../../service/chat.service';
 import { DeviceInfo, Devices } from '../../utils/devices';
 import { MediaProfile, Settings } from '../../utils/settings';
 import { State } from '../../utils/state';
 import { Utils } from '../../utils/utils';
-import { ChatModal } from '../chat-modal/chat.modal';
 import { EntryModal } from '../entry-modal/entry.modal';
-import { t } from '../i18n-mixin';
-import { Modal } from '../modal/modal';
 import { PlayerViewController } from '../player-view/player-view.controller';
-import { QuizModal } from '../quiz-modal/quiz.modal';
 import { ReconnectModal } from '../reconnect-modal/reconnect.modal';
 import { RecordedModal } from '../recorded-modal/recorded.modal';
-import { SettingsModal } from '../settings-modal/settings.modal';
-import { SpeechAcceptedModal } from '../speech-accepted-modal/speech-accepted.modal';
 import { LecturePlayer } from './player';
-import { ParticipantsModal } from '../participants-modal/participants.modal';
-import { VpnModal } from '../vpn-modal/vpn.modal';
 import { featureStore } from '../../store/feature.store';
 import { chatStore } from '../../store/chat.store';
 import { privilegeStore } from '../../store/privilege.store';
@@ -33,125 +19,75 @@ import { participantStore } from '../../store/participants.store';
 import { courseStore } from '../../store/course.store';
 import { userStore } from '../../store/user.store';
 import { documentStore } from '../../store/document.store';
-import { Toaster } from '../../utils/toaster';
 import { uiStateStore } from '../../store/ui-state.store';
 import { ToolController } from '../../tool/tool-controller';
 import { MouseListener } from '../../event/mouse-listener';
-import { RenderController } from '../../render/render-controller';
 import { SlideView } from '../slide-view/slide-view';
 import { deviceStore } from '../../store/device.store';
-import { MediaStateEvent, RecordingStateEvent, SpeechStateEvent, StreamStateEvent } from '../../model/event/queue-events';
+import { MediaStateEvent, RecordingStateEvent, StreamStateEvent } from '../../model/event/queue-events';
 import { CourseStateApi } from '../../transport/course-state-api';
-import { CourseSpeechApi } from '../../transport/course-speech-api';
 import { CourseUserApi } from '../../transport/course-user-api';
 import { CourseParticipantApi } from '../../transport/course-participant-api';
 import { CourseChatApi } from '../../transport/course-chat-api';
-import { CourseNotLiveError } from '../../error/course-not-live.error';
-import { StreamStatsModal } from '../stream-stats-modal/stream-stats.modal';
+import { ApplicationContext } from '../controller/context';
+import { EventEmitter } from '../../utils/event-emitter';
+import { RootController } from '../controller/root.controller';
+import { Controller } from '../controller/controller';
 
-export class PlayerController implements ReactiveController {
+export class PlayerController extends Controller implements ReactiveController {
 
 	private readonly host: LecturePlayer;
 
-	private readonly maxWidth576Query: MediaQueryList;
-
-	private readonly courseStateService: CourseStateService;
-
-	private readonly janusService: JanusService;
-
-	private readonly playbackService: PlaybackService;
-
-	readonly chatService: ChatService;
-
-	private documentState: State;
-
-	private janusServiceState: State;
-
 	private eventService: EventService;
 
-	private renderController: RenderController;
+	private playerViewController: PlayerViewController;
 
-	private viewController: PlayerViewController;
-
-	private speechRequestId: string;
-
-	private speechStarted: boolean;
-
-	private devicesSelected: boolean;
-
-	private modals: Map<string, Modal>;
+	private connecting: boolean;
 
 
 	constructor(host: LecturePlayer) {
+		const context: ApplicationContext = {
+			eventEmitter: new EventEmitter(),
+			chatService: new ChatService(),
+			host: host,
+		}
+
+		super(new RootController(context), context);
+
 		this.host = host;
 		this.host.addController(this);
-
-		this.renderController = new RenderController();
-
-		this.chatService = new ChatService();
-
-		this.playbackService = new PlaybackService();
-		this.playbackService.initialize(this.renderController);
-
-		const actionProcessor = new StreamActionProcessor(this.playbackService);
-		actionProcessor.onGetDocument = this.getDocument.bind(this);
-		actionProcessor.onPeerConnected = this.onPeerConnected.bind(this);
-
-		this.courseStateService = new CourseStateService();
-		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus", actionProcessor);
-		this.modals = new Map();
-
-		this.maxWidth576Query = window.matchMedia("(max-width: 575px) , (orientation: portrait)");
 	}
 
 	hostConnected() {
+		this.setInitialState();
+
 		uiStateStore.applyColorScheme();
 
-		this.eventService = new EventService(this.host.courseId);
-		this.eventService.addEventSubService(this.chatService);
+		this.eventService = new EventService(this.host.courseId, this.eventEmitter);
+		this.eventService.addEventSubService(this.context.chatService);
 		this.eventService.connect();
 
-		this.host.addEventListener("player-fullscreen", this.onFullscreen.bind(this));
-		this.host.addEventListener("player-settings", this.onSettings.bind(this), false);
-		this.host.addEventListener("player-statistics", this.onStatistics.bind(this), false);
-		this.host.addEventListener("player-hand-action", this.onHandAction.bind(this), false);
-		this.host.addEventListener("player-quiz-action", this.onQuizAction.bind(this), false);
-		this.host.addEventListener("player-chat-visibility", this.onChatVisibility.bind(this), false);
-		this.host.addEventListener("player-participants-visibility", this.onParticipantsVisibility.bind(this), false);
 		this.host.addEventListener("participant-audio-play-error", this.onAudioPlayError.bind(this), false);
 		this.host.addEventListener("participant-video-play-error", this.onVideoPlayError.bind(this), false);
 
-		this.eventService.addEventListener("event-service-state", this.onEventServiceState.bind(this));
-		this.eventService.addEventListener("chat-state", this.onChatState.bind(this));
-		this.eventService.addEventListener("quiz-state", this.onQuizState.bind(this));
-		this.eventService.addEventListener("recording-state", this.onRecordingState.bind(this));
-		this.eventService.addEventListener("stream-state", this.onStreamState.bind(this));
-		this.eventService.addEventListener("speech-state", this.onSpeechState.bind(this));
-		this.eventService.addEventListener("media-state", this.onMediaState.bind(this));
-		this.eventService.addEventListener("participant-presence", this.onParticipantPresence.bind(this));
+		this.eventEmitter.addEventListener("event-service-state", this.onEventServiceState.bind(this));
+		this.eventEmitter.addEventListener("chat-state", this.onChatState.bind(this));
+		this.eventEmitter.addEventListener("quiz-state", this.onQuizState.bind(this));
+		this.eventEmitter.addEventListener("recording-state", this.onRecordingState.bind(this));
+		this.eventEmitter.addEventListener("stream-state", this.onStreamState.bind(this));
+		this.eventEmitter.addEventListener("media-state", this.onMediaState.bind(this));
+		this.eventEmitter.addEventListener("participant-presence", this.onParticipantPresence.bind(this));
 
-		this.janusService.addEventListener("janus-connection-established", this.onJanusConnectionEstablished.bind(this));
-		this.janusService.addEventListener("janus-connection-failure", this.onJanusConnectionFailure.bind(this));
-		this.janusService.addEventListener("janus-session-error", this.onJanusSessionError.bind(this));
-
-		const isLive = this.host.getAttribute("islive") == "true";
-
-		// Early state recognition to avoid view flickering.
-		if (isLive) {
-			if (this.isClassroomProfile() || this.host.isClassroom) {
-				uiStateStore.setState(State.CONNECTED_FEATURES);
-			}
-		}
-		else {
-			uiStateStore.setState(State.DISCONNECTED);
-		}
+		this.eventEmitter.addEventListener("stream-connection-state", this.onStreamConnectionState.bind(this));
 
 		this.connect();
 	}
 
 	setPlayerViewController(viewController: PlayerViewController) {
-		this.viewController = viewController;
-		this.viewController.update();
+		this.playerViewController = viewController;
+		this.playerViewController.update();
+
+		this.rootController.viewController.update();
 	}
 
 	setSlideView(slideView: SlideView) {
@@ -163,15 +99,37 @@ export class PlayerController implements ReactiveController {
 		slideView.addMouseListener(mouseListener);
 	}
 
+	private setInitialState() {
+		courseStore.isLive = this.host.getAttribute("islive") == "true";
+		courseStore.isClassroom = this.host.getAttribute("isClassroom") == "true" || Settings.getMediaProfile() === MediaProfile.Classroom;
+
+		console.log("isLive", courseStore.isLive, "isClassroom", courseStore.isClassroom)
+
+		// Early state recognition to avoid view flickering.
+		if (courseStore.isLive) {
+			if (courseStore.isClassroom) {
+				uiStateStore.setState(State.CONNECTED_FEATURES);
+			}
+			else {
+				uiStateStore.setState(State.CONNECTING);
+			}
+		}
+		else {
+			uiStateStore.setState(State.DISCONNECTED);
+		}
+	}
+
 	private setConnectionState(state: State) {
 		if (uiStateStore.state === state) {
 			return;
 		}
 
+		console.log("new state", state)
+
 		uiStateStore.setState(state);
 
 		if (uiStateStore.state !== State.RECONNECTING) {
-			this.closeAndDeleteModal("ReconnectModal");
+			this.modalController.closeAndDeleteModal("ReconnectModal");
 		}
 
 		switch (state) {
@@ -187,166 +145,164 @@ export class PlayerController implements ReactiveController {
 	}
 
 	private connect() {
-		CourseStateApi.getCourseState(this.host.courseId)
-			.then(this.onCourseState.bind(this))
-			.then(this.onUserInformation.bind(this))
-			.then(this.onCourseParticipants.bind(this))
-			.then(this.onChatHistory.bind(this))
-			.then(this.onMediaDevicesHandled.bind(this))
-			.then(this.onConnected.bind(this))
-			.catch(this.onConnectionError.bind(this));
-	}
+		this.connecting = true;
 
-	private onCourseState(state: CourseState) {
-		console.log("* on course state")
+		uiStateStore.setStreamState(State.DISCONNECTED);
+		uiStateStore.setDocumentState(State.DISCONNECTED);
 
-		courseStore.setCourseId(state.courseId);
-		courseStore.setTimeStarted(state.timeStarted);
-		courseStore.setTitle(state.title);
-		courseStore.setDescription(state.description);
-		courseStore.setConference(state.conference);
-		courseStore.setRecorded(state.recorded);
+		this.loadCourseState()
+			.then(async () => {
+				const tasks = new Array<Promise<void>>();
 
-		privilegeStore.setPrivileges(state.userPrivileges);
+				if (featureStore.hasFeatures() || courseStore.isLive) {
+					try {
+						await this.loadUserInfo();
+						await this.loadParticipants();
 
-		featureStore.setChatFeature(state.messageFeature);
-		featureStore.setQuizFeature(state.quizFeature);
+						if (featureStore.hasChatFeature()) {
+							await tasks.push(this.loadChatHistory());
+						}
+						if (courseStore.isLive) {
+							await tasks.push(this.loadMediaDevices());
+							await tasks.push(this.loadStream());
+							await tasks.push(this.loadDocuments());
+						}
 
-		documentStore.setActiveDocument(state.activeDocument);
-		documentStore.setDocumentMap(state.documentMap);
-
-		return CourseUserApi.getUserInformation();
-	}
-
-	private onUserInformation(courseUser: CourseParticipant) {
-		console.log("* on user info")
-
-		userStore.setUserId(courseUser.userId);
-		userStore.setName(courseUser.firstName, courseUser.familyName);
-		userStore.setParticipantType(courseUser.participantType);
-
-		if (!documentStore.activeDocument && !featureStore.hasFeatures()) {
-			return Promise.reject(new CourseNotLiveError());
-		}
-
-		return CourseParticipantApi.getParticipants(courseStore.courseId);
-	}
-
-	private onCourseParticipants(participants: CourseParticipant[]) {
-		console.log("* on participants", participants)
-
-		participantStore.setParticipants(participants);
-
-		if (featureStore.hasChatFeature()) {
-			return CourseChatApi.getChatHistory(courseStore.courseId)
-		}
-		else {
-			return Promise.resolve(null);
-		}
-	}
-
-	private onChatHistory(history: ChatHistory) {
-		console.log("* on chat history")
-
-		if (history) {
-			chatStore.setMessages(history.messages);
-		}
-
-		return new Promise<void>((resolve) => {
-			Devices.enumerateAudioDevices(false)
-				.then((deviceInfo: DeviceInfo) => {
-					// Stream is not needed.
-					Devices.stopMediaTracks(deviceInfo.stream);
-
-					// Select default devices.
-					if (!deviceStore.microphoneDeviceId) {
-						const audioInputDevices = deviceInfo.devices.filter(device => device.kind === "audioinput");
-
-						deviceStore.microphoneDeviceId = Devices.getDefaultDevice(audioInputDevices).deviceId;
 					}
-					if (!deviceStore.speakerDeviceId && deviceStore.canSelectSpeaker && !Utils.isFirefox()) {
-						const audioOutputDevices = deviceInfo.devices.filter(device => device.kind === "audiooutput");
-
-						deviceStore.speakerDeviceId = Devices.getDefaultDevice(audioOutputDevices).deviceId;
+					catch (error) {
+						this.onConnectionError(error);
 					}
-					if (!deviceStore.cameraDeviceId) {
-						deviceStore.cameraDeviceId = "none";
-					}
+				}
 
-					deviceStore.microphoneBlocked = false;
-				})
-				.catch(error => {
-					deviceStore.microphoneBlocked = true;
-				})
-				.finally(() => {
-					// Allways resolve, since we are only probing the permissions.
-					resolve();
-				});
-		});
+				this.connecting = false;
+
+				this.updateConnectionState();
+			});
 	}
 
-	private onMediaDevicesHandled() {
-		console.log("* on devices handled");
+	private loadCourseState() {
+		return CourseStateApi.getCourseState(this.host.courseId)
+			.then(state => {
+				console.log("* on course state");
 
-		this.janusService.setRoomId(courseStore.courseId);
-		this.janusService.setUserId(userStore.userId);
+				courseStore.setCourseId(state.courseId);
+				courseStore.setTimeStarted(state.timeStarted);
+				courseStore.setTitle(state.title);
+				courseStore.setDescription(state.description);
+				courseStore.setConference(state.conference);
+				courseStore.setRecorded(state.recorded);
 
-		return this.janusService.connect();
+				privilegeStore.setPrivileges(state.userPrivileges);
+
+				featureStore.setChatFeature(state.messageFeature);
+				featureStore.setQuizFeature(state.quizFeature);
+
+				documentStore.setActiveDocument(state.activeDocument);
+				documentStore.setDocumentMap(state.documentMap);
+			});
 	}
 
-	private onConnected() {
-		console.log("* on connected")
+	private loadUserInfo() {
+		return CourseUserApi.getUserInformation()
+			.then(userInfo => {
+				console.log("* on user info");
 
-		if (!this.hasStream()) {
-			// Update early, if not streaming.
-			this.updateConnectionState();
-		}
-		if (this.isClassroomProfile()) {
-			this.updateConnectionState();
-			return;
-		}
+				userStore.setUserId(userInfo.userId);
+				userStore.setName(userInfo.firstName, userInfo.familyName);
+				userStore.setParticipantType(userInfo.participantType);
+			});
+	}
 
-		if (documentStore.activeDocument) {
-			this.documentState = State.CONNECTING;
+	private loadParticipants() {
+		return CourseParticipantApi.getParticipants(courseStore.courseId)
+			.then(participants => {
+				console.log("* on participants", participants);
 
-			this.getDocuments(documentStore.documentMap)
-				.then(documents => {
-					this.playbackService.start();
-					this.playbackService.addDocuments(documents);
-					this.playbackService.setActiveDocument(documentStore.activeDocument.documentId, documentStore.activeDocument.activePage.pageNumber);
+				participantStore.setParticipants(participants);
+			});
+	}
 
-					this.registerModal("RecordedModal", new RecordedModal(), false, false);
+	private loadChatHistory() {
+		return CourseChatApi.getChatHistory(courseStore.courseId)
+			.then(history => {
+				console.log("* on chat history");
 
-					if (courseStore.recorded) {
-						this.openModal("RecordedModal");
-					}
+				chatStore.setMessages(history.messages);
+			});
+	}
 
-					this.documentState = State.CONNECTED;
+	private loadMediaDevices() {
+		return Devices.enumerateAudioDevices(false)
+			.then((deviceInfo: DeviceInfo) => {
+				console.log("* on media devices");
 
-					console.log("* on documents loaded")
+				// Stream is not needed.
+				Devices.stopMediaTracks(deviceInfo.stream);
 
-					this.updateConnectionState();
-				});
-		}
+				// Select default devices.
+				if (!deviceStore.microphoneDeviceId) {
+					const audioInputDevices = deviceInfo.devices.filter(device => device.kind === "audioinput");
+
+					deviceStore.microphoneDeviceId = Devices.getDefaultDevice(audioInputDevices).deviceId;
+				}
+				if (!deviceStore.speakerDeviceId && deviceStore.canSelectSpeaker && !Utils.isFirefox()) {
+					const audioOutputDevices = deviceInfo.devices.filter(device => device.kind === "audiooutput");
+
+					deviceStore.speakerDeviceId = Devices.getDefaultDevice(audioOutputDevices).deviceId;
+				}
+				if (!deviceStore.cameraDeviceId) {
+					deviceStore.cameraDeviceId = "none";
+				}
+
+				deviceStore.microphoneBlocked = false;
+			})
+			.catch(error => {
+				deviceStore.microphoneBlocked = true;
+
+				throw error;
+			});
+	}
+
+	private loadStream() {
+		return this.streamController.connect();
+	}
+
+	private loadDocuments() {
+		uiStateStore.setDocumentState(State.CONNECTING);
+
+		return this.documentController.getDocuments(documentStore.documentMap)
+			.then(documents => {
+				console.log("* on documents loaded");
+
+				this.playbackController.start();
+				this.playbackController.setDocuments(documents);
+				this.playbackController.setActiveDocument(documentStore.activeDocument);
+
+				this.modalController.registerModal("RecordedModal", new RecordedModal(), false, false);
+
+				if (courseStore.recorded) {
+					this.modalController.openModal("RecordedModal");
+				}
+
+				uiStateStore.setDocumentState(State.CONNECTED);
+
+				this.updateConnectionState();
+			});
 	}
 
 	private onConnectionError(cause: any) {
-		// Ignore 'not live' errors, since this will only interrupt the procedure chain.
-		if (!(cause instanceof CourseNotLiveError)) {
-			// If any of the previous executions fail, panic.
-			console.error(cause);
-		}
+		console.error(cause);
 
 		this.setConnectionState(State.DISCONNECTED);
 	}
 
 	private setDisconnected() {
-		this.setFullscreen(false);
+		this.rootController.viewController.setFullscreen(false);
 
-		this.playbackService.stop();
+		this.playbackController.setDisconnected();
 
-		if (this.viewController) {
-			this.viewController.setDisconnected();
+		if (this.playerViewController) {
+			this.playerViewController.setDisconnected();
 		}
 	}
 
@@ -356,106 +312,14 @@ export class PlayerController implements ReactiveController {
 			this.setConnectionState(State.DISCONNECTED);
 		});
 
-		this.registerModal("ReconnectModal", reconnectModal);
-	}
-
-	private getDocument(stateDoc: CourseStateDocument): Promise<SlideDocument> {
-		return this.courseStateService.getDocument(this.host.courseId, stateDoc);
-	}
-
-	private getDocuments(documentMap: Map<bigint, CourseStateDocument>): Promise<SlideDocument[]> {
-		return new Promise<SlideDocument[]>((resolve, reject) => {
-			// Load all initially opened documents.
-			const promises = [];
-
-			for (const value of Object.values(documentMap || {})) {
-				const promise = this.getDocument(value);
-
-				promises.push(promise);
-			}
-
-			Promise.all(promises)
-				.then(documents => {
-					resolve(documents);
-				})
-				.catch(error => {
-					reject(error);
-				});
-		});
-	}
-
-	private onPeerConnected(peerId: bigint, displayName: string) {
-		this.janusService.addPeer(peerId, displayName);
-	}
-
-	private setFullscreen(enable: boolean) {
-		const isFullscreen = document.fullscreenElement !== null;
-
-		if (enable) {
-			if (this.host.requestFullscreen && !isFullscreen) {
-				this.host.requestFullscreen();
-			}
-		}
-		else {
-			if (document.exitFullscreen && isFullscreen) {
-				document.exitFullscreen();
-			}
-		}
-	}
-
-	private onFullscreen(event: CustomEvent) {
-		this.setFullscreen(event.detail.fullscreen === true);
-	}
-
-	private onSettings() {
-		const settingsModal = new SettingsModal();
-
-		this.registerModal("SettingsModal", settingsModal);
-	}
-
-	private onStatistics() {
-		const statisticsModal = new StreamStatsModal();
-
-		this.registerModal("StreamStatsModal", statisticsModal);
-	}
-
-	private onHandAction(event: CustomEvent) {
-		const handUp = event.detail.handUp;
-
-		if (handUp) {
-			this.initSpeech();
-		}
-		else {
-			this.janusService.stopSpeech();
-
-			this.cancelSpeech();
-		}
-	}
-
-	private onQuizAction() {
-		const quizModal = new QuizModal();
-
-		this.registerModal("QuizModal", quizModal);
-	}
-
-	private onChatVisibility() {
-		if (this.maxWidth576Query.matches) {
-			const chatModal = new ChatModal();
-			chatModal.messageService = this.chatService;
-
-			this.registerModal("ChatModal", chatModal);
-		}
-	}
-
-	private onParticipantsVisibility() {
-		if (this.maxWidth576Query.matches) {
-			const participantsModal = new ParticipantsModal();
-
-			this.registerModal("ParticipantsModal", participantsModal);
-		}
+		this.modalController.registerModal("ReconnectModal", reconnectModal);
 	}
 
 	private onEventServiceState(event: CustomEvent) {
+		if (this.connecting) {
+			return;
+		}
+
 		const connected = event.detail.connected;
 
 		if (connected) {
@@ -468,12 +332,18 @@ export class PlayerController implements ReactiveController {
 			}
 		}
 
-		if (this.janusServiceState === State.DISCONNECTED) {
-			this.janusService.reconnect();
+		if (uiStateStore.state === State.DISCONNECTED) {
+			return;
+		}
+
+		if (uiStateStore.streamState === State.DISCONNECTED && courseStore.isLive) {
+			this.streamController.reconnect();
 		}
 	}
 
 	private fetchChatHistory() {
+		console.log("~ fetch");
+
 		if (featureStore.hasChatFeature()) {
 			CourseParticipantApi.getParticipants(courseStore.courseId)
 				.then(participants => {
@@ -490,47 +360,38 @@ export class PlayerController implements ReactiveController {
 	private onChatState(event: CustomEvent) {
 		const state: MessengerState = event.detail;
 
-		if (this.host.courseId !== state.courseId) {
+		console.log("* on chat", state);
+
+		if (this.connecting) {
+			// Do not proceed with chat loading if the stream is connecting.
 			return;
 		}
 
 		featureStore.setChatFeature(state.started ? state.feature : null);
 
 		if (state.started) {
-			if (this.documentState === State.CONNECTING) {
-				// Do not proceed with chat loading if the stream is connecting.
-				return;
-			}
-
 			this.fetchChatHistory();
+
 		}
 		else {
-			this.closeAndDeleteModal("ChatModal");
+			this.modalController.closeAndDeleteModal("ChatModal");
 
 			chatStore.reset();
 		}
 
-		if (this.isClassroomProfile() || !this.hasStream()) {
-			this.updateConnectionState();
-		}
+		this.updateConnectionState();
 	}
 
 	private onQuizState(event: CustomEvent) {
 		const state: QuizState = event.detail;
 
-		if (this.host.courseId !== state.courseId) {
-			return;
-		}
-
 		if (!state.started) {
-			this.closeAndDeleteModal("QuizModal");
+			this.modalController.closeAndDeleteModal("QuizModal");
 		}
 
 		featureStore.setQuizFeature(state.started ? state.feature : null);
 
-		if (this.isClassroomProfile() || !this.hasStream()) {
-			this.updateConnectionState();
-		}
+		this.updateConnectionState();
 	}
 
 	private onRecordingState(event: CustomEvent) {
@@ -541,40 +402,40 @@ export class PlayerController implements ReactiveController {
 		}
 
 		if (recordingEvent.recorded) {
-			this.openModal("RecordedModal");
+			this.modalController.openModal("RecordedModal");
 		}
 		else {
-			this.closeModal("RecordedModal");
+			this.modalController.closeModal("RecordedModal");
 		}
 	}
 
 	private onStreamState(event: CustomEvent) {
 		const streamEvent: StreamStateEvent = event.detail;
 
-		if (this.host.courseId !== streamEvent.courseId) {
-			return;
-		}
-		if (this.isClassroomProfile()) {
+		console.log("~ on stream state", streamEvent);
+
+		if (courseStore.isClassroom) {
 			return;
 		}
 
 		if (streamEvent.started) {
-			this.documentState = State.CONNECTING;
-
+			courseStore.isLive = true;
 			courseStore.setTimeStarted(streamEvent.timeStarted);
 
 			if (uiStateStore.state === State.CONNECTED) {
 				console.log("reconnecting ...");
-				this.janusService.disconnect();
+				this.streamController.disconnect();
 			}
 
 			this.connect();
 		}
 		else {
-			this.closeAllModals();
+			courseStore.isLive = false;
 
-			this.documentState = State.DISCONNECTED;
-			this.janusServiceState = State.DISCONNECTED;
+			this.modalController.closeAllModals();
+
+			uiStateStore.setStreamState(State.DISCONNECTED);
+			uiStateStore.setDocumentState(State.DISCONNECTED);
 
 			courseStore.reset();
 			documentStore.reset();
@@ -584,23 +445,6 @@ export class PlayerController implements ReactiveController {
 			chatStore.reset();
 
 			this.updateConnectionState();
-		}
-	}
-
-	private onSpeechState(event: CustomEvent) {
-		const speechEvent: SpeechStateEvent = event.detail;
-
-		if (this.speechRequestId && speechEvent.requestId === this.speechRequestId) {
-			if (speechEvent.accepted) {
-				this.speechAccepted();
-			}
-			else {
-				Toaster.showInfo(`${this.speechStarted
-					? t("course.speech.request.ended")
-					: t("course.speech.request.rejected")}`);
-
-				this.speechCanceled();
-			}
 		}
 	}
 
@@ -639,163 +483,6 @@ export class PlayerController implements ReactiveController {
 		return documentStore.activeDocument != null;
 	}
 
-	private updateConnectionState() {
-		if (this.hasStream() && !this.isClassroomProfile()) {
-			if (this.janusServiceState === State.CONNECTED && this.documentState === State.CONNECTED) {
-				this.setConnectionState(State.CONNECTED);
-			}
-		}
-		else if (featureStore.hasFeatures()) {
-			this.setConnectionState(State.CONNECTED_FEATURES);
-		}
-		else {
-			this.setConnectionState(State.DISCONNECTED);
-		}
-	}
-
-	private onJanusConnectionEstablished() {
-		console.log("* on janus connected")
-
-		this.janusServiceState = State.CONNECTED;
-
-		this.updateConnectionState();
-	}
-
-	private onJanusConnectionFailure() {
-		this.janusServiceState = State.DISCONNECTED;
-
-		this.setConnectionState(State.RECONNECTING);
-	}
-
-	private onJanusSessionError() {
-		this.janusServiceState = State.DISCONNECTED;
-
-		const vpnModal = new VpnModal();
-
-		this.registerModal("VpnModal", vpnModal);
-	}
-
-	private isClassroomProfile() {
-		return Settings.getMediaProfile() === MediaProfile.Classroom || this.host.isClassroom;
-	}
-
-	private initSpeech() {
-		if (this.devicesSelected) {
-			this.sendSpeechRequest();
-		}
-		else {
-			this.showSpeechSettingsModal();
-		}
-	}
-
-	private speechAccepted() {
-		const audioSource = deviceStore.microphoneDeviceId;
-		const videoSource = deviceStore.cameraDeviceId;
-		const constraints = {
-			audio: {
-				deviceId: audioSource ? { exact: audioSource } : undefined
-			},
-			video: videoSource !== "none"
-				? {
-					deviceId: videoSource ? { exact: videoSource } : undefined,
-					width: { ideal: 1280 },
-					height: { ideal: 720 },
-					facingMode: "user"
-				}
-				: undefined
-		};
-
-		navigator.mediaDevices.getUserMedia(constraints)
-			.then(stream => {
-				this.showSpeechAcceptedModal(stream, false);
-			})
-			.catch(error => {
-				console.error(error.name);
-
-				// Try again without camera which might be blocked.
-				constraints.video = undefined;
-
-				navigator.mediaDevices.getUserMedia(constraints)
-					.then(stream => {
-						this.showSpeechAcceptedModal(stream, true);
-					})
-					.catch(error => {
-						console.error(error.name);
-
-						// Give up. Show error message.
-						this.cancelSpeech();
-
-						Toaster.showError(t("course.speech.request.aborted"));
-					});
-			});
-	}
-
-	private sendSpeechRequest() {
-		CourseSpeechApi.requestSpeech(this.host.courseId)
-			.then(requestId => {
-				this.speechRequestId = requestId;
-			})
-			.catch(error => console.error(error));
-	}
-
-	private cancelSpeech() {
-		if (!this.speechRequestId) {
-			this.speechCanceled();
-			return;
-		}
-
-		CourseSpeechApi.cancelSpeech(this.host.courseId, this.speechRequestId)
-			.then(() => {
-				this.speechCanceled();
-			})
-			.catch(error => console.error(error));
-	}
-
-	private speechCanceled() {
-		this.speechRequestId = null;
-		this.speechStarted = false;
-
-		// Close dialog in case the request was initially accepted.
-		this.closeAndDeleteModal("SpeechAcceptedModal");
-
-		this.host.dispatchEvent(Utils.createEvent("speech-canceled"));
-	}
-
-	private showSpeechAcceptedModal(stream: MediaStream, camBlocked: boolean) {
-		if (this.speechRequestId) {
-			const speechModal = new SpeechAcceptedModal();
-			speechModal.stream = stream;
-			speechModal.cameraBlocked = camBlocked;
-			speechModal.addEventListener("speech-accepted-canceled", () => {
-				this.cancelSpeech();
-			});
-			speechModal.addEventListener("speech-accepted-start", () => {
-				this.janusService.startSpeech(!camBlocked);
-
-				this.speechStarted = true;
-			});
-
-			this.registerModal("SpeechAcceptedModal", speechModal);
-		}
-		else {
-			// Speech has been aborted by the remote peer.
-			Devices.stopMediaTracks(stream);
-		}
-	}
-
-	private showSpeechSettingsModal() {
-		const settingsModal = new SettingsModal();
-		settingsModal.addEventListener("device-settings-canceled", () => {
-			this.cancelSpeech();
-		});
-		settingsModal.addEventListener("device-settings-saved", () => {
-			this.devicesSelected = true;
-			this.sendSpeechRequest();
-		});
-
-		this.registerModal("SettingsModal", settingsModal);
-	}
-
 	private onAudioPlayError() {
 		console.log("** audio play error");
 
@@ -814,7 +501,7 @@ export class PlayerController implements ReactiveController {
 	private onVideoPlayError() {
 		console.log("** video play error");
 
-		if (this.modals.has("EntryModal")) {
+		if (this.modalController.hasModalRegistered("EntryModal")) {
 			return;
 		}
 
@@ -823,58 +510,33 @@ export class PlayerController implements ReactiveController {
 			this.host.dispatchEvent(Utils.createEvent("player-start-media"));
 		});
 
-		this.registerModal("EntryModal", entryModal);
+		this.modalController.registerModal("EntryModal", entryModal);
 	}
 
-	private registerModal(name: string, modal: Modal, autoRemove: boolean = true, open: boolean = true) {
-		if (autoRemove) {
-			modal.addEventListener("modal-closed", () => {
-				this.closeAndDeleteModal(name);
-			});
-		}
-
-		modal.container = this.host.renderRoot;
-
-		// Close potentially opened modal of same type to prevent modal overlapping.
-		this.closeModal(name);
-
-		this.modals.set(name, modal);
-
-		if (open) {
-			modal.open();
-		}
+	private onStreamConnectionState() {
+		this.updateConnectionState();
 	}
 
-	private openModal(name: string) {
-		const modal = this.modals.get(name);
+	private updateConnectionState() {
+		const state = uiStateStore.state;
+		const streamState = uiStateStore.streamState;
+		const documentState = uiStateStore.documentState;
 
-		if (modal) {
-			modal.open();
+		console.log("** update state:", state, ", streamState", streamState, ", documentState", documentState, ", has features", featureStore.hasFeatures());
+
+		if (this.hasStream() && !courseStore.isClassroom) {
+			if (streamState === State.CONNECTED && documentState === State.CONNECTED) {
+				this.setConnectionState(State.CONNECTED);
+			}
+			else if (streamState === State.DISCONNECTED && state === State.CONNECTED) {
+				this.setConnectionState(State.RECONNECTING);
+			}
 		}
-	}
-
-	private closeModal(name: string) {
-		const modal = this.modals.get(name);
-
-		if (modal) {
-			modal.close();
+		else if (featureStore.hasFeatures() && !this.connecting) {
+			this.setConnectionState(State.CONNECTED_FEATURES);
 		}
-	}
-
-	private closeAndDeleteModal(name: string) {
-		const modal = this.modals.get(name);
-
-		if (modal) {
-			modal.close();
-
-			this.modals.delete(name);
+		else {
+			this.setConnectionState(State.DISCONNECTED);
 		}
-	}
-
-	private closeAllModals() {
-		this.modals.forEach((modal: Modal) => {
-			modal.close();
-		});
-		this.modals.clear();
 	}
 }

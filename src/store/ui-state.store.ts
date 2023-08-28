@@ -20,7 +20,11 @@ class UiStateStore {
 
 	colorScheme: ColorScheme;
 
-	state: State = State.CONNECTING;
+	state: State = State.DISCONNECTED;
+
+	streamState: State = State.DISCONNECTED;
+
+	documentState: State = State.DISCONNECTED;
 
 	slideSurfaceSize: Dimension = new Dimension(0, 0);
 
@@ -65,6 +69,14 @@ class UiStateStore {
 
 	setState(state: State) {
 		this.state = state;
+	}
+
+	setDocumentState(state: State) {
+		this.documentState = state;
+	}
+
+	setStreamState(state: State) {
+		this.streamState = state;
 	}
 
 	setSlideSurfaceSize(size: Dimension) {

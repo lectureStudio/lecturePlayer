@@ -3,7 +3,6 @@ import { JanusPublisher } from "./janus-publisher";
 import { JanusSubscriber } from "./janus-subscriber";
 import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
-import { StreamActionProcessor } from "../action/stream-action-processor";
 import { DocumentType } from "../model/document.type";
 import { StreamDocumentCreatedAction } from "../action/stream.document.created.action";
 import { StreamDocumentSelectedAction } from "../action/stream.document.selected.action";
@@ -12,6 +11,7 @@ import { StreamAction } from "../action/stream.action";
 import { SlideDocument } from "../model/document";
 import { participantStore } from "../store/participants.store";
 import { userStore } from "../store/user.store";
+import { EventEmitter } from "../utils/event-emitter";
 
 export class JanusService extends EventTarget {
 
@@ -19,7 +19,7 @@ export class JanusService extends EventTarget {
 
 	private readonly serverUrl: string;
 
-	private readonly actionProcessor: StreamActionProcessor;
+	private readonly eventEmitter: EventEmitter;
 
 	private janus: Janus;
 
@@ -38,11 +38,11 @@ export class JanusService extends EventTarget {
 	private intervalId: number;
 
 
-	constructor(serverUrl: string, actionProcessor: StreamActionProcessor) {
+	constructor(serverUrl: string, eventEmitter: EventEmitter) {
 		super();
 
 		this.serverUrl = serverUrl;
-		this.actionProcessor = actionProcessor;
+		this.eventEmitter = eventEmitter;
 		this.publishers = [];
 		this.subscribers = [];
 
@@ -291,7 +291,7 @@ export class JanusService extends EventTarget {
 			this.publishers.push(publisher);
 		}
 		else if (state === State.DISCONNECTED) {
-			document.dispatchEvent(Utils.createEvent("speech-canceled"));
+			this.eventEmitter.dispatchEvent(Utils.createEvent("speech-canceled"));
 		}
 
 		participantStore.setParticipantStreamState(userStore.userId, state);
@@ -374,7 +374,9 @@ export class JanusService extends EventTarget {
 	private onSubscriberData(event: CustomEvent) {
 		const subscriber: JanusSubscriber = event.detail.participant;
 
-		this.actionProcessor.processData(event.detail.data);
+		this.eventEmitter.dispatchEvent(new CustomEvent("action-data", {
+			detail: event.detail.data
+		}));
 	}
 
 	private onPublisherJoined(event: CustomEvent) {

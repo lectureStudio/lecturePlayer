@@ -4,6 +4,7 @@ import { customElement, query } from 'lit/decorators.js';
 import { SlMenu, SlMenuItem, SlTooltip } from '@shoelace-style/shoelace';
 import { Utils } from '../../utils/utils';
 import { Component } from '../component';
+import { EventEmitter } from '../../utils/event-emitter';
 import settingsButtonStyles from './settings-button.scss';
 
 @customElement('settings-button')
@@ -12,6 +13,8 @@ export class SettingsButton extends Component {
 	static styles = [
 		settingsButtonStyles
 	];
+
+	readonly eventEmitter: EventEmitter;
 
 	@query('sl-menu')
 	menu: SlMenu;
@@ -51,11 +54,11 @@ export class SettingsButton extends Component {
 	}
 
 	private onStatistics() {
-		this.dispatchEvent(Utils.createEvent("player-statistics"));
+		this.eventEmitter.dispatchEvent(Utils.createEvent("player-statistics"));
 	}
 
 	private onDeviceSettings() {
-		this.dispatchEvent(Utils.createEvent("player-settings"));
+		this.eventEmitter.dispatchEvent(Utils.createEvent("player-settings"));
 	}
 
 	private onItemSelected(event: CustomEvent) {

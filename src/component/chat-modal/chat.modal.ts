@@ -14,14 +14,14 @@ export class ChatModal extends Modal {
 	];
 
 	@property()
-	messageService: ChatService;
+	chatService: ChatService;
 
 
 	protected render() {
 		return html`
 			<sl-dialog label="${t("course.feature.message")}">
 				<article>
-					<chat-box .messageService="${this.messageService}"></chat-box>
+					<chat-box .chatService="${this.chatService}"></chat-box>
 				</article>
 			</sl-dialog>
 		`;

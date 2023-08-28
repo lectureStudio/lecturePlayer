@@ -22,7 +22,7 @@ export class ChatBox extends Component {
 	];
 
 	@property()
-	messageService: ChatService;
+	chatService: ChatService;
 
 	@query(".chat-history-log")
 	messageContainer: HTMLElement;
@@ -80,7 +80,7 @@ export class ChatBox extends Component {
 
 		const chatForm: ChatForm = this.renderRoot.querySelector("chat-form");
 
-		this.messageService.postMessage(chatForm.getFormData())
+		this.chatService.postMessage(chatForm.getFormData())
 			.then(() => {
 				Toaster.showSuccess(`${t("course.feature.message.sent")}`);
 
