@@ -32,6 +32,8 @@ class UiStateStore {
 
 	previousContentFocus: ContentFocus;
 
+	streamProbeFailed: boolean;
+
 	chatVisible: boolean = true;
 
 	participantsVisible: boolean = true;
@@ -63,6 +65,10 @@ class UiStateStore {
 
 	setStreamState(state: State) {
 		this.streamState = state;
+	}
+
+	setStreamProbeFailed(failed: boolean) {
+		this.streamProbeFailed = failed;
 	}
 
 	setSlideSurfaceSize(size: Dimension) {

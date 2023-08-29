@@ -162,9 +162,9 @@
 	"sort.by.first.name": "First Name",
 	"sort.by.last.name": "Last Name",
 	"sort.by.affiliation": "Affiliation",
-	"vpn.modal.title": "Network Access",
-	"vpn.modal.description": "In order to be able to watch streamed courses, you must have network access to the data network of the TU Darmstadt. All TU members have the following network access options:",
-	"vpn.modal.description.vpn": "Secure connection into the TU network and access to services outside of the TU data network.",
-	"vpn.modal.description.wlan": "Nearly full-coverage Internet access on campus and in the \u201Cdarmstadtium\u201D congress center.",
-	"vpn.modal.reconnect": "Please reload the page after the connection has been successfully established."
+	"vpn.required.title": "Network Access",
+	"vpn.required.description": "In order to be able to watch streamed courses, you must have network access to the data network of the TU Darmstadt. All TU members have the following network access options:",
+	"vpn.required.description.vpn": "Secure connection into the TU network and access to services outside of the TU data network.",
+	"vpn.required.description.wlan": "Nearly full-coverage Internet access on campus and in the \u201Cdarmstadtium\u201D congress center.",
+	"vpn.required.reconnect": "Please reload the page after the connection has been successfully established."
 }

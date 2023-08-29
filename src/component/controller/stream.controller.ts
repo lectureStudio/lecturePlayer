@@ -2,6 +2,7 @@ import { JanusService } from "../../service/janus.service";
 import { courseStore } from "../../store/course.store";
 import { uiStateStore } from "../../store/ui-state.store";
 import { userStore } from "../../store/user.store";
+import { HttpRequest } from "../../utils/http-request";
 import { State } from "../../utils/state";
 import { Utils } from "../../utils/utils";
 import { VpnModal } from "../vpn-modal/vpn.modal";
@@ -17,7 +18,7 @@ export class StreamController extends Controller {
 	constructor(rootController: RootController, context: ApplicationContext) {
 		super(rootController, context);
 
-		this.janusService = new JanusService("https://" + window.location.hostname + ":8089/janus", this.context.eventEmitter);
+		this.janusService = new JanusService(`https://${window.location.hostname}:8089/janus`, this.context.eventEmitter);
 		this.janusService.addEventListener("janus-connection-established", this.onJanusConnectionEstablished.bind(this));
 		this.janusService.addEventListener("janus-connection-failure", this.onJanusConnectionFailure.bind(this));
 		this.janusService.addEventListener("janus-session-error", this.onJanusSessionError.bind(this));
@@ -48,6 +49,11 @@ export class StreamController extends Controller {
 
 	disconnect() {
 		this.janusService.disconnect();
+	}
+
+	testConnection() {
+		return new HttpRequest({ timeout: 0 })
+			.post<void>(`https://${window.location.hostname}:8089/janus`, { "janus": "keepalive" });
 	}
 
 	onPeerConnected(peerId: bigint, displayName: string) {

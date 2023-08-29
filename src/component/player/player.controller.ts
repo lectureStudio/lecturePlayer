@@ -60,6 +60,7 @@ export class PlayerController extends Controller implements ReactiveController {
 	}
 
 	hostConnected() {
+		this.testConnection();
 		this.setInitialState();
 
 		this.eventService = new EventService(this.host.courseId, this.eventEmitter);
@@ -96,6 +97,11 @@ export class PlayerController extends Controller implements ReactiveController {
 		const mouseListener = new MouseListener(toolController);
 
 		slideView.addMouseListener(mouseListener);
+	}
+
+	private testConnection() {
+		this.streamController.testConnection()
+			.catch(() => uiStateStore.setStreamProbeFailed(true));
 	}
 
 	private setInitialState() {
