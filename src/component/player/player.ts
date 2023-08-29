@@ -23,13 +23,11 @@ export class LecturePlayer extends Component {
 
 
 	protected render() {
-		console.log("** state", uiStateStore.state);
-
 		return html`
 			${choose(uiStateStore.state, [
 				[State.CONNECTING,			() => html`<player-loading .text="${t("course.loading")}"></player-loading>`],
-				[State.CONNECTED,			() => html`<player-view .eventEmitter="${this.controller.eventEmitter}" .playerController="${this.controller}" .messageService="${this.controller.chatService}"></player-view>`],
-				[State.CONNECTED_FEATURES,	() => html`<player-feature-view .messageService="${this.controller.chatService}"></player-feature-view>`],
+				[State.CONNECTED,			() => html`<player-view .eventEmitter="${this.controller.eventEmitter}" .playerController="${this.controller}" .chatService="${this.controller.chatService}"></player-view>`],
+				[State.CONNECTED_FEATURES,	() => html`<player-feature-view .chatService="${this.controller.chatService}"></player-feature-view>`],
 				[State.DISCONNECTED,		() => html`<player-offline></player-offline>`]
 			],
 			() => html`<h1>Error</h1>`)}

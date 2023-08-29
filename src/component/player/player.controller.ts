@@ -144,27 +144,25 @@ export class PlayerController extends Controller implements ReactiveController {
 	}
 
 	private connect() {
-		this.connecting = true;
-
 		uiStateStore.setStreamState(State.DISCONNECTED);
 		uiStateStore.setDocumentState(State.DISCONNECTED);
 
 		this.loadCourseState()
 			.then(async () => {
-				const tasks = new Array<Promise<void>>();
-
 				if (featureStore.hasFeatures() || courseStore.isLive) {
+					this.connecting = true;
+
 					try {
 						await this.loadUserInfo();
 						await this.loadParticipants();
 
 						if (featureStore.hasChatFeature()) {
-							await tasks.push(this.loadChatHistory());
+							await this.loadChatHistory();
 						}
 						if (courseStore.isLive) {
-							await tasks.push(this.loadMediaDevices());
-							await tasks.push(this.loadStream());
-							await tasks.push(this.loadDocuments());
+							await this.loadMediaDevices();
+							await this.loadStream();
+							await this.loadDocuments();
 						}
 
 					}
@@ -172,8 +170,6 @@ export class PlayerController extends Controller implements ReactiveController {
 						this.onConnectionError(error);
 					}
 				}
-
-				this.connecting = false;
 
 				this.updateConnectionState();
 			});
@@ -315,61 +311,54 @@ export class PlayerController extends Controller implements ReactiveController {
 	}
 
 	private onEventServiceState(event: CustomEvent) {
-		if (this.connecting) {
-			return;
-		}
-
 		const connected = event.detail.connected;
+
+		console.log("* on event service", connected, uiStateStore.state);
 
 		if (connected) {
 			switch (uiStateStore.state) {
 				case State.CONNECTING:
 				case State.CONNECTED:
 				case State.CONNECTED_FEATURES:
-					this.fetchChatHistory();
+					this.fetchChatData();
 					break;
 			}
 		}
 
-		if (uiStateStore.state === State.DISCONNECTED) {
-			return;
-		}
-
-		if (uiStateStore.streamState === State.DISCONNECTED && courseStore.isLive) {
+		if (uiStateStore.streamState === State.DISCONNECTED && uiStateStore.state === State.RECONNECTING) {
 			this.streamController.reconnect();
 		}
 	}
 
-	private fetchChatHistory() {
+	private async fetchChatData() {
+		if (this.connecting) {
+			// Do not proceed with chat loading if the stream is connecting.
+			return;
+		}
+
 		console.log("~ fetch");
 
 		if (featureStore.hasChatFeature()) {
-			CourseParticipantApi.getParticipants(courseStore.courseId)
-				.then(participants => {
-					participantStore.setParticipants(participants);
-				});
-
-			CourseChatApi.getChatHistory(courseStore.courseId)
-				.then(history => {
-					chatStore.setMessages(history.messages);
-				});
+			await this.loadUserInfo();
+			await this.loadParticipants();
+			await this.loadChatHistory()
 		}
 	}
 
 	private onChatState(event: CustomEvent) {
 		const state: MessengerState = event.detail;
 
-		console.log("* on chat", state);
+		console.log("* on chat", state, uiStateStore.state);
+
+		featureStore.setChatFeature(state.started ? state.feature : null);
 
 		if (this.connecting) {
 			// Do not proceed with chat loading if the stream is connecting.
 			return;
 		}
 
-		featureStore.setChatFeature(state.started ? state.feature : null);
-
 		if (state.started) {
-			this.fetchChatHistory();
+			this.fetchChatData();
 
 		}
 		else {
@@ -527,13 +516,17 @@ export class PlayerController extends Controller implements ReactiveController {
 		if (this.hasStream() && !courseStore.isClassroom) {
 			if (streamState === State.CONNECTED && documentState === State.CONNECTED) {
 				this.setConnectionState(State.CONNECTED);
+
+				this.connecting = false;
 			}
 			else if (streamState === State.DISCONNECTED && state === State.CONNECTED) {
 				this.setConnectionState(State.RECONNECTING);
 			}
 		}
-		else if (featureStore.hasFeatures() && !this.connecting) {
+		else if (featureStore.hasFeatures()) {
 			this.setConnectionState(State.CONNECTED_FEATURES);
+
+			this.connecting = false;
 		}
 		else {
 			this.setConnectionState(State.DISCONNECTED);

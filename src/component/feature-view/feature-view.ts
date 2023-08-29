@@ -25,7 +25,7 @@ export class PlayerFeatureView extends Component {
 	private readonly maxWidth600Query: MediaQueryList;
 
 	@property()
-	messageService: ChatService;
+	chatService: ChatService;
 
 	@query("#outer-split-panel")
 	outerSplitPanel: SlSplitPanel;
@@ -193,7 +193,7 @@ export class PlayerFeatureView extends Component {
 				<sl-badge pill>${chatStore.unreadMessages}</sl-badge>
 			</sl-tab>
 			<sl-tab-panel name="chat">
-				<chat-box @chat-visibility="${this.onChatVisibility}" .messageService="${this.messageService}"></chat-box>
+				<chat-box @chat-visibility="${this.onChatVisibility}" .chatService="${this.chatService}"></chat-box>
 			</sl-tab-panel>
 		`;
 	}

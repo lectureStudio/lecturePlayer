@@ -35,7 +35,7 @@ export class PlayerView extends Component {
 	eventEmitter: EventEmitter;
 
 	@property()
-	messageService: ChatService;
+	chatService: ChatService;
 
 	@property({ type: Boolean, reflect: true })
 	chatVisible: boolean = true;
@@ -139,7 +139,7 @@ export class PlayerView extends Component {
 							</div>
 							<div class="feature-container">
 								${when(privilegeStore.canUseChat(), () => html`
-								<chat-box .messageService="${this.messageService}"></chat-box>
+								<chat-box .chatService="${this.chatService}"></chat-box>
 								`)}
 							</div>
 						</div>
