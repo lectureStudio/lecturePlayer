@@ -29,7 +29,7 @@ export class SettingsButton extends Component {
 	selectedDocId: string;
 
 
-	protected firstUpdated(): void {
+	protected updated(): void {
 		this.cameraFeed.checked = uiStateStore.receiveCameraFeed;
 	}
 
@@ -43,7 +43,7 @@ export class SettingsButton extends Component {
 						</sl-button>
 					</sl-tooltip>
 				</div>
-				<sl-menu @sl-select="${this.onItemSelected}">
+				<sl-menu>
 					<sl-menu-item type="checkbox" @click="${this.onReceiveCameraFeed}" id="camera-feed">
 						${t("controls.receive.camera")}
 						<sl-icon slot="prefix" name="camera-video"></sl-icon>
@@ -76,15 +76,5 @@ export class SettingsButton extends Component {
 
 	private onReceiveCameraFeed() {
 		this.eventEmitter.dispatchEvent(Utils.createEvent("stream-receive-camera-feed"));
-	}
-
-	private onItemSelected(event: CustomEvent) {
-		const selectedItem: SlMenuItem = event.detail.item;
-
-		for (let item of this.menu.getAllItems()) {
-			item.checked = false;
-		}
-
-		selectedItem.checked = uiStateStore.receiveCameraFeed;
 	}
 }

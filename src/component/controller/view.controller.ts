@@ -11,7 +11,7 @@ import { RootController } from "./root.controller";
 
 interface BreakpointConfig {
 
-	chatVisible: boolean;
+	rightContainerVisible: boolean;
 	participantsVisible: boolean;
 
 }
@@ -20,7 +20,7 @@ export class ViewController extends Controller {
 
 	private readonly colorSchemeQuery: MediaQueryList;
 
-	private readonly maxWidth576Query: MediaQueryList;
+	private readonly compactLayoutQuery: MediaQueryList;
 
 	private breakpointConfig: BreakpointConfig;
 
@@ -36,7 +36,7 @@ export class ViewController extends Controller {
 		this.eventEmitter.addEventListener("player-participants-visibility", this.onParticipantsVisibility.bind(this), false);
 
 		this.breakpointConfig = {
-			chatVisible: uiStateStore.chatVisible,
+			rightContainerVisible: uiStateStore.rightContainerVisible,
 			participantsVisible: uiStateStore.participantsVisible
 		};
 
@@ -49,8 +49,8 @@ export class ViewController extends Controller {
 			uiStateStore.setSystemColorScheme(this.colorSchemeQuery.matches ? ColorScheme.DARK : ColorScheme.LIGHT);
 		}
 
-		this.maxWidth576Query = window.matchMedia("(max-width: 575px) , (orientation: portrait)");
-		this.maxWidth576Query.onchange = (event) => {
+		this.compactLayoutQuery = window.matchMedia("(max-width: 800px) , (orientation: portrait)");
+		this.compactLayoutQuery.onchange = (event) => {
 			this.onCompactLayout(event.matches);
 		};
 
@@ -77,7 +77,7 @@ export class ViewController extends Controller {
 	}
 
 	update() {
-		if (this.maxWidth576Query.matches) {
+		if (this.compactLayoutQuery.matches) {
 			this.onCompactLayout(true);
 		}
 	}
@@ -121,7 +121,7 @@ export class ViewController extends Controller {
 	}
 
 	private onChatVisibility() {
-		if (this.maxWidth576Query.matches) {
+		if (this.compactLayoutQuery.matches) {
 			const chatModal = new ChatModal();
 			chatModal.chatService = this.chatService;
 
@@ -133,7 +133,7 @@ export class ViewController extends Controller {
 	}
 
 	private onParticipantsVisibility() {
-		if (this.maxWidth576Query.matches) {
+		if (this.compactLayoutQuery.matches) {
 			const participantsModal = new ParticipantsModal();
 
 			this.modalController.registerModal("ParticipantsModal", participantsModal);
@@ -147,17 +147,17 @@ export class ViewController extends Controller {
 		if (compact) {
 			// Store current (visible) state.
 			this.breakpointConfig = {
-				chatVisible: uiStateStore.chatVisible,
+				rightContainerVisible: uiStateStore.rightContainerVisible,
 				participantsVisible: uiStateStore.participantsVisible
 			};
 
 			// Hide elements.
-			uiStateStore.setChatVisible(false);
 			uiStateStore.setParticipantsVisible(false);
+			uiStateStore.setRightContainerVisible(false);
 		}
 		else {
 			// Re-store state.
-			uiStateStore.setChatVisible(this.breakpointConfig.chatVisible);
+			uiStateStore.setRightContainerVisible(this.breakpointConfig.rightContainerVisible);
 			uiStateStore.setParticipantsVisible(this.breakpointConfig.participantsVisible);
 		}
 	}

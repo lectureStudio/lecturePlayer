@@ -17,6 +17,12 @@ class StreamStatsStore {
 	constructor() {
 		makeAutoObservable(this);
 	}
+
+	reset() {
+		for (const prop of Object.getOwnPropertyNames(this)) {
+			(this as { [key: string]: any })[prop] = {};
+		}
+	}
 }
 
 export const streamStatsStore = new StreamStatsStore();

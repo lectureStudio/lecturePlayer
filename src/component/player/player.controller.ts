@@ -33,6 +33,7 @@ import { ApplicationContext } from '../controller/context';
 import { EventEmitter } from '../../utils/event-emitter';
 import { RootController } from '../controller/root.controller';
 import { Controller } from '../controller/controller';
+import { streamStatsStore } from '../../store/stream-stats.store';
 
 export class PlayerController extends Controller implements ReactiveController {
 
@@ -441,6 +442,7 @@ export class PlayerController extends Controller implements ReactiveController {
 			participantStore.reset();
 			userStore.reset();
 			chatStore.reset();
+			streamStatsStore.reset();
 
 			this.updateConnectionState();
 		}

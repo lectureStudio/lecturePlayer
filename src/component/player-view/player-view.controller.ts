@@ -20,7 +20,7 @@ export class PlayerViewController implements ReactiveController {
 
 	hostConnected() {
 		autorun(() => {
-			uiStateStore.setRightContainerVisible(privilegeStore.canUseChat() && uiStateStore.chatVisible);
+			uiStateStore.setRightContainerVisible((privilegeStore.canUseChat() && uiStateStore.chatVisible) || uiStateStore.receiveCameraFeed);
 		});
 		autorun(() => {
 			featureStore.hasChatFeature();
