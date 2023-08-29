@@ -1,5 +1,6 @@
 import { html } from 'lit';
 import { customElement } from 'lit/decorators.js';
+import { when } from 'lit/directives/when.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { courseStore } from '../../store/course.store';
@@ -19,8 +20,11 @@ export class PlayerOffline extends Component {
 	protected render() {
 		return html`
 			<div>
-				<sl-icon name="course-not-available"></sl-icon>
-				<strong class="text-muted py-2">${t("course.unavailable")}</strong>
+				<sl-icon name="${uiStateStore.streamProbeFailed ? 'shield-exclamation' : 'course-not-available'}"></sl-icon>
+
+				${when(!uiStateStore.streamProbeFailed, () => html`
+					<strong>${t("course.unavailable")}</strong>
+				`)}
 
 				<sl-alert variant="warning" .open="${uiStateStore.streamProbeFailed}">
 					<sl-icon slot="icon" name="exclamation-triangle"></sl-icon>

@@ -124,31 +124,6 @@ export class PlayerController extends Controller implements ReactiveController {
 		}
 	}
 
-	private setConnectionState(state: State) {
-		if (uiStateStore.state === state) {
-			return;
-		}
-
-		console.log("new state", state)
-
-		uiStateStore.setState(state);
-
-		if (uiStateStore.state !== State.RECONNECTING) {
-			this.modalController.closeAndDeleteModal("ReconnectModal");
-		}
-
-		switch (state) {
-			case State.CONNECTED_FEATURES:
-			case State.DISCONNECTED:
-				this.setDisconnected();
-				break;
-
-			case State.RECONNECTING:
-				this.setReconnecting();
-				break;
-		}
-	}
-
 	private connect() {
 		uiStateStore.setStreamState(State.DISCONNECTED);
 		uiStateStore.setDocumentState(State.DISCONNECTED);
@@ -536,6 +511,31 @@ export class PlayerController extends Controller implements ReactiveController {
 		}
 		else {
 			this.setConnectionState(State.DISCONNECTED);
+		}
+	}
+
+	private setConnectionState(state: State) {
+		if (uiStateStore.state === state) {
+			return;
+		}
+
+		console.log("new state", state)
+
+		uiStateStore.setState(state);
+
+		if (uiStateStore.state !== State.RECONNECTING) {
+			this.modalController.closeAndDeleteModal("ReconnectModal");
+		}
+
+		switch (state) {
+			case State.CONNECTED_FEATURES:
+			case State.DISCONNECTED:
+				this.setDisconnected();
+				break;
+
+			case State.RECONNECTING:
+				this.setReconnecting();
+				break;
 		}
 	}
 }

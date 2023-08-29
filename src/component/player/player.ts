@@ -30,7 +30,7 @@ export class LecturePlayer extends Component {
 				[State.CONNECTED_FEATURES,	() => html`<player-feature-view .chatService="${this.controller.chatService}"></player-feature-view>`],
 				[State.DISCONNECTED,		() => html`<player-offline></player-offline>`]
 			],
-			() => html`<h1>Something went wront</h1>`)}
+			() => html`<h1>Something went wrong</h1>`)}
 		`;
 	}
 }
