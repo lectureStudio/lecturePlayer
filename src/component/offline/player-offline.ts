@@ -20,7 +20,7 @@ export class PlayerOffline extends Component {
 	protected render() {
 		return html`
 			<div>
-				<sl-icon name="${uiStateStore.streamProbeFailed ? 'shield-exclamation' : 'course-not-available'}"></sl-icon>
+				<sl-icon name="${uiStateStore.streamProbeFailed ? 'shield-exclamation' : 'calendar-x'}"></sl-icon>
 
 				${when(!uiStateStore.streamProbeFailed, () => html`
 					<strong>${t("course.unavailable")}</strong>
