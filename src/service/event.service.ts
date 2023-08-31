@@ -39,7 +39,7 @@ export class EventService extends EventTarget {
 			heartbeatIncoming: 1000,
 			heartbeatOutgoing: 1000,
 			discardWebsocketOnCommFailure: false,
-			debug: (message) => {
+			debug: (_message) => {
 				// console.log("STOMP: " + message);
 			},
 		});

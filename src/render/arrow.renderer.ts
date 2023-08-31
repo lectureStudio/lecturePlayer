@@ -5,7 +5,7 @@ import { PenPoint } from "../geometry/pen-point";
 
 class ArrowRenderer implements ShapeRenderer {
 
-	render(context: CanvasRenderingContext2D, shape: ArrowShape, dirtyRegion: Rectangle): void {
+	render(context: CanvasRenderingContext2D, shape: ArrowShape, _dirtyRegion: Rectangle): void {
 		const p0 = shape.points[0];
 		const p1 = shape.points[1];
 
@@ -25,7 +25,7 @@ class ArrowRenderer implements ShapeRenderer {
 		context.restore();
 
 		if (shape.isSelected()) {
-			const scale = context.getTransformExt().getScaleX();
+			const scale = context.getTransform().a;
 
 			this.createArrowPath(context, keyEvent, p0, p1, brush.width);
 

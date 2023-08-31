@@ -4,7 +4,7 @@ import { LineShape } from "../model/shape/line.shape";
 
 class LineRenderer implements ShapeRenderer {
 
-	render(context: CanvasRenderingContext2D, shape: LineShape, dirtyRegion: Rectangle): void {
+	render(context: CanvasRenderingContext2D, shape: LineShape, _dirtyRegion: Rectangle): void {
 		const p0 = shape.points[0];
 		const p1 = shape.points[1];
 
@@ -26,7 +26,7 @@ class LineRenderer implements ShapeRenderer {
 		context.stroke();
 
 		if (shape.isSelected()) {
-			const scale = context.getTransformExt().getScaleX();
+			const scale = context.getTransform().a;
 			const dashWidth = bold ? 7 / scale : 5 / scale;
 			const dashDist = bold ? 15 / scale : 12 / scale;
 

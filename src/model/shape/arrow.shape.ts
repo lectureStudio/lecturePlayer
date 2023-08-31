@@ -8,7 +8,7 @@ export class ArrowShape extends FormShape {
 		shape.setKeyEvent(this.getKeyEvent());
 		shape.setSelected(this.isSelected());
 
-		for (let point of this.points) {
+		for (const point of this.points) {
 			shape.points.push(point.clone());
 		}
 

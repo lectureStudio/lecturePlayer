@@ -32,11 +32,11 @@ export class DocumentController extends Controller {
 						.then(() => {
 							resolve(slideDoc);
 						})
-						.catch((error: any) => {
+						.catch((error: unknown) => {
 							reject(error);
 						});
 				})
-				.catch((error: any) => {
+				.catch((error: unknown) => {
 					reject(error);
 				});
 		});
@@ -71,7 +71,7 @@ export class DocumentController extends Controller {
 
 					resolve(recordedPage);
 				})
-				.catch((error: any) => {
+				.catch((error: unknown) => {
 					reject(error);
 				});
 		});
@@ -96,7 +96,7 @@ export class DocumentController extends Controller {
 				.then((dataBuffer: ArrayBuffer) => {
 					resolve(RecordedPageParser.parseBuffer(dataBuffer));
 				})
-				.catch((error: any) => {
+				.catch((error: unknown) => {
 					reject(error);
 				});
 		});
@@ -116,7 +116,7 @@ export class DocumentController extends Controller {
 
 	private static loadActions(executor: SimpleActionExecutor, recPage: RecordedPage): void {
 		const actions = recPage.playbackActions;
-		let actionCount = actions.length;
+		const actionCount = actions.length;
 
 		if (actionCount < 1) {
 			return;
@@ -125,7 +125,7 @@ export class DocumentController extends Controller {
 		// Select the page on which to execute the actions.
 		executor.setPageNumber(recPage.pageNumber);
 
-		for (let action of actions) {
+		for (const action of actions) {
 			try {
 				action.execute(executor);
 			}
@@ -136,7 +136,7 @@ export class DocumentController extends Controller {
 	}
 
 	private static updateDocumentStats(byteSize: number) {
-		let stats = streamStatsStore.documentStats;
+		const stats = streamStatsStore.documentStats;
 
 		if (!stats.countReceived) {
 			stats.countReceived = 0;

@@ -3,7 +3,7 @@ import { CourseStateDocument } from "../model/course-state-document";
 import { SlideDocument } from "../model/document";
 import { Page } from "../model/page";
 
-export type DocumentState = {
+export interface DocumentState {
 	document: SlideDocument;
 	selectedPage: Page,
 	selectedPageNumber: number;

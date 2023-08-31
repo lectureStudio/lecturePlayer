@@ -4,7 +4,7 @@ export class Utils {
 		return navigator.userAgent.indexOf("Firefox") != -1;
 	}
 
-	static createEvent(type: string, payload?: any): CustomEvent {
+	static createEvent<T>(type: string, payload?: T): CustomEvent {
 		return new CustomEvent(type, {
 			detail: payload,
 			bubbles: true,

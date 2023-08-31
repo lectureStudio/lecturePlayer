@@ -78,7 +78,7 @@ export class ParticipantList extends Component {
 			<section>
 				<div class="participants">
 					<div class="participant-log">
-					${repeat(participantStore.sort(this.sortConfig), (participant) => participant.userId, (participant, index) => html`
+					${repeat(participantStore.sort(this.sortConfig), (participant) => participant.userId, (participant) => html`
 						<participant-list-item .participant="${participant}"></participant-list-item>
 					`)}
 					</div>
@@ -120,7 +120,7 @@ export class ParticipantList extends Component {
 			return;
 		}
 
-		for (let item of this.customSortMenu.getAllItems()) {
+		for (const item of this.customSortMenu.getAllItems()) {
 			// Uncheck all items, except the selected one.
 			if (item.value !== value) {
 				item.checked = false;

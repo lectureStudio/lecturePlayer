@@ -9,13 +9,13 @@ export class RemoveShapeAction extends ShapeAction {
 	}
 
 	execute(page: Page): void {
-		for (let shape of this.shapes) {
+		for (const shape of this.shapes) {
 			page.removeShape(shape);
 		}
 	}
 
 	undo(page: Page): void {
-		for (let shape of this.shapes) {
+		for (const shape of this.shapes) {
 			page.addShape(shape);
 		}
 	}

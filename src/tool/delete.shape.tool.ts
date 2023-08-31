@@ -25,11 +25,11 @@ export class DeleteShapeTool extends Tool {
 		}
 	}
 
-	execute(point: PenPoint): void {
+	execute(_point: PenPoint): void {
 		// No-op
 	}
 
-	end(point: PenPoint): void {
+	end(_point: PenPoint): void {
 		// No-op
 	}
 

@@ -45,7 +45,7 @@ export class RenderSurface {
 	}
 
 	renderShapes(shapes: Shape[]): void {
-		for (let shape of shapes) {
+		for (const shape of shapes) {
 			this.renderShape(shape, null);
 		}
 	}
@@ -99,7 +99,7 @@ export class RenderSurface {
 		this.transform.setTransform(transform);
 	}
 
-	private resizeCanvas(width: number, height: number, devicePixelRatio: number): void {
+	private resizeCanvas(width: number, height: number, _devicePixelRatio: number): void {
 		this.canvas.style.width = width + "px";
 		this.canvas.style.height = height + "px";
 	}

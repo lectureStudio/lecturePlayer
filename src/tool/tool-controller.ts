@@ -62,7 +62,7 @@ export class ToolController {
 	}
 
 	setTool(tool: Tool): void {
-		if (!tool) {
+		if (tool == null) {
 			throw new Error("Tool must not be null");
 		}
 		if (!this.tool && this.tool === tool) {
@@ -202,8 +202,8 @@ export class ToolController {
 		action.keyEvent = this.toolContext.keyEvent;
 		action.timestamp = new Date().valueOf();
 
-		const docId = this.document.getDocumentId();
-		const pageNumber = this.toolContext.pageNumber;
+		// const docId = this.document.getDocumentId();
+		// const pageNumber = this.toolContext.pageNumber;
 
 		// addStreamAction(new StreamPagePlaybackAction(docId, pageNumber, action));
 	}

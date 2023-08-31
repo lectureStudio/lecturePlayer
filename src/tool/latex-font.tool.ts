@@ -31,7 +31,7 @@ export class LatexFontTool extends AtomicTool {
 	begin(point: Point, context: ToolContext): void {
 		const shapes = context.page.getShapes();
 
-		for (let shape of shapes) {
+		for (const shape of shapes) {
 			if (shape instanceof LatexShape && shape.handle === this.handle) {
 				shape.setFont(this.font);
 				shape.setTextColor(this.textColor);

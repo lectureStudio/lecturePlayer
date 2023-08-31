@@ -104,7 +104,7 @@ export class DocumentsButton extends Component {
 			return;
 		}
 
-		for (let item of this.menu.getAllItems()) {
+		for (const item of this.menu.getAllItems()) {
 			// Uncheck all items, except the selected one.
 			if (item.value !== docId) {
 				item.checked = false;

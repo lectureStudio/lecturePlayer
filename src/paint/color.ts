@@ -56,7 +56,7 @@ class Color {
 	}
 
 	static fromRGBString(hex: string): Color {
-		let s = hex.trim();
+		const s = hex.trim();
 
 		if (s.indexOf('rgb') !== 0) {
 			throw new Error("Not a rgb color representation");

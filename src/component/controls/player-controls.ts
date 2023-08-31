@@ -72,7 +72,7 @@ export class PlayerControls extends Component {
 		document.addEventListener("fullscreenchange", () => {
 			this.fullscreen = document.fullscreenElement !== null;
 		});
-		this.eventEmitter.addEventListener("speech-canceled", (e: CustomEvent) => {
+		this.eventEmitter.addEventListener("speech-canceled", () => {
 			this.handUp = false;
 		});
 	}

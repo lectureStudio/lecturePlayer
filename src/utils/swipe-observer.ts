@@ -23,13 +23,13 @@ export class SwipeObserver {
 	private touchEndHandler = this.handleTouchEnd.bind(this);
 
 	private config: SwipeObserverConfig;
-	private xDown: number = null;
-	private yDown: number = null;
-	private xDiff: number = null;
-	private yDiff: number = null;
-	private timeDown: number = null;
-	private startEl: HTMLElement = null;
-	private target: HTMLElement = null;
+	private xDown: number | null = null;
+	private yDown: number | null = null;
+	private xDiff: number | null = null;
+	private yDiff: number | null = null;
+	private timeDown: number | null = null;
+	private startEl: HTMLElement | null = null;
+	private target: HTMLElement | null = null;
 
 
 	/**
@@ -84,8 +84,8 @@ export class SwipeObserver {
 			return;
 		}
 
-		const timeDiff = Date.now() - this.timeDown;
-		const changedTouches: TouchList | [] = e.changedTouches || e.touches || [];
+		const timeDiff = Date.now() - (this.timeDown ?? 0);
+		const changedTouches: TouchList | [] = e.changedTouches ?? e.touches ?? [];
 		let swipeThreshold = this.config.threshold;
 		let eventType = '';
 
@@ -98,9 +98,12 @@ export class SwipeObserver {
 			swipeThreshold = Math.round((swipeThreshold / 100) * document.documentElement.clientWidth);
 		}
 
-		if (Math.abs(this.xDiff) > Math.abs(this.yDiff)) { // most significant
-			if (Math.abs(this.xDiff) > swipeThreshold && timeDiff < this.config.timeout) {
-				if (this.xDiff > 0) {
+		const xDiff = this.xDiff ?? 0;
+		const yDiff = this.yDiff ?? 0;
+
+		if (Math.abs(xDiff) > Math.abs(yDiff)) { // most significant
+			if (Math.abs(xDiff) > swipeThreshold && timeDiff < this.config.timeout) {
+				if (xDiff > 0) {
 					eventType = 'swiped-left';
 				}
 				else {
@@ -108,8 +111,8 @@ export class SwipeObserver {
 				}
 			}
 		}
-		else if (Math.abs(this.yDiff) > swipeThreshold && timeDiff < this.config.timeout) {
-			if (this.yDiff > 0) {
+		else if (Math.abs(yDiff) > swipeThreshold && timeDiff < this.config.timeout) {
+			if (yDiff > 0) {
 				eventType = 'swiped-up';
 			}
 			else {
@@ -121,17 +124,21 @@ export class SwipeObserver {
 			const eventData = {
 				dir: eventType.replace(/swiped-/, ''),
 				touchType: 'direct',
-				xStart: this.xDown || 10,
-				xEnd: (changedTouches[0] || {}).clientX || -1 || 10,
-				yStart: this.yDown || 10,
-				yEnd: (changedTouches[0] || {}).clientY || -1 || 10
+				xStart: this.xDown ?? 10,
+				xEnd: (changedTouches[0] ?? {}).clientX ?? 10,
+				yStart: this.yDown ?? 10,
+				yEnd: (changedTouches[0] ?? {}).clientY ?? 10
 			};
 
 			// Fire `swiped` event event on the element that started the swipe.
-			this.startEl.dispatchEvent(new CustomEvent('swiped', { bubbles: true, cancelable: true, detail: eventData }));
+			if (this.startEl) {
+				this.startEl.dispatchEvent(new CustomEvent('swiped', { bubbles: true, cancelable: true, detail: eventData }));
+			}
 
 			// Fire `swiped-dir` event on the element that started the swipe.
-			this.startEl.dispatchEvent(new CustomEvent(eventType, { bubbles: true, cancelable: true, detail: eventData }));
+			if (this.startEl) {
+				this.startEl.dispatchEvent(new CustomEvent(eventType, { bubbles: true, cancelable: true, detail: eventData }));
+			}
 		}
 
 		// Reset values.
@@ -165,7 +172,7 @@ export class SwipeObserver {
 	 * @returns {void}
 	 */
 	private handleTouchMove(e: TouchEvent) {
-		if (!this.xDown || !this.yDown) {
+		if (this.xDown == null || this.yDown == null) {
 			return;
 		}
 

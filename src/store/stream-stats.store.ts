@@ -20,7 +20,7 @@ class StreamStatsStore {
 
 	reset() {
 		for (const prop of Object.getOwnPropertyNames(this)) {
-			(this as { [key: string]: any })[prop] = {};
+			(this as unknown as Indexable)[prop] = {};
 		}
 	}
 }

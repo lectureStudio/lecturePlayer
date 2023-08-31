@@ -95,7 +95,7 @@ export class SelectGroupTool extends Tool {
 
 		this.removeSelection();
 
-		for (let shape of this.context.page.getShapes()) {
+		for (const shape of this.context.page.getShapes()) {
 			if (shape === this.shape) {
 				continue;
 			}
@@ -116,7 +116,7 @@ export class SelectGroupTool extends Tool {
 	private getSelectedShapes(): void {
 		this.selectedShapes = new Array<Shape>();
 
-		for (let shape of this.context.page.getShapes()) {
+		for (const shape of this.context.page.getShapes()) {
 			if (shape.isSelected()) {
 				this.selectedShapes.push(shape);
 			}
@@ -128,7 +128,7 @@ export class SelectGroupTool extends Tool {
 	}
 
 	private hitSelected(point: PenPoint): boolean {
-		for (let shape of this.selectedShapes) {
+		for (const shape of this.selectedShapes) {
 			if (shape.contains(point)) {
 				return true;
 			}
@@ -138,7 +138,7 @@ export class SelectGroupTool extends Tool {
 	}
 
 	private removeSelection(): void {
-		for (let shape of this.selectedShapes) {
+		for (const shape of this.selectedShapes) {
 			shape.setSelected(false);
 		}
 
@@ -152,7 +152,7 @@ export class SelectGroupTool extends Tool {
 
 		this.context.beginBulkRender();
 
-		for (let shape of this.selectedShapes) {
+		for (const shape of this.selectedShapes) {
 			shape.moveByDelta(delta);
 		}
 

@@ -2,6 +2,7 @@
 	"compilerOptions": {
 		"outDir": "./dist/",
 		"allowJs": true,
+		"strict": true,
 		"noEmit": true,
 		"noImplicitAny": true,
 		"noImplicitReturns": true,

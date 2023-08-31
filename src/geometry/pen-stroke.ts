@@ -101,13 +101,13 @@ class PenStroke {
 	}
 
 	moveByDelta(delta: Point): void {
-		for (let point of this.A) {
+		for (const point of this.A) {
 			point.subtract(delta);
 		}
-		for (let point of this.B) {
+		for (const point of this.B) {
 			point.subtract(delta);
 		}
-		for (let point of this.points) {
+		for (const point of this.points) {
 			point.subtract(delta);
 		}
 	}
@@ -115,13 +115,13 @@ class PenStroke {
 	clone(): PenStroke {
 		const stroke = new PenStroke(this.strokeWidth);
 
-		for (let point of this.A) {
+		for (const point of this.A) {
 			stroke.A.push(point.clone());
 		}
-		for (let point of this.B) {
+		for (const point of this.B) {
 			stroke.B.push(point.clone());
 		}
-		for (let point of this.points) {
+		for (const point of this.points) {
 			stroke.points.push(point.clone());
 		}
 

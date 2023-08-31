@@ -1,16 +1,12 @@
 declare global {
 
 	interface Array<T> {
-		equals(array: any[]): boolean;
+		equals(array: T[]): boolean;
 	}
 
 }
 
-if (Array.prototype.equals) {
-	console.warn("Overriding existing Array.prototype.equals.");
-}
-
-Array.prototype.equals = function (other: any[]) {
+Array.prototype.equals = function (other: unknown[]) {
 	if (!other) {
 		return false;
 	}
@@ -21,7 +17,7 @@ Array.prototype.equals = function (other: any[]) {
 		return false;
 	}
 
-	for (var i = 0, l = this.length; i < l; i++) {
+	for (let i = 0, l = this.length; i < l; i++) {
 		if (this[i] instanceof Array && other[i] instanceof Array) {
 			if (!this[i].equals(other[i])) {
 				return false;

@@ -34,17 +34,17 @@ export interface QuizAnswer {
 
 }
 
-export interface QuizRule {
+export interface QuizRule<T> {
 
 	type: string;
 
 	fieldId: number;
 
-	isAllowed(value: any): boolean;
+	isAllowed(value: T): boolean;
 
 }
 
-export interface QuizMinMaxRule extends QuizRule {
+export interface QuizMinMaxRule extends QuizRule<number> {
 
 	min: number;
 	max: number;
@@ -53,7 +53,7 @@ export interface QuizMinMaxRule extends QuizRule {
 
 export interface QuizInputFieldFilter {
 
-	rules: QuizRule[];
+	rules: QuizRule<unknown>[];
 
 }
 

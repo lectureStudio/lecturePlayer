@@ -9,14 +9,14 @@ class ZoomRenderer implements ShapeRenderer {
 	private readonly FRAME_COLOR = "rgb(255, 0, 100)";
 
 
-	render(context: CanvasRenderingContext2D, shape: ZoomShape, dirtyRegion: Rectangle): void {
+	render(context: CanvasRenderingContext2D, shape: ZoomShape, _dirtyRegion: Rectangle): void {
 		const bounds = shape.bounds;
 
 		context.fillStyle = this.FILL_COLOR;
 		context.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
 		context.beginPath();
 		context.strokeStyle = this.FRAME_COLOR;
-		context.lineWidth = 2 / context.getTransformExt().getScaleX();
+		context.lineWidth = 2 / context.getTransform().a;
 		context.rect(bounds.x, bounds.y, bounds.width, bounds.height);
 		context.stroke();
 	}

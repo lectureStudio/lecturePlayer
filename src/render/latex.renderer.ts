@@ -5,7 +5,7 @@ import { LatexShape } from "../model/shape/latex.shape";
 
 class LatexRenderer implements ShapeRenderer {
 
-	render(context: CanvasRenderingContext2D, shape: LatexShape, dirtyRegion: Rectangle): void {
+	render(context: CanvasRenderingContext2D, shape: LatexShape, _dirtyRegion: Rectangle): void {
 		const text = shape.getText();
 
 		if (!text || text.length === 0) {
@@ -15,8 +15,8 @@ class LatexRenderer implements ShapeRenderer {
 		const bounds = shape.bounds;
 		const font = shape.getFont();
 
-		const transform = context.getTransformExt();
-		const scale = transform.getScaleX();
+		const transform = context.getTransform();
+		const scale = transform.a;
 
 		/*
 		 * Render with identity transform and scaled font, since normalized
@@ -24,8 +24,8 @@ class LatexRenderer implements ShapeRenderer {
 		 * misplaced and missized.
 		 */
 		const scaledHeight = font.size * scale;
-		const x = transform.getTranslateX() + bounds.x * scale;
-		const y = transform.getTranslateY() + bounds.y * scale;
+		const x = transform.e + bounds.x * scale;
+		const y = transform.f + bounds.y * scale;
 
 		const scaledFont = new Font(font.family, scaledHeight, font.style, font.weight);
 

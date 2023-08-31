@@ -5,15 +5,15 @@ import { Action } from "../action/action";
 
 export class CursorTool extends Tool {
 
-	begin(point: PenPoint, context: ToolContext): void {
+	begin(_point: PenPoint, _context: ToolContext): void {
 		// Do nothing
 	}
 
-	execute(point: PenPoint): void {
+	execute(_point: PenPoint): void {
 		// Do nothing
 	}
 
-	end(point: PenPoint): void {
+	end(_point: PenPoint): void {
 		// Do nothing
 	}
 

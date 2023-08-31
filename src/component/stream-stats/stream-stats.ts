@@ -11,8 +11,8 @@ import streamStatsStyles from "./stream-stats.scss";
 interface StatsEntry {
 
 	name: string;
-	inMetric: any;
-	outMetric: any;
+	inMetric: string | number | undefined;
+	outMetric: string | number | undefined;
 
 }
 
@@ -24,7 +24,7 @@ export class StreamStats extends Component {
 		streamStatsStyles
 	];
 
-	eventEmitter: EventEmitter;
+	eventEmitter!: EventEmitter;
 
 
 	override connectedCallback() {
@@ -67,10 +67,12 @@ export class StreamStats extends Component {
 		`;
 	}
 
-	protected renderStatsTable(entries: Array<StatsEntry>) {
+	protected renderStatsTable(entries: Array<StatsEntry> | undefined) {
 		if (!entries || entries.length === 0) {
 			return '';
 		}
+
+		console.log(entries)
 
 		return html`
 			<table class="table">
@@ -173,7 +175,7 @@ export class StreamStats extends Component {
 
 	private getDataStats(dataStats: DataStats) {
 		if (!dataStats) {
-			return null;
+			return undefined;
 		}
 
 		const entries: Array<StatsEntry> = [
@@ -189,7 +191,7 @@ export class StreamStats extends Component {
 
 	private getDocumentStats(documentStats: DocumentStats) {
 		if (!documentStats) {
-			return null;
+			return undefined;
 		}
 
 		const entries: Array<StatsEntry> = [
@@ -208,63 +210,63 @@ export class StreamStats extends Component {
 		return entries;
 	}
 
-	private getValue(value: any) {
+	private getValue(value: string | number | undefined) {
 		return value != null ? value : "-";
 	}
 
-	private getBitrate(value: number) {
+	private getBitrate(value: number | undefined) {
 		if (value != null) {
 			return (value / 1024).toFixed() + " kbit/s";
 		}
 
-		return null;
+		return undefined;
 	}
 
-	private getKibibytes(value: number) {
+	private getKibibytes(value: number | undefined) {
 		if (value != null) {
 			return (value / 1024).toFixed() + " KiB";
 		}
 
-		return null;
+		return undefined;
 	}
 
-	private getAudioFormat(sampleRate: number, channels: number) {
+	private getAudioFormat(sampleRate: number | undefined, channels: number | undefined) {
 		if (sampleRate != null && channels != null) {
 			return `${sampleRate} Hz, ${channels === 1 ? t("stats.audio.mono") : t("stats.audio.stereo")}`;
 		}
 
-		return null;
+		return undefined;
 	}
 
-	private getFramesPerSecond(value: number) {
+	private getFramesPerSecond(value: number | undefined) {
 		if (value != null) {
 			return `${value} ${t("stats.fps")}`;
 		}
 
-		return null;
+		return undefined;
 	}
 
-	private getResolution(frameWidth: number, frameHeight: number) {
+	private getResolution(frameWidth: number | undefined, frameHeight: number | undefined) {
 		if (frameWidth != null && frameHeight != null) {
 			return `${frameWidth}x${frameHeight}`;
 		}
 
-		return null;
+		return undefined;
 	}
 
-	private getJitter(value: number) {
+	private getJitter(value: number | undefined) {
 		if (value != null) {
 			return `${(value * 1000).toFixed()} ${t("ms")}`;
 		}
 
-		return null;
+		return undefined;
 	}
 
-	private getPacketLoss(value: number) {
+	private getPacketLoss(value: number | undefined) {
 		if (value != null) {
 			return `${value.toFixed(1)} ${t("%")}`;
 		}
 
-		return null;
+		return undefined;
 	}
 }

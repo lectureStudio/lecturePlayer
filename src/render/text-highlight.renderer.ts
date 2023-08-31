@@ -4,7 +4,7 @@ import { TextHighlightShape } from "../model/shape/text-highlight.shape";
 
 class TextHighlightRenderer implements ShapeRenderer {
 
-	render(context: CanvasRenderingContext2D, shape: TextHighlightShape, dirtyRegion: Rectangle): void {
+	render(context: CanvasRenderingContext2D, shape: TextHighlightShape, _dirtyRegion: Rectangle): void {
 		const bounds = shape.bounds;
 
 		if (bounds.isEmpty()) {

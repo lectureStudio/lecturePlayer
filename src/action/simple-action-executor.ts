@@ -27,7 +27,7 @@ export class SimpleActionExecutor implements ActionExecutor {
 		return this.document;
 	}
 
-	setSeek(seek: boolean): void {
+	setSeek(_seek: boolean): void {
 
 	}
 
@@ -35,7 +35,7 @@ export class SimpleActionExecutor implements ActionExecutor {
 		this.toolContext.keyEvent = keyEvent;
 	}
 
-	setDocument(document: SlideDocument): void {
+	setDocument(_document: SlideDocument): void {
 
 	}
 
@@ -50,7 +50,7 @@ export class SimpleActionExecutor implements ActionExecutor {
 		this.toolContext.page = page;
 	}
 
-	removePageNumber(pageNumber: number): void {
+	removePageNumber(_pageNumber: number): void {
 		
 	}
 

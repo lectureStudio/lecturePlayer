@@ -34,7 +34,7 @@ export const alphaPaletteRGB = [
 	new Color(0, 210, 0, 0.7)
 ]
 
-export type ToolSettings = {
+export interface ToolSettings {
 	colorPalette: Array<Color>;
 	thickness: number,
 	customBrush: Brush

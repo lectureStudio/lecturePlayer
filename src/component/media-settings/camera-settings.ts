@@ -88,7 +88,7 @@ export class CameraSettings extends MediaSettings {
 		Devices.stopVideoTracks(this.video.srcObject as MediaStream);
 
 		const videoSource = (<HTMLInputElement> event.target).value;
-		const videoConstraints: any = {};
+		const videoConstraints: MediaStreamConstraints = {};
 
 		deviceStore.cameraDeviceId = videoSource;
 

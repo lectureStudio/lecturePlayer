@@ -126,8 +126,8 @@ class Rectangle {
 				return false;
 			}
 			else {
-				let outcodeOut = outcode0 ? outcode0 : outcode1;
-				let x, y;
+				const outcodeOut = outcode0 ? outcode0 : outcode1;
+				let x: number, y: number;
 
 				if (outcodeOut & TOP) {
 					x = x1 + (x2 - x1) * (ymax - y1) / (y2 - y1);
@@ -144,6 +144,9 @@ class Rectangle {
 				else if (outcodeOut & LEFT) {
 					y = y1 + (y2 - y1) * (xmin - x1) / (x2 - x1);
 					x = xmin;
+				}
+				else {
+					continue;
 				}
 
 				if (outcodeOut == outcode0) {
@@ -169,7 +172,7 @@ class Rectangle {
 	 * @return the intersection rectangle, or null if the rectangles don't intersect
 	 *         each other.
 	 */
-	intersection(rect: Rectangle): Rectangle {
+	intersection(rect: Rectangle): Rectangle | null {
 		const iX = Math.max(this.x, rect.x);
 		const iY = Math.max(this.y, rect.y);
 		const iW = Math.min(this.x + this.width, rect.x + rect.width) - iX;

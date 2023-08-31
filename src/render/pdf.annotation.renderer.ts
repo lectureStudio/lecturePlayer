@@ -1,5 +1,5 @@
 import { PDFPageProxy } from "pdfjs-dist/types/src/display/api";
-import { AnnotationLayer } from "pdfjs-dist";
+// import { AnnotationLayer } from "pdfjs-dist";
 
 const pdfViever = require("pdfjs-dist/web/pdf_viewer");
 
@@ -12,8 +12,8 @@ export class PdfAnnotationRenderer {
 		this.l10n = new Translator();
 	}
 
-	async render(pageProxy: PDFPageProxy, root: HTMLDivElement): Promise<void> {
-		const viewport = pageProxy.getViewport().clone({ dontFlip: true });
+	async render(pageProxy: PDFPageProxy, _root: HTMLDivElement): Promise<void> {
+		// const viewport = pageProxy.getViewport().clone({ dontFlip: true });
 
 		const annotations = await pageProxy.getAnnotations();
 
@@ -43,7 +43,7 @@ export class PdfAnnotationRenderer {
 class Translator {
 
 	// Embedded L10n data.
-	private readonly gL10nData: any;
+	private readonly gL10nData: object;
 
 
 	constructor() {
@@ -58,10 +58,10 @@ class Translator {
 		element = element || document.querySelector("html");
 
 		// check all translatable children (= w/ a `data-l10n-id' attribute)
-		var children = element.querySelectorAll("*[data-l10n-id]");
-		var elementCount = children.length;
-		for (var i = 0; i < elementCount; i++) {
-			this.translateElement(children[i]);
+		const children = element.querySelectorAll("*[data-l10n-id]");
+		const elementCount = children.length;
+		for (let i = 0; i < elementCount; i++) {
+			this.translateElement(children[i] as HTMLElement);
 		}
 
 		// translate element itself if necessary
@@ -70,21 +70,24 @@ class Translator {
 		}
 	}
 
-	private translateElement(element: any) {
+	private translateElement(element: HTMLElement) {
 		if (!element || !element.dataset) {
 			return;
 		}
 
 		// get the related l10n object
-		var key = element.dataset.l10nId;
-		var data = this.gL10nData?.[key];
+		const key = element.dataset.l10nId;
+		if (!key) {
+			return;
+		}
+		const data = this.gL10nData?.[key];
 		if (!data) {
 			return;
 		}
 
 		// get arguments (if any)
 		// TODO: more flexible parser?
-		var args;
+		let args;
 		if (element.dataset.l10nArgs) {
 			try {
 				args = JSON.parse(element.dataset.l10nArgs);
@@ -96,17 +99,17 @@ class Translator {
 
 		// translate element
 		// TODO: security check?
-		for (var k in data) {
-			element[k] = this.substArguments(data[k], args);
+		for (const k in data) {
+			(element as unknown as Indexable)[k] = this.substArguments(data[k], args);
 		}
 	}
 
 	// replace {{arguments}} with their values
-	private substArguments(str: string, args: any) {
-		var reArgs = /\{\{\s*(.+?)\s*\}\}/g;
-		return str.replace(reArgs, function (matched_text, arg) {
-			if (args && arg in args) {
-				return args[arg];
+	private substArguments(str: string, args: unknown) {
+		const reArgs = /\{\{\s*(.+?)\s*\}\}/g;
+		return str.replace(reArgs, (matched_text, arg) => {
+			if (args && arg in (args as object)) {
+				return (args as Indexable)[arg];
 			}
 			if (arg in this.gL10nData) {
 				return this.gL10nData[arg];

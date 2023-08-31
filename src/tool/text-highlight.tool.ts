@@ -50,11 +50,11 @@ export class TextHighlightTool extends Tool {
 		}
 	}
 
-	execute(point: Point): void {
+	execute(_point: Point): void {
 		// Do nothing.
 	}
 
-	end(point: Point): void {
+	end(_point: Point): void {
 		// Do nothing.
 	}
 

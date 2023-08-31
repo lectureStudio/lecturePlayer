@@ -4,7 +4,7 @@ import { PenShape } from "../model/shape/pen.shape";
 
 class PenRenderer implements ShapeRenderer {
 
-	render(context: CanvasRenderingContext2D, shape: PenShape, dirtyRegion: Rectangle): void {
+	render(context: CanvasRenderingContext2D, shape: PenShape, _dirtyRegion: Rectangle): void {
 		const brush = shape.brush;
 		const color = shape.isSelected() ? "rgb(255, 0, 100)" : brush.color.toRgb();
 		const stroke = shape.getPenStroke();

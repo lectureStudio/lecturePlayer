@@ -101,7 +101,7 @@ export class ParticipantView extends Component {
 		return (this.participant.microphoneActive ?? false) ? "microphone" : "microphone-mute";
 	}
 
-	private onStartMediaPlayback(e: CustomEvent) {
+	private onStartMediaPlayback() {
 		if (this.audio) {
 			this.audio.play();
 		}
@@ -163,10 +163,10 @@ export class ParticipantView extends Component {
 		if (tracks.length > 0) {
 			const track = tracks[0];
 
-			track.addEventListener("mute", (e) => {
+			track.addEventListener("mute", () => {
 				this.camActive = false;
 			});
-			track.addEventListener("unmute", (e) => {
+			track.addEventListener("unmute", () => {
 				this.camActive = !track.muted && this.participant.cameraActive;
 			});
 

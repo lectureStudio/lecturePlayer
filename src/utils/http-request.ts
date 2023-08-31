@@ -24,7 +24,7 @@ export class HttpRequest {
 
 	private requestOptions: HttpRequestOptions;
 
-	private onProgress: HttpProgressListener;
+	private onProgress: HttpProgressListener | null;
 
 
 	constructor(options?: HttpRequestOptions) {
@@ -34,6 +34,7 @@ export class HttpRequest {
 			withCredentials: false,
 			timeout: 0
 		};
+		this.onProgress = null;
 	}
 
 	setHttpParams(params: string | URLSearchParams): HttpRequest {
@@ -76,44 +77,44 @@ export class HttpRequest {
 		return this;
 	}
 
-	delete(url: string): Promise<void> {
+	delete(url: string) {
 		return this.request("DELETE", url);
 	}
 
-	get<T>(url: string): Promise<T> {
-		return this.request("GET", url);
+	get<T>(url: string) {
+		return this.request("GET", url) as Promise<T>;
 	}
 
-	head(url: string): Promise<void> {
+	head(url: string) {
 		return this.request("HEAD", url);
 	}
 
-	options(url: string): Promise<void> {
+	options(url: string) {
 		return this.request("OPTIONS", url);
 	}
 
-	patch<T>(url: string, body: any): Promise<T> {
+	patch<T>(url: string, body: T) {
 		return this.request("PATCH", url, body);
 	}
 
-	post<T>(url: string, body?: any): Promise<T> {
-		return this.request("POST", url, body);
+	post<S, T>(url: string, body?: T) {
+		return this.request("POST", url, body) as Promise<S>;
 	}
 
-	put<T>(url: string, body: any): Promise<T> {
+	put<T>(url: string, body: T) {
 		return this.request("PUT", url, body);
 	}
 
-	private request<T>(method: HttpMethod, url: string, body?: any): Promise<T> {
+	private request<T>(method: HttpMethod, url: string, body?: T): Promise<XMLHttpRequestBodyInit | HttpResponse | null> {
 		const request = new XMLHttpRequest();
 		request.open(method, this.composeUrl(url), true);
-		request.responseType = this.requestOptions.responseType;
-		request.timeout = this.requestOptions.timeout;
-		request.withCredentials = this.requestOptions.withCredentials;
+		request.responseType = this.requestOptions.responseType ?? "";
+		request.timeout = this.requestOptions.timeout ?? 0;
+		request.withCredentials = this.requestOptions.withCredentials ?? false;
 
-		this.setHeaders(body, request);
+		this.setHeaders<T>(body, request);
 
-		return new Promise<T>((resolve, reject) => {
+		return new Promise<XMLHttpRequestBodyInit | HttpResponse | null>((resolve, reject) => {
 			const errorHandler = () => {
 				reject(this.getResponse(request));
 			};
@@ -147,12 +148,12 @@ export class HttpRequest {
 				}
 			}
 
-			request.send(this.encodeBody(body));
+			request.send(this.encodeBody<T>(body));
 		});
 	}
 
-	private getResponse<T>(request: XMLHttpRequest): HttpResponse<T> {
-		const response: HttpResponse<T> = {
+	private getResponse(request: XMLHttpRequest): HttpResponse {
+		const response: HttpResponse = {
 			body: this.decodeBody(request),
 			headers: this.getHeaders(request),
 			status: request.status,
@@ -181,7 +182,7 @@ export class HttpRequest {
 		return url;
 	}
 
-	private getContentType(body: any): string {
+	private getContentType<T>(body: T | undefined): string | null {
 		if (body == null) {
 			return null;
 		}
@@ -206,7 +207,7 @@ export class HttpRequest {
 		return null;
 	}
 
-	private encodeBody(body: any): any {
+	private encodeBody<T>(body: T | undefined): XMLHttpRequestBodyInit | string | null {
 		if (body == null) {
 			return null;
 		}
@@ -219,10 +220,10 @@ export class HttpRequest {
 			return JSON.stringify(body);
 		}
 
-		return (body as any).toString();
+		return body.toString();
 	}
 
-	private decodeBody(request: XMLHttpRequest): any {
+	private decodeBody(request: XMLHttpRequest): XMLHttpRequestBodyInit {
 		const contentType = request.getResponseHeader("Content-Type");
 		let body = request.response || null;
 		let responseType: string = request.responseType;
@@ -231,9 +232,9 @@ export class HttpRequest {
 			return request.responseText;
 		}
 		if (!responseType) {
-			responseType = request.getResponseHeader("Content-Type");
+			responseType = request.getResponseHeader("Content-Type") ?? "";
 
-			const match = new RegExp("^\\w+\/(\\w+);?").exec(responseType);
+			const match = new RegExp("^\\w+/(\\w+);?").exec(responseType);
 
 			if (match) {
 				responseType = match[1];
@@ -248,15 +249,15 @@ export class HttpRequest {
 	}
 
 	private setCsrfHeader(request: XMLHttpRequest): void {
-		const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute("content");
-		const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute("content");
+		const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute("content");
+		const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute("content");
 
 		if (csrfToken && csrfHeader) {
 			request.setRequestHeader(csrfHeader, csrfToken);
 		}
 	}
 
-	private setHeaders(body: any, request: XMLHttpRequest): void {
+	private setHeaders<T>(body: T | undefined, request: XMLHttpRequest): void {
 		const headers = this.requestOptions.headers;
 
 		if (headers) {
@@ -272,7 +273,7 @@ export class HttpRequest {
 			}
 		}
 		if (!headers || !headers.has("Content-Type")) {
-			const contentType = this.getContentType(body);
+			const contentType = this.getContentType<T>(body);
 
 			if (contentType) {
 				request.setRequestHeader("Content-Type", contentType);

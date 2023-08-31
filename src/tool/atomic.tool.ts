@@ -12,11 +12,11 @@ export abstract class AtomicTool extends Tool {
 	abstract createAction(): Action;
 
 
-	override execute(point: Point): void {
+	override execute(_point: Point): void {
 		// No action
 	}
 
-	override end(point: Point): void {
+	override end(_point: Point): void {
 		// No action
 	}
 }

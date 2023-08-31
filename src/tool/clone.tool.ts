@@ -24,7 +24,7 @@ export class CloneTool extends Tool {
 			if (this.hitSelected(point)) {
 				const cloned = new Array<Shape>();
 
-				for (let shape of this.selectedShapes) {
+				for (const shape of this.selectedShapes) {
 					const clonedShape = shape.clone();
 
 					cloned.push(clonedShape);
@@ -70,7 +70,7 @@ export class CloneTool extends Tool {
 	private getTopLevelShape(point: PenPoint): Shape {
 		let shape = null;
 
-		for (let s of this.context.page.getShapes()) {
+		for (const s of this.context.page.getShapes()) {
 			if (s.contains(point)) {
 				shape = s;
 			}
@@ -81,7 +81,7 @@ export class CloneTool extends Tool {
 	private getSelectedShapes(): void {
 		this.selectedShapes = new Array<Shape>();
 
-		for (let shape of this.context.page.getShapes()) {
+		for (const shape of this.context.page.getShapes()) {
 			if (shape.isSelected()) {
 				this.selectedShapes.push(shape);
 			}
@@ -95,7 +95,7 @@ export class CloneTool extends Tool {
 
 		this.context.beginBulkRender();
 
-		for (let shape of this.selectedShapes) {
+		for (const shape of this.selectedShapes) {
 			shape.moveByDelta(delta);
 		}
 
@@ -115,7 +115,7 @@ export class CloneTool extends Tool {
 	private removeSelection(): void {
 		this.context.beginBulkRender();
 
-		for (let shape of this.selectedShapes) {
+		for (const shape of this.selectedShapes) {
 			shape.setSelected(false);
 		}
 
@@ -125,7 +125,7 @@ export class CloneTool extends Tool {
 	}
 
 	private hitSelected(point: PenPoint): boolean {
-		for (let shape of this.selectedShapes) {
+		for (const shape of this.selectedShapes) {
 			if (shape.contains(point)) {
 				return true;
 			}

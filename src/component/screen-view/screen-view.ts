@@ -75,10 +75,10 @@ console.log("** has video", has)
 		if (tracks.length > 0) {
 			const track = tracks[0];
 
-			track.addEventListener("mute", (e) => {
+			track.addEventListener("mute", () => {
 				this.setHasVideo(false);
 			});
-			track.addEventListener("unmute", (e) => {
+			track.addEventListener("unmute", () => {
 				this.setHasVideo(!track.muted && this.participant.screenActive);
 			});
 
@@ -93,7 +93,7 @@ console.log("** has video", has)
 			});
 	}
 
-	private onStartMediaPlayback(e: CustomEvent) {
+	private onStartMediaPlayback() {
 		if (this.video) {
 			this.video.play()
 				.then(() => {

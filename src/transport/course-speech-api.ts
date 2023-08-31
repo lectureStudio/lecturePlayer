@@ -5,7 +5,7 @@ export namespace CourseSpeechApi {
 	export function requestSpeech(courseId: number) {
 		return new HttpRequest()
 			.setResponseType("text")
-			.post<string>(`/api/v1/course/speech/${courseId}`);
+			.post<string, void>(`/api/v1/course/speech/${courseId}`);
 	}
 
 	export function cancelSpeech(courseId: number, requestId: string) {

@@ -1,6 +1,10 @@
 declare module '*.css';
 declare module '*.scss';
 
+interface Indexable {
+	[key: string]: unknown;
+}
+
 interface OpenFileOptions {
 
 	extensions?: string[];

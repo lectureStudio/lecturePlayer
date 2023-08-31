@@ -5,31 +5,35 @@ export interface DeviceInfo {
 
 	devices: MediaDeviceInfo[];
 	stream: MediaStream;
-	constraints: any;
+	constraints: MediaStreamConstraints;
 
 }
 
 export class Devices {
 
-	static cameraErrorHandler(error: Error) {
-		if (error.name === "NotAllowedError") {
-			document.dispatchEvent(Utils.createEvent("lect-camera-not-allowed"));
-		}
-		else if (error.name === "NotReadableError") {
-			document.dispatchEvent(Utils.createEvent("lect-camera-not-readable"));
-		}
-		else {
-			console.error("Camera error", error.name, error);
+	static cameraErrorHandler(error: unknown) {
+		if (error instanceof Error) {
+			if (error.name === "NotAllowedError") {
+				document.dispatchEvent(Utils.createEvent("lect-camera-not-allowed"));
+			}
+			else if (error.name === "NotReadableError") {
+				document.dispatchEvent(Utils.createEvent("lect-camera-not-readable"));
+			}
+			else {
+				console.error("Camera error", error.name, error);
+			}
 		}
 	}
 
-	static screenErrorHandler(error: Error) {
-		if (error.name === "NotAllowedError") {
-			// User aborted the dialog or permission not granted.
-			document.dispatchEvent(Utils.createEvent("lect-screen-share-not-allowed"));
-		}
-		else {
-			console.error("Screen error", error.name, error);
+	static screenErrorHandler(error: unknown) {
+		if (error instanceof Error) {
+			if (error.name === "NotAllowedError") {
+				// User aborted the dialog or permission not granted.
+				document.dispatchEvent(Utils.createEvent("lect-screen-share-not-allowed"));
+			}
+			else {
+				console.error("Screen error", error.name, error);
+			}
 		}
 	}
 
@@ -69,7 +73,7 @@ export class Devices {
 	}
 
 	static enumerateAudioDevices(useSettings: boolean): Promise<DeviceInfo> {
-		let constraints: MediaStreamConstraints = {};
+		const constraints: MediaStreamConstraints = {};
 
 		if (useSettings) {
 			const audioSource = deviceStore.microphoneDeviceId;
@@ -88,7 +92,7 @@ export class Devices {
 	}
 
 	static enumerateVideoDevices(): Promise<DeviceInfo> {
-		let constraints: MediaStreamConstraints = {};
+		const constraints: MediaStreamConstraints = {};
 
 		const videoSource = deviceStore.cameraDeviceId;
 
@@ -145,6 +149,10 @@ export class Devices {
 
 	static getAudioLevel(audioTrack: MediaStreamTrack, canvas: HTMLCanvasElement) {
 		const meterContext = canvas.getContext("2d");
+
+		if (meterContext == null) {
+			return;
+		}
 
 		Devices.pollAudioLevel(audioTrack, (level: number) => {
 			meterContext.fillStyle = getComputedStyle(canvas).getPropertyValue("background-color");

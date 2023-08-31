@@ -266,7 +266,7 @@ export class PlayerController extends Controller implements ReactiveController {
 			});
 	}
 
-	private onConnectionError(cause: any) {
+	private onConnectionError(cause: unknown) {
 		console.error(cause);
 
 		this.setConnectionState(State.DISCONNECTED);

@@ -46,8 +46,8 @@ class DeviceStore {
 	}
 
 	private setSpeakerVolumeEnabled() {
-		var is_ios = /iP(ad|od|hone)/i.test(window.navigator.userAgent),
-			is_safari = !!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/),
+		const is_ios = /iP(ad|od|hone)/i.test(window.navigator.userAgent),
+			is_safari = !!navigator.userAgent.match(/Version\/[\d.]+.*Safari/),
 			is_ipad = navigator.userAgent.match(/Mac/) && navigator.maxTouchPoints && navigator.maxTouchPoints > 2;
 
 		return !((is_ios || is_ipad) && is_safari);

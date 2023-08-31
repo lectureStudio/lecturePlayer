@@ -4,7 +4,7 @@ import { PointerShape } from "../model/shape/pointer.shape";
 
 class PointerRenderer implements ShapeRenderer {
 
-	render(context: CanvasRenderingContext2D, shape: PointerShape, dirtyRegion: Rectangle): void {
+	render(context: CanvasRenderingContext2D, shape: PointerShape, _dirtyRegion: Rectangle): void {
 		const point = shape.points[0];
 
 		if (!point) {

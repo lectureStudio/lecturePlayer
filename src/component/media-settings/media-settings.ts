@@ -53,7 +53,7 @@ export abstract class MediaSettings extends Component {
 		});
 	}
 
-	protected setDeviceError(error: any, lock: boolean) {
+	protected setDeviceError(error: Error, lock: boolean) {
 		if (error.name == "NotReadableError") {
 			this.inputBlocked = true;
 		}

@@ -17,6 +17,10 @@ export namespace RecordedPageParser {
 		while (dataView.byteOffset < bufferLength) {
 			const entryLength = dataView.getInt32();
 
+			if (entryLength < 0) {
+				console.error("Invalid page to parse");
+			}
+
 			const recordedPage = RecordedPageParser.parse(dataView);
 
 			if (recordedPage) {

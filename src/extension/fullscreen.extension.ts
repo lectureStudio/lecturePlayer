@@ -35,21 +35,21 @@ const ms = [
 ];
 
 const spec = Object.keys(specKeys);
-let vendor: string[] = null;
+let vendor: string[] | null = null;
 
-for (let v of [spec, webkit, moz, ms]) {
+for (const v of [spec, webkit, moz, ms]) {
 	if (v[specKeys.fullscreenEnabled] in document) {
 		vendor = v;
 		break;
 	}
 }
 
-if (vendor) {
-	let proto: any = Element.prototype;
-	proto.requestFullscreen = proto[vendor[specKeys.requestFullscreen]];
+if (vendor != null) {
+	let proto: Element | Document = Element.prototype;
+	proto.requestFullscreen = (proto as unknown as Indexable)[vendor[specKeys.requestFullscreen]] as (options?: FullscreenOptions) => Promise<void>;
 
 	proto = Document.prototype;
-	proto.exitFullscreen = proto[vendor[specKeys.exitFullscreen]];
+	proto.exitFullscreen = (proto as unknown as Indexable)[vendor[specKeys.exitFullscreen]] as (() => Promise<void>);
 
 	const fullscreenElement = spec[specKeys.fullscreenElement];
 	const fullscreenEnabled = spec[specKeys.fullscreenEnabled];
@@ -57,19 +57,19 @@ if (vendor) {
 	if (!(fullscreenElement in document)) {
 		Object.defineProperty(document, fullscreenElement, {
 			get: function () {
-				return (document as any)[vendor[specKeys.fullscreenElement]];
+				return (document as unknown as Indexable)[vendor[specKeys.fullscreenElement]];
 			}
 		});
 		Object.defineProperty(document, fullscreenEnabled, {
 			get: function () {
-				return (document as any)[vendor[specKeys.fullscreenEnabled]];
+				return (document as unknown as Indexable)[vendor[specKeys.fullscreenEnabled]];
 			}
 		});
 	}
 
 	if (spec !== vendor) {
 		const proxyListener = (event: Event) => {
-			let actionType = event.type.replace(/^(webkit|moz|MS)/, '').toLowerCase();
+			const actionType = event.type.replace(/^(webkit|moz|MS)/, '').toLowerCase();
 			let newEvent;
 
 			if (typeof (Event) === 'function') {
@@ -80,7 +80,7 @@ if (vendor) {
 				newEvent.initEvent(actionType, event.bubbles, event.cancelable);
 			}
 
-			event.target.dispatchEvent(newEvent);
+			event.target?.dispatchEvent(newEvent);
 		};
 
 		document.addEventListener(vendor[specKeys.fullscreenchange], proxyListener);

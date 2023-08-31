@@ -1,12 +1,12 @@
 import { Janus, JSEP, PluginHandle } from "janus-gateway";
-import { JanusParticipant, JanusStreamType } from "./janus-participant";
+import { JanusMessage, JanusParticipant, JanusStreamDescription, JanusStreamType } from "./janus-participant";
 import { Utils } from "../utils/utils";
 import { State } from "../utils/state";
 import { participantStore } from "../store/participants.store";
 
 export class JanusSubscriber extends JanusParticipant {
 
-	private readonly publisherId: any;
+	private readonly publisherId: bigint;
 
 	private readonly publisherUserId: string;
 
@@ -15,7 +15,7 @@ export class JanusSubscriber extends JanusParticipant {
 	private readonly opaqueId: string;
 
 
-	constructor(janus: Janus, publisherId: any, publisherUserId: string, roomId: number, opaqueId: string) {
+	constructor(janus: Janus, publisherId: bigint, publisherUserId: string, roomId: number, opaqueId: string) {
 		super(janus);
 
 		this.publisherId = publisherId;
@@ -32,12 +32,12 @@ export class JanusSubscriber extends JanusParticipant {
 		return this.publisherUserId;
 	}
 
-	updateStreams(streams: any[]) {
+	updateStreams(streams: JanusStreamDescription[]) {
 		if (!streams) {
 			return;
 		}
 
-		for (let stream of streams) {
+		for (const stream of streams) {
 			if (!this.getStreamTypeForMid(stream.mid)) {
 				// Not subscribed to this stream yet.
 				this.subscribeStream(stream);
@@ -47,6 +47,11 @@ export class JanusSubscriber extends JanusParticipant {
 
 	setReceiveCameraFeed(receive: boolean) {
 		const mid = this.streamMids.get("video");
+
+		if (!mid) {
+			console.error("Stream mid not found");
+			return;
+		}
 
 		if (receive) {
 			this.subscribeStream({ mid: mid });
@@ -94,8 +99,8 @@ export class JanusSubscriber extends JanusParticipant {
 		this.handle.send({ message: subscribe });
 	}
 
-	private onMessage(message: any, jsep?: JSEP) {
-		// console.log("message sub", message);
+	private onMessage(message: JanusMessage, jsep?: JSEP) {
+		console.log("message sub", message);
 
 		const event = message["videoroom"];
 
@@ -135,7 +140,7 @@ export class JanusSubscriber extends JanusParticipant {
 		}
 	}
 
-	private setStreamIds(streams: any) {
+	private setStreamIds(streams: JanusStreamDescription[] | undefined) {
 		if (streams) {
 			for (const stream of streams) {
 				this.setStream(stream);
@@ -181,13 +186,13 @@ export class JanusSubscriber extends JanusParticipant {
 
 				this.handle.send({ message: body, jsep: jsep });
 			},
-			error: (error: any) => {
+			error: (error: unknown) => {
 				this.onError(error);
 			}
 		});
 	}
 
-	private subscribeStream(stream: any) {
+	private subscribeStream(stream: JanusStreamDescription) {
 		// console.log("subscribe to stream", stream);
 
 		const message = {
@@ -203,7 +208,7 @@ export class JanusSubscriber extends JanusParticipant {
 		this.handle.send({ message: message });
 	}
 
-	private unsubscribeStream(stream: any) {
+	private unsubscribeStream(stream: JanusStreamDescription) {
 		// console.log("unsubscribe from stream", stream);
 
 		const message = {

@@ -4,7 +4,7 @@ import { RectangleShape } from "../model/shape/rectangle.shape";
 
 class RectangleRenderer implements ShapeRenderer {
 
-	render(context: CanvasRenderingContext2D, shape: RectangleShape, dirtyRegion: Rectangle): void {
+	render(context: CanvasRenderingContext2D, shape: RectangleShape, _dirtyRegion: Rectangle): void {
 		const bounds = shape.bounds;
 
 		if (bounds.isEmpty()) {
@@ -47,7 +47,7 @@ class RectangleRenderer implements ShapeRenderer {
 			context.beginPath();
 			context.strokeStyle = "rgb(255, 0, 100)";
 			context.lineWidth = brush.width;
-			context.setLineDash([5 / context.getTransformExt().getScaleX()]);
+			context.setLineDash([5 / context.getTransform().a]);
 			context.rect(x, y, w, h);
 			context.stroke();
 		}

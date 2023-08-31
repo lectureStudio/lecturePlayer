@@ -1,4 +1,4 @@
-import { Janus, JanusRoomParticipant, PluginHandle } from "janus-gateway";
+import { Janus, JanusRoomParticipant, JanusStreamDescription, PluginHandle } from "janus-gateway";
 import { Devices } from "../utils/devices";
 import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
@@ -74,7 +74,7 @@ export abstract class JanusParticipant extends EventTarget {
 	}
 
 	protected connected(): void {
-		this.handle.webrtcStuff.pc.addEventListener("connectionstatechange", (event) => {
+		this.handle.webrtcStuff.pc.addEventListener("connectionstatechange", (_event) => {
 			const peerConnection = this.handle.webrtcStuff.pc;
 
 			if (!peerConnection) {
@@ -92,13 +92,13 @@ export abstract class JanusParticipant extends EventTarget {
 						participant: this
 					}));
 					break;
-	
+
 				case "disconnected":
 					this.dispatchEvent(Utils.createEvent("janus-participant-connection-disconnected", {
 						participant: this
 					}));
 					break;
-	
+
 				case "failed":
 					// We cannot recover from a failed connection state.
 					this.disconnect();
@@ -140,7 +140,7 @@ export abstract class JanusParticipant extends EventTarget {
 		}
 	}
 
-	protected onError(cause: any) {
+	protected onError(cause: unknown) {
 		Janus.error("WebRTC error: ", cause);
 
 		this.dispatchEvent(Utils.createEvent("janus-participant-error", {
@@ -174,7 +174,7 @@ export abstract class JanusParticipant extends EventTarget {
 		Janus.log("ICE state changed to " + state);
 	}
 
-	protected onMediaState(medium: 'audio' | 'video', receiving: boolean, mid?: number) {
+	protected onMediaState(medium: 'audio' | 'video', receiving: boolean) {
 		Janus.log("Janus " + (receiving ? "started" : "stopped") + " receiving our " + medium);
 	}
 
@@ -199,12 +199,16 @@ export abstract class JanusParticipant extends EventTarget {
 		}));
 	}
 
-	protected setStream(stream: any) {
+	protected setStream(stream: JanusStreamDescription) {
 		const type = this.getStreamTypeForMid(stream.mid);
 
 		// Do not add stream types with same 'mid', e.g. type 'screen' becomes type 'video' when deactivated.
 		if (!type) {
-			this.streamMids.set(this.getStreamTypeForStream(stream), stream.mid);
+			const streamType = this.getStreamTypeForStream(stream);
+
+			if (streamType) {
+				this.streamMids.set(streamType, stream.mid);
+			}
 		}
 	}
 
@@ -221,8 +225,8 @@ export abstract class JanusParticipant extends EventTarget {
 		return null;
 	}
 
-	protected getStreamTypeForStream(stream: any) {
-		const type: string = stream.type;
+	protected getStreamTypeForStream(stream: JanusStreamDescription) {
+		const type = stream.type;
 
 		if (type === JanusStreamType.audio || type === JanusStreamType.data) {
 			return type;
@@ -230,7 +234,7 @@ export abstract class JanusParticipant extends EventTarget {
 		else if (type === JanusStreamType.video) {
 			// This may be ambiguous, since camera and screen-share are videos.
 			// Check the description (publishers), feed_description (subscribers).
-			const description: string = stream.description ? stream.description : stream.feed_description;
+			const description = stream.description ? stream.description : stream.feed_description;
 
 			if (description && description.includes(JanusStreamType.screen)) {
 				return JanusStreamType.screen;

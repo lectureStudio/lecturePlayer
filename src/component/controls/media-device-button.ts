@@ -173,7 +173,7 @@ export class MediaDeviceButton extends I18nLitElement {
 			return;
 		}
 
-		for (let item of this.menu.getAllItems()) {
+		for (const item of this.menu.getAllItems()) {
 			// Uncheck all items, except the selected one.
 			const dev: MediaDeviceInfo = this.devices.get(item.value);
 

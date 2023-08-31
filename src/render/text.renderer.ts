@@ -5,7 +5,7 @@ import { Font } from "../paint/font";
 
 class TextRenderer implements ShapeRenderer {
 
-	render(context: CanvasRenderingContext2D, shape: TextShape, dirtyRegion: Rectangle): void {
+	render(context: CanvasRenderingContext2D, shape: TextShape, _dirtyRegion: Rectangle): void {
 		const text = shape.getText();
 
 		if (!text || text.length === 0) {
@@ -18,8 +18,8 @@ class TextRenderer implements ShapeRenderer {
 		const underline = shape.isUnderline();
 		const strikethrough = shape.isStrikethrough();
 
-		const transform = context.getTransformExt();
-		const scale = transform.getScaleX();
+		const transform = context.getTransform();
+		const scale = transform.a;
 
 		/*
 		 * Render with identity transform and scaled font, since normalized
@@ -27,8 +27,8 @@ class TextRenderer implements ShapeRenderer {
 		 * misplaced and missized.
 		 */
 		const scaledHeight = font.size * scale;
-		const x = transform.getTranslateX() + bounds.x * scale;
-		const y = transform.getTranslateY() + bounds.y * scale;
+		const x = transform.e + bounds.x * scale;
+		const y = transform.f + bounds.y * scale;
 
 		const scaledFont = new Font(font.family, scaledHeight, font.style, font.weight);
 
@@ -48,7 +48,7 @@ class TextRenderer implements ShapeRenderer {
 			y += metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
 		}
 
-		for (var i = 0; i < lines.length; ++i) {
+		for (let i = 0; i < lines.length; ++i) {
 			context.fillText(lines[i], x, y);
 
 			if (underline || strikethrough) {

@@ -5,7 +5,7 @@ import { Rectangle } from "../geometry/rectangle";
 
 class HighlighterRenderer implements ShapeRenderer {
 
-	render(context: CanvasRenderingContext2D, shape: StrokeShape, dirtyRegion: Rectangle): void {
+	render(context: CanvasRenderingContext2D, shape: StrokeShape, _dirtyRegion: Rectangle): void {
 		const points = shape.points;
 		const pointCount = points.length;
 

@@ -6,7 +6,7 @@ class FormShape extends StrokeShape {
 
 	setP0(point: PenPoint): boolean {
 		if (this.points.length > 0) {
-			let prev = this.points[0];
+			const prev = this.points[0];
 
 			if (point.equals(prev)) {
 				return false;
@@ -23,7 +23,7 @@ class FormShape extends StrokeShape {
 
 	setP1(point: PenPoint): boolean {
 		if (this.points.length > 1) {
-			let prev = this.points[1];
+			const prev = this.points[1];
 
 			if (point.equals(prev)) {
 				return false;

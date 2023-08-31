@@ -23,7 +23,7 @@ export class TextMoveTool extends AtomicTool {
 	begin(point: Point, context: ToolContext): void {
 		const shapes = context.page.getShapes();
 
-		for (let shape of shapes) {
+		for (const shape of shapes) {
 			if (shape instanceof TypesettingShape && shape.handle === this.handle) {
 				context.beginBulkRender();
 				shape.setLocation(this.point);

@@ -127,12 +127,12 @@ export class PlayerFeatureView extends Component {
 		});
 
 		// Register and observe horizontal swipe events.
-		this.tabGroup.addEventListener("swiped-left", (e: CustomEvent) => {
+		this.tabGroup.addEventListener("swiped-left", () => {
 			const tabs = this.tabGroup.querySelectorAll("sl-tab");
 
 			this.selectTabSibling(tabs, -1);
 		});
-		this.tabGroup.addEventListener("swiped-right", (e: CustomEvent) => {
+		this.tabGroup.addEventListener("swiped-right", () => {
 			const tabs = this.tabGroup.querySelectorAll("sl-tab");
 
 			this.selectTabSibling(tabs, 1);

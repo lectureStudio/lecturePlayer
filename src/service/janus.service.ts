@@ -209,7 +209,7 @@ export class JanusService extends EventTarget {
 		}
 	}
 
-	private createSession(resolve: () => void, reject: (reason?: any) => void) {
+	private createSession(resolve: () => void, reject: (reason?: unknown) => void) {
 		this.janus = new Janus({
 			server: this.serverUrl,
 			destroyOnUnload: true,
@@ -225,7 +225,7 @@ export class JanusService extends EventTarget {
 		});
 	}
 
-	private attach(resolve: () => void, reject: (reason?: any) => void) {
+	private attach(resolve: () => void, reject: (reason?: unknown) => void) {
 		this.janus.attach({
 			plugin: "janus.plugin.videoroom",
 			opaqueId: this.opaqueId,
@@ -260,13 +260,13 @@ export class JanusService extends EventTarget {
 
 		pluginHandle.send({
 			message: list,
-			success: (res: any) => {
+			success: (res: unknown) => {
 				const canJoin = res.participants && res.participants.length > 0;
 
 				if (canJoin) {
 					// console.log("publishers", res.participants);
 
-					for (let i in res.participants) {
+					for (const i in res.participants) {
 						const publisher: JanusRoomParticipant = res.participants[i];
 
 						if (publisher.publisher) {
@@ -286,7 +286,7 @@ export class JanusService extends EventTarget {
 	private onPublisherError(event: CustomEvent) {
 		console.error(event.detail.error);
 
-		const publisher: JanusPublisher = event.detail.participant;
+		// const publisher: JanusPublisher = event.detail.participant;
 	}
 
 	private onPublisherState(event: CustomEvent) {
@@ -330,20 +330,20 @@ export class JanusService extends EventTarget {
 		subscriber.connect();
 	}
 
-	private onParticipantConnectionConnected(event: CustomEvent) {
-		const subscriber: JanusSubscriber = event.detail.participant;
+	private onParticipantConnectionConnected(_event: CustomEvent) {
+		// const subscriber: JanusSubscriber = event.detail.participant;
 
 		this.dispatchEvent(Utils.createEvent("janus-connection-established"));
 	}
 
-	private onParticipantConnectionDisconnected(event: CustomEvent) {
-		const subscriber: JanusSubscriber = event.detail.participant;
+	private onParticipantConnectionDisconnected(_event: CustomEvent) {
+		// const subscriber: JanusSubscriber = event.detail.participant;
 
 		this.dispatchEvent(Utils.createEvent("janus-connection-failure"));
 	}
 
-	private onParticipantConnectionFailure(event: CustomEvent) {
-		const subscriber: JanusSubscriber = event.detail.participant;
+	private onParticipantConnectionFailure(_event: CustomEvent) {
+		// const subscriber: JanusSubscriber = event.detail.participant;
 
 		this.dispatchEvent(Utils.createEvent("janus-connection-failure"));
 	}
@@ -351,7 +351,7 @@ export class JanusService extends EventTarget {
 	private onSubscriberError(event: CustomEvent) {
 		console.error(event.detail.error);
 
-		const subscriber: JanusSubscriber = event.detail.participant;
+		// const subscriber: JanusSubscriber = event.detail.participant;
 
 		this.stopSpeech();
 	}
@@ -378,7 +378,7 @@ export class JanusService extends EventTarget {
 	}
 
 	private onSubscriberData(event: CustomEvent) {
-		const subscriber: JanusSubscriber = event.detail.participant;
+		// const subscriber: JanusSubscriber = event.detail.participant;
 
 		this.eventEmitter.dispatchEvent(new CustomEvent("action-data", {
 			detail: event.detail.data

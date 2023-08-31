@@ -66,7 +66,7 @@ export class SoundSettings extends MediaSettings {
 		}
 	}
 
-	protected override updateModel(result: DeviceInfo, cameraBlocked: boolean) {
+	protected override updateModel(result: DeviceInfo, _cameraBlocked: boolean) {
 		const devices = result.devices;
 
 		Devices.stopMediaTracks(<MediaStream> this.audio.srcObject);

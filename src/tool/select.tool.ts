@@ -60,7 +60,7 @@ export class SelectTool extends Tool {
 	getTopLevelShape(point: PenPoint) {
 		let shape = null;
 
-		for (let s of this.context.page.getShapes()) {
+		for (const s of this.context.page.getShapes()) {
 			if (s.contains(point)) {
 				shape = s;
 			}
@@ -71,7 +71,7 @@ export class SelectTool extends Tool {
 	removeSelection(): void {
 		this.context.beginBulkRender();
 
-		for (let shape of this.context.page.getShapes()) {
+		for (const shape of this.context.page.getShapes()) {
 			if (shape.isSelected()) {
 				shape.setSelected(false);
 			}

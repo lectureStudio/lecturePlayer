@@ -7,7 +7,7 @@ export class PointerShape extends StrokeShape {
 	addPoint(point: PenPoint): boolean {
 		// Keep only one point at a time.
 		if (this.points.length > 0) {
-			let prev = this.points[0];
+			const prev = this.points[0];
 
 			if (point.equals(prev)) {
 				return false;

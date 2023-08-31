@@ -3,6 +3,7 @@ import i18next, { t } from 'i18next';
 
 import commonStyles from '../styles/styles.scss';
 
+/*eslint @typescript-eslint/no-explicit-any: ["error", { "ignoreRestArgs": true }]*/
 type Constructor<T = {}> = new (...args: any[]) => T;
 
 export const I18nMixin = <T extends Constructor<LitElement>>(superClass: T) => {
@@ -21,12 +22,12 @@ export const I18nMixin = <T extends Constructor<LitElement>>(superClass: T) => {
 		}
 
 		private initializeI18N() {
-			i18next.on("languageChanged", options => {
+			i18next.on("languageChanged", (_options) => {
 				this.requestUpdate()
 			});
 		}
 
-	};
+	}
 
 	// Cast return type to the superClass type passed in.
 	return I18nMixinClass as T;

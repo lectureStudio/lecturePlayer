@@ -1,19 +1,19 @@
 declare module "janus-gateway" {
 
 	interface Dependencies {
-		adapter: any;
+		adapter: unknown;
 		WebSocket: (server: string, protocol: string) => WebSocket;
-		isArray: (array: any) => array is Array<any>;
+		isArray: (array: unknown) => array is Array<unknown>;
 		extension: () => boolean;
-		httpAPICall: (url: string, options: any) => void;
+		httpAPICall: (url: string, options: unknown) => void;
 	}
 
 	interface DependenciesResult {
-		adapter: any;
+		adapter: unknown;
 		newWebSocket: (server: string, protocol: string) => WebSocket;
-		isArray: (array: any) => array is Array<any>;
+		isArray: (array: unknown) => array is Array<unknown>;
 		extension: () => boolean;
-		httpAPICall: (url: string, options: any) => void;
+		httpAPICall: (url: string, options: unknown) => void;
 	}
 
 	enum DebugLevel {
@@ -48,7 +48,7 @@ declare module "janus-gateway" {
 		token?: string;
 		apisecret?: string;
 		success?: Function;
-		error?: (error: any) => void;
+		error?: (error: unknown) => void;
 		destroyed?: Function;
 	}
 
@@ -66,7 +66,7 @@ declare module "janus-gateway" {
 	}
 
 	interface GetInfoOptions {
-		success?: (info: any) => void;
+		success?: (info: unknown) => void;
 		error?: (error: string) => void;
 	}
 
@@ -87,7 +87,40 @@ declare module "janus-gateway" {
 			uplink?: number;
 		};
 		error?: string;
-		[key: string]: any;
+		[key: string]: unknown;
+	}
+
+	export interface JanusStreamDescription {
+
+		active?: boolean;
+		codec?: string;
+		description?: string;
+		feed_description?: string;
+		feed_display?: string;
+		feed_id?: bigint;
+		feed_mid?: string;
+		mid: string;
+		mindex?: number;
+		ready?: boolean;
+		send?: boolean;
+		type?: "audio" | "video" | "data";
+
+	}
+
+	export interface JanusMessage {
+
+		videoroom?: "created" | "joined" | "event" | "edited" | "destroyed" | "success" | "participants" | "talking" | "stopped-talking" | "rtp_forward" | "stop_rtp_forward" | "forwarders" | "attached" | "updated";
+		room?: number;
+		id?: bigint;
+		publishers?: JanusRoomParticipant[];
+		streams?: JanusStreamDescription[];
+		started?: string;
+		unpublished?: "ok" | bigint;
+		leaving?: "ok" | bigint;
+		configured?: "ok";
+		error?: string;
+
+		[key: string]: unknown;
 	}
 
 	interface PluginCallbacks {
@@ -116,7 +149,7 @@ declare module "janus-gateway" {
 	interface OfferTrackParams {
 		type: "audio" | "video" | "screen" | "data";
 		mid?: string;
-		capture?: boolean | any;
+		capture?: boolean | unknown;
 		simulcast?: boolean;
 		recv?: boolean;
 		add?: boolean;
@@ -132,7 +165,7 @@ declare module "janus-gateway" {
 	interface ReplaceTrackParams {
 		tracks: Array<OfferTrackParams>,
 		success?: Function;
-		error: (error: any) => void;
+		error: (error: unknown) => void;
 	}
 
 	interface OfferParams {
@@ -144,18 +177,18 @@ declare module "janus-gateway" {
 			videoRecv?: boolean;
 			audio?: boolean | { deviceId: string };
 			video?:
-				| boolean
-				| {
-					deviceId: string,
-					width?: number,
-					height?: number,
-				  }
-				| 'lowres'
-				| 'lowres-16:9'
-				| 'stdres'
-				| 'stdres-16:9'
-				| 'hires'
-				| 'hires-16:9';
+			| boolean
+			| {
+				deviceId: string,
+				width?: number,
+				height?: number,
+			}
+			| 'lowres'
+			| 'lowres-16:9'
+			| 'stdres'
+			| 'stdres-16:9'
+			| 'hires'
+			| 'hires-16:9';
 			data?: boolean;
 			failIfNoAudio?: boolean;
 			failIfNoVideo?: boolean;
@@ -164,17 +197,41 @@ declare module "janus-gateway" {
 		trickle?: boolean;
 		stream?: MediaStream;
 		success: Function;
-		error: (error: any) => void;
+		error: (error: unknown) => void;
 	}
 
 	interface PluginMessage {
-		message: {
-			request: string;
-			[otherProps: string]: any;
-		};
+		message: PluginRequest;
 		jsep?: JSEP;
-		success?: (data?: any) => void;
+		success?: (data?: unknown) => void;
 		error?: (error: string) => void;
+	}
+
+	interface PluginRequest {
+		request: string;
+		[otherProps: string]: unknown;
+	}
+
+	interface VideoRoomConfigureRequest extends PluginRequest {
+		request: "configure";
+		bitrate?: number;
+		keyframe?: boolean;
+		record?: boolean;
+		filename?: string;
+		display?: string;
+		audio_active_packets?: number;
+		audio_level_average?: number;
+		streams?: {
+			mid: string;
+			keyframe?: boolean;
+			send?: boolean;
+			min_delay?: number;
+			max_delay?: number;
+		}[];
+		descriptions?: {
+			mid: string;
+			description: string;
+		}[];
 	}
 
 	interface WebRTCInfo {
@@ -191,7 +248,7 @@ declare module "janus-gateway" {
 
 		dtmfSender: string | null;
 		iceDone: boolean;
-		mediaConstraints: any;
+		mediaConstraints: unknown;
 		mySdp: {
 			sdp: string;
 			type: string;
@@ -231,11 +288,11 @@ declare module "janus-gateway" {
 		getPlugin(): string;
 		send(message: PluginMessage): void;
 		createOffer(params: OfferParams): void;
-		createAnswer(params: any): void;
+		createAnswer(params: unknown): void;
 		replaceTracks(params: ReplaceTrackParams): void;
 		handleRemoteJsep(params: { jsep: JSEP }): void;
-		dtmf(params: any): void;
-		data(params: any): void;
+		dtmf(params: unknown): void;
+		data(params: unknown): void;
 		isAudioMuted(): boolean;
 		muteAudio(): void;
 		unmuteAudio(): void;
@@ -249,25 +306,25 @@ declare module "janus-gateway" {
 
 	interface JanusRoomParticipant {
 		display?: string;
-		id?: number;
+		id?: bigint;
 		publisher?: boolean;
 		talking?: boolean;
 		audio_codec?: string;
 		video_codec?: string;
-		streams?: any[];
+		streams?: unknown[];
 	}
 
 	class Janus {
-		static webRTCAdapter: any;
+		static webRTCAdapter: unknown;
 		static safariVp8: boolean;
 		static useDefaultDependencies(deps: Partial<Dependencies>): DependenciesResult;
 		static useOldDependencies(deps: Partial<Dependencies>): DependenciesResult;
 		static init(options: InitOptions): void;
 		static isWebrtcSupported(): boolean;
-		static debug(...args: any[]): void;
-		static log(...args: any[]): void;
-		static warn(...args: any[]): void;
-		static error(...args: any[]): void;
+		static debug(...args: unknown[]): void;
+		static log(...args: unknown[]): void;
+		static warn(...args: unknown[]): void;
+		static error(...args: unknown[]): void;
 		static randomString(length: number): string;
 		static attachMediaStream(element: HTMLMediaElement, stream: MediaStream): void;
 		static reattachMediaStream(to: HTMLMediaElement, from: HTMLMediaElement): void;

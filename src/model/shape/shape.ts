@@ -34,7 +34,7 @@ abstract class Shape {
 
 	addPoint(point: PenPoint): boolean {
 		const count = this._points.length;
-		let last = null;
+		let last: PenPoint;
 
 		if (count > 0) {
 			last = this._points[count - 1];
@@ -87,7 +87,7 @@ abstract class Shape {
 	}
 
 	moveByDelta(delta: Point): void {
-		for (let point of this._points) {
+		for (const point of this._points) {
 			point.subtract(delta);
 		}
 

@@ -26,7 +26,7 @@ export class TextTool extends Tool {
 		super.begin(point, context);
 	}
 
-	execute(point: PenPoint): void {
+	execute(_point: PenPoint): void {
 		// No-op
 	}
 

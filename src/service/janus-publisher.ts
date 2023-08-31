@@ -1,4 +1,4 @@
-import { Janus, JanusRoomParticipant, JSEP, PluginHandle } from "janus-gateway";
+import { Janus, JanusMessage, JanusRoomParticipant, JSEP, PluginHandle, VideoRoomConfigureRequest } from "janus-gateway";
 import { MediaType } from "../model/media-type";
 import { Devices } from "../utils/devices";
 import { State } from "../utils/state";
@@ -77,7 +77,7 @@ export class JanusPublisher extends JanusParticipant {
 
 		this.handle.data({
 			data: data,
-			error: function (error: any) { console.error(error) }
+			error: function (error: unknown) { console.error(error) }
 		});
 	}
 
@@ -102,17 +102,17 @@ export class JanusPublisher extends JanusParticipant {
 		}
 	}
 
-	private onMessage(message: any, jsep?: JSEP) {
+	private onMessage(message: JanusMessage, jsep?: JSEP) {
 		// console.log("message pub", message);
 
-		const event = message["videoroom"];
+		const event = message.videoroom;
 
-		if (message["error"]) {
-			Janus.error(message["error"]);
+		if (message.error) {
+			Janus.error(message.error);
 			return;
 		}
-		if (message["unpublished"]) {
-			const unpublished = message["unpublished"];
+		if (message.unpublished) {
+			const unpublished = message.unpublished;
 
 			if (unpublished === "ok") {
 				// That's us.
@@ -123,8 +123,8 @@ export class JanusPublisher extends JanusParticipant {
 		}
 
 		if (event) {
-			if (event === "joined") {
-				this.publisherId = BigInt(message["id"]);
+			if (event === "joined" && message.id) {
+				this.publisherId = BigInt(message.id);
 
 				this.createOffer();
 				this.setState(State.CONNECTING);
@@ -136,7 +136,7 @@ export class JanusPublisher extends JanusParticipant {
 				const leaving = message.leaving;
 
 				if (publishers) {
-					for (let publisher of publishers) {
+					for (const publisher of publishers) {
 						const found = this.publishers.find(p => p.id === publisher.id);
 
 						if (!found) {
@@ -150,7 +150,7 @@ export class JanusPublisher extends JanusParticipant {
 				if (leaving) {
 					// 'leaving' is here the unique identifier of the publisher who left.
 					const publisher: JanusRoomParticipant = {
-						id: leaving
+						id: leaving as bigint
 					};
 
 					this.dispatchEvent(Utils.createEvent("janus-participant-left", publisher));
@@ -159,8 +159,10 @@ export class JanusPublisher extends JanusParticipant {
 
 				if (configured === "ok") {
 					// Map stream types to their mid.
-					for (let stream of message.streams) {
-						this.setStream(stream);
+					if (message.streams) {
+						for (const stream of message.streams) {
+							this.setStream(stream);
+						}
 					}
 
 					// console.log("pub streamMids", this.streamMids);
@@ -185,8 +187,8 @@ export class JanusPublisher extends JanusParticipant {
 
 			// Check if any of the media we wanted to publish has
 			// been rejected (e.g., wrong or unsupported codec)
-			const audio = message["audio_codec"];
-			const video = message["video_codec"];
+			// const audio = message["audio_codec"];
+			// const video = message["video_codec"];
 		}
 	}
 
@@ -232,7 +234,7 @@ export class JanusPublisher extends JanusParticipant {
 		const kind = deviceSetting.kind;
 		const type = kind === "audioinput" ? JanusStreamType.audio : (kind === "videoinput" ? JanusStreamType.video : null);
 
-		if (!type) {
+		if (type == null) {
 			// Neither camera nor microfone, speaker probably. Nothing to do for publisher in this case.
 			return;
 		}
@@ -302,13 +304,13 @@ export class JanusPublisher extends JanusParticipant {
 					this.handle.muteAudio();
 				}
 
-				var publish = {
+				const publish = {
 					request: "configure"
 				};
 
 				this.handle.send({ message: publish, jsep: jsep });
 			},
-			error: (error: any) => {
+			error: (error: unknown) => {
 				Janus.error("WebRTC error:", error);
 				console.log("error  " + error);
 				this.onError(error);
@@ -422,7 +424,7 @@ export class JanusPublisher extends JanusParticipant {
 		}
 	}
 
-	private addNewTrack(type: JanusStreamType, captureSettings: boolean | MediaTrackConstraints, onError: (error: any) => void) {
+	private addNewTrack(type: JanusStreamType, captureSettings: boolean | MediaTrackConstraints, onError: (error: unknown) => void) {
 		return new Promise<void>(resolve => {
 			this.handle.createOffer({
 				tracks: [
@@ -434,15 +436,18 @@ export class JanusPublisher extends JanusParticipant {
 				],
 				success: (jsep: JSEP) => {
 					// Got new SDP, send it to the gateway.
-					const configure: any = {
+					const configure: VideoRoomConfigureRequest = {
 						request: "configure"
 					};
 
 					// Find the new 'mid' of the newly added track.
 					const mids = [...this.streamMids.values()];
 
-					for (let transceiver of this.handle.webrtcStuff.pc.getTransceivers()) {
+					for (const transceiver of this.handle.webrtcStuff.pc.getTransceivers()) {
 						if (!mids.find(mid => mid === transceiver.mid)) {
+							if (!transceiver.mid) {
+								continue;
+							}
 							// Found new 'mid', attach description to it, so subscribers know what to do with it,
 							// e.g. where to display the track.
 							if (type === JanusStreamType.screen) {
@@ -460,7 +465,7 @@ export class JanusPublisher extends JanusParticipant {
 					this.handle.send({
 						message: configure,
 						jsep: jsep,
-						success: resolve,
+						success: () => resolve(),
 						error: onError
 					});
 				},
@@ -469,11 +474,11 @@ export class JanusPublisher extends JanusParticipant {
 		});
 	}
 
-	private replaceTrack(type: JanusStreamType, captureSettings: boolean | MediaTrackConstraints, onError: (error: any) => void) {
+	private replaceTrack(type: JanusStreamType, captureSettings: boolean | MediaTrackConstraints, onError: (error: unknown) => void) {
 		// Before we replace the track, we stop and remove the active track.
 		const mid = this.getStreamMid(type);
 
-		for (let transceiver of this.handle.webrtcStuff.pc.getTransceivers()) {
+		for (const transceiver of this.handle.webrtcStuff.pc.getTransceivers()) {
 			if (transceiver.mid === mid) {
 				this.removeSenderTrack(transceiver);
 				break;
@@ -493,12 +498,17 @@ export class JanusPublisher extends JanusParticipant {
 	}
 
 	private async replaceSenderTrack(transceiver: RTCRtpTransceiver) {
+		if (!transceiver.mid) {
+			return;
+		}
+
 		// Find the Janus track type.
 		const type = this.getStreamTypeForMid(transceiver.mid);
 		let track;
 
 		if (!type) {
 			console.error("No track to replace for mid", transceiver.mid);
+			return;
 		}
 		else if (type === JanusStreamType.video) {
 			// Query video device to get a new video stream.
@@ -512,14 +522,18 @@ export class JanusPublisher extends JanusParticipant {
 
 			// Listen to the 'end screen-share' browser button event.
 			track.onended = () => {
-				this.muteTrack(this.getStreamMid(type), false, MediaType.Screen, (error) => {
-					console.error("Mute screen failed", error);
-				});
+				const mid = this.getStreamMid(type);
+				if (mid) {
+					this.muteTrack(mid, false, MediaType.Screen, (error) => {
+						console.error("Mute screen failed", error);
+					});
+				}
 			}
 		}
 
 		if (!track) {
 			console.error("No track to replace, track is null");
+			return;
 		}
 
 		const trackId = this.getTrackId(track);
@@ -532,20 +546,24 @@ export class JanusPublisher extends JanusParticipant {
 	}
 
 	private removeSenderTrack(transceiver: RTCRtpTransceiver) {
-		const track = transceiver.sender.track;
-		const trackId = this.getTrackId(track);
-
-		// Stopping the video track will turn off the active device.
-		track.stop();
 		// Remove the current video track since we are not sending anything as of now.
 		transceiver.sender.replaceTrack(null);
 
-		// Notification of track removal.
-		this.removeTrack(trackId, track.kind);
+		const track = transceiver.sender.track;
+
+		if (track) {
+			const trackId = this.getTrackId(track);
+
+			// Stopping the video track will turn off the active device.
+			track.stop();
+
+			// Notification of track removal.
+			this.removeTrack(trackId, track.kind);
+		}
 	}
 
 	private async enableTrack(mid: string, enable: boolean) {
-		for (let transceiver of this.handle.webrtcStuff.pc.getTransceivers()) {
+		for (const transceiver of this.handle.webrtcStuff.pc.getTransceivers()) {
 			if (transceiver.mid === mid) {
 				// Toggle transceiver direction in order to tell the gateway whether video
 				// should be relayed to other participants or not.
@@ -572,13 +590,13 @@ export class JanusPublisher extends JanusParticipant {
 
 				this.handle.send({ message: configure, jsep: jsep });
 			},
-			error: (error: any) => {
+			error: (error: unknown) => {
 				console.error("Create offer error", error);
 			}
 		});
 	}
 
-	private async muteTrack(mid: string, enable: boolean, mediaType: MediaType, onError: (error: any) => void) {
+	private async muteTrack(mid: string, enable: boolean, mediaType: MediaType, onError: (error: unknown) => void) {
 		this.enableTrack(mid, enable)
 			.then(() => {
 				switch (mediaType) {

@@ -133,7 +133,7 @@ export class PlayerView extends Component {
 						</div>
 						<div slot="end" class="right-container">
 							<div class="video-feeds">
-							${repeat(participantStore.getWithStream(), (participant) => participant.userId, (participant, index) => html`
+							${repeat(participantStore.getWithStream(), (participant) => participant.userId, (participant) => html`
 								<participant-view .participant="${participant}"></participant-view>
 							`)}
 							</div>

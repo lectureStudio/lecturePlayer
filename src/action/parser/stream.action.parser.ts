@@ -16,7 +16,7 @@ import { RecordedPageParser } from "./recorded-page.parser";
 
 export class StreamActionParser {
 
-	static parse(dataView: ProgressiveDataView, type: StreamActionType, length: number): StreamAction {
+	static parse(dataView: ProgressiveDataView, type: StreamActionType, _length: number): StreamAction {
 		switch (type) {
 			case StreamActionType.STREAM_INIT:
 				break;
@@ -62,6 +62,11 @@ export class StreamActionParser {
 		const docId = dataView.getInt64();
 
 		const entryLength = dataView.getInt32();
+
+		if (entryLength < 0) {
+			console.error("Invalid page action to parse");
+		}
+
 		const recordedPage = RecordedPageParser.parse(dataView);
 
 		return new StreamPageActionsAction(docId, recordedPage);
@@ -85,6 +90,10 @@ export class StreamActionParser {
 		const docTitle = dataView.getString(titleLength);
 		const docName = dataView.getString(nameLength);
 		const docChecksum = dataView.getString(checksumLength);
+
+		if (!docChecksum) {
+			console.error("Invalid document checksum");
+		}
 
 		return new type(docId, docType, docTitle, docName);
 	}

@@ -4,7 +4,7 @@ import { EllipseShape } from "../model/shape/ellipse.shape";
 
 class EllipseRenderer implements ShapeRenderer {
 
-	render(context: CanvasRenderingContext2D, shape: EllipseShape, dirtyRegion: Rectangle): void {
+	render(context: CanvasRenderingContext2D, shape: EllipseShape, _dirtyRegion: Rectangle): void {
 		const p0 = shape.points[0];
 		const p1 = shape.points[1];
 
@@ -52,7 +52,7 @@ class EllipseRenderer implements ShapeRenderer {
 			context.beginPath();
 			context.strokeStyle = "rgb(255, 0, 100)";
 			context.lineWidth = brush.width;
-			context.setLineDash([5 / context.getTransformExt().getScaleX()]);
+			context.setLineDash([5 / context.getTransform().a]);
 			context.ellipse(centerX, centerY, radiusX - w, radiusY - w, 0, 0, Math.PI * 2);
 			context.stroke();
 		}

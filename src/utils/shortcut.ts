@@ -159,7 +159,7 @@ export class Shortcut {
 	}
 
 	private onKeyEvent(event: KeyboardEvent): void {
-		if (!event.key) {
+		if (event.key == null) {
 			return;
 		}
 
@@ -182,28 +182,28 @@ export class Shortcut {
 				return;
 			}
 		}
-		if (!entry.options.repeat && event.repeat) {
+		if (entry.options.repeat == null && event.repeat) {
 			return;
 		}
 		if (entry.options.type !== event.type) {
 			return;
 		}
 
-		const target: any = event.target;
-		let isEditable;
+		const target = event.target;
+		let isEditable: boolean;
 
-		switch (target.tagName) {
+		switch (target?.tagName) {
 			case "INPUT":
 			case "TEXTAREA":
 			case "SELECT":
 				isEditable = true;
 				break;
 			default:
-				isEditable = target.isContentEditable;
+				isEditable = target?.isContentEditable;
 				break;
 		}
 
-		if (!entry.options.captureEditable && isEditable) {
+		if (entry.options.captureEditable == null && isEditable) {
 			return;
 		}
 
@@ -225,7 +225,7 @@ export class Shortcut {
 		let key = null;
 		let modifierHash = 0;
 
-		for (let k of keys) {
+		for (const k of keys) {
 			switch (k) {
 				case "alt":
 					modifierHash |= this.ALT_MASK;
@@ -240,7 +240,7 @@ export class Shortcut {
 					modifierHash |= this.META_MASK;
 					break;
 				default:
-					if (key) {
+					if (key != null) {
 						console.warn(`Multiple keys for key combination "${keyCombination}" specified`);
 					}
 					key = k;
@@ -248,7 +248,7 @@ export class Shortcut {
 			}
 		}
 
-		if (!key) {
+		if (key == null) {
 			throw new Error(`No key (except modifiers) for key combination "${keyCombination}" specified`);
 		}
 

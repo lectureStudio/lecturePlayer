@@ -1,4 +1,4 @@
-export class HttpResponse<T> {
+export interface HttpResponse {
 
 	readonly status: number;
 
@@ -6,6 +6,6 @@ export class HttpResponse<T> {
 
 	readonly headers: Map<string, string | string[]>;
 
-	readonly body: T;
+	readonly body: XMLHttpRequestBodyInit;
 
 }

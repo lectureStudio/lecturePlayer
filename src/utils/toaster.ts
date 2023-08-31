@@ -20,7 +20,7 @@ export class Toaster {
 		this.showNotification(title, message, "danger", "exclamation-octagon");
 	}
 
-	public static showNotification(title: string, message: string, variant: string, icon: string, duration = 3000): Promise<void> {
+	public static showNotification(title: string, message: string | undefined, variant: string, icon: string, duration = 3000): Promise<void> {
 		const alert = Object.assign(document.createElement("sl-alert"), {
 			variant,
 			closable: true,
@@ -36,7 +36,7 @@ export class Toaster {
 		return alert.toast();
 	}
 
-	private static createContent(title: string, message: string) {
+	private static createContent(title: string, message?: string) {
 		// Always escape HTML for text arguments!
 		const div = document.createElement("div");
 		const strong = document.createElement("strong");
@@ -44,7 +44,7 @@ export class Toaster {
 
 		div.appendChild(strong);
 
-		if (message) {
+		if (message != null) {
 			const p = document.createElement("p");
 			p.textContent = message;
 

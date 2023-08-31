@@ -165,7 +165,7 @@ class ActionParser {
 	}
 
 	private static parseKeyEvent(dataView: ProgressiveDataView): KeyboardEvent {
-		const keyCode = dataView.getInt32();
+		const _keyCode = dataView.getInt32();
 		const modifiers = dataView.getInt32();
 		const actionType = dataView.getInt8();
 		let typeArg: string;
@@ -192,14 +192,14 @@ class ActionParser {
 		const ALT_MASK = 1 << 3;
 
 		return new KeyboardEvent(typeArg, {
-			//code: keyCode,
+			// code: keyCode,
 			shiftKey: (modifiers & SHIFT_MASK) != 0,
 			ctrlKey: (modifiers & CTRL_MASK) != 0,
 			altKey: (modifiers & ALT_MASK) != 0
 		});
 	}
 
-	private static atomicAction<T>(dataView: ProgressiveDataView, type: { new(): T }): T {
+	private static atomicAction<T>(_dataView: ProgressiveDataView, type: { new(): T }): T {
 		return new type();
 	}
 
@@ -207,7 +207,7 @@ class ActionParser {
 		const shapeHandle = dataView.getInt32();
 
 		const rgba = dataView.getInt32();
-		const lineCap = dataView.getInt8();
+		const _lineCap = dataView.getInt8();
 		const brushWidth = dataView.getFloat64();
 
 		const color = Color.fromRGBNumber(rgba);
@@ -217,7 +217,7 @@ class ActionParser {
 		return action;
 	}
 
-	private static rubberAction<T>(dataView: ProgressiveDataView): RubberAction {
+	private static rubberAction(dataView: ProgressiveDataView): RubberAction {
 		const shapeHandle = dataView.getInt32();
 
 		return new RubberAction(shapeHandle);
@@ -298,7 +298,7 @@ class ActionParser {
 		const strikethrough = dataView.getInt8() > 0;
 		const underline = dataView.getInt8() > 0;
 
-		let fontWeight = (weight + 1) * 100;
+		const fontWeight = (weight + 1) * 100;
 		let fontStyle;
 
 		switch (posture) {
@@ -325,7 +325,7 @@ class ActionParser {
 
 	private static latexFontAction(dataView: ProgressiveDataView): LatexFontAction {
 		const handle = dataView.getInt32();
-		const fontType = dataView.getInt32();
+		const _fontType = dataView.getInt32();
 		const fontSize = dataView.getFloat32();
 		const rgba = dataView.getInt32();
 

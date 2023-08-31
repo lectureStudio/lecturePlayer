@@ -7,7 +7,7 @@ class SelectRenderer implements ShapeRenderer {
 	private readonly FRAME_COLOR = "#FF0064";
 
 
-	render(context: CanvasRenderingContext2D, shape: SelectShape, dirtyRegion: Rectangle): void {
+	render(context: CanvasRenderingContext2D, shape: SelectShape, _dirtyRegion: Rectangle): void {
 		const p0 = shape.points[0];
 		const p1 = shape.points[1];
 
@@ -15,8 +15,8 @@ class SelectRenderer implements ShapeRenderer {
 			return;
 		}
 
-		const width = 2 / context.getTransformExt().getScaleX();
-		const dash = 4 / context.getTransformExt().getScaleY();
+		const width = 2 / context.getTransform().a;
+		const dash = 4 / context.getTransform().d;
 
 		context.beginPath();
 		context.strokeStyle = this.FRAME_COLOR;

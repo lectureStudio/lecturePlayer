@@ -65,11 +65,11 @@ export class StreamActionPlayer extends ActionPlayer {
 		this.executor.setPageNumber(pageNumber);
 	}
 
-	seekByTime(time: number): number {
+	seekByTime(_time: number): number {
 		throw new Error("Method not implemented.");
 	}
 
-	seekByPage(pageNumber: number): number {
+	seekByPage(_pageNumber: number): number {
 		throw new Error("Method not implemented.");
 	}
 

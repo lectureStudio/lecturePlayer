@@ -28,7 +28,7 @@ export class RubberTool extends Tool {
 		}
 	}
 
-	end(point: PenPoint): void {
+	end(_point: PenPoint): void {
 		// Do nothing on purpose.
 	}
 
