@@ -1,4 +1,4 @@
-import { Janus, JanusRoomParticipant, PluginHandle } from "janus-gateway";
+import { Janus, VideoRoomParticipant, PluginHandle, VideoRoomParticipantsResponse } from "janus-gateway";
 import { JanusPublisher } from "./janus-publisher";
 import { JanusSubscriber } from "./janus-subscriber";
 import { State } from "../utils/state";
@@ -133,7 +133,7 @@ export class JanusService extends EventTarget {
 		}
 
 		this.attachToPublisher({
-			id: Number(peerId),
+			id: BigInt(peerId),
 			display: displayName
 		});
 	}
@@ -260,14 +260,14 @@ export class JanusService extends EventTarget {
 
 		pluginHandle.send({
 			message: list,
-			success: (res: unknown) => {
-				const canJoin = res.participants && res.participants.length > 0;
+			success: (response: VideoRoomParticipantsResponse) => {
+				const canJoin = response.participants && response.participants.length > 0;
 
 				if (canJoin) {
 					// console.log("publishers", res.participants);
 
-					for (const i in res.participants) {
-						const publisher: JanusRoomParticipant = res.participants[i];
+					for (const i in response.participants) {
+						const publisher = response.participants[i];
 
 						if (publisher.publisher) {
 							this.attachToPublisher(publisher);
@@ -309,7 +309,7 @@ export class JanusService extends EventTarget {
 		this.publishers = this.publishers.filter(pub => pub !== publisher);
 	}
 
-	private attachToPublisher(publisher: JanusRoomParticipant) {
+	private attachToPublisher(publisher: VideoRoomParticipant) {
 		const foundSubscriber = this.subscribers.find(sub => sub.getPublisherId() === publisher.id);
 
 		if (foundSubscriber) {
@@ -386,13 +386,13 @@ export class JanusService extends EventTarget {
 	}
 
 	private onPublisherJoined(event: CustomEvent) {
-		const publisher: JanusRoomParticipant = event.detail;
+		const publisher: VideoRoomParticipant = event.detail;
 
 		this.attachToPublisher(publisher);
 	}
 
 	private onPublisherLeft(event: CustomEvent) {
-		const publisher: JanusRoomParticipant = event.detail;
+		const publisher: VideoRoomParticipant = event.detail;
 		const subscriber = this.subscribers.find(sub => sub.getPublisherId() === publisher.id);
 
 		if (subscriber) {

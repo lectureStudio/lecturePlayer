@@ -112,7 +112,7 @@ declare module "janus-gateway" {
 		videoroom?: "created" | "joined" | "event" | "edited" | "destroyed" | "success" | "participants" | "talking" | "stopped-talking" | "rtp_forward" | "stop_rtp_forward" | "forwarders" | "attached" | "updated";
 		room?: number;
 		id?: bigint;
-		publishers?: JanusRoomParticipant[];
+		publishers?: VideoRoomParticipant[];
 		streams?: JanusStreamDescription[];
 		started?: string;
 		unpublished?: "ok" | bigint;
@@ -212,6 +212,11 @@ declare module "janus-gateway" {
 		[otherProps: string]: unknown;
 	}
 
+	interface VideoRoomResponse {
+		videoroom: string;
+		[otherProps: string]: unknown;
+	}
+
 	interface VideoRoomConfigureRequest extends PluginRequest {
 		request: "configure";
 		bitrate?: number;
@@ -232,6 +237,11 @@ declare module "janus-gateway" {
 			mid: string;
 			description: string;
 		}[];
+	}
+
+	interface VideoRoomParticipantsResponse extends VideoRoomResponse {
+		room: number;
+		participants: VideoRoomParticipant[];
 	}
 
 	interface WebRTCInfo {
@@ -304,14 +314,14 @@ declare module "janus-gateway" {
 		detach(params?: DetachOptions): void;
 	}
 
-	interface JanusRoomParticipant {
+	interface VideoRoomParticipant {
 		display?: string;
 		id?: bigint;
 		publisher?: boolean;
 		talking?: boolean;
 		audio_codec?: string;
 		video_codec?: string;
-		streams?: unknown[];
+		streams?: JanusStreamDescription[];
 	}
 
 	class Janus {

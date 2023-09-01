@@ -1,4 +1,4 @@
-import { Janus, JanusRoomParticipant, JanusStreamDescription, PluginHandle } from "janus-gateway";
+import { Janus, VideoRoomParticipant, JanusStreamDescription, PluginHandle } from "janus-gateway";
 import { Devices } from "../utils/devices";
 import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
@@ -26,7 +26,7 @@ export abstract class JanusParticipant extends EventTarget {
 
 	protected state: State;
 
-	protected publishers: Array<JanusRoomParticipant>;
+	protected publishers: Array<VideoRoomParticipant>;
 
 	protected streams: Map<string, MediaStream>;
 

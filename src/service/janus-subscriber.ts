@@ -1,5 +1,5 @@
-import { Janus, JSEP, PluginHandle } from "janus-gateway";
-import { JanusMessage, JanusParticipant, JanusStreamDescription, JanusStreamType } from "./janus-participant";
+import { Janus, JanusMessage, JanusStreamDescription, JSEP, PluginHandle } from "janus-gateway";
+import { JanusParticipant, JanusStreamType } from "./janus-participant";
 import { Utils } from "../utils/utils";
 import { State } from "../utils/state";
 import { participantStore } from "../store/participants.store";

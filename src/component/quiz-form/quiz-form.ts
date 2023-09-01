@@ -17,7 +17,7 @@ export class QuizForm extends Component {
 	];
 
 	@property()
-	fieldErrors: Map<number, string> = new Map();
+	fieldErrors = {};
 
 
 	setResponse(response: CourseFeatureResponse) {

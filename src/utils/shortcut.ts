@@ -189,7 +189,7 @@ export class Shortcut {
 			return;
 		}
 
-		const target = event.target;
+		const target = event.target as HTMLElement;
 		let isEditable: boolean;
 
 		switch (target?.tagName) {

@@ -1,4 +1,4 @@
-import { Janus, JanusMessage, JanusRoomParticipant, JSEP, PluginHandle, VideoRoomConfigureRequest } from "janus-gateway";
+import { Janus, JanusMessage, VideoRoomParticipant, JSEP, PluginHandle, VideoRoomConfigureRequest } from "janus-gateway";
 import { MediaType } from "../model/media-type";
 import { Devices } from "../utils/devices";
 import { State } from "../utils/state";
@@ -149,7 +149,7 @@ export class JanusPublisher extends JanusParticipant {
 
 				if (leaving) {
 					// 'leaving' is here the unique identifier of the publisher who left.
-					const publisher: JanusRoomParticipant = {
+					const publisher: VideoRoomParticipant = {
 						id: leaving as bigint
 					};
 
