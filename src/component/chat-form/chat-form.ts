@@ -11,7 +11,7 @@ import chatFormStyles from './chat-form.scss';
 @customElement('chat-form')
 export class ChatForm extends Component {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		chatFormStyles,
 	];

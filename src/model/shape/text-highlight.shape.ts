@@ -30,15 +30,15 @@ export class TextHighlightShape extends Shape {
 		return this.color;
 	}
 
-	contains(point: Point): boolean {
+	override contains(point: Point): boolean {
 		return this.bounds.containsPoint(point);
 	}
 
-	intersects(rect: Rectangle): boolean {
+	override intersects(rect: Rectangle): boolean {
 		return this.bounds.intersection(rect) != null;
 	}
 
-	clone(): TextHighlightShape {
+	override clone(): TextHighlightShape {
 		const shape = new TextHighlightShape(this.handle, this.color);
 		shape.setKeyEvent(this.getKeyEvent());
 

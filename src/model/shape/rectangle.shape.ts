@@ -5,7 +5,7 @@ import { Line } from "../../geometry/line";
 
 export class RectangleShape extends FormShape {
 
-	contains(point: Point): boolean {
+	override contains(point: Point): boolean {
 		// Handle simple cases.
 		if (this.points.length < 2) {
 			return false;
@@ -56,11 +56,11 @@ export class RectangleShape extends FormShape {
 		return false;
 	}
 
-	intersects(rect: Rectangle): boolean {
+	override intersects(rect: Rectangle): boolean {
 		return this.bounds.intersection(rect) != null;
 	}
 
-	clone(): RectangleShape {
+	override clone(): RectangleShape {
 		const shape = new RectangleShape(this.handle, this.brush.clone());
 		shape.bounds.set(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
 		shape.setKeyEvent(this.getKeyEvent());
@@ -73,7 +73,7 @@ export class RectangleShape extends FormShape {
 		return shape;
 	}
 
-	public getShapeType(): string {
+	public override getShapeType(): string {
 		return "rectangle";
 	}
 

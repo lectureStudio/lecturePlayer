@@ -9,7 +9,7 @@ import speechAcceptedModalStyles from "./speech-accepted.modal.scss";
 @customElement("speech-accepted-modal")
 export class SpeechAcceptedModal extends Modal {
 
-	static styles = [
+	static override styles = [
 		Modal.styles,
 		speechAcceptedModalStyles
 	];
@@ -26,7 +26,7 @@ export class SpeechAcceptedModal extends Modal {
 	stream: MediaStream;
 
 
-	protected firstUpdated() {
+	protected override firstUpdated() {
 		this.video.srcObject = this.stream;
 		this.video.muted = true;
 
@@ -60,7 +60,7 @@ export class SpeechAcceptedModal extends Modal {
 		super.close();
 	}
 
-	protected render() {
+	protected override render() {
 		return html`
 			<sl-dialog label="${t("course.speech.request.accepted")}">
 				<article>

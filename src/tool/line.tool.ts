@@ -12,7 +12,7 @@ export class LineTool extends PaintTool {
 	private shape: LineShape;
 
 
-	begin(point: PenPoint, context: ToolContext): void {
+	override begin(point: PenPoint, context: ToolContext): void {
 		this.shape = new LineShape(this.shapeHandle, this.brush);
 		this.shape.setP0(point);
 
@@ -21,7 +21,7 @@ export class LineTool extends PaintTool {
 		super.begin(point, context);
 	}
 
-	execute(point: PenPoint): void {
+	override execute(point: PenPoint): void {
 		this.shape.setKeyEvent(this.context.keyEvent);
 		this.shape.setP1(point);
 

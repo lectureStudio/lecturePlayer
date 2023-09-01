@@ -14,7 +14,7 @@ import playerControlsStyles from './player-controls.scss';
 @customElement('player-controls')
 export class PlayerControls extends Component {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		playerControlsStyles,
 	];
@@ -67,7 +67,7 @@ export class PlayerControls extends Component {
 		});
 	}
 
-	protected firstUpdated(): void {
+	protected override firstUpdated(): void {
 		// Observe fullscreen change by, e.g. escape-key.
 		document.addEventListener("fullscreenchange", () => {
 			this.fullscreen = document.fullscreenElement !== null;
@@ -118,7 +118,7 @@ export class PlayerControls extends Component {
 		return hours + ":" + minutes.slice(-2) + ":" + seconds.slice(-2);
 	}
 
-	render() {
+	override render() {
 		return html`
 			<div class="col nav-left">
 				${when(deviceStore.canSetSpeakerVolume, () => html`

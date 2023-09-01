@@ -14,7 +14,7 @@ export class PointerTool extends PaintTool {
 	private page: Page;
 
 
-	begin(point: PenPoint, context: ToolContext): void {
+	override begin(point: PenPoint, context: ToolContext): void {
 		this.page = context.page;
 
 		this.shape = new PointerShape(this.shapeHandle, this.brush);
@@ -25,13 +25,13 @@ export class PointerTool extends PaintTool {
 		super.begin(point, context);
 	}
 
-	execute(point: PenPoint): void {
+	override execute(point: PenPoint): void {
 		this.shape.addPoint(point);
 
 		super.execute(point);
 	}
 
-	end(point: PenPoint): void {
+	override end(point: PenPoint): void {
 		this.page.removeShape(this.shape);
 
 		super.end(point);

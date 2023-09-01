@@ -12,7 +12,7 @@ export class ZoomTool extends Tool {
 	private initialized: boolean;
 
 
-	begin(point: PenPoint, context: ToolContext): void {
+	override begin(point: PenPoint, context: ToolContext): void {
 		this.shape = new ZoomShape();
 
 		context.page.addShape(this.shape);
@@ -20,7 +20,7 @@ export class ZoomTool extends Tool {
 		super.begin(point, context);
 	}
 
-	execute(point: PenPoint): void {
+	override execute(point: PenPoint): void {
 		if (!this.initialized) {
 			this.shape.setP0(point);
 			this.initialized = true;
@@ -31,7 +31,7 @@ export class ZoomTool extends Tool {
 		super.execute(point);
 	}
 
-	end(point: PenPoint): void {
+	override end(point: PenPoint): void {
 		this.initialized = false;
 
 		this.context.page.removeShape(this.shape);

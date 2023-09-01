@@ -12,7 +12,7 @@ export class HighlighterTool extends PaintTool {
 	private shape: StrokeShape;
 
 
-	begin(point: PenPoint, context: ToolContext): void {
+	override begin(point: PenPoint, context: ToolContext): void {
 		this.shape = new StrokeShape(this.shapeHandle, this.brush);
 		this.shape.addPoint(point);
 
@@ -21,7 +21,7 @@ export class HighlighterTool extends PaintTool {
 		super.begin(point, context);
 	}
 
-	execute(point: PenPoint): void {
+	override execute(point: PenPoint): void {
 		this.shape.addPoint(point);
 
 		super.execute(point);

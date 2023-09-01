@@ -13,7 +13,7 @@ import participantViewStyles from "./participant-view.scss";
 @customElement('participant-view')
 export class ParticipantView extends Component {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		participantViewStyles
 	];
@@ -67,7 +67,7 @@ export class ParticipantView extends Component {
 		this.isConference = courseStore.conference;
 	}
 
-	protected firstUpdated() {
+	protected override firstUpdated() {
 		autorun(() => {
 			this.setAudioStream(this.participant.microphoneStream);
 		});
@@ -76,7 +76,7 @@ export class ParticipantView extends Component {
 		});
 	}
 
-	protected render() {
+	protected override render() {
 		this.micActive = this.participant.microphoneActive ?? false;
 		this.camActive = this.participant.cameraActive ?? false;
 

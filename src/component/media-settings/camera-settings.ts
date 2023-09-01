@@ -12,7 +12,7 @@ import cameraSettingsStyles from './camera-settings.scss';
 @customElement("camera-settings")
 export class CameraSettings extends MediaSettings {
 
-	static styles = [
+	static override styles = [
 		MediaSettings.styles,
 		cameraSettingsStyles
 	];

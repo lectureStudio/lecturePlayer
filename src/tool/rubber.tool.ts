@@ -8,11 +8,11 @@ import { ToolContext } from "./tool-context";
 
 export class RubberTool extends Tool {
 
-	begin(point: PenPoint, context: ToolContext): void {
+	override begin(_point: PenPoint, context: ToolContext): void {
 		this.context = context;
 	}
 
-	execute(point: PenPoint): void {
+	override execute(point: PenPoint): void {
 		const toDelete = new Array<Shape>();
 
 		for (const shape of this.context.page.getShapes()) {
@@ -28,7 +28,7 @@ export class RubberTool extends Tool {
 		}
 	}
 
-	end(_point: PenPoint): void {
+	override end(_point: PenPoint): void {
 		// Do nothing on purpose.
 	}
 

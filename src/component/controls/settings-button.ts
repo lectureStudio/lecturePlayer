@@ -11,7 +11,7 @@ import settingsButtonStyles from './settings-button.scss';
 @customElement('settings-button')
 export class SettingsButton extends Component {
 
-	static styles = [
+	static override styles = [
 		settingsButtonStyles
 	];
 
@@ -29,11 +29,11 @@ export class SettingsButton extends Component {
 	selectedDocId: string;
 
 
-	protected updated(): void {
+	protected override updated(): void {
 		this.cameraFeed.checked = uiStateStore.receiveCameraFeed;
 	}
 
-	protected render() {
+	protected override render() {
 		return html`
 			<sl-dropdown placement="top-start">
 				<div slot="trigger">

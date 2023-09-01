@@ -19,7 +19,7 @@ interface StatsEntry {
 @customElement("stream-stats")
 export class StreamStats extends Component {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		streamStatsStyles
 	];
@@ -39,7 +39,7 @@ export class StreamStats extends Component {
 		super.disconnectedCallback();
 	}
 
-	protected render() {
+	protected override render() {
 		return html`
 			<sl-tab-group noScrollControls="true">
 				<sl-tab slot="nav" panel="audio">${t("stats.audio")}</sl-tab>

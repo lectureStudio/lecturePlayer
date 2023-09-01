@@ -6,7 +6,7 @@ import { t } from '../i18n-mixin';
 @customElement("entry-modal")
 export class EntryModal extends Modal {
 
-	protected render() {
+	protected override render() {
 		return html`
 			<sl-dialog label="${t("entry.modal.title")}">
 				<article>

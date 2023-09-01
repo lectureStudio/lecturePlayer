@@ -6,7 +6,7 @@ export class SelectShape extends FormShape {
 		super(0, null);
 	}
 
-	public getShapeType(): string {
+	public override getShapeType(): string {
 		return "select";
 	}
 }

@@ -5,11 +5,11 @@ import { I18nLitElement } from '../i18n-mixin';
 @customElement('lecture-player-styles')
 export class LecturePlayerStyles extends I18nLitElement {
 
-	protected createRenderRoot() {
+	protected override createRenderRoot() {
 		return this;
 	}
 
-	protected render() {
+	protected override render() {
 		return html`
 			<style>
 				html {

@@ -8,7 +8,7 @@ import audioVolumeButtonStyles from './audio-volume-button.scss';
 @customElement('audio-volume-button')
 export class AudioVolumeButton extends I18nLitElement {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		audioVolumeButtonStyles,
 	];
@@ -35,7 +35,7 @@ export class AudioVolumeButton extends I18nLitElement {
 		this.setVolume(this.volume);
 	}
 
-	protected render() {
+	protected override render() {
 		return html`
 			<sl-dropdown placement="top-start">
 				<div slot="trigger">

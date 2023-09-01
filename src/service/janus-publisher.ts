@@ -94,7 +94,7 @@ export class JanusPublisher extends JanusParticipant {
 		this.handle.send({ message: join });
 	}
 
-	protected onWebRtcState(isConnected: boolean) {
+	protected override onWebRtcState(isConnected: boolean) {
 		Janus.log("Janus says our WebRTC PeerConnection is " + (isConnected ? "up" : "down") + " now");
 
 		if (!isConnected) {

@@ -25,7 +25,7 @@ export class StrokeShape extends Shape {
 		return this._brush;
 	}
 
-	addPoint(point: PenPoint): boolean {
+	override addPoint(point: PenPoint): boolean {
 		const added = super.addPoint(point);
 
 		if (added) {
@@ -41,7 +41,7 @@ export class StrokeShape extends Shape {
 		return added;
 	}
 
-	contains(point: PenPoint): boolean {
+	override contains(point: PenPoint): boolean {
 		const delta = this.brush.width / 2;
 
 		// Handle simple cases.
@@ -78,7 +78,7 @@ export class StrokeShape extends Shape {
 		return false;
 	}
 
-	intersects(rect: Rectangle): boolean {
+	override intersects(rect: Rectangle): boolean {
 		// Handle simple cases.
 		if (this.points.length === 0) {
 			return false;
@@ -104,7 +104,7 @@ export class StrokeShape extends Shape {
 		return false;
 	}
 
-	clone(): StrokeShape {
+	override clone(): StrokeShape {
 		const shape = new StrokeShape(this.handle, this.brush.clone());
 		shape.bounds.set(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
 		shape.setKeyEvent(this.getKeyEvent());

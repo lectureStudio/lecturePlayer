@@ -20,7 +20,7 @@ import annotationLayerStyles from './annotation-layer.scss';
 @customElement('slide-view')
 export class SlideView extends LitElement {
 
-	static styles = [
+	static override styles = [
 		slideViewStyles,
 		textLayerStyles,
 		annotationLayerStyles
@@ -52,7 +52,7 @@ export class SlideView extends LitElement {
 	textLayerEnabled: boolean = true;
 
 
-	firstUpdated() {
+	override firstUpdated() {
 		const slideCanvas: HTMLCanvasElement = this.renderRoot.querySelector(".slide-canvas");
 		const actionCanvas: HTMLCanvasElement = this.renderRoot.querySelector(".action-canvas");
 		const volatileCanvas: HTMLCanvasElement = this.renderRoot.querySelector(".volatile-canvas");
@@ -114,7 +114,7 @@ export class SlideView extends LitElement {
 		this.resize();
 	}
 
-	protected render() {
+	protected override render() {
 		return html`
 			<div class="slide-container">
 				<canvas class="slide-canvas"></canvas>

@@ -12,7 +12,7 @@ export class ArrowTool extends PaintTool {
 	private shape: ArrowShape;
 
 
-	begin(point: PenPoint, context: ToolContext): void {
+	override begin(point: PenPoint, context: ToolContext): void {
 		this.shape = new ArrowShape(this.shapeHandle, this.brush);
 		this.shape.setP0(point);
 
@@ -21,7 +21,7 @@ export class ArrowTool extends PaintTool {
 		super.begin(point, context);
 	}
 
-	execute(point: PenPoint): void {
+	override execute(point: PenPoint): void {
 		this.shape.setKeyEvent(this.context.keyEvent);
 		this.shape.setP1(point);
 

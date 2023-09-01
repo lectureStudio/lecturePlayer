@@ -15,7 +15,7 @@ import featureViewStyles from './feature-view.scss';
 @customElement('player-feature-view')
 export class PlayerFeatureView extends Component {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		featureViewStyles,
 	];
@@ -104,7 +104,7 @@ export class PlayerFeatureView extends Component {
 		super.disconnectedCallback();
 	}
 
-	protected willUpdate(): void {
+	protected override willUpdate(): void {
 		// Check if all received messages have been read or at least visible to the user.
 		if (this.unreadMessagesExist && chatStore.unreadMessages === 0) {
 			this.unreadMessagesExist = false;
@@ -118,7 +118,7 @@ export class PlayerFeatureView extends Component {
 		}
 	}
 
-	protected firstUpdated(): void {
+	protected override firstUpdated(): void {
 		this.tabGroup.addEventListener("sl-tab-show", (e: SlTabHideEvent) => {
 			this.section = e.detail.name;
 		});
@@ -141,7 +141,7 @@ export class PlayerFeatureView extends Component {
 		this.tabSwipeObserver.observe(this.tabGroup);
 	}
 
-	protected updated(changedProperties: PropertyValues): void {
+	protected override updated(changedProperties: PropertyValues): void {
 		super.updated(changedProperties);
 
 		if (this.tabGroup) {
@@ -157,7 +157,7 @@ export class PlayerFeatureView extends Component {
 		}
 	}
 
-	protected render() {
+	protected override render() {
 		return html`
 			<div>
 				<sl-split-panel position="0" id="outer-split-panel">

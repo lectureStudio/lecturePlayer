@@ -19,7 +19,7 @@ export class StreamActionParser {
 	static parse(dataView: ProgressiveDataView, type: StreamActionType, _length: number): StreamAction {
 		switch (type) {
 			case StreamActionType.STREAM_INIT:
-				break;
+				return undefined;
 			case StreamActionType.STREAM_PAGE_ACTION:
 				return this.playbackAction(dataView);
 			case StreamActionType.STREAM_PAGE_ACTIONS:

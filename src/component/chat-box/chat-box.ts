@@ -16,7 +16,7 @@ import chatBoxStyles from './chat-box.scss';
 @customElement('chat-box')
 export class ChatBox extends Component {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		chatBoxStyles,
 	];
@@ -65,7 +65,7 @@ export class ChatBox extends Component {
 		sendButton.click();
 	}
 
-	protected firstUpdated(): void {
+	protected override firstUpdated(): void {
 		this.mutationObserver.observe(this.messageContainer, { childList: true });
 
 		// Mark already added messages as read.
@@ -109,7 +109,7 @@ export class ChatBox extends Component {
 			});
 	}
 
-	protected render() {
+	protected override render() {
 		return html`
 			<header part="header">
 				${t("course.feature.message")}

@@ -23,7 +23,7 @@ import playerViewStyles from './player-view.scss';
 @customElement('player-view')
 export class PlayerView extends Component {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		playerViewStyles,
 	];
@@ -92,7 +92,7 @@ export class PlayerView extends Component {
 		this.playerController.setPlayerViewController(this.controller);
 	}
 
-	protected render() {
+	protected override render() {
 		if (!courseStore.courseId) {
 			// Course not loaded, nothing to show.
 			return null;

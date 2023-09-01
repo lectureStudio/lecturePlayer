@@ -9,7 +9,7 @@ import participantStyles from './participant-list-item.scss';
 @customElement('participant-list-item')
 export class ParticipantListItem extends Component {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		participantStyles
 	];
@@ -19,7 +19,7 @@ export class ParticipantListItem extends Component {
 	participant: CourseParticipant;
 
 
-	protected render() {
+	protected override render() {
 		return html`
 			<sl-avatar shape="rounded" initials="${Participant.getInitials(this.participant)}"></sl-avatar>
 			<span>${Participant.getFullName(this.participant)}</span>

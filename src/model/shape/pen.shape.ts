@@ -17,7 +17,7 @@ export class PenShape extends StrokeShape {
 		this.stroke = new PenStroke(brush.width);
 	}
 
-	addPoint(point: PenPoint): boolean {
+	override addPoint(point: PenPoint): boolean {
 		// Keep only one point at a time.
 		if (this.points.length > 0) {
 			const prev = this.points[0];
@@ -40,19 +40,15 @@ export class PenShape extends StrokeShape {
 		return true;
 	}
 
-	contains(point: PenPoint): boolean {
+	override contains(point: PenPoint): boolean {
 		return this.stroke.intersects(new Rectangle(point.x, point.y, point.x, point.y));
 	}
 
-	intersects(rect: Rectangle): boolean {
+	override intersects(rect: Rectangle): boolean {
 		return this.stroke.intersects(rect);
 	}
 
-	getPenStroke(): PenStroke {
-		return this.stroke;
-	}
-
-	moveByDelta(delta: Point): void {
+	override moveByDelta(delta: Point): void {
 		this.stroke.moveByDelta(delta);
 
 		this.updateBoundsByDelta(delta);
@@ -60,7 +56,7 @@ export class PenShape extends StrokeShape {
 		this.fireShapeEvent(new ShapeEvent(this, this.bounds));
 	}
 
-	clone(): PenShape {
+	override clone(): PenShape {
 		const shape = new PenShape(this.handle, this.brush.clone());
 		shape.stroke = this.stroke.clone();
 		shape.bounds.set(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
@@ -70,7 +66,11 @@ export class PenShape extends StrokeShape {
 		return shape;
 	}
 
-	public getShapeType(): string {
+	public override getShapeType(): string {
 		return "pen";
+	}
+
+	getPenStroke(): PenStroke {
+		return this.stroke;
 	}
 }

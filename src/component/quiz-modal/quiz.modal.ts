@@ -61,7 +61,7 @@ export class QuizModal extends Modal {
 			});
 	}
 
-	protected render() {
+	protected override render() {
 		return html`
 			<sl-dialog label="${t("course.feature.quiz")}">
 				<article>

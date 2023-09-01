@@ -10,7 +10,7 @@ import chatMessageStyles from './chat-message.scss';
 @customElement('chat-box-message')
 export class ChatBoxMessage extends Component {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		chatMessageStyles,
 	];

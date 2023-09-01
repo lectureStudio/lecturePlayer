@@ -15,7 +15,7 @@ import conferenceViewStyles from "./conference-view.scss";
 @customElement('conference-view')
 export class ConferenceView extends I18nLitElement {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		conferenceViewStyles,
 	];
@@ -108,7 +108,7 @@ export class ConferenceView extends I18nLitElement {
 		});
 	}
 
-	protected firstUpdated() {
+	protected override firstUpdated() {
 		const resizeObserver = this.renderRoot.querySelector("sl-resize-observer");
 
 		resizeObserver.addEventListener("sl-resize", event => {
@@ -122,7 +122,7 @@ export class ConferenceView extends I18nLitElement {
 		});
 	}
 
-	protected render() {
+	protected override render() {
 		const prevEnabled = this.viewIndex > 0;
 		const nextEnabled = this.viewIndex + this.tilesPerPage < this.gridCounter;
 

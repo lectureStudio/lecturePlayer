@@ -10,7 +10,7 @@ import screenViewStyles from "./screen-view.scss";
 @customElement('screen-view')
 export class ScreenView extends Component {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		screenViewStyles
 	];
@@ -30,11 +30,11 @@ export class ScreenView extends Component {
 		document.addEventListener("player-start-media", this.onStartMediaPlayback.bind(this));
 	}
 
-	protected firstUpdated() {
+	protected override firstUpdated() {
 		this.setVideoStream(this.participant.screenStream);
 	}
 
-	protected render() {
+	protected override render() {
 		return html`
 			<div class="container">
 				<video autoplay playsInline></video>

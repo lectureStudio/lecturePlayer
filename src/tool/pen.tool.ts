@@ -12,7 +12,7 @@ export class PenTool extends PaintTool {
 	private shape: PenShape;
 
 
-	begin(point: PenPoint, context: ToolContext): void {
+	override begin(point: PenPoint, context: ToolContext): void {
 		this.shape = new PenShape(this.shapeHandle, this.brush);
 		this.shape.addPoint(point);
 
@@ -21,7 +21,7 @@ export class PenTool extends PaintTool {
 		super.begin(point, context);
 	}
 
-	execute(point: PenPoint): void {
+	override execute(point: PenPoint): void {
 		this.shape.addPoint(point);
 
 		super.execute(point);

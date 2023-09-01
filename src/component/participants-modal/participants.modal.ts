@@ -7,13 +7,13 @@ import participantsModalStyles from "./participants.modal.scss";
 @customElement("participants-modal")
 export class ParticipantsModal extends Modal {
 
-	static styles = [
+	static override styles = [
 		Modal.styles,
 		participantsModalStyles
 	];
 
 
-	protected render() {
+	protected override render() {
 		return html`
 			<sl-dialog label="${t("settings.title")}" noHeader>
 				<article>

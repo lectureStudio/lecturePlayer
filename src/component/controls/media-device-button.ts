@@ -9,7 +9,7 @@ import mediaDeviceButtonStyles from './media-device-button.scss';
 @customElement('media-device-button')
 export class MediaDeviceButton extends I18nLitElement {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		mediaDeviceButtonStyles,
 	];
@@ -23,8 +23,8 @@ export class MediaDeviceButton extends I18nLitElement {
 	@state()
 	devices: Map<string, MediaDeviceInfo> = new Map();
 
-	@state()
-	deviceSettings: DeviceSettings;
+	// @state()
+	// deviceSettings: DeviceSettings;
 
 	@query('sl-menu')
 	menu: SlMenu;
@@ -38,16 +38,16 @@ export class MediaDeviceButton extends I18nLitElement {
 	override connectedCallback() {
 		super.connectedCallback();
 
-		$deviceSettingsStore.updates.watch(settings => {
-			this.deviceSettings = settings;
+		// $deviceSettingsStore.updates.watch(settings => {
+		// 	this.deviceSettings = settings;
 
-			if (!settings.cameraBlocked || !settings.microphoneBlocked) {
-				// Enumerate devices if unblocked.
-				this.getDevices();
-			}
-		});
+		// 	if (!settings.cameraBlocked || !settings.microphoneBlocked) {
+		// 		// Enumerate devices if unblocked.
+		// 		this.getDevices();
+		// 	}
+		// });
 
-		this.deviceSettings = $deviceSettingsStore.getState();
+		// this.deviceSettings = $deviceSettingsStore.getState();
 
 		// When devices are (dis)connected.
 		navigator.mediaDevices.ondevicechange = () => {
@@ -66,70 +66,70 @@ export class MediaDeviceButton extends I18nLitElement {
 		});
 	}
 
-	protected render() {
-		const itemTemplates: TemplateResult[] = [];
-		let disabled = false;
+	// protected render() {
+	// 	const itemTemplates: TemplateResult[] = [];
+	// 	let disabled = false;
 
-		if (this.type == "audio") {
-			disabled = this.deviceSettings.microphoneBlocked;
+	// 	if (this.type == "audio") {
+	// 		disabled = this.deviceSettings.microphoneBlocked;
 
-			const speakerItems = this.renderDeviceItems("audiooutput");
-			const microphoneItems = this.renderDeviceItems("audioinput");
+	// 		const speakerItems = this.renderDeviceItems("audiooutput");
+	// 		const microphoneItems = this.renderDeviceItems("audioinput");
 
-			if (speakerItems.length > 0) {
-				itemTemplates.push(html`<sl-menu-label>${t("devices.speaker")}</sl-menu-label>`);
-				itemTemplates.push(...speakerItems);
-			}
-			if (microphoneItems.length > 0) {
-				itemTemplates.push(html`<sl-menu-label>${t("devices.microphone")}</sl-menu-label>`);
-				itemTemplates.push(...microphoneItems);
+	// 		if (speakerItems.length > 0) {
+	// 			itemTemplates.push(html`<sl-menu-label>${t("devices.speaker")}</sl-menu-label>`);
+	// 			itemTemplates.push(...speakerItems);
+	// 		}
+	// 		if (microphoneItems.length > 0) {
+	// 			itemTemplates.push(html`<sl-menu-label>${t("devices.microphone")}</sl-menu-label>`);
+	// 			itemTemplates.push(...microphoneItems);
 
-				// This can happen with Firefox. Even if the permission was not granted,
-				// the device names are visible when camera was granted.
-				// So do not punish Firefox users.
-				disabled = false;
-			}
-			else if (disabled) {
-				itemTemplates.push(html`<sl-menu-label>${t("devices.permission.required")}</sl-menu-label>`);
-			}
-		}
-		else {
-			disabled = this.deviceSettings.cameraBlocked;
+	// 			// This can happen with Firefox. Even if the permission was not granted,
+	// 			// the device names are visible when camera was granted.
+	// 			// So do not punish Firefox users.
+	// 			disabled = false;
+	// 		}
+	// 		else if (disabled) {
+	// 			itemTemplates.push(html`<sl-menu-label>${t("devices.permission.required")}</sl-menu-label>`);
+	// 		}
+	// 	}
+	// 	else {
+	// 		disabled = this.deviceSettings.cameraBlocked;
 
-			const cameraItems = this.renderDeviceItems("videoinput");
+	// 		const cameraItems = this.renderDeviceItems("videoinput");
 
-			if (cameraItems.length > 0) {
-				itemTemplates.push(html`<sl-menu-label>${t("devices.camera")}</sl-menu-label>`);
-				itemTemplates.push(...cameraItems);
+	// 		if (cameraItems.length > 0) {
+	// 			itemTemplates.push(html`<sl-menu-label>${t("devices.camera")}</sl-menu-label>`);
+	// 			itemTemplates.push(...cameraItems);
 
-				// This can happen with Firefox. Even if the permission was not granted,
-				// the device names are visible when microphone was granted.
-				// So do not punish Firefox users.
-				disabled = false;
-			}
-			else if (disabled) {
-				itemTemplates.push(html`<sl-menu-label>${t("devices.permission.required")}</sl-menu-label>`);
-			}
-		}
+	// 			// This can happen with Firefox. Even if the permission was not granted,
+	// 			// the device names are visible when microphone was granted.
+	// 			// So do not punish Firefox users.
+	// 			disabled = false;
+	// 		}
+	// 		else if (disabled) {
+	// 			itemTemplates.push(html`<sl-menu-label>${t("devices.permission.required")}</sl-menu-label>`);
+	// 		}
+	// 	}
 
-		return html`
-			<sl-tooltip content="${this.tooltip}" trigger="hover">
-				<sl-button id="enable-button" @click="${this.onMute}" ?disabled="${disabled}">
-					<slot slot="prefix" name="icon"></slot>
-				</sl-button>
-			</sl-tooltip>
-			<sl-dropdown placement="top-start">
-				<sl-button slot="trigger" caret>
-					<sl-visually-hidden>Device options</sl-visually-hidden>
-				</sl-button>
-				<sl-menu>
-					${itemTemplates}
-					<sl-divider></sl-divider>
-					<sl-menu-item @click="${this.onSettings}">${t("devices.settings")}</sl-menu-item>
-				</sl-menu>
-			</sl-dropdown>
-		`;
-	}
+	// 	return html`
+	// 		<sl-tooltip content="${this.tooltip}" trigger="hover">
+	// 			<sl-button id="enable-button" @click="${this.onMute}" ?disabled="${disabled}">
+	// 				<slot slot="prefix" name="icon"></slot>
+	// 			</sl-button>
+	// 		</sl-tooltip>
+	// 		<sl-dropdown placement="top-start">
+	// 			<sl-button slot="trigger" caret>
+	// 				<sl-visually-hidden>Device options</sl-visually-hidden>
+	// 			</sl-button>
+	// 			<sl-menu>
+	// 				${itemTemplates}
+	// 				<sl-divider></sl-divider>
+	// 				<sl-menu-item @click="${this.onSettings}">${t("devices.settings")}</sl-menu-item>
+	// 			</sl-menu>
+	// 		</sl-dropdown>
+	// 	`;
+	// }
 
 	private renderDeviceItems(kind: MediaDeviceKind) {
 		const itemTemplates = [];
@@ -215,10 +215,10 @@ export class MediaDeviceButton extends I18nLitElement {
 	private getDevices() {
 		const devices: Map<string, MediaDeviceInfo> = new Map();
 
-		if (this.deviceSettings.cameraBlocked && this.deviceSettings.microphoneBlocked) {
-			this.devices = devices;
-			return;
-		}
+		// if (this.deviceSettings.cameraBlocked && this.deviceSettings.microphoneBlocked) {
+		// 	this.devices = devices;
+		// 	return;
+		// }
 
 		const predicate = this.type == "audio"
 			? (device: MediaDeviceInfo) => {
@@ -247,12 +247,12 @@ export class MediaDeviceButton extends I18nLitElement {
 
 	private getSettingsDeviceId(device: MediaDeviceInfo): string {
 		switch (device.kind) {
-			case 'audioinput':
-				return this.deviceSettings.microphoneDeviceId;
-			case 'audiooutput':
-				return this.deviceSettings.speakerDeviceId;
-			case 'videoinput':
-				return this.deviceSettings.cameraDeviceId;
+			// case 'audioinput':
+			// 	return this.deviceSettings.microphoneDeviceId;
+			// case 'audiooutput':
+			// 	return this.deviceSettings.speakerDeviceId;
+			// case 'videoinput':
+			// 	return this.deviceSettings.cameraDeviceId;
 			default:
 				throw new Error("Kind of media device not supported");
 		}

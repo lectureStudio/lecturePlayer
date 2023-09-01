@@ -6,7 +6,7 @@ import playerLoadingStyles from './player-loading.scss';
 @customElement('player-loading')
 export class PlayerLoading extends I18nLitElement {
 
-	static styles = [
+	static override styles = [
 		playerLoadingStyles,
 	];
 
@@ -14,7 +14,7 @@ export class PlayerLoading extends I18nLitElement {
 	text: string;
 
 
-	render() {
+	override render() {
 		return html`
 			<div class="lds-ellipsis">
 				<div></div><div></div><div></div><div></div>

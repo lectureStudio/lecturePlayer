@@ -5,11 +5,11 @@ import { Action } from "../action/action";
 
 export abstract class AtomicTool extends Tool {
 
-	abstract begin(point: Point, context: ToolContext): void;
+	abstract override begin(point: Point, context: ToolContext): void;
 
-	abstract getType(): ToolType;
+	abstract override getType(): ToolType;
 
-	abstract createAction(): Action;
+	abstract override createAction(): Action;
 
 
 	override execute(_point: Point): void {

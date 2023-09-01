@@ -11,13 +11,13 @@ import playerOfflineStyles from './player-offline.scss';
 @customElement('player-offline')
 export class PlayerOffline extends Component {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		playerOfflineStyles,
 	];
 
 
-	protected render() {
+	protected override render() {
 		return html`
 			<div>
 				<sl-icon name="${uiStateStore.streamProbeFailed ? 'shield-exclamation' : 'calendar-x'}"></sl-icon>

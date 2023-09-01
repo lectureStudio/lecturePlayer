@@ -6,7 +6,7 @@ import { t } from '../i18n-mixin';
 @customElement("recorded-modal")
 export class RecordedModal extends Modal {
 
-	render() {
+	override render() {
 		return html`
 			<sl-dialog label="${t("course.recorded.modal.title")}">
 				<article>

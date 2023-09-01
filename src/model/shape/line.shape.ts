@@ -2,7 +2,7 @@ import { FormShape } from "./form.shape";
 
 export class LineShape extends FormShape {
 
-	clone(): LineShape {
+	override clone(): LineShape {
 		const shape = new LineShape(this.handle, this.brush.clone());
 		shape.bounds.set(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
 		shape.setKeyEvent(this.getKeyEvent());
@@ -15,7 +15,7 @@ export class LineShape extends FormShape {
 		return shape;
 	}
 
-	public getShapeType(): string {
+	public override getShapeType(): string {
 		return "line";
 	}
 }

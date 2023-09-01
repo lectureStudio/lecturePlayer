@@ -41,7 +41,7 @@ class FormShape extends StrokeShape {
 		return true;
 	}
 
-	protected updateBounds(): void {
+	protected override updateBounds(): void {
 		if (this.points.length < 2) {
 			return;
 		}

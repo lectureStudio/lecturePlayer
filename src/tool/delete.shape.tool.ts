@@ -16,7 +16,7 @@ export class DeleteShapeTool extends Tool {
 		this.shapeHandle = shapeHandle;
 	}
 
-	begin(point: PenPoint, context: ToolContext): void {
+	override begin(point: PenPoint, context: ToolContext): void {
 		for (const shape of context.page.getShapes()) {
 			if (shape.handle === this.shapeHandle) {
 				context.page.addAction(new RemoveShapeAction(new Array(shape)));
@@ -25,11 +25,11 @@ export class DeleteShapeTool extends Tool {
 		}
 	}
 
-	execute(_point: PenPoint): void {
+	override execute(_point: PenPoint): void {
 		// No-op
 	}
 
-	end(_point: PenPoint): void {
+	override end(_point: PenPoint): void {
 		// No-op
 	}
 

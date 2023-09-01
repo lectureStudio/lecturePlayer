@@ -12,7 +12,7 @@ export class SelectTool extends Tool {
 	private selectedShape: Shape;
 
 
-	begin(point: PenPoint, context: ToolContext): void {
+	override begin(point: PenPoint, context: ToolContext): void {
 		super.begin(point, context);
 
 		this.sourcePoint = point.clone();
@@ -25,7 +25,7 @@ export class SelectTool extends Tool {
 		}
 	}
 
-	execute(point: PenPoint): void {
+	override execute(point: PenPoint): void {
 		if (this.selectedShape != null) {
 			this.sourcePoint.subtract(point);
 
@@ -39,7 +39,7 @@ export class SelectTool extends Tool {
 		}
 	}
 
-	end(point: PenPoint): void {
+	override end(point: PenPoint): void {
 		if (this.selectedShape != null) {
 			this.context.beginBulkRender();
 			this.selectedShape.setSelected(false);

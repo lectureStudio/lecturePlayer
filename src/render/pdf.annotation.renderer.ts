@@ -39,6 +39,10 @@ export class PdfAnnotationRenderer {
 	}
 }
 
+interface Map {
+	[key: string]: string | undefined
+}
+
 // Taken and modified the webL10n API by Fabien Cazenave for PDF.js extension.
 class Translator {
 
@@ -80,7 +84,7 @@ class Translator {
 		if (!key) {
 			return;
 		}
-		const data = this.gL10nData?.[key];
+		const data = (this.gL10nData as Indexable)?.[key] as string[];
 		if (!data) {
 			return;
 		}
@@ -105,14 +109,14 @@ class Translator {
 	}
 
 	// replace {{arguments}} with their values
-	private substArguments(str: string, args: unknown) {
+	private substArguments(str: string, args: object) {
 		const reArgs = /\{\{\s*(.+?)\s*\}\}/g;
-		return str.replace(reArgs, (matched_text, arg) => {
+		return str.replace(reArgs, (matched_text: string, arg: string): string => {
 			if (args && arg in (args as object)) {
-				return (args as Indexable)[arg];
+				return (args as Indexable)[arg] as string;
 			}
 			if (arg in this.gL10nData) {
-				return this.gL10nData[arg];
+				return (this.gL10nData as Indexable)[arg] as string;
 			}
 			console.log('argument {{' + arg + '}} is undefined.');
 			return matched_text;

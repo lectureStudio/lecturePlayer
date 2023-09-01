@@ -11,7 +11,7 @@ import quizFormStyles from './quiz-form.scss';
 @customElement('quiz-form')
 export class QuizForm extends Component {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		quizFormStyles,
 	];
@@ -24,7 +24,7 @@ export class QuizForm extends Component {
 		this.fieldErrors = response.fieldErrors || {};
 	}
 
-	render() {
+	override render() {
 		const feature = featureStore.quizFeature;
 		const itemTemplates = new Array<TemplateResult>();
 		const inputRules = feature?.fieldFilter?.rules;
@@ -50,7 +50,7 @@ export class QuizForm extends Component {
 			feature?.options.forEach((option: string, index: number) => {
 				// Currently there is only one rule implemented for the numeric type.
 				const rule = inputRules[index] as QuizMinMaxRule;
-				const error = this.fieldErrors[index];
+				const error = (this.fieldErrors as Indexable)[index] as string;
 
 				itemTemplates.push(html`
 					<div class="quiz-option">

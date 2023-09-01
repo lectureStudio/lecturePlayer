@@ -4,7 +4,7 @@ import { ShapeEvent } from "./shape-event";
 
 export class PointerShape extends StrokeShape {
 
-	addPoint(point: PenPoint): boolean {
+	override addPoint(point: PenPoint): boolean {
 		// Keep only one point at a time.
 		if (this.points.length > 0) {
 			const prev = this.points[0];
@@ -25,11 +25,11 @@ export class PointerShape extends StrokeShape {
 		return true;
 	}
 
-	public getShapeType(): string {
+	public override getShapeType(): string {
 		return "pointer";
 	}
 
-	protected updateBounds(): void {
+	protected override updateBounds(): void {
 		const p0 = this.points[0];
 		const d = this.brush.width;
 

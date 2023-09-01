@@ -13,7 +13,7 @@ export class ReconnectModal extends Modal {
 		super.close();
 	}
 
-	protected render() {
+	protected override render() {
 		return html`
 			<sl-dialog label="${t("reconnect.title")}">
 				<article>

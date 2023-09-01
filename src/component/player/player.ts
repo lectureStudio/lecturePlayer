@@ -11,7 +11,7 @@ import playerStyles from './player.scss';
 @customElement('lecture-player')
 export class LecturePlayer extends Component {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		playerStyles,
 	];
@@ -22,7 +22,7 @@ export class LecturePlayer extends Component {
 	courseId: number;
 
 
-	protected render() {
+	protected override render() {
 		return html`
 			${choose(uiStateStore.state, [
 				[State.CONNECTING,			() => html`<player-loading .text="${t("course.loading")}"></player-loading>`],

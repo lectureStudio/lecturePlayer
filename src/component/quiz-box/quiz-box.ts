@@ -12,7 +12,7 @@ import quizBoxStyles from './quiz-box.scss';
 @customElement('quiz-box')
 export class QuizBox extends Component {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		quizBoxStyles
 	];
@@ -59,7 +59,7 @@ export class QuizBox extends Component {
 			});
 	}
 
-	protected render() {
+	protected override render() {
 		return html`
 			<header part="header">
 				${t("course.feature.quiz")}

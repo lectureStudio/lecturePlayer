@@ -8,7 +8,7 @@ import mediaSettingsStyles from './media-settings.scss';
 
 export abstract class MediaSettings extends Component {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		mediaSettingsStyles
 	];

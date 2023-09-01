@@ -12,7 +12,7 @@ import participantBoxStyles from './participant-list.scss';
 @customElement('participant-list')
 export class ParticipantList extends Component {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		participantBoxStyles
 	];
@@ -36,7 +36,7 @@ export class ParticipantList extends Component {
 		this.setSortComparators(this.sortProperty);
 	}
 
-	protected render() {
+	protected override render() {
 		return html`
 			<header>
 				<span class="title">${t("course.participants")} (${participantStore.count})</span>

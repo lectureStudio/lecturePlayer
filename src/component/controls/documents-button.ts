@@ -11,7 +11,7 @@ import documentsButtonStyles from './documents-button.scss';
 @customElement('documents-button')
 export class DocumentsButton extends Component {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		documentsButtonStyles,
 	];
@@ -31,7 +31,7 @@ export class DocumentsButton extends Component {
 	selectedDocId: string;
 
 
-	protected render() {
+	protected override render() {
 		const documentItems = this.renderDocumentItems();
 
 		return html`

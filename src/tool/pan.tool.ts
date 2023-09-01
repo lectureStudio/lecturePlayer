@@ -11,13 +11,13 @@ export class PanTool extends Tool {
 	private lastPoint: Point;
 
 
-	begin(point: PenPoint, context: ToolContext): void {
+	override begin(point: PenPoint, context: ToolContext): void {
 		this.lastPoint = point;
 
 		super.begin(point, context);
 	}
 
-	execute(point: PenPoint): void {
+	override execute(point: PenPoint): void {
 		const slideShape = this.context.page.getSlideShape();
 		const pageRect = slideShape.bounds;
 

@@ -18,7 +18,7 @@ export class TextTool extends Tool {
 		this.handle = handle;
 	}
 
-	begin(point: PenPoint, context: ToolContext): void {
+	override begin(point: PenPoint, context: ToolContext): void {
 		this.context = context;
 
 		this.shape = new TextShape(this.handle);
@@ -26,11 +26,11 @@ export class TextTool extends Tool {
 		super.begin(point, context);
 	}
 
-	execute(_point: PenPoint): void {
+	override execute(_point: PenPoint): void {
 		// No-op
 	}
 
-	end(point: PenPoint): void {
+	override end(point: PenPoint): void {
 		this.shape.setLocation(point);
 
 		this.context.page.addShape(this.shape);

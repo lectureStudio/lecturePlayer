@@ -9,8 +9,8 @@ export abstract class PaintTool extends Tool {
 	brush: Brush;
 
 
-	abstract getType(): ToolType;
-	abstract createAction(): Action;
+	abstract override getType(): ToolType;
+	abstract override createAction(): Action;
 
 
 	set shapeHandle(handle: number) {

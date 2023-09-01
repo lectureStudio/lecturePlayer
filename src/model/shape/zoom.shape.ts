@@ -6,11 +6,11 @@ export class ZoomShape extends FormShape {
 		super(0, null);
 	}
 
-	public getShapeType(): string {
+	public override getShapeType(): string {
 		return "zoom";
 	}
 
-	protected updateBounds(): void {
+	protected override updateBounds(): void {
 		super.updateBounds();
 
 		// Keep aspect ratio with width bias.

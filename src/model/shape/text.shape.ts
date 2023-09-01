@@ -22,7 +22,7 @@ export class TextShape extends TypesettingShape {
 		return this.font;
 	}
 
-	clone(): TextShape {
+	override clone(): TextShape {
 		const shape = new TextShape(this.handle);
 		shape.setLocation(new Point(this.bounds.x, this.bounds.y));
 		shape.setFont(this.font);

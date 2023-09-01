@@ -18,17 +18,17 @@ export class LatexTool extends Tool {
 		this.handle = handle;
 	}
 
-	begin(point: PenPoint, context: ToolContext): void {
+	override begin(point: PenPoint, context: ToolContext): void {
 		this.shape = new LatexShape(this.handle);
 
 		super.begin(point, context);
 	}
 
-	execute(point: PenPoint): void {
+	override execute(point: PenPoint): void {
 		super.execute(point);
 	}
 
-	end(point: PenPoint): void {
+	override end(point: PenPoint): void {
 		this.shape.setLocation(point);
 
 		this.context.page.addShape(this.shape);

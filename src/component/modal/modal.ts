@@ -6,7 +6,7 @@ import modalStyles from "./modal.scss";
 
 export abstract class Modal extends I18nLitElement {
 
-	static styles = [
+	static override styles = [
 		I18nLitElement.styles,
 		modalStyles
 	];

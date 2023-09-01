@@ -16,7 +16,7 @@ class PenPoint extends Point {
 		return new PenPoint(this.x, this.y, this.p);
 	}
 
-	equals(other: PenPoint): boolean {
+	override equals(other: PenPoint): boolean {
 		if (!other) {
 			return false;
 		}

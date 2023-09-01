@@ -6,7 +6,7 @@ import { t } from '../i18n-mixin';
 @customElement("vpn-modal")
 export class VpnModal extends Modal {
 
-	protected render() {
+	protected override render() {
 		return html`
 			<sl-dialog label="${t("vpn.required.title")}">
 				<article>

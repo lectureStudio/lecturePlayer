@@ -22,7 +22,7 @@ export class LatexShape extends TypesettingShape {
 		return this.font;
 	}
 
-	clone(): LatexShape {
+	override clone(): LatexShape {
 		const shape = new LatexShape(this.handle);
 		shape.setLocation(new Point(this.bounds.x, this.bounds.y));
 		shape.setFont(this.font);

@@ -8,7 +8,7 @@ import chatModalStyles from "./chat.modal.scss";
 @customElement("chat-modal")
 export class ChatModal extends Modal {
 
-	static styles = [
+	static override styles = [
 		Modal.styles,
 		chatModalStyles
 	];
@@ -17,7 +17,7 @@ export class ChatModal extends Modal {
 	chatService: ChatService;
 
 
-	protected render() {
+	protected override render() {
 		return html`
 			<sl-dialog label="${t("course.feature.message")}">
 				<article>

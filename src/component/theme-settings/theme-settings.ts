@@ -11,7 +11,7 @@ export class ThemeSettings extends Component {
 	private select: HTMLSelectElement;
 
 
-	protected render() {
+	protected override render() {
 		return html`
 			<sl-select @sl-change="${this.onThemeChange}" .value="${uiStateStore.colorScheme}" name="theme" label="${t("settings.theme")}" size="small" hoist>
 				<sl-option value="${ColorScheme.LIGHT}">${t("theme.light")}</sl-option>

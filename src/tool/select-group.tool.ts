@@ -22,7 +22,7 @@ export class SelectGroupTool extends Tool {
 	private initialized: boolean;
 
 
-	begin(point: PenPoint, context: ToolContext): void {
+	override begin(point: PenPoint, context: ToolContext): void {
 		super.begin(point, context);
 
 		this.sourcePoint = point.clone();
@@ -51,7 +51,7 @@ export class SelectGroupTool extends Tool {
 		}
 	}
 
-	execute(point: PenPoint): void {
+	override execute(point: PenPoint): void {
 		if (this.mode == Mode.Select) {
 			if (!this.initialized) {
 				this.shape.setP0(point);
@@ -74,7 +74,7 @@ export class SelectGroupTool extends Tool {
 		super.execute(point);
 	}
 
-	end(point: PenPoint): void {
+	override end(point: PenPoint): void {
 		this.context.page.removeShape(this.shape);
 
 		this.initialized = false;

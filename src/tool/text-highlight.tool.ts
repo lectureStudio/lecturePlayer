@@ -25,7 +25,7 @@ export class TextHighlightTool extends Tool {
 		this.textBounds = textBounds;
 	}
 
-	begin(point: Point, context: ToolContext): void {
+	override begin(point: Point, context: ToolContext): void {
 		if (this.textBounds.length < 1) {
 			return;
 		}
@@ -50,11 +50,11 @@ export class TextHighlightTool extends Tool {
 		}
 	}
 
-	execute(_point: Point): void {
+	override execute(_point: Point): void {
 		// Do nothing.
 	}
 
-	end(_point: Point): void {
+	override end(_point: Point): void {
 		// Do nothing.
 	}
 

@@ -13,7 +13,7 @@ export class CloneTool extends Tool {
 	private selectedShapes: Shape[];
 
 
-	begin(point: PenPoint, context: ToolContext): void {
+	override begin(point: PenPoint, context: ToolContext): void {
 		super.begin(point, context);
 
 		this.sourcePoint = point.clone();
@@ -49,7 +49,7 @@ export class CloneTool extends Tool {
 		}
 	}
 
-	execute(point: PenPoint): void {
+	override execute(point: PenPoint): void {
 		this.sourcePoint.subtract(point);
 
 		this.moveShapes(point, this.sourcePoint);

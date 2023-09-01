@@ -5,7 +5,7 @@ import { Rectangle } from "../../geometry/rectangle";
 
 export class EllipseShape extends FormShape {
 
-	contains(point: Point): boolean {
+	override contains(point: Point): boolean {
 		if (this.points.length < 2) {
 			return false;
 		}
@@ -19,7 +19,7 @@ export class EllipseShape extends FormShape {
 		return ellipse.intersectsLine(point.x, point.y, point.x + this.brush.width, point.y + this.brush.width);
 	}
 
-	intersects(rect: Rectangle): boolean {
+	override intersects(rect: Rectangle): boolean {
 		if (this.points.length < 2) {
 			return false;
 		}
@@ -29,7 +29,7 @@ export class EllipseShape extends FormShape {
 		return ellipse.intersectsRect(rect.x, rect.y, rect.width, rect.height);
 	}
 
-	clone(): EllipseShape {
+	override clone(): EllipseShape {
 		const shape = new EllipseShape(this.handle, this.brush.clone());
 		shape.bounds.set(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
 		shape.setKeyEvent(this.getKeyEvent());
@@ -42,7 +42,7 @@ export class EllipseShape extends FormShape {
 		return shape;
 	}
 
-	public getShapeType(): string {
+	public override getShapeType(): string {
 		return "ellipse";
 	}
 }
