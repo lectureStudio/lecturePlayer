@@ -80,7 +80,7 @@ class Point {
 	 *
 	 * @return true if the points are equal, false otherwise.
 	 */
-	equals(other: Point): boolean {
+	equals(other: Point | undefined): boolean {
 		if (!other) {
 			return false;
 		}

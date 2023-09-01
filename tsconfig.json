@@ -1,34 +1,39 @@
 {
 	"compilerOptions": {
 		"outDir": "./dist/",
-		"allowJs": true,
-		"strict": true,
-		"noEmit": true,
+		"declaration": true,
+		"declarationMap": true,
+		"sourceMap": true,
+		"inlineSources": true,
+		// "strict": true,
+		"strictNullChecks": true,
 		"noImplicitAny": true,
 		"noImplicitReturns": true,
+		"noImplicitThis": true,
+		"noImplicitOverride": true,
+		"skipLibCheck": true,
 		"downlevelIteration": true,
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
 		"experimentalDecorators": true,
-		"emitDecoratorMetadata": false,
+		"emitDecoratorMetadata": true,
 		"useDefineForClassFields": false,
 		"strictBindCallApply": true,
+		"forceConsistentCasingInFileNames": true,
 		"moduleResolution": "node",
-		"module": "es6",
-		"target": "es5",
+		"target": "es2019",
+		"module": "es2020",
 		"lib": [
-			"dom",
-			"dom.iterable",
-			"es5",
-			"es6",
-			"es2015",
-			"es2015.collection",
-			"es2015.iterable",
-			"es2019"
+			"es2020",
+			"DOM",
+			"DOM.Iterable"
 		],
 		"typeRoots": [
 			"node_modules/@types",
 			"./src/types"
 		]
-	}
+	},
+	"include": [
+		"src/**/*.ts"
+	]
 }

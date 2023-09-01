@@ -63,7 +63,7 @@ console.log("** has video", has)
 		}
 	}
 
-	private setVideoStream(stream: MediaStream) {
+	private setVideoStream(stream: MediaStream | null) {
 		Devices.attachMediaStream(this.video, stream);
 
 		if (!stream) {

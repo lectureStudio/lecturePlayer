@@ -64,7 +64,7 @@ export class ParticipantView extends Component {
 			}
 		});
 
-		this.isConference = courseStore.conference;
+		this.isConference = courseStore.conference ?? false;
 	}
 
 	protected override firstUpdated() {
@@ -132,7 +132,7 @@ export class ParticipantView extends Component {
 		}
 	}
 
-	private setAudioStream(stream: MediaStream) {
+	private setAudioStream(stream: MediaStream | null) {
 		Devices.attachMediaStream(this.audio, stream);
 
 		if (!stream) {
@@ -151,7 +151,7 @@ export class ParticipantView extends Component {
 			});
 	}
 
-	private setVideoStream(stream: MediaStream) {
+	private setVideoStream(stream: MediaStream | null) {
 		Devices.attachMediaStream(this.video, stream);
 
 		if (!stream) {

@@ -61,7 +61,12 @@ export class ChatBox extends Component {
 	}
 
 	send() {
-		const sendButton: HTMLButtonElement = this.shadowRoot.querySelector("#message-submit");
+		const sendButton: HTMLButtonElement | null = this.renderRoot.querySelector("#message-submit");
+
+		if (!sendButton) {
+			throw new Error("Send button is null");
+		}
+
 		sendButton.click();
 	}
 
@@ -78,7 +83,11 @@ export class ChatBox extends Component {
 		const submitButton = <HTMLButtonElement> event.target;
 		submitButton.disabled = true;
 
-		const chatForm: ChatForm = this.renderRoot.querySelector("chat-form");
+		const chatForm: ChatForm | null = this.renderRoot.querySelector("chat-form");
+
+		if (!chatForm) {
+			throw new Error("Form is null");
+		}
 
 		this.chatService.postMessage(chatForm.getFormData())
 			.then(() => {

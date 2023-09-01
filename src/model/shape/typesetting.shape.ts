@@ -55,11 +55,11 @@ abstract class TypesettingShape extends Shape {
 	}
 
 	isUnderline(): boolean {
-		return this.textAttributes.get("underline");
+		return this.textAttributes.get("underline") ?? false;
 	}
 
 	isStrikethrough(): boolean {
-		return this.textAttributes.get("strikethrough");
+		return this.textAttributes.get("strikethrough") ?? false;
 	}
 
 	setLocation(point: Point): boolean {

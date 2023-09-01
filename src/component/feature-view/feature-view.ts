@@ -43,7 +43,7 @@ export class PlayerFeatureView extends Component {
 
 	section: string = "chat";
 
-	prevSection: string = null;
+	prevSection: string;
 
 	isCompactMode: boolean = false;
 
@@ -146,7 +146,7 @@ export class PlayerFeatureView extends Component {
 
 		if (this.tabGroup) {
 			let showSection = this.section;
-			let tab: SlTab = this.tabGroup.querySelector(`sl-tab[panel=${showSection}]`);
+			let tab: SlTab | null = this.tabGroup.querySelector(`sl-tab[panel=${showSection}]`);
 
 			tab = this.checkOrGetDefaultTab(tab);
 			if (tab) {
@@ -236,10 +236,10 @@ export class PlayerFeatureView extends Component {
 	private onCompactLayout(compact: boolean) {
 		this.isCompactMode = compact;
 
-		let tab: SlTab = this.tabGroup.querySelector("sl-tab[active]");
+		let tab: SlTab | null = this.tabGroup.querySelector("sl-tab[active]");
 
 		// Select non-participants tab for activation.
-		if (tab.panel !== "participants") {
+		if (tab && tab.panel !== "participants") {
 			this.section = tab.panel;
 		}
 		else {
@@ -268,7 +268,7 @@ export class PlayerFeatureView extends Component {
 		}
 	}
 
-	private checkOrGetDefaultTab(tab: SlTab): SlTab {
+	private checkOrGetDefaultTab(tab: SlTab | null): SlTab {
 		if (!tab) {
 			tab = this.tabGroup.querySelector(`sl-tab[panel=${this.prevSection}]`);
 			if (!tab) {

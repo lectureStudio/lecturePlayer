@@ -9,7 +9,7 @@ export abstract class ToolAction extends Action {
 	constructor(point?: PenPoint) {
 		super();
 
-		this.point = point;
+		this.point = point ? point : PenPoint.createZero();
 	}
 
 	override toBuffer(): ArrayBuffer {

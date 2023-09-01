@@ -341,14 +341,18 @@ export class JanusPublisher extends JanusParticipant {
 				// console.log("---- add video");
 
 				// Must be a camera device.
-				participantStore.setParticipantCameraStream(userStore.userId, stream);
+				if (userStore.userId) {
+					participantStore.setParticipantCameraStream(userStore.userId, stream);
+				}
 
 				this.setCameraState(true);
 			}
 			else {
 				// console.log("---- add screen");
 
-				participantStore.setParticipantScreenStream(userStore.userId, stream);
+				if (userStore.userId) {
+					participantStore.setParticipantScreenStream(userStore.userId, stream);
+				}
 
 				this.setScreenState(true);
 			}
@@ -375,7 +379,9 @@ export class JanusPublisher extends JanusParticipant {
 		this.streams.delete(id);
 
 		if (kind === "audio") {
-			participantStore.removeParticipantMicrophoneStream(userStore.userId);
+			if (userStore.userId) {
+				participantStore.removeParticipantMicrophoneStream(userStore.userId);
+			}
 		}
 		else if (kind === "video") {
 			if (deviceId) {
@@ -383,13 +389,17 @@ export class JanusPublisher extends JanusParticipant {
 				// console.log("---- remove video");
 
 				// Must be a camera device.
-				participantStore.removeParticipantCameraStream(userStore.userId);
+				if (userStore.userId) {
+					participantStore.removeParticipantCameraStream(userStore.userId);
+				}
 			}
 			else {
 
 				// console.log("---- remove screen");
 
-				participantStore.removeParticipantScreenStream(userStore.userId);
+				if (userStore.userId) {
+					participantStore.removeParticipantScreenStream(userStore.userId);
+				}
 			}
 		}
 	}
@@ -617,7 +627,9 @@ export class JanusPublisher extends JanusParticipant {
 	}
 
 	private setMicrophoneState(active: boolean) {
-		participantStore.setParticipantMicrophoneActive(userStore.userId, active);
+		if (userStore.userId) {
+			participantStore.setParticipantMicrophoneActive(userStore.userId, active);
+		}
 
 		CourseMediaApi.updateMediaStreamState(courseStore.courseId, { Audio: active })
 			.catch(error => {
@@ -626,7 +638,9 @@ export class JanusPublisher extends JanusParticipant {
 	}
 
 	private setCameraState(active: boolean) {
-		participantStore.setParticipantCameraActive(userStore.userId, active);
+		if (userStore.userId) {
+			participantStore.setParticipantCameraActive(userStore.userId, active);
+		}
 
 		CourseMediaApi.updateMediaStreamState(courseStore.courseId, { Camera: active })
 			.catch(error => {
@@ -635,7 +649,9 @@ export class JanusPublisher extends JanusParticipant {
 	}
 
 	private setScreenState(active: boolean) {
-		participantStore.setParticipantScreenActive(userStore.userId, active);
+		if (userStore.userId) {
+			participantStore.setParticipantScreenActive(userStore.userId, active);
+		}
 
 		CourseMediaApi.updateMediaStreamState(courseStore.courseId, { Screen: active })
 			.catch(error => {

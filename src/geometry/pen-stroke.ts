@@ -33,7 +33,7 @@ class PenStroke {
 
 	getStrokeList(): Array<PenPoint> {
 		if (this.points.length === 0) {
-			return null;
+			return [];
 		}
 
 		const stroke = new Array<PenPoint>();

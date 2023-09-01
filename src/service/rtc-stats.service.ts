@@ -36,6 +36,10 @@ export class RTCStatsService {
 	}
 
 	private getRtpStats(report: RTCStatsReport, stats: RTCInboundRtpStreamStats | RTCOutboundRtpStreamStats, inbound: boolean) {
+		if (!stats.codecId) {
+			return;
+		}
+
 		const codecStats: RTCCodecStats = report.get(stats.codecId);
 
 		if (!codecStats) {
@@ -92,9 +96,9 @@ export class RTCStatsService {
 		const videoStats: StreamVideoStats = {
 			timestamp: stats.timestamp,
 			codec: codecStats.mimeType.substring(codecStats.mimeType.indexOf("/") + 1),
-			frameWidth: stats.frameWidth,
-			frameHeight: stats.frameHeight,
-			framesPerSecond: stats.framesPerSecond
+			frameWidth: stats.frameWidth ?? NaN,
+			frameHeight: stats.frameHeight ?? NaN,
+			framesPerSecond: stats.framesPerSecond ?? NaN
 		};
 
 		if (inbound) {
@@ -168,11 +172,11 @@ export class RTCStatsService {
 		}
 	}
 
-	private getBitrate(lastTimestamp: number, lastBytes: number, stats: StreamAudioStats | StreamVideoStats, inbound: boolean) {
+	private getBitrate(lastTimestamp: number | undefined, lastBytes: number | undefined, stats: StreamAudioStats | StreamVideoStats, inbound: boolean) {
 		if (lastTimestamp && lastBytes) {
 			const bytes = inbound ? stats.bytesReceived : stats.bytesSent;
-			const timeDelta = (stats.timestamp - lastTimestamp) / 1000; // milliseconds to seconds
-			const bytesDelta = (bytes - lastBytes) * 8; // bytes to bits
+			const timeDelta = (stats.timestamp ?? NaN - lastTimestamp) / 1000; // milliseconds to seconds
+			const bytesDelta = (bytes ?? NaN - lastBytes) * 8; // bytes to bits
 
 			if (inbound) {
 				stats.bitrateIn = bytesDelta / timeDelta; // bits per second
@@ -184,6 +188,11 @@ export class RTCStatsService {
 	}
 
 	private getPacketLossPercent(stats: StreamAudioStats | StreamVideoStats) {
-		stats.packetLossPercent = stats.packetsLost / (stats.packetsReceived + stats.packetsLost) * 100;
+		if (stats.packetsLost && stats.packetsReceived) {
+			stats.packetLossPercent = stats.packetsLost / (stats.packetsReceived + stats.packetsLost) * 100;
+		}
+		else {
+			stats.packetLossPercent = undefined;
+		}
 	}
 }

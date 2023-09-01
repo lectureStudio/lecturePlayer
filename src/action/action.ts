@@ -3,7 +3,7 @@ import { ActionType } from "./action-type";
 
 export abstract class Action {
 
-	keyEvent: KeyboardEvent;
+	keyEvent: KeyboardEvent | undefined;
 
 	timestamp: number;
 

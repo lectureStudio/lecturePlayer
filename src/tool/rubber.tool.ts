@@ -38,6 +38,6 @@ export class RubberTool extends Tool {
 
 	createAction(): Action {
 		// No need to create a general action.
-		return null;
+		return {} as Action;
 	}
 }

@@ -5,22 +5,22 @@ import { uiStateStore } from "./ui-state.store";
 
 class FeatureStore {
 
-	chatFeature: MessageFeature;
+	chatFeature: MessageFeature | undefined;
 
-	quizFeature: QuizFeature;
+	quizFeature: QuizFeature | undefined;
 
 
 	constructor() {
 		makeAutoObservable(this);
 	}
 
-	setChatFeature(feature: MessageFeature) {
+	setChatFeature(feature: MessageFeature | undefined) {
 		this.chatFeature = feature;
 
 		uiStateStore.setChatVisible(this.hasChatFeature());
 	}
 
-	setQuizFeature(feature: QuizFeature) {
+	setQuizFeature(feature: QuizFeature | undefined) {
 		this.quizFeature = feature;
 	}
 
@@ -37,8 +37,8 @@ class FeatureStore {
 	}
 
 	reset() {
-		this.chatFeature = null;
-		this.quizFeature = null;
+		this.chatFeature = undefined;
+		this.quizFeature = undefined;
 	}
 }
 

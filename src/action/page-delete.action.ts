@@ -21,7 +21,7 @@ export class PageDeleteAction extends Action {
 	}
 
 	getActionType(): ActionType {
-		return null;
+		return ActionType.PAGE;
 	}
 
 	toBuffer(): ArrayBuffer {

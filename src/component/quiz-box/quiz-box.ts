@@ -21,20 +21,31 @@ export class QuizBox extends Component {
 	quizForm: QuizForm;
 
 
-	protected post(event: Event) {
-		const quizForm: HTMLFormElement = this.renderRoot.querySelector("quiz-form")
-			.shadowRoot.querySelector("form");
-
+	protected post(event: Event): Promise<void> {
 		const submitButton = <HTMLButtonElement> event.target;
 		submitButton.disabled = true;
 
-		const data = new FormData(quizForm);
+		if (!this.quizForm) {
+			throw new Error("Form is null");
+		}
+
+		const data = this.quizForm.getFormData();
+		const serviceId = data.get("serviceId");
+		const options = data.getAll("options");
+
+		if (!serviceId) {
+			return Promise.reject("Service id is not set");
+		}
+		if (!options) {
+			return Promise.reject("Options are not set");
+		}
+
 		const answer: QuizAnswer = {
-			serviceId: data.get("serviceId").toString(),
-			options: data.getAll("options") as string[]
+			serviceId: serviceId.toString(),
+			options: options as string[]
 		};
 
-		CourseQuizApi.postQuizAnswer(courseStore.courseId, answer)
+		return CourseQuizApi.postQuizAnswer(courseStore.courseId, answer)
 			.then(response => {
 				this.quizForm.setResponse(response);
 
@@ -46,7 +57,7 @@ export class QuizBox extends Component {
 				}
 			})
 			.finally(() => {
-				quizForm.reset();
+				this.quizForm.resetForm();
 				submitButton.disabled = false;
 			})
 			.catch(error => {

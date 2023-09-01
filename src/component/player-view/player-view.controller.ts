@@ -33,7 +33,7 @@ export class PlayerViewController implements ReactiveController {
 	update() {
 		this.clockIntervalId = window.setInterval(() => {
 			try {
-				this.host.controls.duration = (Date.now() - courseStore.timeStarted);
+				this.host.controls.duration = (Date.now() - (courseStore.timeStarted ?? 0));
 			}
 			catch (error) {
 				window.clearInterval(this.clockIntervalId);

@@ -66,7 +66,7 @@ export class PlaybackService {
 		documentStore.removeDocumentById(docId);
 	}
 
-	getSelectedDocument(): SlideDocument {
+	getSelectedDocument(): SlideDocument | null {
 		return this.actionPlayer.getDocument();
 	}
 
@@ -98,11 +98,19 @@ export class PlaybackService {
 	}
 
 	selectPreviousDocumentPage(): boolean {
-		return this.setPageNumber(documentStore.selectedPageNumber - 1);
+		if (documentStore.selectedPageNumber) {
+			return this.setPageNumber(documentStore.selectedPageNumber - 1);
+		}
+
+		return false;
 	}
 
 	selectNextDocumentPage(): boolean {
-		return this.setPageNumber(documentStore.selectedPageNumber + 1);
+		if (documentStore.selectedPageNumber) {
+			return this.setPageNumber(documentStore.selectedPageNumber + 1);
+		}
+
+		return false;
 	}
 
 	setPageNumber(pageNumber: number) {

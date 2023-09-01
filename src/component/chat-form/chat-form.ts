@@ -34,9 +34,9 @@ export class ChatForm extends Component {
 	}
 
 	resetForm() {
-		this.form.querySelectorAll('[resettable]')
+		this.form.querySelectorAll("[resettable]")
 			.forEach((element: HTMLInputElement) => {
-				element.value = null;
+				element.value = "";
 			});
 	}
 
@@ -51,7 +51,7 @@ export class ChatForm extends Component {
 		else {
 			const recipient = participantStore.findByUserId(this.selectedRecipient);
 
-			this.recipientSelect.value = recipient ? this.selectedRecipient : null;
+			this.recipientSelect.value = recipient ? this.selectedRecipient : "";
 		}
 	}
 

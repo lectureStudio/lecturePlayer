@@ -97,7 +97,7 @@ class Line {
 	 * @return the intersection point of the two line segments, null if the line
 	 *         segments do not intersect each other.
 	 */
-	getIntersectionPoint(x3: number, y3: number, x4: number, y4: number): Point {
+	getIntersectionPoint(x3: number, y3: number, x4: number, y4: number): Point | null {
 		const d = (y4 - y3) * (this.x2 - this.x1) - (x4 - x3) * (this.y2 - this.y1);
 
 		// Are the lines parallel.

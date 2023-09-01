@@ -16,7 +16,7 @@ export class SlideRenderSurface extends RenderSurface {
 	}
 
 	async render(page: Page, transform: Transform, viewRegion: Rectangle): Promise<void> {
-		if (!this.canvasContext.canvas.style.width || !this.canvasContext.canvas.style.height) {
+		if (!this.canvasContext || !this.canvasContext.canvas.style.width || !this.canvasContext.canvas.style.height) {
 			return new Promise((resolve, reject) => {
 				reject("Surface has no real size");
 			});

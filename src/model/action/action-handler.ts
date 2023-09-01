@@ -26,6 +26,12 @@ export class ActionHandler<T> {
 		}
 
 		const action = this.undoActions.pop();
+
+		if (!action) {
+			// This case should never be reached.
+			throw new Error("No action to undo");
+		}
+
 		this.redoActions.push(action);
 		action.undo(this.model);
 	}
@@ -36,6 +42,12 @@ export class ActionHandler<T> {
 		}
 
 		const action = this.redoActions.pop();
+
+		if (!action) {
+			// This case should never be reached.
+			throw new Error("No action to redo");
+		}
+
 		this.undoActions.push(action);
 		action.redo(this.model);
 	}

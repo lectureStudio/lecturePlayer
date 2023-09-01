@@ -33,6 +33,7 @@ import { PenRenderer } from "./pen.renderer";
 import { Brush } from "../paint/brush";
 import { SlideView } from "../component/slide-view/slide-view";
 import { AnnotationLayerSurface } from "./annotation-layer-surface";
+import { Color } from "../paint/color";
 
 export class RenderController {
 
@@ -40,7 +41,7 @@ export class RenderController {
 
 	private readonly visibilityChangeListener: () => void;
 
-	private slideView: SlideView;
+	private slideView: SlideView | null;
 
 	private slideRenderSurface: SlideRenderSurface;
 
@@ -54,7 +55,7 @@ export class RenderController {
 
 	private page: Page;
 
-	private lastShape: Shape;
+	private lastShape: Shape | null;
 
 	private lastTransform: Transform;
 
@@ -180,6 +181,9 @@ export class RenderController {
 				break;
 
 			case PageChangeType.ShapeAdded:
+				if (!event.shape) {
+					return;
+				}
 				if (this.lastShape && this.lastShape != event.shape) {
 					const size = this.actionRenderSurface.getSize();
 					const bounds: Rectangle = new Rectangle(0, 0, size.width, size.height);
@@ -195,6 +199,9 @@ export class RenderController {
 				break;
 
 			case PageChangeType.ShapeModified:
+				if (!event.shape) {
+					return;
+				}
 				if (event.shape.getShapeType() === "text") {
 					this.renderAllLayers(this.page);
 				}
@@ -302,7 +309,7 @@ export class RenderController {
 		this.actionRenderSurface.renderShape(shape, dirtyRegion);
 	}
 
-	private renderVolatileLayer(shape: Shape, dirtyRegion: Rectangle): void {
+	private renderVolatileLayer(shape: Shape, dirtyRegion?: Rectangle): void {
 		this.volatileRenderSurface.renderSurface(this.actionRenderSurface);
 		this.volatileRenderSurface.renderShape(shape, dirtyRegion);
 
@@ -350,19 +357,22 @@ export class RenderController {
 	}
 
 	private registerShapeRenderers(renderSurface: RenderSurface): void {
-		const brush = new Brush(null, null);
+		// Dummy brush.
+		const color = Color.fromHex("#000");
+		const brush = new Brush(color, 0);
+		const handle = 0;
 
-		renderSurface.registerRenderer(new PenShape(null, brush), new PenRenderer());
-		renderSurface.registerRenderer(new StrokeShape(null, brush), new HighlighterRenderer());
-		renderSurface.registerRenderer(new PointerShape(null, brush), new PointerRenderer());
-		renderSurface.registerRenderer(new ArrowShape(null, brush), new ArrowRenderer());
-		renderSurface.registerRenderer(new RectangleShape(null, brush), new RectangleRenderer());
-		renderSurface.registerRenderer(new LineShape(null, brush), new LineRenderer());
-		renderSurface.registerRenderer(new EllipseShape(null, brush), new EllipseRenderer());
-		renderSurface.registerRenderer(new SelectShape(), new SelectRenderer());
-		renderSurface.registerRenderer(new TextShape(null), new TextRenderer());
-		renderSurface.registerRenderer(new TextHighlightShape(null, null), new TextHighlightRenderer());
-		renderSurface.registerRenderer(new LatexShape(null), new LatexRenderer());
-		renderSurface.registerRenderer(new ZoomShape(), new ZoomRenderer());
+		renderSurface.registerRenderer(new PenShape(handle, brush), new PenRenderer());
+		renderSurface.registerRenderer(new StrokeShape(handle, brush), new HighlighterRenderer());
+		renderSurface.registerRenderer(new PointerShape(handle, brush), new PointerRenderer());
+		renderSurface.registerRenderer(new ArrowShape(handle, brush), new ArrowRenderer());
+		renderSurface.registerRenderer(new RectangleShape(handle, brush), new RectangleRenderer());
+		renderSurface.registerRenderer(new LineShape(handle, brush), new LineRenderer());
+		renderSurface.registerRenderer(new EllipseShape(handle, brush), new EllipseRenderer());
+		renderSurface.registerRenderer(new SelectShape(brush), new SelectRenderer());
+		renderSurface.registerRenderer(new TextShape(handle), new TextRenderer());
+		renderSurface.registerRenderer(new TextHighlightShape(handle, color), new TextHighlightRenderer());
+		renderSurface.registerRenderer(new LatexShape(handle), new LatexRenderer());
+		renderSurface.registerRenderer(new ZoomShape(brush), new ZoomRenderer());
 	}
 }

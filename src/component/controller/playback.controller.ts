@@ -35,6 +35,10 @@ export class PlaybackController extends Controller {
 	}
 
 	setActiveDocument(activeDoc: CourseStateDocument) {
+		if (!activeDoc.activePage) {
+			throw new Error("Active document has no active page");
+		}
+
 		this.playbackService.setActiveDocument(activeDoc.documentId, activeDoc.activePage.pageNumber);
 	}
 

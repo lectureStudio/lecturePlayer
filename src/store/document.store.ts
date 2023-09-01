@@ -13,14 +13,14 @@ class DocumentStore {
 
 	documents: SlideDocument[] = [];
 
-	documentStateMap: Map<bigint, DocumentState>;
+	documentStateMap: Map<bigint, DocumentState> | undefined;
 
-	activeDocument: CourseStateDocument;
-	documentMap: Map<bigint, CourseStateDocument>;
+	activeDocument: CourseStateDocument | undefined;
+	documentMap: Map<bigint, CourseStateDocument> | undefined;
 
-	selectedDocument: SlideDocument;
-	selectedPage: Page;
-	selectedPageNumber: number;
+	selectedDocument: SlideDocument | undefined;
+	selectedPage: Page | undefined;
+	selectedPageNumber: number | undefined;
 
 
 	constructor() {
@@ -65,13 +65,13 @@ class DocumentStore {
 
 	reset() {
 		this.documents = [];
-		this.documentStateMap = null;
-		this.activeDocument = null;
-		this.documentMap = null;
+		this.documentStateMap = undefined;
+		this.activeDocument = undefined;
+		this.documentMap = undefined;
 
-		this.selectedDocument = null;
-		this.selectedPage = null;
-		this.selectedPageNumber = null;
+		this.selectedDocument = undefined;
+		this.selectedPage = undefined;
+		this.selectedPageNumber = undefined;
 	}
 }
 

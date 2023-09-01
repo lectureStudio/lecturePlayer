@@ -10,9 +10,7 @@ class ParticipantStore {
 
 
 	constructor() {
-		makeAutoObservable(this, null, {
-			deep: true
-		});
+		makeAutoObservable(this);
 	}
 
 	addParticipant(participant: CourseParticipant) {

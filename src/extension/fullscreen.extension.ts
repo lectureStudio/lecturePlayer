@@ -57,12 +57,12 @@ if (vendor != null) {
 	if (!(fullscreenElement in document)) {
 		Object.defineProperty(document, fullscreenElement, {
 			get: function () {
-				return (document as unknown as Indexable)[vendor[specKeys.fullscreenElement]];
+				return vendor ? (document as unknown as Indexable)[vendor[specKeys.fullscreenElement]] : undefined;
 			}
 		});
 		Object.defineProperty(document, fullscreenEnabled, {
 			get: function () {
-				return (document as unknown as Indexable)[vendor[specKeys.fullscreenEnabled]];
+				return vendor ? (document as unknown as Indexable)[vendor[specKeys.fullscreenEnabled]] : undefined;
 			}
 		});
 	}

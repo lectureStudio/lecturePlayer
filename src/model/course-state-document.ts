@@ -10,8 +10,8 @@ export interface CourseStateDocument {
 
 	readonly type: string;
 
-	readonly activePage: CourseStatePage;
+	readonly activePage?: CourseStatePage;
 
-	readonly pages: Map<number, CourseStatePage>;
+	readonly pages?: Map<number, CourseStatePage>;
 
 }

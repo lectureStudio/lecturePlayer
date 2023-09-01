@@ -21,7 +21,7 @@ export class DocumentNavigation extends I18nLitElement {
 	colorPicker: SlColorPicker;
 
 	@state()
-	toolType: ToolType;
+	toolType: ToolType | null;
 
 
 	override connectedCallback(): void {

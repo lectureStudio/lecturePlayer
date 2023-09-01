@@ -22,7 +22,7 @@ export class AudioVolumeButton extends I18nLitElement {
 	@property({ type: Boolean, reflect: true })
 	muted: boolean = false;
 
-	mutedVolume: number = null;
+	mutedVolume: number | undefined;
 
 	@query('sl-menu')
 	menu: SlMenu;
@@ -107,7 +107,7 @@ export class AudioVolumeButton extends I18nLitElement {
 		}
 		else {
 			this.setVolume(this.mutedVolume);
-			this.mutedVolume = null;
+			this.mutedVolume = undefined;
 		}
 
 		this.dispatchEvent(Utils.createEvent("lect-speaker-mute", {

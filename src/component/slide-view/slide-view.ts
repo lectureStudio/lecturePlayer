@@ -53,17 +53,27 @@ export class SlideView extends LitElement {
 
 
 	override firstUpdated() {
-		const slideCanvas: HTMLCanvasElement = this.renderRoot.querySelector(".slide-canvas");
-		const actionCanvas: HTMLCanvasElement = this.renderRoot.querySelector(".action-canvas");
-		const volatileCanvas: HTMLCanvasElement = this.renderRoot.querySelector(".volatile-canvas");
-		const textLayer: HTMLDivElement = this.renderRoot.querySelector(".text-layer");
-		const annotationLayer: HTMLDivElement = this.renderRoot.querySelector(".annotation-layer");
+		const slideCanvas: HTMLCanvasElement | null = this.renderRoot.querySelector(".slide-canvas");
+		const actionCanvas: HTMLCanvasElement | null = this.renderRoot.querySelector(".action-canvas");
+		const volatileCanvas: HTMLCanvasElement | null = this.renderRoot.querySelector(".volatile-canvas");
+		const textLayer: HTMLDivElement | null = this.renderRoot.querySelector(".text-layer");
+		const annotationLayer: HTMLDivElement | null = this.renderRoot.querySelector(".annotation-layer");
 
-		this.slideRenderSurface = new SlideRenderSurface(slideCanvas);
-		this.actionRenderSurface = new RenderSurface(actionCanvas);
-		this.volatileRenderSurface = new RenderSurface(volatileCanvas);
-		this.textLayerSurface = new TextLayerSurface(textLayer);
-		this.annotationLayerSurface = new AnnotationLayerSurface(annotationLayer);
+		if (slideCanvas) {
+			this.slideRenderSurface = new SlideRenderSurface(slideCanvas);
+		}
+		if (actionCanvas) {
+			this.actionRenderSurface = new RenderSurface(actionCanvas);
+		}
+		if (volatileCanvas) {
+			this.volatileRenderSurface = new RenderSurface(volatileCanvas);
+		}
+		if (textLayer) {
+			this.textLayerSurface = new TextLayerSurface(textLayer);
+		}
+		if (annotationLayer) {
+			this.annotationLayerSurface = new AnnotationLayerSurface(annotationLayer);
+		}
 
 		new ResizeObserver(this.resize.bind(this)).observe(this);
 

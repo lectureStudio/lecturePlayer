@@ -246,13 +246,20 @@ export class PlayerController extends Controller implements ReactiveController {
 	private loadDocuments() {
 		uiStateStore.setDocumentState(State.CONNECTING);
 
+		if (!documentStore.documentMap) {
+			return Promise.reject("No documents to load");
+		}
+
 		return this.documentController.getDocuments(documentStore.documentMap)
 			.then(documents => {
 				console.log("* on documents loaded");
 
 				this.playbackController.start();
 				this.playbackController.setDocuments(documents);
-				this.playbackController.setActiveDocument(documentStore.activeDocument);
+
+				if (documentStore.activeDocument) {
+					this.playbackController.setActiveDocument(documentStore.activeDocument);
+				}
 
 				this.modalController.registerModal("RecordedModal", new RecordedModal(), false, false);
 
@@ -331,7 +338,7 @@ export class PlayerController extends Controller implements ReactiveController {
 
 		console.log("* on chat", state, uiStateStore.state);
 
-		featureStore.setChatFeature(state.started ? state.feature : null);
+		featureStore.setChatFeature(state.started ? state.feature : undefined);
 
 		if (this.connecting) {
 			// Do not proceed with chat loading if the stream is connecting.
@@ -358,7 +365,7 @@ export class PlayerController extends Controller implements ReactiveController {
 			this.modalController.closeAndDeleteModal("QuizModal");
 		}
 
-		featureStore.setQuizFeature(state.started ? state.feature : null);
+		featureStore.setQuizFeature(state.started ? state.feature : undefined);
 
 		this.updateConnectionState();
 	}

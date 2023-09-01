@@ -8,9 +8,9 @@ class PageEvent {
 
 	private _page: Page;
 
-	private _shape: Shape;
+	private _shape: Shape | undefined;
 
-	private _dirtyRegion: Rectangle;
+	private _dirtyRegion: Rectangle | undefined;
 
 
 	constructor(page: Page, changeType: PageChangeType, shape?: Shape, dirtyRegion?: Rectangle) {
@@ -28,11 +28,11 @@ class PageEvent {
 		return this._page;
 	}
 
-	get shape(): Shape {
+	get shape(): Shape | undefined {
 		return this._shape;
 	}
 
-	get dirtyRegion(): Rectangle {
+	get dirtyRegion(): Rectangle | undefined {
 		return this._dirtyRegion;
 	}
 }

@@ -300,7 +300,9 @@ export class JanusService extends EventTarget {
 			this.eventEmitter.dispatchEvent(Utils.createEvent("speech-canceled"));
 		}
 
-		participantStore.setParticipantStreamState(userStore.userId, state);
+		if (userStore.userId) {
+			participantStore.setParticipantStreamState(userStore.userId, state);
+		}
 	}
 
 	private onPublisherDestroyed(event: CustomEvent) {
@@ -317,6 +319,10 @@ export class JanusService extends EventTarget {
 			// Update subscribed streams.
 			foundSubscriber.updateStreams(publisher.streams);
 			return;
+		}
+
+		if (!publisher.id || !publisher.display) {
+			throw new Error("Invalid publisher: " + publisher);
 		}
 
 		const subscriber = new JanusSubscriber(this.janus, publisher.id, publisher.display, this.roomId, this.opaqueId);

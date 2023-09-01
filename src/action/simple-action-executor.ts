@@ -20,7 +20,7 @@ export class SimpleActionExecutor implements ActionExecutor {
 
 	constructor(document: SlideDocument) {
 		this.document = document;
-		this.toolContext = new ToolContext(null);
+		this.toolContext = new ToolContext();
 	}
 
 	getDocument(): SlideDocument {

@@ -13,11 +13,11 @@ export class StreamActionExecutor implements ActionExecutor {
 
 	private readonly toolContext: ToolContext;
 
-	private document: SlideDocument;
+	private document: SlideDocument | null = null;
 
-	private tool: Tool;
+	private tool: Tool | null = null;
 
-	private previousTool: Tool;
+	private previousTool: Tool | null = null;
 
 
 	constructor(renderController: RenderController) {
@@ -33,7 +33,7 @@ export class StreamActionExecutor implements ActionExecutor {
 		this.renderController.setSeek(seek);
 	}
 
-	getDocument(): SlideDocument {
+	getDocument(): SlideDocument | null {
 		return this.document;
 	}
 
@@ -42,6 +42,10 @@ export class StreamActionExecutor implements ActionExecutor {
 	}
 
 	setPageNumber(pageNumber: number) {
+		if (!this.document) {
+			throw new Error("Document must not be null");
+		}
+
 		const page = this.document.getPage(pageNumber);
 
 		this.toolContext.page = page;
@@ -52,6 +56,10 @@ export class StreamActionExecutor implements ActionExecutor {
 	}
 
 	removePageNumber(pageNumber: number): void {
+		if (!this.document) {
+			throw new Error("Document must not be null");
+		}
+
 		this.document.deletePage(pageNumber);
 	}
 
@@ -73,14 +81,26 @@ export class StreamActionExecutor implements ActionExecutor {
 	}
 
 	beginTool(point: PenPoint): void {
+		if (!this.tool) {
+			throw new Error("Tool must not be null");
+		}
+
 		this.tool.begin(point.clone(), this.toolContext);
 	}
 
 	executeTool(point: PenPoint): void {
+		if (!this.tool) {
+			throw new Error("Tool must not be null");
+		}
+
 		this.tool.execute(point.clone());
 	}
 
 	endTool(point: PenPoint): void {
+		if (!this.tool) {
+			throw new Error("Tool must not be null");
+		}
+
 		this.tool.end(point.clone());
 	}
 
@@ -96,7 +116,7 @@ export class StreamActionExecutor implements ActionExecutor {
 		this.setPreviousTool(this.previousTool);
 	}
 
-	private setPreviousTool(tool: Tool): void {
+	private setPreviousTool(tool: Tool | null): void {
 		if (!tool) {
 			return;
 		}

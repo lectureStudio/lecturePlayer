@@ -4,9 +4,9 @@ class Font {
 
 	readonly size: number;
 
-	readonly style: string;
+	readonly style: string | undefined;
 
-	readonly weight: string;
+	readonly weight: string | undefined;
 
 
 	constructor(family: string, size: number, style?: string, weight?: string) {

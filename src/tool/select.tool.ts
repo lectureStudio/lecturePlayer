@@ -9,7 +9,7 @@ export class SelectTool extends Tool {
 
 	private sourcePoint: PenPoint;
 
-	private selectedShape: Shape;
+	private selectedShape: Shape | null;
 
 
 	override begin(point: PenPoint, context: ToolContext): void {

@@ -14,7 +14,7 @@ import { RootController } from "./root.controller";
 
 export class SpeechController extends Controller {
 
-	private speechRequestId: string;
+	private speechRequestId: string | undefined;
 
 	private speechStarted: boolean;
 
@@ -131,7 +131,7 @@ export class SpeechController extends Controller {
 	}
 
 	private speechCanceled() {
-		this.speechRequestId = null;
+		this.speechRequestId = undefined;
 		this.speechStarted = false;
 
 		// Close dialog in case the request was initially accepted.

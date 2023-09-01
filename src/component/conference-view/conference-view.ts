@@ -111,15 +111,17 @@ export class ConferenceView extends I18nLitElement {
 	protected override firstUpdated() {
 		const resizeObserver = this.renderRoot.querySelector("sl-resize-observer");
 
-		resizeObserver.addEventListener("sl-resize", event => {
-			const entries = event.detail.entries;
+		if (resizeObserver) {
+			resizeObserver.addEventListener("sl-resize", event => {
+				const entries = event.detail.entries;
 
-			if (entries.length > 0) {
-				this.contentRect = entries[0].contentRect;
+				if (entries.length > 0) {
+					this.contentRect = entries[0].contentRect;
 
-				this.calculateSize();
-			}
-		});
+					this.calculateSize();
+				}
+			});
+		}
 	}
 
 	protected override render() {
@@ -209,7 +211,7 @@ export class ConferenceView extends I18nLitElement {
 	}
 
 	private onScroll(event: Event) {
-		const step = parseInt((event.target as HTMLElement).dataset.step);
+		const step = parseInt((event.target as HTMLElement).dataset.step ?? "0");
 
 		// Check scroll index constraints.
 		if (this.viewIndex + step < 0 || this.viewIndex + this.tilesPerPage + step > this.gridCounter) {

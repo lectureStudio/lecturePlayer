@@ -116,7 +116,7 @@ export class Page {
 		this.actionHandler.clear();
 		this.shapes.length = 0;
 
-		this.firePageEvent(new PageEvent(this, PageChangeType.Clear, null));
+		this.firePageEvent(new PageEvent(this, PageChangeType.Clear, undefined));
 	}
 
 	private onSlideTransform(event: ShapeEvent): void {

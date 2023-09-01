@@ -24,8 +24,8 @@ export class StreamDocumentAction extends StreamAction {
 	override toBuffer(): ArrayBuffer {
 		const encoder = new TextEncoder();
 
-		let titleBuffer: Uint8Array;
-		let fileNameBuffer: Uint8Array;
+		let titleBuffer: Uint8Array | undefined;
+		let fileNameBuffer: Uint8Array | undefined;
 
 		let titleLength = 0;
 		let fileNameLength = 0;

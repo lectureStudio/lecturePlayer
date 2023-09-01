@@ -30,7 +30,7 @@ export class StreamActionPlayer extends ActionPlayer {
 	stop(): void {
 		cancelAnimationFrame(this.requestID);
 
-		this.actions = null;
+		this.actions = [];
 	}
 
 	suspend(): void {
@@ -53,7 +53,7 @@ export class StreamActionPlayer extends ActionPlayer {
 		}
 	}
 
-	getDocument(): SlideDocument {
+	getDocument(): SlideDocument | null {
 		return this.executor.getDocument();
 	}
 

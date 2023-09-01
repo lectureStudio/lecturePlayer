@@ -3,13 +3,13 @@ import { ParticipantType } from "../model/participant";
 
 class UserStore {
 
-	userId: string;
+	userId: string | null;
 
-	firstName: string;
+	firstName: string | null;
 
-	lastName: string;
+	lastName: string | null;
 
-	participantType: ParticipantType;
+	participantType: ParticipantType | null;
 
 
 	constructor() {

@@ -67,8 +67,8 @@ export class CloneTool extends Tool {
 		return new CloneAction();
 	}
 
-	private getTopLevelShape(point: PenPoint): Shape {
-		let shape = null;
+	private getTopLevelShape(point: PenPoint): Shape | null {
+		let shape: Shape | null = null;
 
 		for (const s of this.context.page.getShapes()) {
 			if (s.contains(point)) {

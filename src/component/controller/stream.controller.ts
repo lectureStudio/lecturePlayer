@@ -37,6 +37,13 @@ export class StreamController extends Controller {
 	}
 
 	connect() {
+		if (!courseStore.courseId) {
+			throw new Error("Course id is not set");
+		}
+		if (!userStore.userId) {
+			throw new Error("User id is not set");
+		}
+
 		this.janusService.setRoomId(courseStore.courseId);
 		this.janusService.setUserId(userStore.userId);
 

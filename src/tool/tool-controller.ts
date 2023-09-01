@@ -26,7 +26,7 @@ export class ToolController {
 
 	private previousTool: Tool;
 
-	private document: SlideDocument;
+	private document: SlideDocument | undefined;
 
 
 	constructor(renderController: RenderController) {
@@ -44,12 +44,12 @@ export class ToolController {
 		});
 	}
 
-	setDocument(document: SlideDocument): void {
+	setDocument(document: SlideDocument | undefined): void {
 		this.document = document;
 	}
 
-	setPageNumber(pageNumber: number): void {
-		if (!this.document) {
+	setPageNumber(pageNumber: number | undefined): void {
+		if (!this.document || !pageNumber) {
 			return;
 		}
 

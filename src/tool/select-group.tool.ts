@@ -6,6 +6,8 @@ import { SelectShape } from "../model/shape/select.shape";
 import { Rectangle } from "../geometry/rectangle";
 import { Action } from "../action/action";
 import { SelectGroupAction } from "../action/select-group.action";
+import { Color } from "../paint/color";
+import { Brush } from "../paint/brush";
 
 enum Mode { Select, Move }
 
@@ -28,7 +30,7 @@ export class SelectGroupTool extends Tool {
 		this.sourcePoint = point.clone();
 		this.initialized = false;
 
-		this.shape = new SelectShape();
+		this.shape = new SelectShape(new Brush(Color.fromHex("#000"), 0));
 
 		this.context.page.addShape(this.shape);
 

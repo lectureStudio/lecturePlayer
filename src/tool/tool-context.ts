@@ -4,18 +4,18 @@ import { RenderController } from "../render/render-controller";
 
 export class ToolContext {
 
-	readonly renderController: RenderController;
+	readonly renderController: RenderController | undefined;
 
 	actionListener: (action: Action) => void;
 
 	page: Page;
 
-	pageNumber: number;
+	pageNumber: number | undefined;
 
 	keyEvent: KeyboardEvent;
 
 
-	constructor(renderController: RenderController) {
+	constructor(renderController?: RenderController) {
 		this.renderController = renderController;
 	}
 

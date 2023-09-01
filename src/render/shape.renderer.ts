@@ -1,10 +1,8 @@
 import { Shape } from "../model/shape/shape";
 import { Rectangle } from "../geometry/rectangle";
 
-interface ShapeRenderer {
+export interface ShapeRenderer {
 
-	render(context: CanvasRenderingContext2D, shape: Shape, dirtyRegion: Rectangle): void;
+	render(context: CanvasRenderingContext2D, shape: Shape, dirtyRegion?: Rectangle): void;
 
 }
-
-export { ShapeRenderer };

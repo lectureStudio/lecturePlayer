@@ -1,7 +1,7 @@
 import { html, TemplateResult } from 'lit';
 import { when } from "lit/directives/when.js";
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, query } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { CourseFeatureResponse, QuizMinMaxRule, QuizType } from '../../model/course-feature';
 import { featureStore } from '../../store/feature.store';
@@ -16,12 +16,26 @@ export class QuizForm extends Component {
 		quizFormStyles,
 	];
 
+	@query('form')
+	private form: HTMLFormElement;
+
 	@property()
 	fieldErrors = {};
 
 
 	setResponse(response: CourseFeatureResponse) {
 		this.fieldErrors = response.fieldErrors || {};
+	}
+
+	getFormData() {
+		return new FormData(this.form);
+	}
+
+	resetForm() {
+		this.form.querySelectorAll("[resettable]")
+			.forEach((element: HTMLInputElement) => {
+				element.value = "";
+			});
 	}
 
 	override render() {
@@ -49,22 +63,35 @@ export class QuizForm extends Component {
 		else if (type === QuizType.Numeric) {
 			feature?.options.forEach((option: string, index: number) => {
 				// Currently there is only one rule implemented for the numeric type.
-				const rule = inputRules[index] as QuizMinMaxRule;
 				const error = (this.fieldErrors as Indexable)[index] as string;
 
-				itemTemplates.push(html`
-					<div class="quiz-option">
-						<sl-input type="number" label="${option}" help-text="[${rule.min}, ${rule.max}]" name="options"
-							min="${rule.min}"
-							max="${rule.max}"
-							id="option-${index}"
-							size="small">
-						</sl-input>
-						${when(error, () => html`
-							<span class="form-control-desc error-feedback">${t(error)}</span>
-						`)}
-					</div>
-				`);
+				if (inputRules && inputRules[index]) {
+					const rule = inputRules[index] as QuizMinMaxRule;
+
+					itemTemplates.push(html`
+						<div class="quiz-option">
+							<sl-input type="number" label="${option}" help-text="[${rule.min}, ${rule.max}]" name="options"
+								min="${rule.min}"
+								max="${rule.max}"
+								id="option-${index}"
+								size="small">
+							</sl-input>
+							${when(error, () => html`
+								<span class="form-control-desc error-feedback">${t(error)}</span>
+							`)}
+						</div>
+					`);
+				}
+				else {
+					itemTemplates.push(html`
+						<div class="quiz-option">
+							<sl-input type="number" label="${option}" name="options" id="option-${index}" size="small"></sl-input>
+							${when(error, () => html`
+								<span class="form-control-desc error-feedback">${t(error)}</span>
+							`)}
+						</div>
+					`);
+				}
 			});
 		}
 

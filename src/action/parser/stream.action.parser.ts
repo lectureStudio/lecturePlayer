@@ -19,7 +19,7 @@ export class StreamActionParser {
 	static parse(dataView: ProgressiveDataView, type: StreamActionType, _length: number): StreamAction {
 		switch (type) {
 			case StreamActionType.STREAM_INIT:
-				return undefined;
+				return this.streamInitAction();
 			case StreamActionType.STREAM_PAGE_ACTION:
 				return this.playbackAction(dataView);
 			case StreamActionType.STREAM_PAGE_ACTIONS:
@@ -53,6 +53,11 @@ export class StreamActionParser {
 		const timestamp = dataView.getInt32();
 
 		const action = ActionParser.parse(dataView, type, length);
+
+		if (!action) {
+			throw new Error("Playback action could not be parsed");
+		}
+
 		action.timestamp = timestamp;
 
 		return new StreamPagePlaybackAction(docId, pageNumber, action);
@@ -107,5 +112,10 @@ export class StreamActionParser {
 		const nameStr = dataView.getString(nameLength);
 
 		return new type(publisherId, nameStr);
+	}
+
+	// TODO: remove in near future
+	private static streamInitAction() {
+		return {} as StreamAction;
 	}
 }

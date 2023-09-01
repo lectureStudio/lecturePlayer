@@ -7,9 +7,9 @@ export interface ActionExecutor {
 
 	setSeek(seek: boolean): void;
 
-	setKeyEvent(keyEvent: KeyboardEvent): void;
+	setKeyEvent(keyEvent: KeyboardEvent | undefined): void;
 
-	getDocument(): SlideDocument;
+	getDocument(): SlideDocument | null;
 
 	setDocument(document: SlideDocument): void;
 

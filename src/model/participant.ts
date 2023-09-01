@@ -18,15 +18,15 @@ export interface CourseParticipant {
 
 	microphoneActive: boolean;
 
-	microphoneStream: MediaStream;
+	microphoneStream: MediaStream | null;
 
 	cameraActive: boolean;
 
-	cameraStream: MediaStream;
+	cameraStream: MediaStream | null;
 
 	screenActive: boolean;
 
-	screenStream: MediaStream;
+	screenStream: MediaStream | null;
 
 }
 

@@ -78,22 +78,31 @@ export class ChatService extends EventTarget implements EventSubService {
 	}
 
 	postMessage(data: FormData): Promise<void> {
-		const message: ChatMessageDto = {
-			serviceId: featureStore.chatFeature.featureId,
-			text: data.get("text").toString()
-		};
 		const recipient = data.get("recipient");
+		const text = data.get("text");
 
 		if (!recipient) {
-			return Promise.reject("recipient");
+			return Promise.reject("Recipient is not set");
+		}
+		if (!text) {
+			return Promise.reject("Text is not set");
+		}
+		if (!this.client.connected) {
+			return Promise.reject("Not connected");
+		}
+		if (!featureStore.chatFeature) {
+			return Promise.reject("Feature must be active");
+		}
+		if (!featureStore.chatFeature) {
+			return Promise.reject("Feature must be active");
 		}
 
-		return new Promise<void>((resolve, reject) => {
-			if (!this.client.connected) {
-				reject("connection");
-				return;
-			}
+		const message: ChatMessageDto = {
+			serviceId: featureStore.chatFeature.featureId,
+			text: text.toString()
+		};
 
+		return new Promise<void>((resolve, reject) => {
 			const headers: StompHeaders = {
 				courseId: this.courseId.toString(),
 				recipient: recipient.toString(),

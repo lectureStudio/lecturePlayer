@@ -6,13 +6,17 @@ import { ActionType } from "./action-type";
 
 export class ZoomAction extends BrushAction {
 
-	constructor(shapeHandle?: number, brush?: Brush) {
-		super(0, brush);
+	constructor(shapeHandle: number, brush: Brush) {
+		super(shapeHandle, brush);
 	}
 
 	execute(executor: ActionExecutor): void {
+		const tool = new ZoomTool();
+		tool.shapeHandle = this.shapeHandle;
+		tool.brush = this.brush;
+
 		executor.setKeyEvent(this.keyEvent);
-		executor.setTool(new ZoomTool());
+		executor.setTool(tool);
 	}
 
 	getActionType(): ActionType {

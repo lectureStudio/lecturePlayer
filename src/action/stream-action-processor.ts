@@ -21,7 +21,7 @@ export class StreamActionProcessor {
 	private streamActionBuffer: {
 		docId: bigint;
 		bufferedActions: StreamAction[];
-	};
+	} | null;
 
 	private readonly playbackService: PlaybackService;
 
@@ -65,11 +65,9 @@ export class StreamActionProcessor {
 			};
 
 			const stateDoc: CourseStateDocument = {
-				activePage: null,
 				documentFile: action.documentFile,
 				documentId: action.documentId,
 				documentName: action.documentTitle,
-				pages: null,
 				type: "pdf"
 			};
 

@@ -39,9 +39,9 @@ export class SettingsModal extends Modal {
 		super.firstUpdated();
 
 		// Select and show the desired settings content/section.
-		if (this.section) {
-			const tab: SlTab = this.shadowRoot.querySelector(`sl-tab[panel=${this.section}]`);
-			const tabPanel: SlTabPanel = this.shadowRoot.querySelector(`sl-tab-panel[name=${this.section}]`);
+		if (this.section && this.shadowRoot) {
+			const tab: SlTab | null = this.shadowRoot.querySelector(`sl-tab[panel=${this.section}]`);
+			const tabPanel: SlTabPanel | null = this.shadowRoot.querySelector(`sl-tab-panel[name=${this.section}]`);
 
 			if (tab && tabPanel) {
 				tab.active = true;

@@ -213,7 +213,7 @@ export class Devices {
 		return hwId ? label.replace(hwId, "") : label;
 	}
 	
-	static stopAudioTracks(stream: MediaStream) {
+	static stopAudioTracks(stream: MediaStream | null) {
 		if (stream) {
 			stream.getAudioTracks().forEach(track => {
 				track.stop();
@@ -221,7 +221,7 @@ export class Devices {
 		}
 	}
 	
-	static stopVideoTracks(stream: MediaStream) {
+	static stopVideoTracks(stream: MediaStream | null) {
 		if (stream) {
 			stream.getVideoTracks().forEach(track => {
 				track.stop();
@@ -229,7 +229,7 @@ export class Devices {
 		}
 	}
 	
-	static stopMediaTracks(stream: MediaStream) {
+	static stopMediaTracks(stream: MediaStream | null) {
 		if (stream) {
 			stream.getTracks().forEach(track => {
 				track.stop();
@@ -249,7 +249,7 @@ export class Devices {
 			});
 	}
 
-	static attachMediaStream(mediaElement: HTMLMediaElement, stream: MediaStream) {
+	static attachMediaStream(mediaElement: HTMLMediaElement, stream: MediaStream | null) {
 		try {
 			mediaElement.srcObject = stream;
 		}

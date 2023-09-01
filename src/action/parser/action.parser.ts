@@ -43,9 +43,9 @@ class ActionParser {
 	private static readonly KEY_EVENT_MASK = 1;
 
 
-	static parse(dataView: ProgressiveDataView, type: ActionType, length: number): Action {
-		let action: Action = null;
-		const keyEvent: KeyboardEvent = this.parseActionHeader(dataView);
+	static parse(dataView: ProgressiveDataView, type: ActionType, length: number): Action | null {
+		let action: Action | null = null;
+		const keyEvent = this.parseActionHeader(dataView);
 		length -= 13; // Action header has a length of 13 bytes.
 
 		switch (type) {
@@ -131,12 +131,12 @@ class ActionParser {
 				action = this.extendViewAction(dataView);
 				break;
 			case ActionType.ZOOM:
-				if (length < 1) {
-					action = this.atomicAction(dataView, ZoomAction);
-				}
-				else {
+				// if (length < 1) {
+				// 	action = this.atomicAction(dataView, ZoomAction);
+				// }
+				// else {
 					action = this.toolBrushAction(dataView, ZoomAction);
-				}
+				// }
 				break;
 			case ActionType.ZOOM_OUT:
 				action = this.atomicAction(dataView, ZoomOutAction);
@@ -153,9 +153,9 @@ class ActionParser {
 		return action;
 	}
 
-	private static parseActionHeader(dataView: ProgressiveDataView): KeyboardEvent {
+	private static parseActionHeader(dataView: ProgressiveDataView): KeyboardEvent | undefined {
 		const header = dataView.getInt32();
-		let keyEvent: KeyboardEvent = null;
+		let keyEvent: KeyboardEvent | undefined;
 
 		if ((header & this.KEY_EVENT_MASK) == this.KEY_EVENT_MASK) {
 			keyEvent = this.parseKeyEvent(dataView);

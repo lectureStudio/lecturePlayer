@@ -158,7 +158,7 @@ export class MediaDeviceButton extends I18nLitElement {
 
 	private onItemSelected(event: CustomEvent) {
 		const selectedItem: SlMenuItem = event.detail.item;
-		const device: MediaDeviceInfo = this.devices.get(selectedItem.value);
+		const device: MediaDeviceInfo | undefined = this.devices.get(selectedItem.value);
 
 		// Handle only items related to a device, e.g. not the settings item.
 		if (!device) {
@@ -175,7 +175,7 @@ export class MediaDeviceButton extends I18nLitElement {
 
 		for (const item of this.menu.getAllItems()) {
 			// Uncheck all items, except the selected one.
-			const dev: MediaDeviceInfo = this.devices.get(item.value);
+			const dev: MediaDeviceInfo | undefined = this.devices.get(item.value);
 
 			if (dev && item.value !== selectedItem.value && device.kind === dev.kind) {
 				item.checked = false;

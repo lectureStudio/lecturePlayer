@@ -4,15 +4,15 @@ class CourseStore {
 
 	courseId: number;
 
-	timeStarted: number;
+	timeStarted: number | undefined;
 
 	title: string;
 
 	description: string;
 
-	conference: boolean;
+	conference: boolean | undefined;
 
-	recorded: boolean;
+	recorded: boolean | undefined;
 
 	isClassroom: boolean;
 
@@ -49,9 +49,9 @@ class CourseStore {
 
 	reset() {
 		// Do not reset fields that are used in any state.
-		this.timeStarted = null;
-		this.conference = null;
-		this.recorded = null;
+		this.timeStarted = undefined;
+		this.conference = undefined;
+		this.recorded = undefined;
 	}
 }
 

@@ -8,7 +8,7 @@ export class RenderSurface {
 
 	protected readonly canvas: HTMLCanvasElement;
 
-	protected readonly canvasContext: CanvasRenderingContext2D;
+	protected readonly canvasContext: CanvasRenderingContext2D | null;
 
 	protected readonly renderers: Map<String, ShapeRenderer>;
 
@@ -22,10 +22,16 @@ export class RenderSurface {
 		this.canvasContext = canvas.getContext("2d");
 		this.renderers = new Map();
 		this.transform = new Transform();
+
+		if (!this.canvasContext) {
+			throw new Error("Canvas 2D context is null");
+		}
 	}
 
 	clear(): void {
-		this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		if (this.canvasContext) {
+			this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		}
 	}
 
 	registerRenderer(shape: Shape, render: ShapeRenderer): void {
@@ -33,7 +39,9 @@ export class RenderSurface {
 	}
 
 	renderImageSource(canvas: CanvasImageSource): void {
-		this.canvasContext.drawImage(canvas, 0, 0);
+		if (this.canvasContext) {
+			this.canvasContext.drawImage(canvas, 0, 0);
+		}
 	}
 
 	renderSurface(surface: RenderSurface): void {
@@ -41,16 +49,22 @@ export class RenderSurface {
 			return;
 		}
 
-		this.canvasContext.drawImage(surface.canvas, 0, 0);
+		if (this.canvasContext) {
+			this.canvasContext.drawImage(surface.canvas, 0, 0);
+		}
 	}
 
 	renderShapes(shapes: Shape[]): void {
 		for (const shape of shapes) {
-			this.renderShape(shape, null);
+			this.renderShape(shape, undefined);
 		}
 	}
 
-	renderShape(shape: Shape, dirtyRegion: Rectangle): void {
+	renderShape(shape: Shape, dirtyRegion: Rectangle | undefined): void {
+		if (!this.canvasContext) {
+			return;
+		}
+
 		const renderer = this.renderers.get(shape.getShapeType());
 
 		if (renderer) {

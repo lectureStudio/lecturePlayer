@@ -32,7 +32,7 @@ export class JanusSubscriber extends JanusParticipant {
 		return this.publisherUserId;
 	}
 
-	updateStreams(streams: JanusStreamDescription[]) {
+	updateStreams(streams: JanusStreamDescription[] | undefined) {
 		if (!streams) {
 			return;
 		}

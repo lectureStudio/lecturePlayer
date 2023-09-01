@@ -23,6 +23,6 @@ export class CursorTool extends Tool {
 
 	createAction(): Action {
 		// Cursor is not recorded.
-		return null;
+		return {} as Action;
 	}
 }

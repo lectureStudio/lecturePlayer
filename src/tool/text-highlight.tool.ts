@@ -30,7 +30,7 @@ export class TextHighlightTool extends Tool {
 			return;
 		}
 
-		let selectShape: TextHighlightShape = null;
+		let selectShape: TextHighlightShape | null = null;
 
 		for (const shape of context.page.getShapes()) {
 			if (shape.handle === this.shapeHandle) {

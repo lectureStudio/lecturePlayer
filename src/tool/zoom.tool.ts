@@ -1,11 +1,12 @@
 import { ToolContext } from "./tool-context";
-import { Tool, ToolType } from "./tool";
+import { ToolType } from "./tool";
+import { PaintTool } from "./paint.tool";
 import { ZoomShape } from "../model/shape/zoom.shape";
 import { PenPoint } from "../geometry/pen-point";
 import { Action } from "../action/action";
 import { ZoomAction } from "../action/zoom.action";
 
-export class ZoomTool extends Tool {
+export class ZoomTool extends PaintTool {
 
 	private shape: ZoomShape;
 
@@ -13,7 +14,7 @@ export class ZoomTool extends Tool {
 
 
 	override begin(point: PenPoint, context: ToolContext): void {
-		this.shape = new ZoomShape();
+		this.shape = new ZoomShape(this.brush);
 
 		context.page.addShape(this.shape);
 
@@ -45,6 +46,6 @@ export class ZoomTool extends Tool {
 	}
 
 	createAction(): Action {
-		return new ZoomAction();
+		return new ZoomAction(this.shapeHandle, this.brush);
 	}
 }

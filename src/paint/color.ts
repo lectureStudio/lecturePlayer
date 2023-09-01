@@ -64,6 +64,10 @@ class Color {
 
 		const res = RGB_COLOR_REGEX.exec(s);
 
+		if (!res) {
+			throw new Error("Not a rgb color representation");
+		}
+
 		const r = parseInt(res[1], 10);
 		const g = parseInt(res[2], 10);
 		const b = parseInt(res[3], 10);

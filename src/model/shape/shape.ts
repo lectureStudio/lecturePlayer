@@ -34,7 +34,7 @@ abstract class Shape {
 
 	addPoint(point: PenPoint): boolean {
 		const count = this._points.length;
-		let last: PenPoint;
+		let last: PenPoint | undefined;
 
 		if (count > 0) {
 			last = this._points[count - 1];

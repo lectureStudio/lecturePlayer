@@ -8,7 +8,7 @@ export abstract class BrushAction extends Action {
 	brush: Brush;
 
 
-	constructor(shapeHandle: number, brush?: Brush) {
+	constructor(shapeHandle: number, brush: Brush) {
 		super();
 
 		this.shapeHandle = shapeHandle;

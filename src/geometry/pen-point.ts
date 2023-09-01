@@ -1,6 +1,6 @@
 import { Point } from "./point";
 
-class PenPoint extends Point {
+export class PenPoint extends Point {
 
 	/** The pressure. */
 	p: number;
@@ -16,7 +16,7 @@ class PenPoint extends Point {
 		return new PenPoint(this.x, this.y, this.p);
 	}
 
-	override equals(other: PenPoint): boolean {
+	override equals(other: PenPoint | undefined): boolean {
 		if (!other) {
 			return false;
 		}
@@ -27,5 +27,3 @@ class PenPoint extends Point {
 		return new PenPoint(0, 0, 0);
 	}
 }
-
-export { PenPoint };
