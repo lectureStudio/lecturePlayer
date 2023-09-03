@@ -1,11 +1,11 @@
-export * from './extension';
+export * from "./extension";
 
 // Make components available to the document.
-export * from './component';
+export * from "./component";
 
-import i18next from 'i18next';
+import i18next from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
-import * as resources from './locales';
+import * as resources from "./locales";
 
 
 class lectPlayer {
@@ -20,7 +20,7 @@ class lectPlayer {
 	}
 
 	initPDF() {
-		const pdfjs = require('pdfjs-dist');
+		const pdfjs = require("pdfjs-dist");
 		const PdfjsWorker = require("worker-loader?esModule=false&filename=js/[name].js!pdfjs-dist/build/pdf.worker.js");
 
 		if (typeof window !== "undefined" && "Worker" in window) {

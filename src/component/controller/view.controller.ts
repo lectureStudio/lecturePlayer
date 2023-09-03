@@ -8,6 +8,7 @@ import { StreamStatsModal } from "../stream-stats-modal/stream-stats.modal";
 import { ApplicationContext } from "./context";
 import { Controller } from "./controller";
 import { RootController } from "./root.controller";
+import { LpFullscreenEvent } from "../../event";
 
 interface BreakpointConfig {
 
@@ -28,12 +29,12 @@ export class ViewController extends Controller {
 	constructor(rootController: RootController, context: ApplicationContext) {
 		super(rootController, context);
 
-		this.eventEmitter.addEventListener("player-fullscreen", this.onFullscreen.bind(this));
-		this.eventEmitter.addEventListener("player-settings", this.onSettings.bind(this), false);
-		this.eventEmitter.addEventListener("player-statistics", this.onStatistics.bind(this), false);
-		this.eventEmitter.addEventListener("player-quiz-action", this.onQuizAction.bind(this), false);
-		this.eventEmitter.addEventListener("player-chat-visibility", this.onChatVisibility.bind(this), false);
-		this.eventEmitter.addEventListener("player-participants-visibility", this.onParticipantsVisibility.bind(this), false);
+		this.eventEmitter.addEventListener("lp-fullscreen", this.onFullscreen.bind(this));
+		this.eventEmitter.addEventListener("lp-settings", this.onSettings.bind(this));
+		this.eventEmitter.addEventListener("lp-stream-statistics", this.onStatistics.bind(this));
+		this.eventEmitter.addEventListener("lp-quiz-visibility", this.onQuizVisibility.bind(this));
+		this.eventEmitter.addEventListener("lp-chat-visibility", this.onChatVisibility.bind(this));
+		this.eventEmitter.addEventListener("lp-participants-visibility", this.onParticipantsVisibility.bind(this));
 
 		this.breakpointConfig = {
 			rightContainerVisible: uiStateStore.rightContainerVisible,
@@ -97,8 +98,8 @@ export class ViewController extends Controller {
 		}
 	}
 
-	private onFullscreen(event: CustomEvent) {
-		this.setFullscreen(event.detail.fullscreen === true);
+	private onFullscreen(event: LpFullscreenEvent) {
+		this.setFullscreen(event.detail === true);
 	}
 
 	private onSettings() {
@@ -114,7 +115,7 @@ export class ViewController extends Controller {
 		this.modalController.registerModal("StreamStatsModal", statisticsModal);
 	}
 
-	private onQuizAction() {
+	private onQuizVisibility() {
 		const quizModal = new QuizModal();
 
 		this.modalController.registerModal("QuizModal", quizModal);

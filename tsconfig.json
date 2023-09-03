@@ -5,7 +5,8 @@
 		"declarationMap": true,
 		"sourceMap": true,
 		"inlineSources": true,
-		// "strict": true,
+		"strict": true,
+		"strictPropertyInitialization": false,
 		"strictNullChecks": true,
 		"noImplicitAny": true,
 		"noImplicitReturns": true,
@@ -21,7 +22,7 @@
 		"strictBindCallApply": true,
 		"forceConsistentCasingInFileNames": true,
 		"moduleResolution": "node",
-		"target": "es2019",
+		"target": "es2017",
 		"module": "es2020",
 		"lib": [
 			"es2020",

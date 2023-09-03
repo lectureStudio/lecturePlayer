@@ -12,8 +12,10 @@ import { SlideDocument } from "../model/document";
 import { participantStore } from "../store/participants.store";
 import { userStore } from "../store/user.store";
 import { EventEmitter } from "../utils/event-emitter";
+import { TypedEventTarget } from "typescript-event-target";
+import { LpParticipantConnectionStateEvent, LpParticipantDataEvent, LpParticipantDestroyedEvent, LpParticipantErrorEvent, LpParticipantJoinedEvent, LpParticipantLeftEvent, LpParticipantStateEvent, ParticipantData } from "../event";
 
-export class JanusService extends EventTarget {
+export class JanusService extends TypedEventTarget<DocumentEventMap> {
 
 	private readonly statsIntervalMs = 1000;
 
@@ -139,10 +141,10 @@ export class JanusService extends EventTarget {
 	}
 
 	startSpeech(camEnabled: boolean) {
-		const publisher = new JanusPublisher(this.janus, this.roomId, this.opaqueId);
-		publisher.addEventListener("janus-participant-error", this.onPublisherError.bind(this));
-		publisher.addEventListener("janus-participant-state", this.onPublisherState.bind(this));
-		publisher.addEventListener("janus-participant-destroyed", this.onPublisherDestroyed.bind(this));
+		const publisher = new JanusPublisher(this.janus, this.roomId, this.opaqueId, this.eventEmitter);
+		publisher.addEventListener("lp-participant-error", this.onPublisherError.bind(this));
+		publisher.addEventListener("lp-participant-state", this.onPublisherState.bind(this));
+		publisher.addEventListener("lp-participant-destroyed", this.onPublisherDestroyed.bind(this));
 		publisher.setCameraEnabled(camEnabled);
 		publisher.connect();
 	}
@@ -154,12 +156,12 @@ export class JanusService extends EventTarget {
 	}
 
 	attachAsPublisher() {
-		const publisher = new JanusPublisher(this.janus, this.roomId, this.opaqueId);
-		publisher.addEventListener("janus-participant-error", this.onPublisherError.bind(this));
-		publisher.addEventListener("janus-participant-state", this.onPublisherState.bind(this));
-		publisher.addEventListener("janus-participant-destroyed", this.onPublisherDestroyed.bind(this));
-		publisher.addEventListener("janus-participant-joined", this.onPublisherJoined.bind(this));
-		publisher.addEventListener("janus-participant-left", this.onPublisherLeft.bind(this));
+		const publisher = new JanusPublisher(this.janus, this.roomId, this.opaqueId, this.eventEmitter);
+		publisher.addEventListener("lp-participant-error", this.onPublisherError.bind(this));
+		publisher.addEventListener("lp-participant-state", this.onPublisherState.bind(this));
+		publisher.addEventListener("lp-participant-destroyed", this.onPublisherDestroyed.bind(this));
+		publisher.addEventListener("lp-participant-joined", this.onPublisherJoined.bind(this));
+		publisher.addEventListener("lp-participant-left", this.onPublisherLeft.bind(this));
 		publisher.connect();
 
 		this.myPublisher = publisher;
@@ -283,21 +285,21 @@ export class JanusService extends EventTarget {
 		});
 	}
 
-	private onPublisherError(event: CustomEvent) {
-		console.error(event.detail.error);
+	private onPublisherError(event: LpParticipantErrorEvent) {
+		console.error(event.detail.cause);
 
 		// const publisher: JanusPublisher = event.detail.participant;
 	}
 
-	private onPublisherState(event: CustomEvent) {
-		const publisher: JanusPublisher = event.detail.participant;
+	private onPublisherState(event: LpParticipantStateEvent) {
+		const publisher = event.detail.participant as JanusPublisher;
 		const state: State = event.detail.state;
 
 		if (state === State.CONNECTED) {
 			this.publishers.push(publisher);
 		}
 		else if (state === State.DISCONNECTED) {
-			this.eventEmitter.dispatchEvent(Utils.createEvent("speech-canceled"));
+			this.eventEmitter.dispatchEvent(Utils.createEvent<void>("lp-speech-canceled"));
 		}
 
 		if (userStore.userId) {
@@ -305,8 +307,8 @@ export class JanusService extends EventTarget {
 		}
 	}
 
-	private onPublisherDestroyed(event: CustomEvent) {
-		const publisher: JanusPublisher = event.detail.participant;
+	private onPublisherDestroyed(event: LpParticipantDestroyedEvent) {
+		const publisher = event.detail as JanusPublisher;
 
 		this.publishers = this.publishers.filter(pub => pub !== publisher);
 	}
@@ -325,45 +327,31 @@ export class JanusService extends EventTarget {
 			throw new Error("Invalid publisher: " + publisher);
 		}
 
-		const subscriber = new JanusSubscriber(this.janus, publisher.id, publisher.display, this.roomId, this.opaqueId);
-		subscriber.addEventListener("janus-participant-connection-connected", this.onParticipantConnectionConnected.bind(this));
-		subscriber.addEventListener("janus-participant-connection-disconnected", this.onParticipantConnectionDisconnected.bind(this));
-		subscriber.addEventListener("janus-participant-connection-failure", this.onParticipantConnectionFailure.bind(this));
-		subscriber.addEventListener("janus-participant-error", this.onSubscriberError.bind(this));
-		subscriber.addEventListener("janus-participant-state", this.onSubscriberState.bind(this));
-		subscriber.addEventListener("janus-participant-destroyed", this.onSubscriberDestroyed.bind(this));
-		subscriber.addEventListener("janus-participant-data", this.onSubscriberData.bind(this));
+		const subscriber = new JanusSubscriber(this.janus, publisher.id, publisher.display, this.roomId, this.opaqueId, this.eventEmitter);
+		subscriber.addEventListener("lp-participant-connection-state", this.onParticipantConnectionState.bind(this));
+		subscriber.addEventListener("lp-participant-error", this.onSubscriberError.bind(this));
+		subscriber.addEventListener("lp-participant-state", this.onSubscriberState.bind(this));
+		subscriber.addEventListener("lp-participant-destroyed", this.onSubscriberDestroyed.bind(this));
+		subscriber.addEventListener("lp-participant-data", this.onSubscriberData.bind(this));
 		subscriber.connect();
 	}
 
-	private onParticipantConnectionConnected(_event: CustomEvent) {
+	private onParticipantConnectionState(event: LpParticipantConnectionStateEvent) {
 		// const subscriber: JanusSubscriber = event.detail.participant;
 
-		this.dispatchEvent(Utils.createEvent("janus-connection-established"));
+		this.dispatchEvent(Utils.createEvent("lp-stream-connection-state", event.detail.state));
 	}
 
-	private onParticipantConnectionDisconnected(_event: CustomEvent) {
-		// const subscriber: JanusSubscriber = event.detail.participant;
-
-		this.dispatchEvent(Utils.createEvent("janus-connection-failure"));
-	}
-
-	private onParticipantConnectionFailure(_event: CustomEvent) {
-		// const subscriber: JanusSubscriber = event.detail.participant;
-
-		this.dispatchEvent(Utils.createEvent("janus-connection-failure"));
-	}
-
-	private onSubscriberError(event: CustomEvent) {
-		console.error(event.detail.error);
+	private onSubscriberError(event: LpParticipantErrorEvent) {
+		console.error(event.detail.cause);
 
 		// const subscriber: JanusSubscriber = event.detail.participant;
 
 		this.stopSpeech();
 	}
 
-	private onSubscriberState(event: CustomEvent) {
-		const subscriber: JanusSubscriber = event.detail.participant;
+	private onSubscriberState(event: LpParticipantStateEvent) {
+		const subscriber = event.detail.participant as JanusSubscriber;
 		const state: State = event.detail.state;
 
 		if (state === State.CONNECTED) {
@@ -377,28 +365,27 @@ export class JanusService extends EventTarget {
 		participantStore.setParticipantStreamState(subscriber.getPublisherUserId(), state);
 	}
 
-	private onSubscriberDestroyed(event: CustomEvent) {
-		const subscriber: JanusSubscriber = event.detail.participant;
+	private onSubscriberDestroyed(event: LpParticipantDestroyedEvent) {
+		const subscriber = event.detail as JanusSubscriber;
 
 		this.subscribers = this.subscribers.filter(sub => sub !== subscriber);
 	}
 
-	private onSubscriberData(event: CustomEvent) {
-		// const subscriber: JanusSubscriber = event.detail.participant;
-
-		this.eventEmitter.dispatchEvent(new CustomEvent("action-data", {
-			detail: event.detail.data
+	private onSubscriberData(event: LpParticipantDataEvent) {
+		this.eventEmitter.dispatchEvent(Utils.createEvent<ParticipantData>("lp-participant-data", {
+			participant: event.detail.participant,
+			data: event.detail.data
 		}));
 	}
 
-	private onPublisherJoined(event: CustomEvent) {
-		const publisher: VideoRoomParticipant = event.detail;
+	private onPublisherJoined(event: LpParticipantJoinedEvent) {
+		const publisher = event.detail;
 
 		this.attachToPublisher(publisher);
 	}
 
-	private onPublisherLeft(event: CustomEvent) {
-		const publisher: VideoRoomParticipant = event.detail;
+	private onPublisherLeft(event: LpParticipantLeftEvent) {
+		const publisher = event.detail;
 		const subscriber = this.subscribers.find(sub => sub.getPublisherId() === publisher.id);
 
 		if (subscriber) {

@@ -67,14 +67,14 @@ export class SettingsButton extends Component {
 	}
 
 	private onStatistics() {
-		this.eventEmitter.dispatchEvent(Utils.createEvent("player-statistics"));
+		this.eventEmitter.dispatchEvent(Utils.createEvent<void>("lp-stream-statistics"));
 	}
 
 	private onDeviceSettings() {
-		this.eventEmitter.dispatchEvent(Utils.createEvent("player-settings"));
+		this.eventEmitter.dispatchEvent(Utils.createEvent<void>("lp-settings"));
 	}
 
 	private onReceiveCameraFeed() {
-		this.eventEmitter.dispatchEvent(Utils.createEvent("stream-receive-camera-feed"));
+		this.eventEmitter.dispatchEvent(Utils.createEvent<void>("lp-receive-camera-feed"));
 	}
 }

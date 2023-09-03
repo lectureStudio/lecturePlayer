@@ -1,6 +1,6 @@
-import { html, TemplateResult } from 'lit';
+import { html } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
-import { I18nLitElement, t } from '../i18n-mixin';
+import { I18nLitElement } from '../i18n-mixin';
 import { SlMenu, SlMenuItem } from '@shoelace-style/shoelace';
 import { Utils } from '../../utils/utils';
 import { Devices } from '../../utils/devices';
@@ -184,7 +184,7 @@ export class MediaDeviceButton extends I18nLitElement {
 
 		this.selectedDevice = device;
 
-		this.dispatchEvent(Utils.createEvent<MediaDeviceSetting>("lect-device-change", {
+		this.dispatchEvent(Utils.createEvent<MediaDeviceSetting>("lp-device-change", {
 			deviceId: device.deviceId,
 			kind: device.kind,
 			muted: this.muted
@@ -199,7 +199,7 @@ export class MediaDeviceButton extends I18nLitElement {
 
 		this.muted = !this.muted;
 
-		this.dispatchEvent(Utils.createEvent<MediaDeviceSetting>("lect-device-mute", {
+		this.dispatchEvent(Utils.createEvent<MediaDeviceSetting>("lp-device-mute", {
 			deviceId: this.selectedDevice.deviceId,
 			kind: this.selectedDevice.kind,
 			muted: this.muted

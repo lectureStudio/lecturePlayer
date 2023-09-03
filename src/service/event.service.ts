@@ -1,4 +1,5 @@
 import { EventEmitter } from "../utils/event-emitter";
+import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
 import { Client, Message } from '@stomp/stompjs';
 
@@ -44,58 +45,28 @@ export class EventService extends EventTarget {
 			},
 		});
 		client.onConnect = () => {
-			this.eventEmitter.dispatchEvent(Utils.createEvent("event-service-state", {
-				connected: true
-			}));
+			this.eventEmitter.dispatchEvent(Utils.createEvent("lp-event-service-state", State.CONNECTED));
 
 			client.subscribe("/topic/course/event/" + this.courseId + "/stream", (message: Message) => {
-				const state = JSON.parse(message.body);
-
-				// console.log("Stream state", state);
-
-				this.eventEmitter.dispatchEvent(Utils.createEvent("event-service-stream-state", state));
+				this.handleEvent("lp-stream-state", message.body);
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/recording", (message: Message) => {
-				const state = JSON.parse(message.body);
-
-				// console.log("Recording state", state);
-
-				this.eventEmitter.dispatchEvent(Utils.createEvent("event-service-recording-state", state));
+				this.handleEvent("lp-recording-state", message.body);
 			});
 			client.subscribe("/user/queue/course/" + this.courseId + "/speech", (message: Message) => {
-				const state = JSON.parse(message.body);
-
-				// console.log("Speech state", state);
-
-				this.eventEmitter.dispatchEvent(Utils.createEvent("event-service-speech-state", state));
+				this.handleEvent("lp-speech-state", message.body);
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/chat", (message: Message) => {
-				const state = JSON.parse(message.body);
-
-				// console.log("Chat state", state);
-
-				this.eventEmitter.dispatchEvent(Utils.createEvent("event-service-chat-state", state));
+				this.handleEvent("lp-chat-state", message.body);
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/quiz", (message: Message) => {
-				const state = JSON.parse(message.body);
-
-				// console.log("Quiz state", state);
-
-				this.eventEmitter.dispatchEvent(Utils.createEvent("event-service-quiz-state", state));
+				this.handleEvent("lp-quiz-state", message.body);
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/media", (message: Message) => {
-				const state = JSON.parse(message.body);
-
-				// console.log("Media", state);
-
-				this.eventEmitter.dispatchEvent(Utils.createEvent("event-service-media-state", state));
+				this.handleEvent("lp-media-state", message.body);
 			});
 			client.subscribe("/topic/course/event/" + this.courseId + "/presence", (message: Message) => {
-				const state = JSON.parse(message.body);
-
-				// console.log("Presence", state);
-
-				this.eventEmitter.dispatchEvent(Utils.createEvent("event-service-participant-presence", state));
+				this.handleEvent("lp-participant-presence", message.body);
 			});
 
 			for (const subService of this.subServices) {
@@ -112,5 +83,9 @@ export class EventService extends EventTarget {
 		});
 
 		return client;
+	}
+
+	private handleEvent(eventName: string, body: string) {
+		this.eventEmitter.dispatchEvent(Utils.createEvent(eventName, JSON.parse(body)));
 	}
 }

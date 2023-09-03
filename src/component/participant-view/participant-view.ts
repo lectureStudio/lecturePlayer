@@ -8,6 +8,7 @@ import { autorun, observable } from "mobx";
 import { deviceStore } from "../../store/device.store";
 import { CourseParticipant, Participant } from "../../model/participant";
 import { Component } from "../component";
+import { LpDeviceChangeEvent } from "../../event";
 import participantViewStyles from "./participant-view.scss";
 
 @customElement('participant-view')
@@ -54,13 +55,17 @@ export class ParticipantView extends Component {
 	constructor() {
 		super();
 
-		document.addEventListener("lect-speaker-volume", this.onAudioVolume.bind(this));
 		document.addEventListener("player-start-media", this.onStartMediaPlayback.bind(this));
-		document.addEventListener("lect-device-change", this.onDeviceChange.bind(this));
+		document.addEventListener("lp-device-change", this.onDeviceChange.bind(this));
 
 		autorun(() => {
 			if (this.audio) {
 				Devices.setAudioSink(this.audio, deviceStore.speakerDeviceId);
+			}
+		});
+		autorun(() => {
+			if (this.audio) {
+				this.audio.volume = deviceStore.speakerVolume;
 			}
 		});
 
@@ -110,9 +115,9 @@ export class ParticipantView extends Component {
 		}
 	}
 
-	private onDeviceChange(event: CustomEvent) {
+	private onDeviceChange(event: LpDeviceChangeEvent) {
 		if (this.audio) {
-			const deviceSetting: MediaDeviceSetting = event.detail;
+			const deviceSetting = event.detail;
 			const deviceId = deviceSetting.deviceId;
 
 			if (deviceSetting.kind !== "audiooutput") {
@@ -121,14 +126,6 @@ export class ParticipantView extends Component {
 			}
 
 			Devices.setAudioSink(this.audio, deviceId);
-		}
-	}
-
-	private onAudioVolume(e: CustomEvent) {
-		if (this.audio) {
-			const volume: number = e.detail.volume;
-
-			this.audio.volume = volume;
 		}
 	}
 

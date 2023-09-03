@@ -39,7 +39,7 @@ export abstract class MediaSettings extends Component {
 		this.enabled = enabled;
 
 		// Initially, disable all inputs.
-		this.renderRoot.querySelectorAll("button, input, select").forEach((element: HTMLInputElement) => {
+		this.renderRoot.querySelectorAll<HTMLInputElement>("button, input, select").forEach(element => {
 			element.disabled = !enabled;
 		});
 	}
@@ -48,7 +48,7 @@ export abstract class MediaSettings extends Component {
 		this.error = true;
 
 		// Enable only buttons in the footer.
-		this.renderRoot.querySelectorAll("footer button").forEach((element: HTMLInputElement) => {
+		this.renderRoot.querySelectorAll<HTMLInputElement>("footer button").forEach(element => {
 			element.disabled = false;
 		});
 	}

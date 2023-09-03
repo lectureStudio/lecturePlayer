@@ -1,4 +1,5 @@
 import { StreamActionProcessor } from "../../action/stream-action-processor";
+import { LpParticipantDataEvent } from "../../event";
 import { CourseStateDocument } from "../../model/course-state-document";
 import { SlideDocument } from "../../model/document";
 import { PlaybackService } from "../../service/playback.service";
@@ -23,7 +24,7 @@ export class PlaybackController extends Controller {
 		this.actionProcessor.onGetDocument = this.documentController.getDocument;
 		this.actionProcessor.onPeerConnected = this.streamController.onPeerConnected.bind(this.streamController);
 
-		this.eventEmitter.addEventListener("action-data", this.onData.bind(this));
+		this.eventEmitter.addEventListener("lp-participant-data", this.onData.bind(this));
 	}
 
 	start() {
@@ -46,8 +47,8 @@ export class PlaybackController extends Controller {
 		this.playbackService.stop();
 	}
 
-	private onData(event: CustomEvent) {
-		const data: ArrayBuffer | Blob = event.detail;
+	private onData(event: LpParticipantDataEvent) {
+		const data = event.detail.data;
 
 		this.actionProcessor.processData(data);
 	}

@@ -11,14 +11,6 @@ export interface CourseFeatureState<Feature> {
 
 }
 
-export interface MessengerState extends CourseFeatureState<MessageFeature> {
-
-}
-
-export interface QuizState extends CourseFeatureState<QuizFeature> {
-
-}
-
 export interface CoursePrivilege {
 
 	readonly name: string;

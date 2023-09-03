@@ -102,7 +102,7 @@ export class ChatService extends EventTarget implements EventSubService {
 			text: text.toString()
 		};
 
-		return new Promise<void>((resolve, reject) => {
+		return new Promise<void>(resolve => {
 			const headers: StompHeaders = {
 				courseId: this.courseId.toString(),
 				recipient: recipient.toString(),

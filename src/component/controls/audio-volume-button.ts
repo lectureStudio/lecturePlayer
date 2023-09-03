@@ -4,6 +4,7 @@ import { I18nLitElement, t } from '../i18n-mixin';
 import { SlMenu, SlRange, SlTooltip } from '@shoelace-style/shoelace';
 import { Utils } from '../../utils/utils';
 import audioVolumeButtonStyles from './audio-volume-button.scss';
+import { deviceStore } from '../../store/device.store';
 
 @customElement('audio-volume-button')
 export class AudioVolumeButton extends I18nLitElement {
@@ -87,9 +88,7 @@ export class AudioVolumeButton extends I18nLitElement {
 			this.volumeState = 4;
 		}
 
-		this.dispatchEvent(Utils.createEvent("lect-speaker-volume", {
-			volume: (this.volume / 100.0)
-		}));
+		deviceStore.speakerVolume = (this.volume / 100.0);
 	}
 
 	private onVolume(e: Event): void {

@@ -3,6 +3,7 @@ import { JanusParticipant, JanusStreamType } from "./janus-participant";
 import { Utils } from "../utils/utils";
 import { State } from "../utils/state";
 import { participantStore } from "../store/participants.store";
+import { EventEmitter } from "../utils/event-emitter";
 
 export class JanusSubscriber extends JanusParticipant {
 
@@ -15,8 +16,8 @@ export class JanusSubscriber extends JanusParticipant {
 	private readonly opaqueId: string;
 
 
-	constructor(janus: Janus, publisherId: bigint, publisherUserId: string, roomId: number, opaqueId: string) {
-		super(janus);
+	constructor(janus: Janus, publisherId: bigint, publisherUserId: string, roomId: number, opaqueId: string, eventEmitter: EventEmitter) {
+		super(janus, eventEmitter);
 
 		this.publisherId = publisherId;
 		this.publisherUserId = publisherUserId;
@@ -158,7 +159,7 @@ export class JanusSubscriber extends JanusParticipant {
 	}
 
 	private onData(data: ArrayBuffer | Blob) {
-		this.dispatchEvent(Utils.createEvent("janus-participant-data", {
+		this.dispatchEvent(Utils.createEvent("lp-participant-data", {
 			participant: this,
 			data: data
 		}));

@@ -30,11 +30,11 @@ export class StreamStats extends Component {
 	override connectedCallback() {
 		super.connectedCallback();
 
-		this.eventEmitter.dispatchEvent(Utils.createEvent("stream-stats-start"));
+		this.eventEmitter.dispatchEvent(Utils.createEvent<boolean>("lp-stream-capture-stats", true));
 	}
 
 	override disconnectedCallback() {
-		this.eventEmitter.dispatchEvent(Utils.createEvent("stream-stats-stop"));
+		this.eventEmitter.dispatchEvent(Utils.createEvent<boolean>("lp-stream-capture-stats", false));
 
 		super.disconnectedCallback();
 	}
@@ -71,8 +71,6 @@ export class StreamStats extends Component {
 		if (!entries || entries.length === 0) {
 			return '';
 		}
-
-		console.log(entries)
 
 		return html`
 			<table class="table">

@@ -72,7 +72,7 @@ export class PlayerControls extends Component {
 		document.addEventListener("fullscreenchange", () => {
 			this.fullscreen = document.fullscreenElement !== null;
 		});
-		this.eventEmitter.addEventListener("speech-canceled", () => {
+		this.eventEmitter.addEventListener("lp-speech-canceled", () => {
 			this.handUp = false;
 		});
 	}
@@ -80,29 +80,25 @@ export class PlayerControls extends Component {
 	private onHand(): void {
 		this.handUp = !this.handUp;
 
-		this.eventEmitter.dispatchEvent(Utils.createEvent("player-hand-action", {
-			handUp: this.handUp
-		}));
+		this.eventEmitter.dispatchEvent(Utils.createEvent<boolean>("lp-speech-request", this.handUp));
 	}
 
 	private onQuiz(): void {
-		this.eventEmitter.dispatchEvent(Utils.createEvent("player-quiz-action"));
+		this.eventEmitter.dispatchEvent(Utils.createEvent<void>("lp-quiz-visibility"));
 	}
 
 	private onChatVisibility(): void {
-		this.eventEmitter.dispatchEvent(Utils.createEvent("player-chat-visibility"));
+		this.eventEmitter.dispatchEvent(Utils.createEvent<void>("lp-chat-visibility"));
 	}
 
 	private onParticipantsVisibility(): void {
-		this.eventEmitter.dispatchEvent(Utils.createEvent("player-participants-visibility"));
+		this.eventEmitter.dispatchEvent(Utils.createEvent<void>("lp-participants-visibility"));
 	}
 
 	private onFullscreen(): void {
 		this.fullscreen = !this.fullscreen;
 
-		this.eventEmitter.dispatchEvent(Utils.createEvent("player-fullscreen", {
-			fullscreen: this.fullscreen
-		}));
+		this.eventEmitter.dispatchEvent(Utils.createEvent<boolean>("lp-fullscreen", this.fullscreen));
 	}
 
 	private getFormattedDuration(): string {

@@ -1,3 +1,4 @@
+import { LpStreamCaptureStatsEvent, LpStreamConnectionStateEvent } from "../../event";
 import { JanusService } from "../../service/janus.service";
 import { courseStore } from "../../store/course.store";
 import { uiStateStore } from "../../store/ui-state.store";
@@ -5,7 +6,6 @@ import { userStore } from "../../store/user.store";
 import { HttpRequest } from "../../utils/http-request";
 import { State } from "../../utils/state";
 import { Utils } from "../../utils/utils";
-import { VpnModal } from "../vpn-modal/vpn.modal";
 import { ApplicationContext } from "./context";
 import { Controller } from "./controller";
 import { RootController } from "./root.controller";
@@ -19,13 +19,10 @@ export class StreamController extends Controller {
 		super(rootController, context);
 
 		this.janusService = new JanusService(`https://${window.location.hostname}:8089/janus`, this.context.eventEmitter);
-		this.janusService.addEventListener("janus-connection-established", this.onJanusConnectionEstablished.bind(this));
-		this.janusService.addEventListener("janus-connection-failure", this.onJanusConnectionFailure.bind(this));
-		this.janusService.addEventListener("janus-session-error", this.onJanusSessionError.bind(this));
+		this.janusService.addEventListener("lp-stream-connection-state", this.onStreamConnectionState.bind(this));
 
-		this.eventEmitter.addEventListener("stream-stats-start", this.startStatsCapture.bind(this));
-		this.eventEmitter.addEventListener("stream-stats-stop", this.stopStatsCapture.bind(this));
-		this.eventEmitter.addEventListener("stream-receive-camera-feed", this.onReceiveCameraFeed.bind(this));
+		this.eventEmitter.addEventListener("lp-stream-capture-stats", this.onCaptureStats.bind(this));
+		this.eventEmitter.addEventListener("lp-receive-camera-feed", this.onReceiveCameraFeed.bind(this));
 	}
 
 	startSpeech(withCamera: boolean) {
@@ -67,22 +64,20 @@ export class StreamController extends Controller {
 		this.janusService.addPeer(peerId, displayName);
 	}
 
-	private onJanusConnectionEstablished() {
-		console.log("* on janus connected");
+	private onStreamConnectionState(event: LpStreamConnectionStateEvent) {
+		console.log("* on stream connected");
 
-		this.setStreamState(State.CONNECTED);
-	}
+		const state = event.detail;
 
-	private onJanusConnectionFailure() {
-		this.setStreamState(State.DISCONNECTED);
-	}
-
-	private onJanusSessionError() {
-		this.setStreamState(State.DISCONNECTED);
-
-		const vpnModal = new VpnModal();
-
-		this.modalController.registerModal("VpnModal", vpnModal);
+		switch (state) {
+			case "connected":
+				this.setStreamState(State.CONNECTED);
+				break;
+			case "disconnected":
+			case "failed":
+				this.setStreamState(State.DISCONNECTED);
+				break;
+		}
 	}
 
 	private onReceiveCameraFeed() {
@@ -92,17 +87,20 @@ export class StreamController extends Controller {
 		this.janusService.setReceiveCameraFeed(uiStateStore.receiveCameraFeed);
 	}
 
-	private startStatsCapture() {
-		this.janusService.startStatsCapture();
-	}
+	private onCaptureStats(event: LpStreamCaptureStatsEvent) {
+		const capture = event.detail;
 
-	private stopStatsCapture() {
-		this.janusService.stopStatsCapture();
+		if (capture) {
+			this.janusService.startStatsCapture();
+		}
+		else {
+			this.janusService.stopStatsCapture();
+		}
 	}
 
 	private setStreamState(state: State) {
 		uiStateStore.setStreamState(state);
 
-		this.eventEmitter.dispatchEvent(Utils.createEvent("stream-connection-state", state));
+		this.eventEmitter.dispatchEvent(Utils.createEvent("lp-stream-connection-state", state));
 	}
 }

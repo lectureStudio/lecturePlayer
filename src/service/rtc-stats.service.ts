@@ -173,10 +173,15 @@ export class RTCStatsService {
 	}
 
 	private getBitrate(lastTimestamp: number | undefined, lastBytes: number | undefined, stats: StreamAudioStats | StreamVideoStats, inbound: boolean) {
-		if (lastTimestamp && lastBytes) {
+		if (lastTimestamp != null && lastBytes != null && stats.timestamp != null) {
 			const bytes = inbound ? stats.bytesReceived : stats.bytesSent;
-			const timeDelta = (stats.timestamp ?? NaN - lastTimestamp) / 1000; // milliseconds to seconds
-			const bytesDelta = (bytes ?? NaN - lastBytes) * 8; // bytes to bits
+
+			if (bytes == null) {
+				return;
+			}
+
+			const timeDelta = (stats.timestamp - lastTimestamp) / 1000; // milliseconds to seconds
+			const bytesDelta = (bytes - lastBytes) * 8; // bytes to bits
 
 			if (inbound) {
 				stats.bitrateIn = bytesDelta / timeDelta; // bits per second
@@ -188,7 +193,7 @@ export class RTCStatsService {
 	}
 
 	private getPacketLossPercent(stats: StreamAudioStats | StreamVideoStats) {
-		if (stats.packetsLost && stats.packetsReceived) {
+		if (stats.packetsLost != null && stats.packetsReceived) {
 			stats.packetLossPercent = stats.packetsLost / (stats.packetsReceived + stats.packetsLost) * 100;
 		}
 		else {

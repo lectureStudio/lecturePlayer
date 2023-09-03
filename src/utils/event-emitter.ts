@@ -1,3 +1,5 @@
-export class EventEmitter extends EventTarget {
+import { TypedEventTarget } from 'typescript-event-target';
+
+export class EventEmitter extends TypedEventTarget<DocumentEventMap> {
 
 }

@@ -62,7 +62,7 @@ export class Shortcut {
 	private readonly META_MASK = 1 << 7;
 
 	/** The event listener attached to the managed event target. */
-	private readonly eventListener: (event: KeyboardEvent) => void;
+	private readonly eventListener: (event: Event) => void;
 
 	/** The key combination hash to shortcut entry mapping. */
 	private readonly shortcutMap: Map<string, ShortcutEntry>;
@@ -85,8 +85,8 @@ export class Shortcut {
 	 * 
 	 * @param target The event target on which to listen for key events.
 	 */
-	constructor(target?: EventTarget) {
-		this.target = target ? target : document;
+	constructor(target: EventTarget) {
+		this.target = target;
 		this.shortcutMap = new Map();
 
 		this.eventListener = this.onKeyEvent.bind(this);
@@ -158,12 +158,14 @@ export class Shortcut {
 		this.shortcutMap.set(hash, entry);
 	}
 
-	private onKeyEvent(event: KeyboardEvent): void {
-		if (event.key == null) {
+	private onKeyEvent(event: Event): void {
+		const keyboardEvent = event as KeyboardEvent;
+
+		if (keyboardEvent.key == null) {
 			return;
 		}
 
-		let hash = this.getKeyEventHash(event);
+		let hash = this.getKeyEventHash(keyboardEvent);
 		let entry = this.shortcutMap.get(hash);
 
 		if (!entry) {
@@ -175,14 +177,14 @@ export class Shortcut {
 			 * This kind of bound keystrokes has a lower priority over the simultaneously
 			 * bound key combinations with modifiers for the same key.
 			 */
-			hash = event.key.toLowerCase() + "0";
+			hash = keyboardEvent.key.toLowerCase() + "0";
 			entry = this.shortcutMap.get(hash);
 
 			if (!entry) {
 				return;
 			}
 		}
-		if (entry.options.repeat == null && event.repeat) {
+		if (entry.options.repeat == null && keyboardEvent.repeat) {
 			return;
 		}
 		if (entry.options.type !== event.type) {

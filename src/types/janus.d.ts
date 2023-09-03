@@ -203,7 +203,7 @@ declare module "janus-gateway" {
 	interface PluginMessage {
 		message: PluginRequest;
 		jsep?: JSEP;
-		success?: (data?: unknown) => void;
+		success?: (data?: T) => void;
 		error?: (error: string) => void;
 	}
 

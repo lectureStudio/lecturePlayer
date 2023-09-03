@@ -39,10 +39,6 @@ export class PdfAnnotationRenderer {
 	}
 }
 
-interface Map {
-	[key: string]: string | undefined
-}
-
 // Taken and modified the webL10n API by Fabien Cazenave for PDF.js extension.
 class Translator {
 

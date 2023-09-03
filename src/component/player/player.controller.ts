@@ -1,6 +1,4 @@
 import { ReactiveController } from 'lit';
-import { MessengerState, QuizState } from '../../model/course-state';
-import { CourseParticipantPresence } from '../../model/participant';
 import { EventService } from '../../service/event.service';
 import { ChatService } from '../../service/chat.service';
 import { DeviceInfo, Devices } from '../../utils/devices';
@@ -24,7 +22,6 @@ import { ToolController } from '../../tool/tool-controller';
 import { MouseListener } from '../../event/mouse-listener';
 import { SlideView } from '../slide-view/slide-view';
 import { deviceStore } from '../../store/device.store';
-import { MediaStateEvent, RecordingStateEvent, StreamStateEvent } from '../../model/event/queue-events';
 import { CourseStateApi } from '../../transport/course-state-api';
 import { CourseUserApi } from '../../transport/course-user-api';
 import { CourseParticipantApi } from '../../transport/course-participant-api';
@@ -34,6 +31,7 @@ import { EventEmitter } from '../../utils/event-emitter';
 import { RootController } from '../controller/root.controller';
 import { Controller } from '../controller/controller';
 import { streamStatsStore } from '../../store/stream-stats.store';
+import { LpChatStateEvent, LpEventServiceStateEvent, LpMediaStateEvent, LpParticipantPresenceEvent, LpQuizStateEvent, LpRecordingStateEvent, LpStreamStateEvent } from '../../event';
 
 export class PlayerController extends Controller implements ReactiveController {
 
@@ -70,15 +68,14 @@ export class PlayerController extends Controller implements ReactiveController {
 		this.host.addEventListener("participant-audio-play-error", this.onAudioPlayError.bind(this), false);
 		this.host.addEventListener("participant-video-play-error", this.onVideoPlayError.bind(this), false);
 
-		this.eventEmitter.addEventListener("event-service-state", this.onEventServiceState.bind(this));
-		this.eventEmitter.addEventListener("event-service-chat-state", this.onChatState.bind(this));
-		this.eventEmitter.addEventListener("event-service-quiz-state", this.onQuizState.bind(this));
-		this.eventEmitter.addEventListener("event-service-recording-state", this.onRecordingState.bind(this));
-		this.eventEmitter.addEventListener("event-service-stream-state", this.onStreamState.bind(this));
-		this.eventEmitter.addEventListener("event-service-media-state", this.onMediaState.bind(this));
-		this.eventEmitter.addEventListener("event-service-participant-presence", this.onParticipantPresence.bind(this));
-
-		this.eventEmitter.addEventListener("stream-connection-state", this.onStreamConnectionState.bind(this));
+		this.eventEmitter.addEventListener("lp-event-service-state", this.onEventServiceState.bind(this));
+		this.eventEmitter.addEventListener("lp-chat-state", this.onChatState.bind(this));
+		this.eventEmitter.addEventListener("lp-quiz-state", this.onQuizState.bind(this));
+		this.eventEmitter.addEventListener("lp-recording-state", this.onRecordingState.bind(this));
+		this.eventEmitter.addEventListener("lp-stream-state", this.onStreamState.bind(this));
+		this.eventEmitter.addEventListener("lp-media-state", this.onMediaState.bind(this));
+		this.eventEmitter.addEventListener("lp-participant-presence", this.onParticipantPresence.bind(this));
+		this.eventEmitter.addEventListener("lp-stream-connection-state", this.onStreamConnectionState.bind(this));
 
 		this.connect();
 	}
@@ -298,12 +295,12 @@ export class PlayerController extends Controller implements ReactiveController {
 		this.modalController.registerModal("ReconnectModal", reconnectModal);
 	}
 
-	private onEventServiceState(event: CustomEvent) {
-		const connected = event.detail.connected;
+	private onEventServiceState(event: LpEventServiceStateEvent) {
+		const state = event.detail;
 
-		console.log("* on event service", connected, uiStateStore.state);
+		console.log("* on event service", state, uiStateStore.state);
 
-		if (connected) {
+		if (state == State.CONNECTED) {
 			switch (uiStateStore.state) {
 				case State.CONNECTING:
 				case State.CONNECTED:
@@ -333,19 +330,19 @@ export class PlayerController extends Controller implements ReactiveController {
 		}
 	}
 
-	private onChatState(event: CustomEvent) {
-		const state: MessengerState = event.detail;
+	private onChatState(event: LpChatStateEvent) {
+		const chatState = event.detail;
 
-		console.log("* on chat", state, uiStateStore.state);
+		console.log("* on chat", chatState, uiStateStore.state);
 
-		featureStore.setChatFeature(state.started ? state.feature : undefined);
+		featureStore.setChatFeature(chatState.started ? chatState.feature : undefined);
 
 		if (this.connecting) {
 			// Do not proceed with chat loading if the stream is connecting.
 			return;
 		}
 
-		if (state.started) {
+		if (chatState.started) {
 			this.fetchChatData();
 
 		}
@@ -358,26 +355,22 @@ export class PlayerController extends Controller implements ReactiveController {
 		this.updateConnectionState();
 	}
 
-	private onQuizState(event: CustomEvent) {
-		const state: QuizState = event.detail;
+	private onQuizState(event: LpQuizStateEvent) {
+		const quizState = event.detail;
 
-		if (!state.started) {
+		if (!quizState.started) {
 			this.modalController.closeAndDeleteModal("QuizModal");
 		}
 
-		featureStore.setQuizFeature(state.started ? state.feature : undefined);
+		featureStore.setQuizFeature(quizState.started ? quizState.feature : undefined);
 
 		this.updateConnectionState();
 	}
 
-	private onRecordingState(event: CustomEvent) {
-		const recordingEvent: RecordingStateEvent = event.detail;
+	private onRecordingState(event: LpRecordingStateEvent) {
+		const recordingState = event.detail;
 
-		if (this.host.courseId !== recordingEvent.courseId) {
-			return;
-		}
-
-		if (recordingEvent.recorded) {
+		if (recordingState.recorded) {
 			this.modalController.openModal("RecordedModal");
 		}
 		else {
@@ -385,18 +378,19 @@ export class PlayerController extends Controller implements ReactiveController {
 		}
 	}
 
-	private onStreamState(event: CustomEvent) {
-		const streamEvent: StreamStateEvent = event.detail;
+	private onStreamState(event: LpStreamStateEvent) {
+		const streamState = event.detail;
 
-		console.log("~ on stream state", streamEvent);
+		console.log("~ on stream state", streamState);
 
 		if (courseStore.isClassroom) {
+			// Ignore, since we are not interested in receiving streaming media.
 			return;
 		}
 
-		if (streamEvent.started) {
+		if (streamState.started) {
 			courseStore.isLive = true;
-			courseStore.setTimeStarted(streamEvent.timeStarted);
+			courseStore.setTimeStarted(streamState.timeStarted);
 
 			if (uiStateStore.state === State.CONNECTED) {
 				console.log("reconnecting ...");
@@ -425,23 +419,23 @@ export class PlayerController extends Controller implements ReactiveController {
 		}
 	}
 
-	private onMediaState(event: CustomEvent) {
-		const mediaEvent: MediaStateEvent = event.detail;
-		const userId = mediaEvent.userId;
+	private onMediaState(event: LpMediaStateEvent) {
+		const mediaState = event.detail;
+		const userId = mediaState.userId;
 
-		if (mediaEvent.state.Audio != null) {
-			participantStore.setParticipantMicrophoneActive(userId, mediaEvent.state.Audio);
+		if (mediaState.state.Audio != null) {
+			participantStore.setParticipantMicrophoneActive(userId, mediaState.state.Audio);
 		}
-		if (mediaEvent.state.Camera != null) {
-			participantStore.setParticipantCameraActive(userId, mediaEvent.state.Camera);
+		if (mediaState.state.Camera != null) {
+			participantStore.setParticipantCameraActive(userId, mediaState.state.Camera);
 		}
-		if (mediaEvent.state.Screen != null) {
-			participantStore.setParticipantScreenActive(userId, mediaEvent.state.Screen);
+		if (mediaState.state.Screen != null) {
+			participantStore.setParticipantScreenActive(userId, mediaState.state.Screen);
 		}
 	}
 
-	private onParticipantPresence(event: CustomEvent) {
-		const participant: CourseParticipantPresence = event.detail;
+	private onParticipantPresence(event: LpParticipantPresenceEvent) {
+		const participant = event.detail;
 
 		// React only to events originated from other participants.
 		if (participant.userId === userStore.userId) {

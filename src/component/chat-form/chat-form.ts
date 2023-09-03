@@ -34,8 +34,8 @@ export class ChatForm extends Component {
 	}
 
 	resetForm() {
-		this.form.querySelectorAll("[resettable]")
-			.forEach((element: HTMLInputElement) => {
+		this.form.querySelectorAll<HTMLInputElement>("[resettable]")
+			.forEach(element => {
 				element.value = "";
 			});
 	}

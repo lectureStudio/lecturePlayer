@@ -3,6 +3,9 @@ import { Devices } from "../utils/devices";
 import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
 import { RTCStatsService } from "./rtc-stats.service";
+import { EventEmitter } from "../utils/event-emitter";
+import { TypedEventTarget } from "typescript-event-target";
+import { LpDeviceMuteEvent, ParticipantConnectionState, ParticipantError, ParticipantState } from "../event";
 
 export enum JanusStreamType {
 
@@ -13,9 +16,11 @@ export enum JanusStreamType {
 
 }
 
-export abstract class JanusParticipant extends EventTarget {
+export abstract class JanusParticipant extends TypedEventTarget<DocumentEventMap> {
 
 	private statsService: RTCStatsService;
+
+	protected readonly eventEmitter: EventEmitter;
 
 	// Janus stream type to mid mapping.
 	protected readonly streamMids: Map<string, string>;
@@ -31,19 +36,20 @@ export abstract class JanusParticipant extends EventTarget {
 	protected streams: Map<string, MediaStream>;
 
 
-	constructor(janus: Janus) {
+	constructor(janus: Janus, eventEmitter: EventEmitter) {
 		super();
 
 		this.streamMids = new Map();
 
 		this.janus = janus;
+		this.eventEmitter = eventEmitter;
 		this.state = State.DISCONNECTED;
 		this.streams = new Map();
 		this.publishers = [];
 
 		this.statsService = new RTCStatsService();
 
-		document.addEventListener("lect-device-mute", this.onMuteDevice.bind(this));
+		this.eventEmitter.addEventListener("lp-device-mute", this.onMuteDevice.bind(this));
 	}
 
 	abstract connect(): void;
@@ -86,33 +92,20 @@ export abstract class JanusParticipant extends EventTarget {
 
 			console.log("+ pc connection state", connectionState);
 
-			switch (connectionState) {
-				case "connected":
-					this.dispatchEvent(Utils.createEvent("janus-participant-connection-connected", {
-						participant: this
-					}));
-					break;
+			this.dispatchEvent(Utils.createEvent<ParticipantConnectionState>("lp-participant-connection-state", {
+				participant: this,
+				state: connectionState
+			}));
 
-				case "disconnected":
-					this.dispatchEvent(Utils.createEvent("janus-participant-connection-disconnected", {
-						participant: this
-					}));
-					break;
-
-				case "failed":
-					// We cannot recover from a failed connection state.
-					this.disconnect();
-
-					this.dispatchEvent(Utils.createEvent("janus-participant-connection-failure", {
-						participant: this
-					}));
-					break;
+			if (connectionState === "failed") {
+				// We cannot recover from a failed connection state.
+				this.disconnect();
 			}
 		}, false);
 	}
 
-	protected onMuteDevice(event: CustomEvent) {
-		const devSetting: MediaDeviceSetting = event.detail;
+	protected onMuteDevice(event: LpDeviceMuteEvent) {
+		const devSetting = event.detail;
 
 		if (devSetting.kind === "audioinput") {
 			this.onMuteAudio(devSetting.muted);
@@ -143,9 +136,9 @@ export abstract class JanusParticipant extends EventTarget {
 	protected onError(cause: unknown) {
 		Janus.error("WebRTC error: ", cause);
 
-		this.dispatchEvent(Utils.createEvent("janus-participant-error", {
+		this.dispatchEvent(Utils.createEvent<ParticipantError>("lp-participant-error", {
 			participant: this,
-			error: cause
+			cause: cause
 		}));
 	}
 
@@ -165,9 +158,7 @@ export abstract class JanusParticipant extends EventTarget {
 		this.streams.forEach(stream => Devices.stopMediaTracks(stream));
 		this.streams.clear();
 
-		this.dispatchEvent(Utils.createEvent("janus-participant-destroyed", {
-			participant: this
-		}));
+		this.dispatchEvent(Utils.createEvent<JanusParticipant>("lp-participant-destroyed", this));
 	}
 
 	protected onIceState(state: "connected" | "failed" | "disconnected" | "closed") {
@@ -193,7 +184,7 @@ export abstract class JanusParticipant extends EventTarget {
 
 		this.state = state;
 
-		this.dispatchEvent(Utils.createEvent("janus-participant-state", {
+		this.dispatchEvent(Utils.createEvent<ParticipantState>("lp-participant-state", {
 			participant: this,
 			state: state
 		}));

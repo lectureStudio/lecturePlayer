@@ -43,10 +43,10 @@ class ActionParser {
 	private static readonly KEY_EVENT_MASK = 1;
 
 
-	static parse(dataView: ProgressiveDataView, type: ActionType, length: number): Action | null {
+	static parse(dataView: ProgressiveDataView, type: ActionType, _length: number): Action | null {
 		let action: Action | null = null;
 		const keyEvent = this.parseActionHeader(dataView);
-		length -= 13; // Action header has a length of 13 bytes.
+		// length -= 13; // Action header has a length of 13 bytes.
 
 		switch (type) {
 			case ActionType.CLEAR_SHAPES:

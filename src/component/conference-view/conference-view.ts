@@ -94,10 +94,10 @@ export class ConferenceView extends I18nLitElement {
 	override connectedCallback() {
 		super.connectedCallback();
 
-		document.addEventListener("remove-grid-element", this.removeGridElement.bind(this));
-		document.addEventListener("participant-talking", this.onTalkingPublisher.bind(this));
-		document.addEventListener("speaker-view", this.onSpeakerView.bind(this));
-		document.addEventListener("settings-layout", this.onLayoutChange.bind(this));
+		// document.addEventListener("remove-grid-element", this.removeGridElement.bind(this));
+		// document.addEventListener("participant-talking", this.onTalkingPublisher.bind(this));
+		// document.addEventListener("speaker-view", this.onSpeakerView.bind(this));
+		// document.addEventListener("settings-layout", this.onLayoutChange.bind(this));
 
 		// Mandatory to set the layout first, since setContentFocus() may modify the layout.
 		autorun(() => {

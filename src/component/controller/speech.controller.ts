@@ -1,5 +1,4 @@
 import { t } from "i18next";
-import { SpeechStateEvent } from "../../model/event/queue-events";
 import { Toaster } from "../../utils/toaster";
 import { ApplicationContext } from "./context";
 import { Controller } from "./controller";
@@ -11,6 +10,7 @@ import { CourseSpeechApi } from "../../transport/course-speech-api";
 import { courseStore } from "../../store/course.store";
 import { deviceStore } from "../../store/device.store";
 import { RootController } from "./root.controller";
+import { LpSpeechRequestEvent, LpSpeechStateEvent } from "../../event";
 
 export class SpeechController extends Controller {
 
@@ -24,15 +24,15 @@ export class SpeechController extends Controller {
 	constructor(rootController: RootController, context: ApplicationContext) {
 		super(rootController, context);
 
-		context.eventEmitter.addEventListener("event-service-speech-state", this.onSpeechState.bind(this));
-		context.eventEmitter.addEventListener("player-hand-action", this.onHandAction.bind(this), false);
+		context.eventEmitter.addEventListener("lp-speech-state", this.onSpeechState.bind(this));
+		context.eventEmitter.addEventListener("lp-speech-request", this.onSpeechRequest.bind(this));
 	}
 
-	private onSpeechState(event: CustomEvent) {
-		const speechEvent: SpeechStateEvent = event.detail;
+	private onSpeechState(event: LpSpeechStateEvent) {
+		const speechState = event.detail;
 
-		if (this.speechRequestId && speechEvent.requestId === this.speechRequestId) {
-			if (speechEvent.accepted) {
+		if (this.speechRequestId && speechState.requestId === this.speechRequestId) {
+			if (speechState.accepted) {
 				this.speechAccepted();
 			}
 			else {
@@ -45,8 +45,8 @@ export class SpeechController extends Controller {
 		}
 	}
 
-	private onHandAction(event: CustomEvent) {
-		const handUp = event.detail.handUp;
+	private onSpeechRequest(event: LpSpeechRequestEvent) {
+		const handUp = event.detail;
 
 		if (handUp) {
 			this.initSpeech();
@@ -137,7 +137,7 @@ export class SpeechController extends Controller {
 		// Close dialog in case the request was initially accepted.
 		this.modalController.closeAndDeleteModal("SpeechAcceptedModal");
 
-		this.eventEmitter.dispatchEvent(Utils.createEvent("speech-canceled"));
+		this.eventEmitter.dispatchEvent(Utils.createEvent<void>("lp-speech-canceled"));
 	}
 
 	private showSpeechAcceptedModal(stream: MediaStream, camBlocked: boolean) {

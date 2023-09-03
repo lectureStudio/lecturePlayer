@@ -9,6 +9,8 @@ import { deviceStore } from "../store/device.store";
 import { participantStore } from "../store/participants.store";
 import { courseStore } from "../store/course.store";
 import { CourseMediaApi } from "../transport/course-media-api";
+import { LpDeviceChangeEvent } from "../event";
+import { EventEmitter } from "../utils/event-emitter";
 
 export class JanusPublisher extends JanusParticipant {
 
@@ -21,15 +23,15 @@ export class JanusPublisher extends JanusParticipant {
 	cameraEnabled: boolean;
 
 
-	constructor(janus: Janus, roomId: number, opaqueId: string) {
-		super(janus);
+	constructor(janus: Janus, roomId: number, opaqueId: string, eventEmitter: EventEmitter) {
+		super(janus, eventEmitter);
 
 		this.roomId = roomId;
 		this.opaqueId = opaqueId;
 		this.cameraEnabled = true;
 
-		document.addEventListener("lect-device-change", this.onDeviceChange.bind(this));
-		document.addEventListener("lect-share-screen", this.onShareScreen.bind(this));
+		eventEmitter.addEventListener("lp-device-change", this.onDeviceChange.bind(this));
+		eventEmitter.addEventListener("lp-share-screen", this.onShareScreen.bind(this));
 	}
 
 	override connect() {
@@ -48,7 +50,7 @@ export class JanusPublisher extends JanusParticipant {
 			ondetached: this.onDetached.bind(this),
 			consentDialog: (on: boolean) => {
 				if (!on) {
-					document.dispatchEvent(Utils.createEvent("lect-device-permission-change"));
+					this.eventEmitter.dispatchEvent(Utils.createEvent("lect-device-permission-change"));
 				}
 			}
 		});
@@ -143,7 +145,7 @@ export class JanusPublisher extends JanusParticipant {
 							this.publishers.push(publisher);
 						}
 
-						this.dispatchEvent(Utils.createEvent("janus-participant-joined", publisher));
+						this.dispatchEvent(Utils.createEvent("lp-participant-joined", publisher));
 					}
 				}
 
@@ -153,7 +155,7 @@ export class JanusPublisher extends JanusParticipant {
 						id: leaving as bigint
 					};
 
-					this.dispatchEvent(Utils.createEvent("janus-participant-left", publisher));
+					this.dispatchEvent(Utils.createEvent("lp-participant-left", publisher));
 					return;
 				}
 
@@ -178,7 +180,7 @@ export class JanusPublisher extends JanusParticipant {
 					state: event,
 				}
 
-				document.dispatchEvent(Utils.createEvent("participant-talking", talking));
+				this.eventEmitter.dispatchEvent(Utils.createEvent("participant-talking", talking));
 			}
 		}
 
@@ -222,8 +224,8 @@ export class JanusPublisher extends JanusParticipant {
 		}
 	}
 
-	private onDeviceChange(event: CustomEvent) {
-		const deviceSetting: MediaDeviceSetting = event.detail;
+	private onDeviceChange(event: LpDeviceChangeEvent) {
+		const deviceSetting = event.detail;
 		const muted = deviceSetting.muted;
 
 		if (muted) {
