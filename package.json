@@ -7,10 +7,10 @@
 		"build:dev": "webpack --config webpack.dev.js",
 		"build:prod": "webpack --config webpack.prod.js",
 		"watch": "webpack --config webpack.dev.js --watch",
-		"start:dev": "webpack serve --host 0.0.0.0 --config webpack.dev.js",
 		"lint": "eslint --ignore-path .eslintignore --ext .ts .",
-		"ts-check": "tsc --noEmit --project ./tsconfig.json",
-		"generate-docs": "compodoc -p tsconfig.json"
+		"ts-check": "tsc --noEmit",
+		"prettier": "prettier --write .",
+		"prettier:check": "prettier --check ."
 	},
 	"keywords": [
 		"recording",
@@ -41,6 +41,7 @@
 		"exports-loader": "^4.0.0",
 		"lit-css-loader": "^2.0.1",
 		"mini-css-extract-plugin": "^2.7.6",
+		"prettier": "^3.0.3",
 		"sass": "^1.65.1",
 		"sass-loader": "^13.3.2",
 		"style-loader": "^3.3.3",
