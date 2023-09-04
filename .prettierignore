@@ -1,9 +1,0 @@
-.github
-dist
-src/icons
-node_modules
-package.json
-package-lock.json
-tsconfig.json
-webpack.*
-**/.*
