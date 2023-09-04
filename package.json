@@ -9,8 +9,7 @@
 		"watch": "webpack --config webpack.dev.js --watch",
 		"start:dev": "webpack serve --host 0.0.0.0 --config webpack.dev.js",
 		"lint": "eslint --ignore-path .eslintignore --ext .ts .",
-		"ts-check": "tsc --noEmit --project ./tsconfig.json",
-		"generate-docs": "compodoc -p tsconfig.json"
+		"ts-check": "tsc --noEmit --project ./tsconfig.json"
 	},
 	"keywords": [
 		"recording",

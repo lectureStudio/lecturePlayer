@@ -1,10 +1,10 @@
 import { SlColorPicker } from '@shoelace-style/shoelace';
-import { html } from 'lit';
+// import { html } from 'lit';
 import { customElement, query, state } from 'lit/decorators.js';
-import { Color } from '../../paint/color';
+// import { Color } from '../../paint/color';
 import { ToolType } from '../../tool/tool';
 import { Utils } from '../../utils/utils';
-import { I18nLitElement, t } from '../i18n-mixin';
+import { I18nLitElement } from '../i18n-mixin';
 import documentNavigationStyles from './document-navigation.scss';
 
 @customElement('document-navigation')
