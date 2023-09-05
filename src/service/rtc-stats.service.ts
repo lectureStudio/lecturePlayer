@@ -1,4 +1,4 @@
-import { AudioStats, DataStats, StreamAudioStats, StreamVideoStats, VideoStats } from "../model/stream-stats";
+import { AudioStats, DataStats, StreamAudioStats, StreamMediaStats, StreamVideoStats, VideoStats } from "../model/stream-stats";
 import { streamStatsStore } from "../store/stream-stats.store";
 
 export class RTCStatsService {
@@ -15,6 +15,10 @@ export class RTCStatsService {
 
 		this.pc.getStats()
 			.then(report => {
+				this.prepareAudioStats(streamStatsStore.audioStats);
+				this.prepareVideoStats(streamStatsStore.cameraStats);
+				this.prepareVideoStats(streamStatsStore.screenStats);
+
 				for (const entry of report.values()) {
 					const type: RTCStatsType = entry.type;
 
@@ -33,6 +37,31 @@ export class RTCStatsService {
 					}
 				}
 			});
+	}
+
+	private getDefaultStats<T extends StreamMediaStats>(mediaStats: T | undefined) {
+		let ssrc = mediaStats?.ssrc;
+
+		if (!ssrc || !this.getTrackDescription(ssrc)) {
+			// There is no synchronization source or an active track.
+			return undefined;
+		}
+
+		return mediaStats;
+	}
+
+	private prepareAudioStats(stats: AudioStats) {
+		if (stats) {
+			stats.inboundStats = this.getDefaultStats(stats.inboundStats);
+			stats.outboundStats = this.getDefaultStats(stats.outboundStats);
+		}
+	}
+
+	private prepareVideoStats(stats: VideoStats) {
+		if (stats) {
+			stats.inboundStats = this.getDefaultStats(stats.inboundStats);
+			stats.outboundStats = this.getDefaultStats(stats.outboundStats);
+		}
 	}
 
 	private getRtpStats(report: RTCStatsReport, stats: RTCInboundRtpStreamStats | RTCOutboundRtpStreamStats, inbound: boolean) {
@@ -68,6 +97,7 @@ export class RTCStatsService {
 
 	private createAudioStats(stats: RTCInboundRtpStreamStats | RTCOutboundRtpStreamStats, codecStats: RTCCodecStats, inbound: boolean) {
 		const audioStats: StreamAudioStats = {
+			ssrc: stats.ssrc,
 			timestamp: stats.timestamp,
 			codec: codecStats.mimeType.substring(codecStats.mimeType.indexOf("/") + 1),
 			channels: codecStats.channels,
@@ -93,12 +123,18 @@ export class RTCStatsService {
 	}
 
 	private createVideoStats(stats: RTCInboundRtpStreamStats | RTCOutboundRtpStreamStats, codecStats: RTCCodecStats, inbound: boolean) {
+		if (!stats.framesPerSecond) {
+			// Having no fps indicates that the stream is not active.
+			return {} as StreamVideoStats;
+		}
+
 		const videoStats: StreamVideoStats = {
+			ssrc: stats.ssrc,
 			timestamp: stats.timestamp,
 			codec: codecStats.mimeType.substring(codecStats.mimeType.indexOf("/") + 1),
-			frameWidth: stats.frameWidth ?? NaN,
-			frameHeight: stats.frameHeight ?? NaN,
-			framesPerSecond: stats.framesPerSecond ?? NaN
+			frameWidth: stats.frameWidth,
+			frameHeight: stats.frameHeight,
+			framesPerSecond: stats.framesPerSecond
 		};
 
 		if (inbound) {

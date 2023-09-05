@@ -1,5 +1,6 @@
-interface StreamMediaStats {
+export interface StreamMediaStats {
 
+	ssrc: number;
 	timestamp?: number;
 	codec: string;
 	bytesReceived?: number;
@@ -23,9 +24,9 @@ export interface StreamAudioStats extends StreamMediaStats {
 
 export interface StreamVideoStats extends StreamMediaStats {
 
-	frameHeight: number;
-	frameWidth: number;
-	framesPerSecond: number;
+	frameHeight?: number;
+	frameWidth?: number;
+	framesPerSecond?: number;
 
 }
 
