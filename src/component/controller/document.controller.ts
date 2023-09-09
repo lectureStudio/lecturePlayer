@@ -1,4 +1,5 @@
-import { PDFDocumentProxy, getDocument } from "pdfjs-dist";
+import * as pdfjs from "pdfjs-dist";
+import { PDFDocumentProxy } from "pdfjs-dist";
 import { RecordedPageParser } from "../../action/parser/recorded-page.parser";
 import { SimpleActionExecutor } from "../../action/simple-action-executor";
 import { CourseStateDocument } from "../../model/course-state-document";
@@ -79,7 +80,7 @@ export class DocumentController extends Controller {
 
 	private static loadDocument(source: Uint8Array): Promise<SlideDocument> {
 		return new Promise<PdfJsDocument>((resolve, reject) => {
-			const loadingTask = getDocument(source);
+			const loadingTask = pdfjs.getDocument(source);
 			loadingTask.promise
 				.then(async (pdf: PDFDocumentProxy) => {
 					resolve(await PdfJsDocument.create(pdf));

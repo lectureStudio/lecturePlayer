@@ -1,4 +1,4 @@
-import { PropertyValues, html } from 'lit';
+import { CSSResultGroup, PropertyValues, html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { ChatService } from '../../service/chat.service';
@@ -10,12 +10,12 @@ import { featureStore } from '../../store/feature.store';
 import { autorun } from 'mobx';
 import { privilegeStore } from '../../store/privilege.store';
 import { chatStore } from '../../store/chat.store';
-import featureViewStyles from './feature-view.scss';
+import featureViewStyles from './feature-view.css';
 
 @customElement('player-feature-view')
 export class PlayerFeatureView extends Component {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		featureViewStyles,
 	];

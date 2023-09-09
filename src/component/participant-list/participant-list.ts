@@ -1,4 +1,4 @@
-import { html } from 'lit';
+import { CSSResultGroup, html } from 'lit';
 import { customElement, query, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { I18nLitElement, t } from '../i18n-mixin';
@@ -7,14 +7,14 @@ import { CourseParticipant } from '../../model/participant';
 import { SlMenu, SlMenuItem } from '@shoelace-style/shoelace';
 import { FirstNameComparator, LastNameComparator, ParticipantSortProperty, ParticipantSortPropertyType, ParticipantSortPropertyUtil, ParticipantTypeComparator, participantStore } from '../../store/participants.store';
 import { Component } from '../component';
-import participantBoxStyles from './participant-list.scss';
+import participantListStyles from './participant-list.css';
 
 @customElement('participant-list')
 export class ParticipantList extends Component {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
-		participantBoxStyles
+		participantListStyles
 	];
 
 	@state()

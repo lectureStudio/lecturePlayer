@@ -1,7 +1,7 @@
 import { LitElement } from 'lit';
 import i18next, { t } from 'i18next';
 
-import commonStyles from '../styles/styles.scss';
+import commonStyles from './i18n-mixin.css';
 
 /*eslint @typescript-eslint/no-explicit-any: ["error", { "ignoreRestArgs": true }]*/
 type Constructor<T = {}> = new (...args: any[]) => T;

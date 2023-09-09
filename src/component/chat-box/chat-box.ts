@@ -1,5 +1,5 @@
 import { Component } from '../component';
-import { html } from 'lit';
+import { CSSResultGroup, html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { repeat } from 'lit/directives/repeat.js';
@@ -11,12 +11,12 @@ import { chatStore } from '../../store/chat.store';
 import { Utils } from '../../utils/utils';
 import { Toaster } from '../../utils/toaster';
 import { ChatForm } from '../chat-form/chat-form';
-import chatBoxStyles from './chat-box.scss';
+import chatBoxStyles from './chat-box.css';
 
 @customElement('chat-box')
 export class ChatBox extends Component {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		chatBoxStyles,
 	];

@@ -1,7 +1,7 @@
 import { html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { I18nLitElement } from '../i18n-mixin';
-import playerLoadingStyles from './player-loading.scss';
+import playerLoadingStyles from './player-loading.css';
 
 @customElement('player-loading')
 export class PlayerLoading extends I18nLitElement {

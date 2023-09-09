@@ -1,4 +1,4 @@
-import { Janus, VideoRoomParticipant, JanusStreamDescription, PluginHandle } from "janus-gateway";
+import Janus from "janus-gateway";
 import { Devices } from "../utils/devices";
 import { State } from "../utils/state";
 import { Utils } from "../utils/utils";

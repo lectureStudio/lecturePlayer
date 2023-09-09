@@ -2,7 +2,7 @@ import { html } from "lit";
 import { Modal } from "../modal/modal";
 import { customElement } from "lit/decorators.js";
 import { t } from '../i18n-mixin';
-import participantsModalStyles from "./participants.modal.scss";
+import participantsModalStyles from "./participants.modal.css";
 
 @customElement("participants-modal")
 export class ParticipantsModal extends Modal {

@@ -7,7 +7,7 @@ import { SlSelect } from '@shoelace-style/shoelace';
 import { MediaSettings } from './media-settings';
 import { deviceStore } from '../../store/device.store';
 import { courseStore } from '../../store/course.store';
-import cameraSettingsStyles from './camera-settings.scss';
+import cameraSettingsStyles from './camera-settings.css';
 
 @customElement("camera-settings")
 export class CameraSettings extends MediaSettings {

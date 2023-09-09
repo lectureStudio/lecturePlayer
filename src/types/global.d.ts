@@ -1,5 +1,9 @@
-declare module '*.css';
-declare module '*.scss';
+declare module "*.css" {
+	import type { CSSResultGroup } from "lit";
+
+	const content: CSSResultGroup;
+	export default content;
+}
 
 interface Indexable {
 	[key: string]: unknown;

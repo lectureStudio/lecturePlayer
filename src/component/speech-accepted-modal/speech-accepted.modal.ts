@@ -4,7 +4,7 @@ import { customElement, property, query } from "lit/decorators.js";
 import { Utils } from "../../utils/utils";
 import { t } from '../i18n-mixin';
 import { Devices } from "../../utils/devices";
-import speechAcceptedModalStyles from "./speech-accepted.modal.scss";
+import speechAcceptedModalStyles from "./speech-accepted.modal.css";
 
 @customElement("speech-accepted-modal")
 export class SpeechAcceptedModal extends Modal {

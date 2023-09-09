@@ -1,16 +1,16 @@
-import { html } from "lit";
+import { CSSResultGroup, html } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import { Utils } from "../../utils/utils";
 import { I18nLitElement } from "../i18n-mixin";
 import { CourseParticipant } from "../../model/participant";
 import { Component } from "../component";
 import { Devices } from "../../utils/devices";
-import screenViewStyles from "./screen-view.scss";
+import screenViewStyles from "./screen-view.css";
 
 @customElement('screen-view')
 export class ScreenView extends Component {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		screenViewStyles
 	];

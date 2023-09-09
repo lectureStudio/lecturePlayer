@@ -1,15 +1,15 @@
-import { html } from 'lit';
+import { CSSResultGroup, html } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { I18nLitElement } from '../i18n-mixin';
 import { SlMenu, SlMenuItem } from '@shoelace-style/shoelace';
 import { Utils } from '../../utils/utils';
 import { Devices } from '../../utils/devices';
-import mediaDeviceButtonStyles from './media-device-button.scss';
+import mediaDeviceButtonStyles from './media-device-button.css';
 
 @customElement('media-device-button')
 export class MediaDeviceButton extends I18nLitElement {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		mediaDeviceButtonStyles,
 	];

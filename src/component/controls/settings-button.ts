@@ -1,4 +1,4 @@
-import { html } from 'lit';
+import { CSSResultGroup, html } from 'lit';
 import { t } from '../i18n-mixin';
 import { customElement, query } from 'lit/decorators.js';
 import { SlMenu, SlMenuItem, SlTooltip } from '@shoelace-style/shoelace';
@@ -6,12 +6,12 @@ import { Utils } from '../../utils/utils';
 import { Component } from '../component';
 import { EventEmitter } from '../../utils/event-emitter';
 import { uiStateStore } from '../../store/ui-state.store';
-import settingsButtonStyles from './settings-button.scss';
+import settingsButtonStyles from './settings-button.css';
 
 @customElement('settings-button')
 export class SettingsButton extends Component {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		settingsButtonStyles
 	];
 

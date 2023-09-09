@@ -1,4 +1,4 @@
-import { html } from "lit";
+import { CSSResultGroup, html } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import { Devices } from "../../utils/devices";
 import { Utils } from "../../utils/utils";
@@ -9,12 +9,12 @@ import { deviceStore } from "../../store/device.store";
 import { CourseParticipant, Participant } from "../../model/participant";
 import { Component } from "../component";
 import { LpDeviceChangeEvent } from "../../event";
-import participantViewStyles from "./participant-view.scss";
+import participantViewStyles from "./participant-view.css";
 
 @customElement('participant-view')
 export class ParticipantView extends Component {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		participantViewStyles
 	];

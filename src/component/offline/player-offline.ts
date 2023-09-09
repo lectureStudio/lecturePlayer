@@ -1,4 +1,4 @@
-import { html } from 'lit';
+import { CSSResultGroup, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
@@ -6,12 +6,12 @@ import { I18nLitElement, t } from '../i18n-mixin';
 import { courseStore } from '../../store/course.store';
 import { Component } from '../component';
 import { uiStateStore } from '../../store/ui-state.store';
-import playerOfflineStyles from './player-offline.scss';
+import playerOfflineStyles from './player-offline.css';
 
 @customElement('player-offline')
 export class PlayerOffline extends Component {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		playerOfflineStyles,
 	];

@@ -1,17 +1,17 @@
 import { Component } from '../component';
-import { html } from 'lit';
+import { CSSResultGroup, html } from 'lit';
 import { customElement, query } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { ChatRecipientType } from '../../service/chat.service';
 import { privilegeStore } from '../../store/privilege.store';
 import { participantStore } from '../../store/participants.store';
 import { userStore } from '../../store/user.store';
-import chatFormStyles from './chat-form.scss';
+import chatFormStyles from './chat-form.css';
 
 @customElement('chat-form')
 export class ChatForm extends Component {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		chatFormStyles,
 	];

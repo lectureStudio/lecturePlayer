@@ -1,16 +1,16 @@
-import { html } from 'lit';
+import { CSSResultGroup, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { Component } from '../component';
 import { ChatMessage, DirectChatMessage } from '../../service/chat.service';
 import { userStore } from '../../store/user.store';
-import chatMessageStyles from './chat-message.scss';
+import chatMessageStyles from './chat-message.css';
 
 @customElement('chat-box-message')
 export class ChatBoxMessage extends Component {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		chatMessageStyles,
 	];

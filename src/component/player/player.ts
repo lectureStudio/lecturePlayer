@@ -1,4 +1,4 @@
-import { html } from 'lit';
+import { CSSResultGroup, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { choose } from 'lit/directives/choose.js';
 import { PlayerController } from './player.controller';
@@ -6,17 +6,17 @@ import { I18nLitElement, t } from '../i18n-mixin';
 import { State } from '../../utils/state';
 import { uiStateStore } from '../../store/ui-state.store';
 import { Component } from '../component';
-import playerStyles from './player.scss';
+import playerStyles from './player.css';
 
 @customElement('lecture-player')
 export class LecturePlayer extends Component {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		playerStyles,
 	];
 
-	private readonly controller = new PlayerController(this);
+	readonly controller = new PlayerController(this);
 
 	@property({ type: Number })
 	courseId: number;

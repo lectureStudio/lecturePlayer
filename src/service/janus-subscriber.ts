@@ -1,4 +1,4 @@
-import { Janus, JanusMessage, JanusStreamDescription, JSEP, PluginHandle } from "janus-gateway";
+import Janus from "janus-gateway";
 import { JanusParticipant, JanusStreamType } from "./janus-participant";
 import { Utils } from "../utils/utils";
 import { State } from "../utils/state";
@@ -173,7 +173,9 @@ export class JanusSubscriber extends JanusParticipant {
 			// case they were offered we'll enable them. Since we
 			// don't mention audio or video tracks, we autoaccept them
 			// as recvonly (since we won't capture anything ourselves).
-			media.push({ type: 'data' });
+			media.push({
+				type: "data"
+			});
 		}
 
 		this.handle.createAnswer({

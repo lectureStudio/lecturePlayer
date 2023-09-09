@@ -63,7 +63,6 @@ export class PlayerController extends Controller implements ReactiveController {
 
 		this.eventService = new EventService(this.host.courseId, this.eventEmitter);
 		this.eventService.addEventSubService(this.context.chatService);
-		this.eventService.connect();
 
 		this.host.addEventListener("participant-audio-play-error", this.onAudioPlayError.bind(this), false);
 		this.host.addEventListener("participant-video-play-error", this.onVideoPlayError.bind(this), false);
@@ -77,7 +76,10 @@ export class PlayerController extends Controller implements ReactiveController {
 		this.eventEmitter.addEventListener("lp-participant-presence", this.onParticipantPresence.bind(this));
 		this.eventEmitter.addEventListener("lp-stream-connection-state", this.onStreamConnectionState.bind(this));
 
-		this.connect();
+		if (this.host.courseId) {
+			this.eventService.connect();
+			this.connect();
+		}
 	}
 
 	setPlayerViewController(viewController: PlayerViewController) {

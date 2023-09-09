@@ -1,4 +1,4 @@
-import { html } from 'lit';
+import { CSSResultGroup, html } from 'lit';
 import { customElement, query } from 'lit/decorators.js';
 import { CourseFeatureResponse, QuizAnswer } from '../../model/course-feature';
 import { I18nLitElement, t } from '../i18n-mixin';
@@ -7,12 +7,12 @@ import { Component } from '../component';
 import { courseStore } from '../../store/course.store';
 import { Toaster } from '../../utils/toaster';
 import { CourseQuizApi } from '../../transport/course-quiz-api';
-import quizBoxStyles from './quiz-box.scss';
+import quizBoxStyles from './quiz-box.css';
 
 @customElement('quiz-box')
 export class QuizBox extends Component {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		quizBoxStyles
 	];

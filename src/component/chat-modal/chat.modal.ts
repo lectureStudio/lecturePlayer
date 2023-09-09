@@ -3,7 +3,7 @@ import { Modal } from "../modal/modal";
 import { customElement, property } from "lit/decorators.js";
 import { t } from '../i18n-mixin';
 import { ChatService } from "../../service/chat.service";
-import chatModalStyles from "./chat.modal.scss";
+import chatModalStyles from "./chat.modal.css";
 
 @customElement("chat-modal")
 export class ChatModal extends Modal {

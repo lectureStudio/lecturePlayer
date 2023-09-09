@@ -1,4 +1,4 @@
-import { html } from 'lit';
+import { CSSResultGroup, html } from 'lit';
 import { when } from 'lit/directives/when.js';
 import { autorun } from 'mobx';
 import { customElement, property, query } from 'lit/decorators.js';
@@ -9,12 +9,12 @@ import { privilegeStore } from '../../store/privilege.store';
 import { deviceStore } from '../../store/device.store';
 import { EventEmitter } from '../../utils/event-emitter';
 import { Component } from '../component';
-import playerControlsStyles from './player-controls.scss';
+import playerControlsStyles from './player-controls.css';
 
 @customElement('player-controls')
 export class PlayerControls extends Component {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		playerControlsStyles,
 	];

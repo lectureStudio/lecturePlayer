@@ -1,15 +1,15 @@
-import { html } from 'lit';
+import { CSSResultGroup, html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { SlMenu, SlRange, SlTooltip } from '@shoelace-style/shoelace';
 import { Utils } from '../../utils/utils';
-import audioVolumeButtonStyles from './audio-volume-button.scss';
 import { deviceStore } from '../../store/device.store';
+import audioVolumeButtonStyles from './audio-volume-button.css';
 
 @customElement('audio-volume-button')
 export class AudioVolumeButton extends I18nLitElement {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		audioVolumeButtonStyles,
 	];

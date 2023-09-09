@@ -1,4 +1,4 @@
-import { html, TemplateResult } from 'lit';
+import { CSSResultGroup, html, TemplateResult } from 'lit';
 import { when } from "lit/directives/when.js";
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { customElement, property, query } from 'lit/decorators.js';
@@ -6,12 +6,12 @@ import { I18nLitElement, t } from '../i18n-mixin';
 import { CourseFeatureResponse, QuizMinMaxRule, QuizType } from '../../model/course-feature';
 import { featureStore } from '../../store/feature.store';
 import { Component } from '../component';
-import quizFormStyles from './quiz-form.scss';
+import quizFormStyles from './quiz-form.css';
 
 @customElement('quiz-form')
 export class QuizForm extends Component {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		quizFormStyles,
 	];

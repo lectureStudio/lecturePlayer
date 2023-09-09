@@ -1,14 +1,14 @@
-import { html, TemplateResult } from 'lit';
+import { CSSResultGroup, html, TemplateResult } from 'lit';
 import { property } from 'lit/decorators.js';
 import { I18nLitElement } from '../i18n-mixin';
 import { DeviceInfo, Devices } from '../../utils/devices';
 import { Utils } from '../../utils/utils';
 import { Component } from '../component';
-import mediaSettingsStyles from './media-settings.scss';
+import mediaSettingsStyles from './media-settings.css';
 
 export abstract class MediaSettings extends Component {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		mediaSettingsStyles
 	];

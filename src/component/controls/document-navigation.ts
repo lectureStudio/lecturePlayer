@@ -5,12 +5,13 @@ import { customElement, query, state } from 'lit/decorators.js';
 import { ToolType } from '../../tool/tool';
 import { Utils } from '../../utils/utils';
 import { I18nLitElement } from '../i18n-mixin';
-import documentNavigationStyles from './document-navigation.scss';
+import { CSSResultGroup } from 'lit';
+import documentNavigationStyles from './document-navigation.css';
 
 @customElement('document-navigation')
 export class DocumentNavigation extends I18nLitElement {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		documentNavigationStyles,
 	];

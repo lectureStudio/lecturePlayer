@@ -1,4 +1,4 @@
-import { html } from "lit";
+import { CSSResultGroup, html } from "lit";
 import { customElement } from "lit/decorators.js";
 import { I18nLitElement, t } from '../i18n-mixin';
 import { AudioStats, DataStats, DocumentStats, VideoStats } from "../../model/stream-stats";
@@ -6,7 +6,7 @@ import { Component } from "../component";
 import { streamStatsStore } from "../../store/stream-stats.store";
 import { EventEmitter } from "../../utils/event-emitter";
 import { Utils } from "../../utils/utils";
-import streamStatsStyles from "./stream-stats.scss";
+import streamStatsStyles from "./stream-stats.css";
 
 interface StatsEntry {
 
@@ -19,7 +19,7 @@ interface StatsEntry {
 @customElement("stream-stats")
 export class StreamStats extends Component {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		streamStatsStyles
 	];

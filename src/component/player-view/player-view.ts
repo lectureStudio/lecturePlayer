@@ -1,4 +1,4 @@
-import { html } from 'lit';
+import { CSSResultGroup, html } from 'lit';
 import { when } from 'lit/directives/when.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { customElement, property, query } from 'lit/decorators.js';
@@ -18,12 +18,12 @@ import { PlayerController } from '../player/player.controller';
 import { participantStore } from '../../store/participants.store';
 import { Component } from '../component';
 import { EventEmitter } from '../../utils/event-emitter';
-import playerViewStyles from './player-view.scss';
+import playerViewStyles from './player-view.css';
 
 @customElement('player-view')
 export class PlayerView extends Component {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		playerViewStyles,
 	];

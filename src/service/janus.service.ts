@@ -1,4 +1,4 @@
-import { Janus, VideoRoomParticipant, PluginHandle, VideoRoomParticipantsResponse } from "janus-gateway";
+import Janus from "janus-gateway";
 import { JanusPublisher } from "./janus-publisher";
 import { JanusSubscriber } from "./janus-subscriber";
 import { State } from "../utils/state";

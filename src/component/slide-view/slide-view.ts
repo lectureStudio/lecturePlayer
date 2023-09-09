@@ -13,9 +13,9 @@ import { ToolType } from '../../tool/tool';
 import { toolStore } from '../../store/tool.store';
 import { PlayerController } from '../player/player.controller';
 import { uiStateStore } from '../../store/ui-state.store';
-import slideViewStyles from './slide-view.scss';
-import textLayerStyles from './text-layer.scss';
-import annotationLayerStyles from './annotation-layer.scss';
+import slideViewStyles from './slide-view.css';
+import textLayerStyles from './text-layer.css';
+import annotationLayerStyles from './annotation-layer.css';
 
 @customElement('slide-view')
 export class SlideView extends LitElement {

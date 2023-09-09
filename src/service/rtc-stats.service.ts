@@ -40,7 +40,7 @@ export class RTCStatsService {
 	}
 
 	private getDefaultStats<T extends StreamMediaStats>(mediaStats: T | undefined) {
-		let ssrc = mediaStats?.ssrc;
+		const ssrc = mediaStats?.ssrc;
 
 		if (!ssrc || !this.getTrackDescription(ssrc)) {
 			// There is no synchronization source or an active track.

@@ -17,12 +17,12 @@
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
 		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true,
+		"emitDecoratorMetadata": false,
 		"useDefineForClassFields": false,
 		"strictBindCallApply": true,
 		"forceConsistentCasingInFileNames": true,
 		"moduleResolution": "node",
-		"target": "es2017",
+		"target": "es2019",
 		"module": "es2020",
 		"lib": [
 			"es2020",
@@ -35,6 +35,6 @@
 		]
 	},
 	"include": [
-		"src/**/*.ts"
+		"**/*.ts"
 	]
 }

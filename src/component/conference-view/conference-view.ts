@@ -1,4 +1,4 @@
-import { html } from "lit";
+import { CSSResultGroup, html } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { when } from "lit/directives/when.js";
 import { classMap } from "lit/directives/class-map.js";
@@ -10,12 +10,12 @@ import { ContentFocus, ContentLayout } from "../../model/content";
 import { privilegeStore } from "../../store/privilege.store";
 import { uiStateStore } from "../../store/ui-state.store";
 import { autorun } from "mobx";
-import conferenceViewStyles from "./conference-view.scss";
+import conferenceViewStyles from "./conference-view.css";
 
 @customElement('conference-view')
 export class ConferenceView extends I18nLitElement {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		conferenceViewStyles,
 	];

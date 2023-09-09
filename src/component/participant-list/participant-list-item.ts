@@ -1,15 +1,15 @@
-import { html } from 'lit';
+import { CSSResultGroup, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { CourseParticipant, Participant } from '../../model/participant';
 import { Component } from '../component';
 import { observable } from 'mobx';
-import participantStyles from './participant-list-item.scss';
+import participantStyles from './participant-list-item.css';
 
 @customElement('participant-list-item')
 export class ParticipantListItem extends Component {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		participantStyles
 	];

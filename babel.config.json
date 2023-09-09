@@ -4,34 +4,36 @@
 	},
 	"presets": [
 		[
-			"@babel/env",
+			"@babel/preset-env",
 			{
-				"debug": true,
+				"debug": false,
 				"targets": {
 					"esmodules": true
 				},
-				"modules": false,
+				"modules": "auto",
 				"useBuiltIns": false
 			}
 		],
-		"@babel/typescript"
+		"@babel/preset-typescript"
 	],
 	"plugins": [
-
 		[
-			"@babel/proposal-decorators",
+			"@babel/plugin-proposal-decorators",
 			{
+				"version": "2018-09",
 				"decoratorsBeforeExport": true
 			}
 		],
 		[
-			"@babel/proposal-class-properties",
-			{
-			}
+			"@babel/plugin-transform-class-properties",
+			{}
 		],
-		"@babel/proposal-object-rest-spread",
 		[
-			"@babel/transform-runtime",
+			"@babel/plugin-transform-object-rest-spread",
+			{}
+		],
+		[
+			"@babel/plugin-transform-runtime",
 			{
 				"corejs": false,
 				"helpers": true,

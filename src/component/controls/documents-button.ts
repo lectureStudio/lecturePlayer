@@ -1,4 +1,4 @@
-import { html, TemplateResult } from 'lit';
+import { CSSResultGroup, html, TemplateResult } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { SlMenu, SlMenuItem, SlTooltip } from '@shoelace-style/shoelace';
@@ -6,12 +6,12 @@ import { Utils } from '../../utils/utils';
 import { CourseStateDocument } from '../../model/course-state-document';
 import { documentStore } from '../../store/document.store';
 import { Component } from '../component';
-import documentsButtonStyles from './documents-button.scss';
+import documentsButtonStyles from './documents-button.css';
 
 @customElement('documents-button')
 export class DocumentsButton extends Component {
 
-	static override styles = [
+	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
 		documentsButtonStyles,
 	];
