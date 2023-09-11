@@ -1,4 +1,4 @@
-import Janus from "janus-gateway";
+import Janus, { JSEP, JanusMessage, PluginHandle, VideoRoomConfigureRequest, VideoRoomParticipant } from "janus-gateway";
 import { MediaType } from "../model/media-type";
 import { Devices } from "../utils/devices";
 import { State } from "../utils/state";

@@ -169,7 +169,14 @@ declare module "janus-gateway" {
 	}
 
 	interface OfferParams {
-		tracks?: Array<OfferTrackParams>,
+		tracks?: TrackOption[];
+		trickle?: boolean;
+		iceRestart?: boolean;
+		success?: (jsep: JSEP) => void;
+		error?: (error: Error) => void;
+		customizeSdp?: (jsep: JSEP) => void;
+
+		/** @deprecated use tracks instead */
 		media?: {
 			audioSend?: boolean;
 			audioRecv?: boolean;
@@ -253,10 +260,10 @@ declare module "janus-gateway" {
 			tsnow: string | null;
 			value: string | null;
 		};
-		dataChannel: Array<RTCDataChannel>;
+		dataChannel: { [key in string]: RTCDataChannel };
 		dataChannelOptions: RTCDataChannelInit;
 
-		dtmfSender: string | null;
+		dtmfSender: RTCDTMFSender | null;
 		iceDone: boolean;
 		mediaConstraints: unknown;
 		mySdp: {
@@ -283,11 +290,13 @@ declare module "janus-gateway" {
 			timer: number;
 		};
 	}
+
 	interface DetachOptions {
 		success?: () => void;
 		error?: (error: string) => void;
 		noRequest?: boolean;
 	}
+
 	interface PluginHandle {
 		plugin: string;
 		id: string;
@@ -296,13 +305,9 @@ declare module "janus-gateway" {
 		webrtcStuff: WebRTCInfo;
 		getId(): string;
 		getPlugin(): string;
-		send(message: PluginMessage): void;
-		createOffer(params: OfferParams): void;
-		createAnswer(params: unknown): void;
-		replaceTracks(params: ReplaceTrackParams): void;
-		handleRemoteJsep(params: { jsep: JSEP }): void;
-		dtmf(params: unknown): void;
-		data(params: unknown): void;
+		getVolume(mid: string, callback: (result: number) => void): void;
+		getRemoteVolume(mid: string, callback: (result: number) => void): void;
+		getLocalVolume(mid: string, callback: (result: number) => void): void;
 		isAudioMuted(): boolean;
 		muteAudio(): void;
 		unmuteAudio(): void;
@@ -310,6 +315,16 @@ declare module "janus-gateway" {
 		muteVideo(): void;
 		unmuteVideo(): void;
 		getBitrate(): string;
+		setMaxBitrate(bitrate: number): void;
+		send(message: PluginMessage): void;
+		data(params: PluginDataParam): void;
+		dtmf(params: PluginDtmfParam): void;
+		createOffer(params: OfferParams): void;
+		createAnswer(params: PluginCreateAnswerParam): void;
+		handleRemoteJsep(params: PluginHandleRemoteJsepParam): void;
+		replaceTracks(params: PluginReplaceTracksParam): void;
+		getLocalTracks(): TrackDesc[];
+		getRemoteTracks(): TrackDesc[];
 		hangup(sendRequest?: boolean): void;
 		detach(params?: DetachOptions): void;
 	}
@@ -352,3 +367,5 @@ declare module "janus-gateway" {
 		destroy(callbacks: DestroyOptions): void;
 	}
 }
+
+export default Janus;

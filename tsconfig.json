@@ -21,6 +21,7 @@
 		"useDefineForClassFields": false,
 		"strictBindCallApply": true,
 		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
 		"moduleResolution": "node",
 		"target": "es2019",
 		"module": "es2020",

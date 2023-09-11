@@ -1,33 +1,29 @@
-import { css } from 'lit';
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
 
-export const commonStyles = css`
-	*,
-	*::before,
-	*::after {
-		box-sizing: border-box;
-	}
+:root,
+:host {
+	color: var(--sl-color-neutral-900);
+}
 
-	:root,
-	:host {
-		color: var(--sl-color-neutral-900);
-	}
+sl-icon {
+	fill: var(--sl-color-neutral-800);
+}
 
-	sl-icon {
-		fill: var(--sl-color-neutral-800);
-	}
+form {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75em;
+}
 
-	form {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75em;
-	}
+sl-option::part(base) {
+	font-size: var(--sl-font-size-small);
+}
 
-	sl-option::part(base) {
-		font-size: var(--sl-font-size-small);
-	}
-
-	#meter {
-		background-color: var(--sl-color-neutral-200);
-		fill: var(--sl-color-primary-500);
-	}
-`;
+#meter {
+	background-color: var(--sl-color-neutral-200);
+	fill: var(--sl-color-primary-500);
+}

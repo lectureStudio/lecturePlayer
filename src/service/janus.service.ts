@@ -1,4 +1,5 @@
-import Janus from "janus-gateway";
+import Janus, { PluginHandle, VideoRoomParticipant, VideoRoomParticipantsResponse } from "janus-gateway";
+import adapter from "webrtc-adapter";
 import { JanusPublisher } from "./janus-publisher";
 import { JanusSubscriber } from "./janus-subscriber";
 import { State } from "../utils/state";
@@ -72,8 +73,13 @@ export class JanusService extends TypedEventTarget<DocumentEventMap> {
 	connect() {
 		return new Promise<void>((resolve, reject) => {
 			// Initialize the library (all console debuggers enabled).
+			const setupDeps = () => Janus.useDefaultDependencies({
+				adapter
+			});
+
 			Janus.init({
 				// debug: "all",
+				dependencies: setupDeps(),
 				callback: () => {
 					// Make sure the browser supports WebRTC.
 					if (!Janus.isWebrtcSupported()) {

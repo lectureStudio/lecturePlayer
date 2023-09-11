@@ -1,4 +1,4 @@
-import Janus from "janus-gateway";
+import Janus, { JSEP, JanusMessage, JanusStreamDescription, PluginHandle } from "janus-gateway";
 import { JanusParticipant, JanusStreamType } from "./janus-participant";
 import { Utils } from "../utils/utils";
 import { State } from "../utils/state";

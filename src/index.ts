@@ -5,7 +5,10 @@ export * from "./component";
 
 import i18next from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
-import * as resources from "./locales";
+import enTranslation from "./locales/en/main.json";
+import deTranslation from "./locales/de/main.json";
+
+import * as pdfjs from "pdfjs-dist";
 
 
 class lectPlayer {
@@ -20,12 +23,7 @@ class lectPlayer {
 	}
 
 	initPDF() {
-		const pdfjs = require("pdfjs-dist");
-		const PdfjsWorker = require("worker-loader?esModule=false&filename=js/[name].js!pdfjs-dist/build/pdf.worker.js");
-
-		if (typeof window !== "undefined" && "Worker" in window) {
-			pdfjs.GlobalWorkerOptions.workerPort = new PdfjsWorker();
-		}
+		pdfjs.GlobalWorkerOptions.workerSrc = "/js/pdf.worker.js";
 	}
 
 	initI18n() {
@@ -38,7 +36,10 @@ class lectPlayer {
 				// Allow "en" to be used for "en-US", "en-CA", etc.
 				nonExplicitSupportedLngs: true,
 				ns: "main",
-				resources: resources
+				resources: {
+					en: { main: enTranslation },
+					de: { main: deTranslation },
+				}
 			});
 	}
 }
