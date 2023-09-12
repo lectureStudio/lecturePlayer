@@ -1,25 +1,30 @@
 import * as esbuild from "esbuild";
 import { litCssPlugin } from "esbuild-plugin-lit-css";
 import { copy } from "esbuild-plugin-copy";
+import { readFileSync } from "fs";
 import CleanCSS from "clean-css";
+
+const loadJSON = (path) => JSON.parse(readFileSync(new URL(path, import.meta.url)));
 
 const args = process.argv.slice(2);
 const dev = args.includes("--dev");
 const watch = args.includes("--watch");
+const { compilerOptions } = loadJSON("./tsconfig.json");
+const { name, version } = loadJSON("./package.json");
 
 const cleanCSS = new CleanCSS({
 	sourceMap: true,
 	returnPromise: true,
 });
 
-const outdir = "D:\\WORK\\web-backend\\src\\main\\resources\\static";
-const outfile = `${outdir}/js/lecture-player.js`;
+const outdir = "build";
+const outfile = `${outdir}/js/${name}.js`;
 
 const config = {
 	entryPoints: ["src/index.ts"],
 	outfile: outfile,
 	format: "iife",
-	target: ["es2017", "chrome73", "edge79", "firefox63", "safari12"],
+	target: [compilerOptions.target, "chrome73", "edge79", "firefox63", "safari12"],
 	bundle: true,
 	sourcemap: !!dev,
 	minify: !dev,
@@ -33,12 +38,12 @@ const config = {
 		copy({
 			assets: [
 				{
-					from: ["src/icons"],
-					to: [`${outdir}/icons`],
+					from: ["src/icons/*"],
+					to: ["../icons"],
 				},
 				{
 					from: ["node_modules/pdfjs-dist/build/pdf.worker.min.js"],
-					to: [`${outdir}/js/pdf.worker.js`],
+					to: ["pdf.worker.js"],
 				}
 			]
 		})
