@@ -13,8 +13,9 @@ const replace = fromRollup(rollupReplace);
 const filteredLogs = ["Running in dev mode", "Lit is in dev mode"];
 
 export default {
-	files: "test/**/*.test.ts",
+	files: "src/**/*.test.ts",
 	nodeResolve: true,
+	concurrentBrowsers: 3,
 	mimeTypes: {
 		// Serve .css files as a js module.
 		"**/*.css": "js",

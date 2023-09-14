@@ -228,9 +228,9 @@ export class HttpRequest {
 		let body = request.response || null;
 		let responseType: string = request.responseType;
 
-		if (contentType && contentType.startsWith("text/plain")) {
-			return request.responseText;
-		}
+		// if (contentType && contentType.startsWith("text/plain")) {
+		// 	return request.responseText;
+		// }
 		if (!responseType) {
 			responseType = request.getResponseHeader("Content-Type") ?? "";
 

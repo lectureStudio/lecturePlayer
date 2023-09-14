@@ -17,7 +17,7 @@ const cleanCSS = new CleanCSS({
 	returnPromise: true,
 });
 
-const outdir = "build";
+const outdir = compilerOptions.outDir;
 const outfile = `${outdir}/js/${name}.js`;
 
 const config = {

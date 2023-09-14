@@ -9,7 +9,7 @@
 		"build:dev": "node esbuild.js --dev",
 		"watch": "node esbuild.js --dev --watch",
 		"lint": "eslint --ignore-path .eslintignore --ext .ts .",
-		"test": "wtr",
+		"test": "wtr --coverage",
 		"test:watch": "wtr --watch"
 	},
 	"keywords": [

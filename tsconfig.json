@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"outDir": "./dist/",
+		"outDir": "build",
 		"declaration": true,
 		"declarationMap": true,
 		"sourceMap": true,
@@ -37,5 +37,8 @@
 	},
 	"include": [
 		"**/*.ts"
+	],
+	"exclude": [
+		"**/*.test.ts"
 	]
 }

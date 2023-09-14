@@ -58,8 +58,6 @@ export class ViewController extends Controller {
 		autorun(() => {
 			this.applyColorScheme();
 		});
-
-		console.log("++ color scheme:", uiStateStore.colorScheme, uiStateStore.systemColorScheme);
 	}
 
 	setFullscreen(enable: boolean) {

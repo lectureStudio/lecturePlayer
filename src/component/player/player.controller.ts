@@ -107,7 +107,7 @@ export class PlayerController extends Controller implements ReactiveController {
 		courseStore.isLive = this.host.getAttribute("islive") == "true";
 		courseStore.isClassroom = this.host.getAttribute("isClassroom") == "true" || Settings.getMediaProfile() === MediaProfile.Classroom;
 
-		console.log("isLive", courseStore.isLive, "isClassroom", courseStore.isClassroom)
+		// console.log("isLive", courseStore.isLive, "isClassroom", courseStore.isClassroom)
 
 		// Early state recognition to avoid view flickering.
 		if (courseStore.isLive) {
