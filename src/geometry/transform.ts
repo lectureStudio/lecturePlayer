@@ -223,7 +223,7 @@ class Transform {
 			return false;
 		}
 
-		return this.m.equals(other.m);
+		return this.m.every((val, index) => val === other.m[index]);
 	}
 
 	/**

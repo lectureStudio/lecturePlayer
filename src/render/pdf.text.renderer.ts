@@ -1,10 +1,14 @@
+import * as pdfjs from "pdfjs-dist";
 import { PDFPageProxy } from "pdfjs-dist/types/src/display/api";
-import { renderTextLayer } from "pdfjs-dist";
 import { Transform } from "../geometry/transform";
 
 export class PdfTextRenderer {
 
 	async render(pageProxy: PDFPageProxy, transform: Transform, root: HTMLElement): Promise<void> {
+		if (!pdfjs.renderTextLayer) {
+			return Promise.reject("renderTextLayer() is not available");
+		}
+
 		const viewport = pageProxy.getViewport().clone({ dontFlip: true });
 
 		const readableStream = pageProxy.streamTextContent({
@@ -12,7 +16,7 @@ export class PdfTextRenderer {
 			disableNormalization: true,
 		});
 
-		const textLayerRenderTask = renderTextLayer({
+		const textLayerRenderTask = pdfjs.renderTextLayer({
 			textContentSource: readableStream,
 			container: root,
 			viewport,

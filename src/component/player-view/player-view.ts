@@ -18,6 +18,7 @@ import { PlayerController } from '../player/player.controller';
 import { participantStore } from '../../store/participants.store';
 import { Component } from '../component';
 import { EventEmitter } from '../../utils/event-emitter';
+import { SlideView } from '../slide-view/slide-view';
 import playerViewStyles from './player-view.css';
 
 @customElement('player-view')
@@ -88,8 +89,15 @@ export class PlayerView extends Component {
 		});
 	}
 
-	protected override firstUpdated() {
-		this.playerController.setPlayerViewController(this.controller);
+	protected override async firstUpdated() {
+		const slideView = this.renderRoot.querySelector<SlideView>("slide-view");
+
+		if (slideView) {
+			await slideView.updateComplete;
+
+			this.playerController.setPlayerViewController(this.controller);
+			this.playerController.setSlideView(slideView);
+		}
 	}
 
 	protected override render() {
@@ -120,7 +128,7 @@ export class PlayerView extends Component {
 								`,
 								() => html`
 								<div class="slide-container">
-									<slide-view class="slides" .playerController="${this.playerController}"></slide-view>
+									<slide-view class="slides"></slide-view>
 									${when(this.screenVisible, () => html`
 									<screen-view .participant="${participantStore.getWithScreenStream()}"></screen-view>
 									`)}

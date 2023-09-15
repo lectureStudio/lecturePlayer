@@ -38,6 +38,7 @@
 		"esbuild-plugin-lit-css": "^2.0.4",
 		"eslint": "^8.48.0",
 		"eslint-plugin-lit": "^1.9.1",
+		"jspdf": "^2.5.1",
 		"rollup-plugin-lit-css": "^4.0.1",
 		"typescript": "^5.2.2"
 	},

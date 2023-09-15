@@ -224,7 +224,7 @@ export class HttpRequest {
 	}
 
 	private decodeBody(request: XMLHttpRequest): XMLHttpRequestBodyInit {
-		const contentType = request.getResponseHeader("Content-Type");
+		// const contentType = request.getResponseHeader("Content-Type");
 		let body = request.response || null;
 		let responseType: string = request.responseType;
 

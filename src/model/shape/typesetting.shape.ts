@@ -5,9 +5,9 @@ import { Point } from "../../geometry/point";
 
 abstract class TypesettingShape extends Shape {
 
-	private textAttributes: Map<string, boolean>;
+	private textAttributes: Map<string, boolean> = new Map();
 
-	private textColor: Color;
+	private textColor: Color = Color.fromHex("#000");
 
 	private text: string;
 

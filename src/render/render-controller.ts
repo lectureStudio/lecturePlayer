@@ -71,18 +71,21 @@ export class RenderController {
 		this.visibilityChangeListener = this.visibilityChanged.bind(this);
 	}
 
-	setSlideView(slideView: SlideView) {
+	setSlideView(slideView: SlideView | null) {
 		this.slideView = slideView;
-		this.slideView.setRenderController(this);
 
-		this.slideRenderSurface = slideView.getSlideRenderSurface();
-		this.actionRenderSurface = slideView.getActionRenderSurface();
-		this.volatileRenderSurface = slideView.getVolatileRenderSurface();
-		this.textLayerSurface = slideView.getTextLayerSurface();
-		this.annotationLayerSurface = slideView.getAnnotationLayerSurface();
+		if (this.slideView) {
+			this.slideView.setRenderController(this);
 
-		this.registerShapeRenderers(this.actionRenderSurface);
-		this.registerShapeRenderers(this.volatileRenderSurface);
+			this.slideRenderSurface = this.slideView.getSlideRenderSurface();
+			this.actionRenderSurface = this.slideView.getActionRenderSurface();
+			this.volatileRenderSurface = this.slideView.getVolatileRenderSurface();
+			this.textLayerSurface = this.slideView.getTextLayerSurface();
+			this.annotationLayerSurface = this.slideView.getAnnotationLayerSurface();
+
+			this.registerShapeRenderers(this.actionRenderSurface);
+			this.registerShapeRenderers(this.volatileRenderSurface);
+		}
 	}
 
 	start() {
@@ -96,7 +99,7 @@ export class RenderController {
 			this.page.removeChangeListener(this.pageChangeListener);
 		}
 
-		this.slideView = null;
+		this.setSlideView(null);
 	}
 
 	getPage(): Page {
@@ -272,37 +275,41 @@ export class RenderController {
 
 		const transform = this.getSlideTransform();
 
-		this.renderSlideLayer(page, transform).then(() => {
-			if (!size || size.width === 0 || size.height === 0) {
-				// Do not even try to render.
-				return;
-			}
+		this.renderSlideLayer(page, transform)
+			.then(() => {
+				if (!size || size.width === 0 || size.height === 0) {
+					// Do not even try to render.
+					return;
+				}
 
-			const pageTransform = this.getPageTransform();
+				const pageTransform = this.getPageTransform();
 
-			this.lastTransform.setTransform(pageTransform);
+				this.lastTransform.setTransform(pageTransform);
 
-			this.actionRenderSurface.setTransform(pageTransform);
-			this.actionRenderSurface.setCanvasSize(size.width, size.height);
-			this.actionRenderSurface.renderSurface(this.slideRenderSurface);
-			this.actionRenderSurface.renderShapes(page.getShapes());
+				this.actionRenderSurface.setTransform(pageTransform);
+				this.actionRenderSurface.setCanvasSize(size.width, size.height);
+				this.actionRenderSurface.renderSurface(this.slideRenderSurface);
+				this.actionRenderSurface.renderShapes(page.getShapes());
 
-			this.volatileRenderSurface.setTransform(pageTransform);
-			this.volatileRenderSurface.setCanvasSize(size.width, size.height);
-			this.volatileRenderSurface.clear();
+				this.volatileRenderSurface.setTransform(pageTransform);
+				this.volatileRenderSurface.setCanvasSize(size.width, size.height);
+				this.volatileRenderSurface.clear();
 
-			this.textLayerSurface.render(page, transform);
-			this.annotationLayerSurface.render(page);
+				this.textLayerSurface.render(page, transform);
+				this.annotationLayerSurface.render(page);
 
-			this.lastShape = null;
+				this.lastShape = null;
 
-			this.rendering = false;
+				this.rendering = false;
 
-			if (!Object.is(page, this.page)) {
-				// Keep the view up to date.
-				this.renderAllLayers(this.page);
-			}
-		});
+				if (!Object.is(page, this.page)) {
+					// Keep the view up to date.
+					this.renderAllLayers(this.page);
+				}
+			})
+			.catch(error => {
+				console.error(error);
+			});
 	}
 
 	private renderPermanentLayer(shape: Shape, dirtyRegion: Rectangle): void {

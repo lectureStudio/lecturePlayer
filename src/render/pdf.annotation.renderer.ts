@@ -1,7 +1,6 @@
+import * as pdfViever from "pdfjs-dist/web/pdf_viewer";
 import { PDFPageProxy } from "pdfjs-dist/types/src/display/api";
 // import { AnnotationLayer } from "pdfjs-dist";
-
-const pdfViever = require("pdfjs-dist/web/pdf_viewer");
 
 export class PdfAnnotationRenderer {
 

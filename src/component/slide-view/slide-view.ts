@@ -11,7 +11,6 @@ import { MouseListener } from '../../event/mouse-listener';
 import { autorun } from 'mobx';
 import { ToolType } from '../../tool/tool';
 import { toolStore } from '../../store/tool.store';
-import { PlayerController } from '../player/player.controller';
 import { uiStateStore } from '../../store/ui-state.store';
 import slideViewStyles from './slide-view.css';
 import textLayerStyles from './text-layer.css';
@@ -25,8 +24,6 @@ export class SlideView extends LitElement {
 		textLayerStyles,
 		annotationLayerStyles
 	];
-
-	playerController: PlayerController;
 
 	private slideRenderSurface: SlideRenderSurface;
 
@@ -76,8 +73,6 @@ export class SlideView extends LitElement {
 		}
 
 		new ResizeObserver(this.resize.bind(this)).observe(this);
-
-		this.playerController.setSlideView(this);
 
 		autorun(() => {
 			this.setSelectedTool(toolStore.selectedToolType);

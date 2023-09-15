@@ -3,7 +3,7 @@ import { expect, html, fixture, oneEvent } from "@open-wc/testing";
 import type { LecturePlayer } from "../player/player.js";
 import "../player/player.js";
 
-import '@shoelace-style/shoelace';
+import "@shoelace-style/shoelace";
 
 import { ModalController } from "./modal.controller.js";
 import { EntryModal } from "../entry-modal/entry.modal.js";
