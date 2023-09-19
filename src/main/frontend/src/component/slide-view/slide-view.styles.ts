@@ -113,4 +113,20 @@ export const slideViewStyles = css`
 	.annotationLayer .linkAnnotation > a:hover {
 		background: #ff0;
 	}
+	.user-Ids {
+		position: absolute;
+		display: flex;
+		z-index: 10;
+		flex-direction: column;
+		align-items: flex-end;
+		box-sizing: border-box;	
+		pointer-events: none;	
+	}
+
+	.single-id {
+		border: 1.5px solid #94A3B8;
+		border-radius: 0.25em;
+		padding: 0.2em 0.5em;
+		margin: 0.3em;
+	}
 `;

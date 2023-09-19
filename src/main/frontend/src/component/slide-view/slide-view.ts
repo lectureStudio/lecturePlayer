@@ -27,11 +27,35 @@ export class SlideView extends LitElement {
 	@query(".volatile-canvas")
 	volatileCanvas: HTMLCanvasElement;
 
+	@query(".user-Ids")
+	userIdContainer: HTMLElement;
+
 	@property({ type: Boolean, reflect: true })
 	textLayerEnabled: boolean = true;
 
 
 	firstUpdated() {
+		document.addEventListener("participant-active",(event:CustomEvent) => {
+			let usrId = event.detail;
+			let userSpan = this.userIdContainer.querySelector("#"+usrId);
+			if(!userSpan){
+				userSpan = document.createElement("span");
+				userSpan.id = usrId;
+				userSpan.className = "single-id";
+				userSpan.textContent = usrId;
+				this.userIdContainer.appendChild(userSpan);
+				
+			} 
+		});
+
+		document.addEventListener("participant-inactive",(event:CustomEvent)=>{
+			let usrId = event.detail;
+			let userSpan = this.userIdContainer.querySelector("#"+usrId);
+			if(userSpan){
+				this.userIdContainer.removeChild(userSpan);
+			} 
+		});
+
 		const slideCanvas: HTMLCanvasElement = this.renderRoot.querySelector(".slide-canvas");
 		const actionCanvas: HTMLCanvasElement = this.renderRoot.querySelector(".action-canvas");
 		const textLayer: HTMLCanvasElement = this.renderRoot.querySelector(".text-layer");
@@ -106,6 +130,9 @@ export class SlideView extends LitElement {
 			this.actionRenderSurface.setSize(width, height);
 			this.volatileRenderSurface.setSize(width, height);
 			this.textLayerSurface.setSize(width, height);
+
+			this.userIdContainer.style.width = width + "px";
+			this.userIdContainer.style.height = height + "px";
 		});
 	}
 
@@ -115,6 +142,7 @@ export class SlideView extends LitElement {
 			<canvas class="action-canvas" scale="full"></canvas>
 			<canvas class="volatile-canvas" scale="full"></canvas>
 			<div class="text-layer"></div>
+			<div class="user-Ids"></div>
 		`;
 	}
 }
