@@ -32,4 +32,8 @@ export class RubberAction extends Action {
 
 		return buffer;
 	}
+
+	giveShapeHandle(): number{
+		return this.shapeHandle;
+	}
 }

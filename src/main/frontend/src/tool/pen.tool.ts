@@ -27,6 +27,12 @@ export class PenTool extends PaintTool {
 		super.execute(point);
 	}
 
+	end(point:PenPoint): void{
+		this.shapeHandle = null;
+		
+		super.end(point);
+	}
+
 	getType(): ToolType {
 		return ToolType.PEN;
 	}

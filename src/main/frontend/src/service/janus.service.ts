@@ -14,7 +14,7 @@ import{ ydocAction} from "../action/ydoc.action";
 import $settingsStore, { DeviceSettings } from "../model/device-settings-store";
 import { SlideDocument } from "../model/document";
 import { StreamPagePlaybackAction } from "../action/stream.playback.action";
-import { ToolEndAction } from "../action/tool-end.action";
+import { course } from "../model/course";
 
 export class JanusService extends EventTarget {
 
@@ -207,11 +207,11 @@ export class JanusService extends EventTarget {
 						this.attachAsPublisher();
 
 						addStreamAction.watch(streamAction => {
-							this.sendStreamAction(streamAction);
-							if(streamAction instanceof StreamPagePlaybackAction){
-								if(streamAction.action instanceof ToolEndAction){
-									this.sendYDocAction(new ydocAction(new Uint8Array()));
-								}
+							if(streamAction instanceof StreamPagePlaybackAction && course.peer2Peer){
+								new ydocAction().addAction(streamAction.action);
+								this.sendYDocAction(new ydocAction());
+							}else{
+								this.sendStreamAction(streamAction);
 							}
 						});
 					}

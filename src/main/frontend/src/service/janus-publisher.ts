@@ -7,8 +7,7 @@ import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
 import { JanusParticipant, JanusStreamType } from "./janus-participant";
 import $deviceSettingsStore from "../model/device-settings-store";
-
-import * as Y from 'yjs'
+import * as Y from 'yjs';
 
 export class JanusPublisher extends JanusParticipant {
 
@@ -32,8 +31,7 @@ export class JanusPublisher extends JanusParticipant {
 
 		document.addEventListener("lect-device-change", this.onDeviceChange.bind(this));
 		document.addEventListener("lect-share-screen", this.onShareScreen.bind(this));
-		course.YDoc.getMap("annotations").set(course.userId, new Y.Map()); //Max
-		
+		course.YDoc.getMap("annotations").set(course.userId, new Y.Map());
 	}
 
 	override connect() { 

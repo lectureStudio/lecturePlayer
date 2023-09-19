@@ -35,9 +35,15 @@ class Course extends EventTarget {
 
 	private _recorded: boolean;
 
+	private _peer2Peer: boolean = true;
+
 	private _YDoc: Y.Doc = new Y.Doc();
 
 	private _publicYDoc: Y.Doc = new Y.Doc();
+
+	get peer2Peer(){
+		return this._peer2Peer;
+	}
 
 	get YDoc(){
 		return this._YDoc;

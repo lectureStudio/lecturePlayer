@@ -137,9 +137,14 @@ export class StreamActionParser {
 	}
 
 	private static yDocAction(dataview: ProgressiveDataView) : ydocAction{
+		const usrLength = dataview.getInt8();
+		const usr = dataview.getString(usrLength);
+		
 		//Delta auslesen;
-		let diff = new Uint8Array(dataview.toUint8Array(),1,4);
-		console.log("parse YdocAction, diff:", diff);
-		return new ydocAction(diff); //TODO diff von dataView in ydocAction
+		let diff = dataview.toUint8Array();
+		const yDA = new ydocAction();
+		yDA.diff = diff;
+		yDA.usr = usr;
+		return yDA;
 	}
 }

@@ -110,10 +110,27 @@ class ProgressiveDataView {
 
 		return value;
 	}
+	
+	/**
+	 * returns a Unint8Array with size n from the dataview
+	 * @param size size of the Uint8Array
+	 * @returns Uint8Array
+	 */
+	toUint8Array(size?:number): Uint8Array{
 
-	toUint8Array(): Uint8Array{
-		//create new Uint8Array from the buffer with the Offset = 0 and length = buffer.byteLength-this.offset
-		return new Uint8Array(this.dataView.buffer.slice(this.offset),0,this.dataView.buffer.byteLength-this.offset);
+		if(size){
+			if(size <= 0){
+					throw new Error("Array Size is too small.");
+			}
+
+			const value = new Uint8Array(this.dataView.buffer.slice(this.offset),0,size);
+			this.offset += size;
+			return value;
+		}else{
+			//create new Uint8Array from the buffer with the Offset = 0 and length = buffer.byteLength-this.offset
+			return new Uint8Array(this.dataView.buffer.slice(this.offset),0,this.dataView.buffer.byteLength-this.offset);
+		}
+		
 	}
 }
 

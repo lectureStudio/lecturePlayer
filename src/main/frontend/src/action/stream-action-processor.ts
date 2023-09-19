@@ -14,6 +14,13 @@ import { StreamPageDeletedAction } from "./stream.page.deleted.action";
 import { StreamPageSelectedAction } from "./stream.page.selected.action";
 import { StreamPagePlaybackAction } from "./stream.playback.action";
 import { StreamSpeechPublishedAction } from "./stream.speech.published.action";
+import * as Y from 'yjs';
+import { YMap } from "yjs/dist/src/internals";
+import { ydocAction } from "./ydoc.action";
+import { course } from "../model/course";
+import { ToolBeginAction } from "./tool-begin.action";
+import { ToolEndAction } from "./tool-end.action";
+import { Utils } from "../utils/utils";
 
 export class StreamActionProcessor {
 
@@ -97,13 +104,45 @@ export class StreamActionProcessor {
 				this.playbackService.addAction(pageAction);
 			}
 		}
-		else if (action instanceof StreamPagePlaybackAction) {
+		else if (action instanceof StreamPagePlaybackAction && !course.peer2Peer) {
 			if (!this.bufferAction(action, action.documentId)) {
 				this.playbackService.addAction(action.action);
 			}
 		}
 		else if (action instanceof StreamSpeechPublishedAction) {
 			this.onPeerConnected(action.publisherId);
+		}
+
+		else if (action instanceof ydocAction && course.peer2Peer){
+			//get number of actions for user in YDocAction
+			let usrAnnotations = course.YDoc.getMap("annotations").get(action.usr) as Map<number,YMap<any>>;
+			let oldSize = 0;
+			if(usrAnnotations != undefined) oldSize = usrAnnotations.size;
+
+			//update YDoc in course
+			Y.applyUpdate(course.YDoc, action.diff);
+			Y.applyUpdate(course.publicYDoc, action.diff);
+
+			//get number of actions for user in YDocAction
+			usrAnnotations = course.YDoc.getMap("annotations").get(action.usr) as Map<number,YMap<any>>;
+			let newSize = usrAnnotations.size;
+			if(newSize > oldSize){
+				//get Actions from the Difference
+				let Actions = action.diffToActions(newSize-oldSize);
+
+				for(let a of Actions){
+					this.playbackService.addAction(a);
+
+					//Display user name
+					if(a instanceof ToolBeginAction) document.dispatchEvent(Utils.createEvent("participant-active",action.usr));
+					if(a instanceof ToolEndAction) document.dispatchEvent(Utils.createEvent("participant-inactive",action.usr));
+				}
+			}else{
+				if(newSize < oldSize){
+					throw new Error("Action(s) removed from users annotation map")
+				}
+			}
+			
 		}
 	}
 

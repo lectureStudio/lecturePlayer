@@ -174,12 +174,6 @@ export class JanusSubscriber extends JanusParticipant {
 		if (action instanceof StreamMediaChangeAction) {
 			this.view.setMediaChange(action.type, action.enabled);
 		}
-
-		if( action instanceof ydocAction){
-			//update YDoc in course
-			Y.applyUpdate(course.YDoc, action.diff);
-			Y.applyUpdate(course.publicYDoc, action.diff);
-		}
 	}
 
 	private createAnswer(jsep: JSEP, wantData: boolean) {

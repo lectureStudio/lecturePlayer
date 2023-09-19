@@ -29,4 +29,8 @@ export class PageAction extends Action {
 
 		return buffer;
 	}
+
+	getPageNumber():number{
+		return this.pageNumber;
+	}
 }
