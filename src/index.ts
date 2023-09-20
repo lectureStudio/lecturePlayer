@@ -5,11 +5,8 @@ export * from "./component";
 
 import i18next from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
-import enTranslation from "./locales/en/main.json";
-import deTranslation from "./locales/de/main.json";
-
+import * as resources from "./locales";
 import * as pdfjs from "pdfjs-dist";
-
 
 class lectPlayer {
 
@@ -36,10 +33,7 @@ class lectPlayer {
 				// Allow "en" to be used for "en-US", "en-CA", etc.
 				nonExplicitSupportedLngs: true,
 				ns: "main",
-				resources: {
-					en: { main: enTranslation },
-					de: { main: deTranslation },
-				}
+				resources: resources
 			});
 	}
 }
