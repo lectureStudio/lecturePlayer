@@ -55,6 +55,8 @@ export class SpeechController extends Controller {
 			this.streamController.stopSpeech();
 
 			this.cancelSpeech();
+
+			Toaster.showInfo(`${this.speechStarted, t("course.speech.request.withdrawn")}`);
 		}
 	}
 

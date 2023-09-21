@@ -109,6 +109,7 @@
 	"course.speech.request.start": "Start",
 	"course.speech.request.speak": "You can speak now",
 	"course.speech.request.ended": "Speech ended",
+	"course.speech.request.withdrawn": "Speech request withdrawn",
 	"course.speech.request.without.camera": "Speech is performed without camera.",
 	"course.speech.request.aborted": "Speech aborted",
 	"course.recorded.modal.title": "This course is being recorded",

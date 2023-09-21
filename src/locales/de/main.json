@@ -109,6 +109,7 @@
 	"course.speech.request.start": "Starten",
 	"course.speech.request.speak": "Sie können jetzt sprechen",
 	"course.speech.request.ended": "Redebeitrag beendet",
+	"course.speech.request.withdrawn": "Redebeitrag zurückgezogen",
 	"course.speech.request.without.camera": "Redebeitrag erfolgt ohne Kamera.",
 	"course.speech.request.aborted": "Redebeitrag abgebrochen",
 	"course.recorded.modal.title": "Dieser Kurs wird aufgezeichnet",
