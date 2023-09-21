@@ -130,12 +130,12 @@ export class PlayerFeatureView extends Component {
 		this.tabGroup.addEventListener("swiped-left", () => {
 			const tabs = this.tabGroup.querySelectorAll("sl-tab");
 
-			this.selectTabSibling(tabs, -1);
+			this.selectTabSibling(tabs, 1);
 		});
 		this.tabGroup.addEventListener("swiped-right", () => {
 			const tabs = this.tabGroup.querySelectorAll("sl-tab");
 
-			this.selectTabSibling(tabs, 1);
+			this.selectTabSibling(tabs, -1);
 		});
 
 		this.tabSwipeObserver.observe(this.tabGroup);
