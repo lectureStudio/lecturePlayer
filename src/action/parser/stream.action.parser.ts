@@ -106,7 +106,7 @@ export class StreamActionParser {
 	private static speechAction<T>(dataView: ProgressiveDataView, type: { new(publisherId: bigint, displayName: string): T }): T {
 		const idLength = dataView.getInt32();
 		const idStr = dataView.getString(idLength);
-		const publisherId = BigInt(idStr);
+		const publisherId = Number(idStr) as unknown as bigint;
 
 		const nameLength = dataView.getInt32();
 		const nameStr = dataView.getString(nameLength);

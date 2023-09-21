@@ -68,6 +68,9 @@ export class EventService extends EventTarget {
 			client.subscribe("/topic/course/event/" + this.courseId + "/presence", (message: Message) => {
 				this.handleEvent("lp-participant-presence", message.body);
 			});
+			client.subscribe("/topic/course/event/" + this.courseId + "/publisher", (message: Message) => {
+				this.handleEvent("lp-publisher-presence", message.body);
+			});
 
 			for (const subService of this.subServices) {
 				subService.initialize(this.courseId, client);

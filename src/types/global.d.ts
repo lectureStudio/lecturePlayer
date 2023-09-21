@@ -18,6 +18,13 @@ interface OpenFileOptions {
 
 }
 
+interface PublisherPresence {
+
+	userId: string;
+	presence: "CONNECTED" | "DISCONNECTED";
+
+}
+
 interface MediaDeviceSetting {
 
 	deviceId: string,

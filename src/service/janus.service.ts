@@ -141,7 +141,7 @@ export class JanusService extends TypedEventTarget<DocumentEventMap> {
 		}
 
 		this.attachToPublisher({
-			id: BigInt(peerId),
+			id: peerId,
 			display: displayName
 		});
 	}

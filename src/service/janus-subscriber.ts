@@ -101,7 +101,7 @@ export class JanusSubscriber extends JanusParticipant {
 	}
 
 	private onMessage(message: JanusMessage, jsep?: JSEP) {
-		// console.log("message sub", message);
+		// console.log("--> subscriber", message);
 
 		const event = message["videoroom"];
 

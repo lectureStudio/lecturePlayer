@@ -1,6 +1,8 @@
 import { LpStreamCaptureStatsEvent, LpStreamConnectionStateEvent } from "../../event";
+import { LpPublisherPresenceEvent } from "../../event/lp-publisher-presence.event";
 import { JanusService } from "../../service/janus.service";
 import { courseStore } from "../../store/course.store";
+import { participantStore } from "../../store/participants.store";
 import { uiStateStore } from "../../store/ui-state.store";
 import { userStore } from "../../store/user.store";
 import { HttpRequest } from "../../utils/http-request";
@@ -23,10 +25,11 @@ export class StreamController extends Controller {
 
 		this.eventEmitter.addEventListener("lp-stream-capture-stats", this.onCaptureStats.bind(this));
 		this.eventEmitter.addEventListener("lp-receive-camera-feed", this.onReceiveCameraFeed.bind(this));
+		this.eventEmitter.addEventListener("lp-publisher-presence", this.onPublisherPresence.bind(this));
 	}
 
 	startSpeech(withCamera: boolean) {
-		this.janusService.startSpeech(!withCamera);
+		this.janusService.startSpeech(withCamera);
 	}
 
 	stopSpeech() {
@@ -85,6 +88,12 @@ export class StreamController extends Controller {
 		uiStateStore.setReceiveCameraFeed(!uiStateStore.receiveCameraFeed);
 
 		this.janusService.setReceiveCameraFeed(uiStateStore.receiveCameraFeed);
+	}
+
+	private onPublisherPresence(event: LpPublisherPresenceEvent) {
+		if (event.detail.presence === "DISCONNECTED") {
+			participantStore.setParticipantStreamState(event.detail.userId, State.DISCONNECTED);
+		}
 	}
 
 	private onCaptureStats(event: LpStreamCaptureStatsEvent) {
