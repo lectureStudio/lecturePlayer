@@ -55,8 +55,6 @@ export class SpeechController extends Controller {
 			this.streamController.stopSpeech();
 
 			this.cancelSpeech();
-
-			Toaster.showInfo(`${this.speechStarted, t("course.speech.request.withdrawn")}`);
 		}
 	}
 
@@ -122,14 +120,20 @@ export class SpeechController extends Controller {
 	private cancelSpeech() {
 		if (!this.speechRequestId) {
 			this.speechCanceled();
+			this.showWithdrawn();
 			return;
 		}
 
 		CourseSpeechApi.cancelSpeech(courseStore.courseId, this.speechRequestId)
 			.then(() => {
 				this.speechCanceled();
+				this.showWithdrawn();
 			})
 			.catch(error => console.error(error));
+	}
+
+	private showWithdrawn() {
+		Toaster.showInfo(`${this.speechStarted, t("course.speech.request.withdrawn")}`);
 	}
 
 	private speechCanceled() {
