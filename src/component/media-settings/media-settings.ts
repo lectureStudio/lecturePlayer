@@ -13,6 +13,8 @@ export abstract class MediaSettings extends Component {
 		mediaSettingsStyles
 	];
 
+	protected initialized: boolean;
+
 	@property({ type: Boolean, reflect: true })
 	enabled: boolean = false;
 
@@ -33,15 +35,17 @@ export abstract class MediaSettings extends Component {
 
 	protected override firstUpdated() {
 		this.setEnabled(false);
+
+		this.initialized = false;
+
+		// Initially, disable all inputs.
+		this.renderRoot.querySelectorAll<HTMLInputElement>("button, input, select").forEach(element => {
+			element.disabled = true;
+		});
 	}
 
 	protected setEnabled(enabled: boolean) {
 		this.enabled = enabled;
-
-		// Initially, disable all inputs.
-		this.renderRoot.querySelectorAll<HTMLInputElement>("button, input, select").forEach(element => {
-			element.disabled = !enabled;
-		});
 	}
 
 	protected setError() {

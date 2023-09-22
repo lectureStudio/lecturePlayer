@@ -41,6 +41,10 @@ export class SoundSettings extends MediaSettings {
 	}
 
 	queryDevices(): void {
+		if (this.initialized) {
+			return;
+		}
+
 		Devices.enumerateAudioDevices(true)
 			.then((result: DeviceInfo) => {
 				this.error = false;
@@ -52,6 +56,9 @@ export class SoundSettings extends MediaSettings {
 				console.error(error);
 
 				this.setDeviceError(error, true);
+			})
+			.finally(() => {
+				this.initialized = true;
 			});
 	}
 
@@ -68,24 +75,27 @@ export class SoundSettings extends MediaSettings {
 
 	protected override updateModel(result: DeviceInfo, _cameraBlocked: boolean) {
 		const devices = result.devices;
+		const stream = result.stream;
 
 		Devices.stopMediaTracks(<MediaStream> this.audio.srcObject);
 
 		this.audioInputDevices = devices.filter(device => device.kind === "audioinput");
 		this.audioOutputDevices = devices.filter(device => device.kind === "audiooutput");
 
-		this.audio.srcObject = result.stream;
+		this.audio.srcObject = result.stream || null;
 		this.audio.muted = true;
 
-		const audioTrack = result.stream.getAudioTracks()[0];
+		if (stream) {
+			const audioTrack = stream.getAudioTracks()[0];
 
-		Devices.getAudioLevel(audioTrack, this.meterCanvas);
+			Devices.getAudioLevel(audioTrack, this.meterCanvas);
+		}
 
 		this.setEnabled(true);
 	}
 
 	private updateBlockedSettings(info: DeviceInfo) {
-		deviceStore.microphoneBlocked = info ? info.stream.getAudioTracks().length < 1 : true;
+		deviceStore.microphoneBlocked = info && info.stream ? info.stream.getAudioTracks().length < 1 : true;
 	}
 
 	private onMicrophoneChange(event: Event) {

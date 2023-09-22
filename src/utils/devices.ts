@@ -4,8 +4,8 @@ import { Utils } from "./utils";
 export interface DeviceInfo {
 
 	devices: MediaDeviceInfo[];
-	stream: MediaStream;
-	constraints: MediaStreamConstraints;
+	stream?: MediaStream;
+	constraints?: MediaStreamConstraints;
 
 }
 
@@ -89,6 +89,22 @@ export class Devices {
 		}
 
 		return this.getUserMedia(constraints);
+	}
+
+	static enumerateVideoDeviceNames() {
+		return new Promise<DeviceInfo>((resolve, reject) => {
+			return navigator.mediaDevices.enumerateDevices()
+				.then(devices => {
+					const result = {
+						devices: devices
+					};
+
+					resolve(result);
+				})
+				.catch(error => {
+					reject(error);
+				});
+		});
 	}
 
 	static enumerateVideoDevices(): Promise<DeviceInfo> {

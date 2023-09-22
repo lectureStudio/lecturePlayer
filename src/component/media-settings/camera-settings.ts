@@ -38,6 +38,10 @@ export class CameraSettings extends MediaSettings {
 	}
 
 	queryDevices(): void {
+		if (this.initialized) {
+			return;
+		}
+
 		Devices.enumerateVideoDevices()
 			.then((result: DeviceInfo) => {
 				this.error = false;
@@ -48,7 +52,23 @@ export class CameraSettings extends MediaSettings {
 			.catch(error => {
 				console.error(error);
 
-				this.setDeviceError(error, true);
+				const isNoneSelected = this.isNone(deviceStore.cameraDeviceId);
+
+				if (!isNoneSelected) {
+					// Set error only if a real device is selected.
+					this.setDeviceError(error, true);
+				}
+
+				this.setEnabled(true);
+
+				// List all available video devices.
+				Devices.enumerateVideoDeviceNames()
+					.then((result: DeviceInfo) => {
+						this.updateModel(result, !isNoneSelected);
+					});
+			})
+			.finally(() => {
+				this.initialized = true;
 			});
 	}
 
@@ -62,13 +82,14 @@ export class CameraSettings extends MediaSettings {
 
 	protected override updateModel(result: DeviceInfo, cameraBlocked: boolean) {
 		const devices = result.devices;
+		const stream = result.stream;
 
 		Devices.stopVideoTracks(this.video.srcObject as MediaStream);
 
 		this.videoInputDevices = devices.filter(device => device.kind === "videoinput");
 		this.inputBlocked = cameraBlocked;
 
-		this.video.srcObject = result.stream;
+		this.video.srcObject = stream || null;
 		this.video.muted = true;
 
 		if (!this.videoInputDevices.find(devInfo => { return devInfo.deviceId === deviceStore.cameraDeviceId })) {
@@ -80,8 +101,12 @@ export class CameraSettings extends MediaSettings {
 		this.setEnabled(true);
 	}
 
+	private isNone(name: string) {
+		return name === "none";
+	}
+
 	private updateBlockedSettings(info: DeviceInfo) {
-		deviceStore.cameraBlocked = info ? info.stream.getVideoTracks().length < 1 : true;
+		deviceStore.cameraBlocked = info && info.stream ? info.stream.getVideoTracks().length < 1 : true;
 	}
 
 	private onCameraChange(event: Event) {
@@ -92,7 +117,7 @@ export class CameraSettings extends MediaSettings {
 
 		deviceStore.cameraDeviceId = videoSource;
 
-		if (videoSource === "none") {
+		if (this.isNone(videoSource)) {
 			this.video.style.visibility = "hidden";
 			this.inputBlocked = false;
 			return;
@@ -137,7 +162,6 @@ export class CameraSettings extends MediaSettings {
 				<strong>${t("devices.camera.blocked")}</strong>
 			</sl-alert>
 
-			${when(!this.error, () => html`
 			<form id="device-select-form">
 				${when(courseStore.conference, () => html`
 				<sl-switch id="cameraMuteOnEntry" name="cameraMuteOnEntry" size="small" ?checked=${deviceStore.cameraMuteOnEntry}>${t("devices.camera.mute.on.entry")}</sl-switch>
@@ -153,7 +177,6 @@ export class CameraSettings extends MediaSettings {
 					<video id="cameraPreview" class="video" playsinline autoplay muted></video>
 				</div>
 			</form>
-			`)}
 		`;
 	}
 }
