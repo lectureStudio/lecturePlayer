@@ -233,8 +233,6 @@ export class PlayerController extends Controller implements ReactiveController {
 			})
 			.catch(error => {
 				deviceStore.microphoneBlocked = true;
-
-				throw error;
 			});
 	}
 
@@ -273,7 +271,12 @@ export class PlayerController extends Controller implements ReactiveController {
 	}
 
 	private onConnectionError(cause: unknown) {
-		console.error(cause);
+		if (cause instanceof DOMException) {
+			console.error(cause.name, cause.message);
+		}
+		else {
+			console.error(cause);
+		}
 
 		this.setConnectionState(State.DISCONNECTED);
 	}
@@ -495,7 +498,7 @@ export class PlayerController extends Controller implements ReactiveController {
 		const streamState = uiStateStore.streamState;
 		const documentState = uiStateStore.documentState;
 
-		console.log("** update state:", state, ", streamState", streamState, ", documentState", documentState, ", has features", featureStore.hasFeatures());
+		console.log("** update state:", State[state], ", streamState", State[streamState], ", documentState", State[documentState], ", has features", featureStore.hasFeatures());
 
 		if (this.hasStream() && !courseStore.isClassroom) {
 			if (streamState === State.CONNECTED && documentState === State.CONNECTED) {
@@ -522,7 +525,7 @@ export class PlayerController extends Controller implements ReactiveController {
 			return;
 		}
 
-		console.log("new state", state)
+		console.log("new state", State[state])
 
 		uiStateStore.setState(state);
 

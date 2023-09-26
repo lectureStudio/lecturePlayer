@@ -245,7 +245,7 @@ export class Devices {
 		}
 	}
 	
-	static stopMediaTracks(stream: MediaStream | null) {
+	static stopMediaTracks(stream: MediaStream | null | undefined) {
 		if (stream) {
 			stream.getTracks().forEach(track => {
 				track.stop();
