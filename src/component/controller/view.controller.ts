@@ -50,7 +50,7 @@ export class ViewController extends Controller {
 			uiStateStore.setSystemColorScheme(this.colorSchemeQuery.matches ? ColorScheme.DARK : ColorScheme.LIGHT);
 		}
 
-		this.compactLayoutQuery = window.matchMedia("(max-width: 800px) , (orientation: portrait)");
+		this.compactLayoutQuery = window.matchMedia("(max-width: 880px) , (orientation: portrait)");
 		this.compactLayoutQuery.onchange = (event) => {
 			this.onCompactLayout(event.matches);
 		};
