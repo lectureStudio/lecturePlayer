@@ -265,7 +265,8 @@ export class JanusPublisher extends JanusParticipant {
 	}
 
 	private createOffer() {
-		const videoEnable = this.cameraEnabled ? deviceStore.cameraDeviceId != null && !deviceStore.cameraMuteOnEntry : false;
+		const cameraSelected = deviceStore.cameraDeviceId != null && deviceStore.cameraDeviceId != "none";
+		const videoEnable = this.cameraEnabled ? cameraSelected && !deviceStore.cameraMuteOnEntry : false;
 		const videoCapture = videoEnable
 			? {
 				deviceId: deviceStore.cameraDeviceId,
