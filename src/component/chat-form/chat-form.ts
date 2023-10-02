@@ -41,11 +41,14 @@ export class ChatForm extends Component {
 	}
 
 	protected override updated() {
+		const canWriteToAll = privilegeStore.canWriteMessagesToAll();
+		const canWriteToOrga = privilegeStore.canWriteMessagesToOrganisators();
+
 		// Keep the previous recipient selected.
-		if (!this.selectedRecipient || this.selectedRecipient === ChatRecipientType.Public) {
+		if (canWriteToAll && !this.selectedRecipient || this.selectedRecipient === ChatRecipientType.Public) {
 			this.recipientSelect.value = ChatRecipientType.Public;
 		}
-		else if (this.selectedRecipient === ChatRecipientType.Organisers) {
+		else if (canWriteToOrga && !this.selectedRecipient || this.selectedRecipient === ChatRecipientType.Organisers) {
 			this.recipientSelect.value = ChatRecipientType.Organisers;
 		}
 		else {

@@ -76,7 +76,7 @@ sl-tab-panel::part(base) {
 @media (max-width: 400px) {
 	
 }
-@media (max-width: 600px) {
+@media (max-width: 600px) , (orientation: portrait) {
 	:host #outer-split-panel {
 		--min: 0;
 	}
