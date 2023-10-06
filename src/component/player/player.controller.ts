@@ -294,7 +294,8 @@ export class PlayerController extends Controller implements ReactiveController {
 	private setReconnecting() {
 		const reconnectModal = new ReconnectModal();
 		reconnectModal.addEventListener("reconnect-modal-abort", () => {
-			this.setConnectionState(State.DISCONNECTED);
+			// Refresh the page.
+			location.reload();
 		});
 
 		this.modalController.registerModal("ReconnectModal", reconnectModal);
