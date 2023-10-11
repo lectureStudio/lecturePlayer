@@ -80,28 +80,15 @@ export abstract class JanusParticipant extends TypedEventTarget<DocumentEventMap
 	}
 
 	protected connected(): void {
-		this.handle.webrtcStuff.pc.addEventListener("connectionstatechange", (_event) => {
-			const peerConnection = this.handle.webrtcStuff.pc;
+		console.log("+ janus connected with state", this.handle.webrtcStuff.pc.connectionState);
 
-			if (!peerConnection) {
-				// Connection may already be disposed.
-				return;
-			}
+		const peerConnection = this.handle.webrtcStuff.pc;
 
-			const connectionState = this.handle.webrtcStuff.pc.connectionState;
+		if (peerConnection && this.handle.webrtcStuff.pc.connectionState === "connected") {
+			this.onPeerConnectionState();
+		}
 
-			console.log("+ pc connection state", connectionState);
-
-			this.dispatchEvent(Utils.createEvent<ParticipantConnectionState>("lp-participant-connection-state", {
-				participant: this,
-				state: connectionState
-			}));
-
-			if (connectionState === "failed") {
-				// We cannot recover from a failed connection state.
-				this.disconnect();
-			}
-		}, false);
+		this.handle.webrtcStuff.pc.addEventListener("connectionstatechange", this.onPeerConnectionState.bind(this), false);
 	}
 
 	protected onMuteDevice(event: LpDeviceMuteEvent) {
@@ -236,5 +223,27 @@ export abstract class JanusParticipant extends TypedEventTarget<DocumentEventMap
 		}
 
 		return type;
+	}
+
+	private onPeerConnectionState() {
+		const peerConnection = this.handle.webrtcStuff.pc;
+		if (!peerConnection) {
+			// Connection may already be disposed.
+			return;
+		}
+
+		const connectionState = this.handle.webrtcStuff.pc.connectionState;
+
+		console.log("+ pc connection state", connectionState);
+
+		this.dispatchEvent(Utils.createEvent<ParticipantConnectionState>("lp-participant-connection-state", {
+			participant: this,
+			state: connectionState
+		}));
+
+		if (connectionState === "failed") {
+			// We cannot recover from a failed connection state.
+			this.disconnect();
+		}
 	}
 }
