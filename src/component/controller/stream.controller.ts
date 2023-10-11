@@ -68,8 +68,6 @@ export class StreamController extends Controller {
 	}
 
 	private onStreamConnectionState(event: LpStreamConnectionStateEvent) {
-		console.log("* on stream connected");
-
 		const state = event.detail;
 
 		switch (state) {

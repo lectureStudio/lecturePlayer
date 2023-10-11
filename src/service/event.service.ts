@@ -41,7 +41,7 @@ export class EventService extends EventTarget {
 			heartbeatOutgoing: 1000,
 			discardWebsocketOnCommFailure: false,
 			debug: (_message) => {
-				// console.log("STOMP: " + message);
+				// console.log("STOMP: " + _message);
 			},
 		});
 		client.onConnect = () => {

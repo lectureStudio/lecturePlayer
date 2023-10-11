@@ -309,7 +309,7 @@ export class PlayerController extends Controller implements ReactiveController {
 		if (state == State.CONNECTED) {
 			switch (uiStateStore.state) {
 				case State.CONNECTING:
-				case State.CONNECTED:
+				//case State.CONNECTED:
 				case State.CONNECTED_FEATURES:
 					this.fetchChatData();
 					break;
@@ -317,7 +317,10 @@ export class PlayerController extends Controller implements ReactiveController {
 		}
 
 		if (uiStateStore.streamState === State.DISCONNECTED && uiStateStore.state === State.RECONNECTING) {
-			this.streamController.reconnect();
+			//this.streamController.reconnect();
+
+			this.streamController.disconnect();
+			this.connect();
 		}
 	}
 
@@ -422,6 +425,8 @@ export class PlayerController extends Controller implements ReactiveController {
 			streamStatsStore.reset();
 
 			this.updateConnectionState();
+
+			this.streamController.disconnect();
 		}
 	}
 
@@ -507,8 +512,15 @@ export class PlayerController extends Controller implements ReactiveController {
 
 				this.connecting = false;
 			}
-			else if (streamState === State.DISCONNECTED && state === State.CONNECTED) {
-				this.setConnectionState(State.RECONNECTING);
+			else if (streamState === State.DISCONNECTED) {
+				if (state === State.CONNECTED) {
+					this.setConnectionState(State.RECONNECTING);
+				}
+				else if (state === State.RECONNECTING) {
+					console.log("** reconnecting ...");
+					this.streamController.disconnect();
+					this.connect();
+				}
 			}
 		}
 		else if (featureStore.hasFeatures()) {

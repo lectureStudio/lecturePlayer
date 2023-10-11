@@ -132,6 +132,18 @@ export class JanusService extends TypedEventTarget<DocumentEventMap> {
 
 		this.publishers = [];
 		this.subscribers = [];
+
+		if (this.janus) {
+			this.janus.destroy({
+				cleanupHandles: true,
+				notifyDestroyed: false,
+				unload: false,
+				success: () => {
+					console.log("~ janus destroyed")
+				},
+				error: (error: string) => console.error(error)
+			});
+		}
 	}
 
 	addPeer(peerId: bigint, displayName: string) {
