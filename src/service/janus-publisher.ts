@@ -126,7 +126,7 @@ export class JanusPublisher extends JanusParticipant {
 
 		if (event) {
 			if (event === "joined" && message.id) {
-				this.publisherId = BigInt(message.id);
+				this.publisherId = message.id;
 
 				this.createOffer();
 				this.setState(State.CONNECTING);
