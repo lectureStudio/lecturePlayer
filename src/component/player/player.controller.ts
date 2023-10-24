@@ -139,12 +139,11 @@ export class PlayerController extends Controller implements ReactiveController {
 						if (featureStore.hasChatFeature()) {
 							await this.loadChatHistory();
 						}
-						if (courseStore.isLive) {
+						if (courseStore.isLive && !courseStore.isClassroom) {
 							await this.loadMediaDevices();
 							await this.loadStream();
 							await this.loadDocuments();
 						}
-
 					}
 					catch (error) {
 						this.onConnectionError(error);
