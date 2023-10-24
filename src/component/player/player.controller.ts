@@ -370,6 +370,7 @@ export class PlayerController extends Controller implements ReactiveController {
 			this.modalController.closeAndDeleteModal("QuizModal");
 		}
 
+		uiStateStore.setQuizSent(!quizState.started);
 		featureStore.setQuizFeature(quizState.started ? quizState.feature : undefined);
 
 		this.updateConnectionState();

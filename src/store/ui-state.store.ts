@@ -44,6 +44,8 @@ class UiStateStore {
 
 	receiveCameraFeed: boolean = true;
 
+	quizSent: boolean = false;
+
 
 	constructor() {
 		makeAutoObservable(this);
@@ -117,6 +119,10 @@ class UiStateStore {
 
 	setSystemColorScheme(scheme: ColorScheme) {
 		this.systemColorScheme = scheme;
+	}
+
+	setQuizSent(sent: boolean) {
+		this.quizSent = sent;
 	}
 
 	isSystemAndUserDark() {

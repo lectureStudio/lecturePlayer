@@ -97,7 +97,7 @@ export class StreamActionParser {
 		const docChecksum = dataView.getString(checksumLength);
 
 		if (!docChecksum) {
-			console.error("Invalid document checksum");
+			//console.error("Invalid document checksum");
 		}
 
 		return new type(docId, docType, docTitle, docName);

@@ -8,6 +8,7 @@ import { courseStore } from '../../store/course.store';
 import { Toaster } from '../../utils/toaster';
 import { CourseQuizApi } from '../../transport/course-quiz-api';
 import quizBoxStyles from './quiz-box.css';
+import { uiStateStore } from '../../store/ui-state.store';
 
 @customElement('quiz-box')
 export class QuizBox extends Component {
@@ -21,10 +22,7 @@ export class QuizBox extends Component {
 	quizForm: QuizForm;
 
 
-	protected post(event: Event): Promise<void> {
-		const submitButton = <HTMLButtonElement> event.target;
-		submitButton.disabled = true;
-
+	protected post(): Promise<void> {
 		if (!this.quizForm) {
 			throw new Error("Form is null");
 		}
@@ -50,6 +48,8 @@ export class QuizBox extends Component {
 				this.quizForm.setResponse(response);
 
 				if (response.statusCode === 0) {
+					uiStateStore.setQuizSent(true);
+
 					Toaster.showSuccess(`${t(response.statusMessage)}`);
 				}
 				else {
@@ -58,13 +58,17 @@ export class QuizBox extends Component {
 			})
 			.finally(() => {
 				this.quizForm.resetForm();
-				submitButton.disabled = false;
 			})
 			.catch(error => {
 				const response: CourseFeatureResponse = error.body;
 
 				// Delegate response error to the form.
 				this.quizForm.setResponse(response);
+
+				if (response.statusCode === 3) {
+					// Multiple answers sent.
+					uiStateStore.setQuizSent(true);
+				}
 
 				Toaster.showError(`${t(response.statusMessage)}`);
 			});
@@ -79,7 +83,7 @@ export class QuizBox extends Component {
 				<quiz-form></quiz-form>
 			</section>
 			<footer part="footer">
-				<sl-button @click="${this.post}" form="quiz-form" id="quiz-submit" size="small">
+				<sl-button @click="${this.post}" ?disabled="${uiStateStore.quizSent}" form="quiz-form" id="quiz-submit" size="small">
 					${t("course.feature.quiz.send")}
 					<sl-icon slot="suffix" name="send"></sl-icon>
 				</sl-button>
