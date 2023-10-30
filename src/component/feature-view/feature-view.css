@@ -71,7 +71,9 @@ sl-tab-panel::part(base) {
 .participants-container {
 	height: 100%;
 }
-
+.participants-container > participant-list {
+	height: 100%;
+}
 
 @media (max-width: 400px) {
 	
