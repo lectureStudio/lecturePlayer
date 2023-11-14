@@ -71,7 +71,7 @@ sl-tab-panel::part(base) {
 .participants-container {
 	height: 100%;
 }
-.participants-container > participant-list {
+.feature-container participant-list {
 	height: 100%;
 }
 
