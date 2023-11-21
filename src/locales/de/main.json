@@ -1,4 +1,5 @@
 {
+	"course.overview": "Kurs Übersicht",
 	"course.loading": "Lade Kurs...",
 	"course.unavailable": "Der Stream hat noch nicht begonnen. Bitte versuchen Sie es kurz vor Beginn der Veranstaltung erneut.",
 	"settings.title": "Einstellungen",
@@ -115,6 +116,10 @@
 	"course.recorded.modal.title": "Dieser Kurs wird aufgezeichnet",
 	"course.recorded.modal.message": "Die Aufzeichnung kann nachträglich veröffentlicht werden. Dies betrifft als digitale Veranstaltung Ihre Beiträge bei aktiven Wortmeldungen.",
 	"course.recorded.modal.accept": "Verstanden",
+	"course.no_access.title": "Sie haben keinen Zugriff auf diesen Kurs.",
+	"course.no_access.description": "Der Zugriff auf diesen Kurs ist Ihnen nicht gestattet. Bitte setzen Sie sich mit den Organisatoren:innen in Verbindung.",
+	"course.moderation.toast.permanent_banned.title": "Sie wurden vom Kurs ausgeschlossen",
+	"course.moderation.toast.permanent_banned.description": "Bei Fragen wenden Sie sich an die Organisator:innen.",
 	"documents.open.document": "PDF-Dokument öffnen",
 	"documents.open.whiteboard": "Whiteboard öffnen",
 	"entry.modal.title": "Medienwiedergabe Starten",

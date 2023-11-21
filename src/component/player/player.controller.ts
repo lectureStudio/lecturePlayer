@@ -1,37 +1,48 @@
-import { ReactiveController } from 'lit';
-import { EventService } from '../../service/event.service';
-import { ChatService } from '../../service/chat.service';
-import { DeviceInfo, Devices } from '../../utils/devices';
-import { MediaProfile, Settings } from '../../utils/settings';
-import { State } from '../../utils/state';
-import { Utils } from '../../utils/utils';
-import { EntryModal } from '../entry-modal/entry.modal';
-import { PlayerViewController } from '../player-view/player-view.controller';
-import { ReconnectModal } from '../reconnect-modal/reconnect.modal';
-import { RecordedModal } from '../recorded-modal/recorded.modal';
-import { LecturePlayer } from './player';
-import { featureStore } from '../../store/feature.store';
-import { chatStore } from '../../store/chat.store';
-import { privilegeStore } from '../../store/privilege.store';
-import { participantStore } from '../../store/participants.store';
-import { courseStore } from '../../store/course.store';
-import { userStore } from '../../store/user.store';
-import { documentStore } from '../../store/document.store';
-import { uiStateStore } from '../../store/ui-state.store';
-import { ToolController } from '../../tool/tool-controller';
-import { MouseListener } from '../../event/mouse-listener';
-import { SlideView } from '../slide-view/slide-view';
-import { deviceStore } from '../../store/device.store';
-import { CourseStateApi } from '../../transport/course-state-api';
-import { CourseUserApi } from '../../transport/course-user-api';
-import { CourseParticipantApi } from '../../transport/course-participant-api';
-import { CourseChatApi } from '../../transport/course-chat-api';
-import { ApplicationContext } from '../controller/context';
-import { EventEmitter } from '../../utils/event-emitter';
-import { RootController } from '../controller/root.controller';
-import { Controller } from '../controller/controller';
-import { streamStatsStore } from '../../store/stream-stats.store';
-import { LpChatStateEvent, LpEventServiceStateEvent, LpMediaStateEvent, LpParticipantPresenceEvent, LpQuizStateEvent, LpRecordingStateEvent, LpStreamStateEvent } from '../../event';
+import {ReactiveController} from 'lit';
+import {EventService} from '../../service/event.service';
+import {ChatService} from '../../service/chat.service';
+import {DeviceInfo, Devices} from '../../utils/devices';
+import {MediaProfile, Settings} from '../../utils/settings';
+import {State} from '../../utils/state';
+import {Utils} from '../../utils/utils';
+import {EntryModal} from '../entry-modal/entry.modal';
+import {PlayerViewController} from '../player-view/player-view.controller';
+import {ReconnectModal} from '../reconnect-modal/reconnect.modal';
+import {RecordedModal} from '../recorded-modal/recorded.modal';
+import {LecturePlayer} from './player';
+import {featureStore} from '../../store/feature.store';
+import {chatStore} from '../../store/chat.store';
+import {privilegeStore} from '../../store/privilege.store';
+import {participantStore} from '../../store/participants.store';
+import {courseStore} from '../../store/course.store';
+import {userStore} from '../../store/user.store';
+import {documentStore} from '../../store/document.store';
+import {uiStateStore} from '../../store/ui-state.store';
+import {ToolController} from '../../tool/tool-controller';
+import {MouseListener} from '../../event/mouse-listener';
+import {SlideView} from '../slide-view/slide-view';
+import {deviceStore} from '../../store/device.store';
+import {CourseStateApi} from '../../transport/course-state-api';
+import {CourseUserApi} from '../../transport/course-user-api';
+import {CourseParticipantApi} from '../../transport/course-participant-api';
+import {CourseChatApi} from '../../transport/course-chat-api';
+import {ApplicationContext} from '../controller/context';
+import {EventEmitter} from '../../utils/event-emitter';
+import {RootController} from '../controller/root.controller';
+import {Controller} from '../controller/controller';
+import {streamStatsStore} from '../../store/stream-stats.store';
+import {
+	LpChatStateEvent,
+	LpEventServiceStateEvent,
+	LpMediaStateEvent,
+	LpParticipantPresenceEvent,
+	LpQuizStateEvent,
+	LpRecordingStateEvent,
+	LpStreamStateEvent
+} from '../../event';
+import {LpParticipantModerationEvent} from "../../event/lp-participant-moderation.event";
+import {Toaster} from "../../utils/toaster";
+import {t} from "i18next";
 
 export class PlayerController extends Controller implements ReactiveController {
 
@@ -75,6 +86,7 @@ export class PlayerController extends Controller implements ReactiveController {
 		this.eventEmitter.addEventListener("lp-media-state", this.onMediaState.bind(this));
 		this.eventEmitter.addEventListener("lp-participant-presence", this.onParticipantPresence.bind(this));
 		this.eventEmitter.addEventListener("lp-stream-connection-state", this.onStreamConnectionState.bind(this));
+		this.eventEmitter.addEventListener("lp-participant-moderation", this.onParticipantModeration.bind(this));
 
 		if (this.host.courseId) {
 			this.eventService.connect();
@@ -461,6 +473,27 @@ export class PlayerController extends Controller implements ReactiveController {
 		}
 	}
 
+	private onParticipantModeration(event: LpParticipantModerationEvent) {
+		const moderation = event.detail;
+
+		if (moderation.userId !== userStore.userId) {
+			console.log("User moderation event for user, but not me.")
+			return;
+		}
+
+		if (moderation.moderationType === "PERMANENT_BAN") {
+			console.log("User banned.")
+			this.modalController.closeAllModals();
+
+			uiStateStore.setStreamState(State.NO_ACCESS);
+			uiStateStore.setDocumentState(State.NO_ACCESS);
+			this.streamController.disconnect();
+			this.eventService.close();
+			this.updateConnectionState();
+			Toaster.showWarning(t("course.moderation.toast.permanent_banned.title"), t("course.moderation.toast.permanent_banned.description"), Infinity);
+		}
+	}
+
 	private hasStream() {
 		return documentStore.activeDocument != null;
 	}
@@ -504,7 +537,12 @@ export class PlayerController extends Controller implements ReactiveController {
 		const streamState = uiStateStore.streamState;
 		const documentState = uiStateStore.documentState;
 
-		console.log("** update state:", State[state], ", streamState", State[streamState], ", documentState", State[documentState], ", has features", featureStore.hasFeatures());
+		console.log("** update current-state:", State[state], ", streamState", State[streamState], ", documentState", State[documentState], ", has features", featureStore.hasFeatures());
+
+		if (streamState == State.NO_ACCESS || documentState == State.NO_ACCESS) {
+			this.setConnectionState(State.NO_ACCESS);
+			return;
+		}
 
 		if (this.hasStream() && !courseStore.isClassroom) {
 			if (streamState === State.CONNECTED && documentState === State.CONNECTED) {
@@ -535,6 +573,11 @@ export class PlayerController extends Controller implements ReactiveController {
 
 	private setConnectionState(state: State) {
 		if (uiStateStore.state === state) {
+			return;
+		}
+
+		if (uiStateStore.state == State.NO_ACCESS) {
+			console.log("no access, skip state change");
 			return;
 		}
 

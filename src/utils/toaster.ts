@@ -12,8 +12,8 @@ export class Toaster {
 		this.showNotification(title, message, "success", "check2-circle");
 	}
 
-	public static showWarning(title: string, message?: string): void {
-		this.showNotification(title, message, "warning", "exclamation-triangle");
+	public static showWarning(title: string, message?: string, duration = 3000): void {
+		this.showNotification(title, message, "warning", "exclamation-triangle", duration);
 	}
 
 	public static showError(title: string, message?: string): void {

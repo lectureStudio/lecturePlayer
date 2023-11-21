@@ -1,4 +1,5 @@
 {
+	"course.overview": "Course Overview",
 	"course.loading": "Loading Course...",
 	"course.unavailable": "The stream has not started yet. Please try again closer to the event start time.",
 	"settings.title": "Device settings",
@@ -115,6 +116,10 @@
 	"course.recorded.modal.title": "This course is being recorded",
 	"course.recorded.modal.message": "The recording can be published later. As a digital event, this affects your contributions during active requests to speak.",
 	"course.recorded.modal.accept": "Got it",
+	"course.no_access.title": "You are not allowed to access this course.",
+	"course.no_access.description": "You do not have access to this course. Please contact the organizers.",
+	"course.moderation.toast.permanent_banned.title": "You have been permanently banned from the course",
+	"course.moderation.toast.permanent_banned.description": "If you have any questions, please contact the organizers.",
 	"documents.open.document": "Open PDF Document",
 	"documents.open.whiteboard": "Open Whiteboard",
 	"entry.modal.title": "Start media playback",
