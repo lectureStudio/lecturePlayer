@@ -1,0 +1,12 @@
+:host .video-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1em;
+}
+:host .controls {
+	width: 100%;
+}
+:host video {
+	width: 200px;
+}

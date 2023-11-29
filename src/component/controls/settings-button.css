@@ -1,0 +1,32 @@
+sl-button::part(base),
+sl-button::part(label) {
+	padding-inline-start: var(--sl-spacing-x-small);
+}
+
+sl-menu ::part(base) {
+	font-size: var(--sl-font-size-small);
+}
+sl-menu ::part(prefix) {
+	font-size: 1.15rem;
+}
+
+sl-button::part(base) {
+	background-color: transparent;
+	border: 0;
+	border-radius: 0.333em;
+}
+sl-button::part(base):hover {
+	background-color: var(--sl-color-neutral-200);
+}
+
+sl-button::part(prefix) {
+	font-size: 2em;
+}
+
+sl-button:hover sl-icon {
+	fill: var(--sl-color-primary-600);
+}
+
+sl-icon {
+	fill: var(--sl-color-neutral-800);
+}

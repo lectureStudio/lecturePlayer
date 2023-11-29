@@ -1,0 +1,42 @@
+:host {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	height: inherit;
+	color: var(--sl-color-neutral-700);
+}
+:host > div {
+	display: flex;
+	flex-direction: column;
+	flex: 0 0 auto;
+	width: 50%;
+	padding-top: 3rem;
+}
+:host > div > strong {
+	padding: 0.5rem 0;
+	align-self: center;
+}
+:host > div > sl-icon {
+	fill: var(--sl-color-primary-600);
+	font-size: 2rem;
+	align-self: center;
+	padding-bottom: 0.5rem;
+}
+:host > div > sl-divider {
+	--spacing: 1rem;
+}
+:host p {
+	margin-top: 0;
+	margin-bottom: 1rem;
+}
+
+@media (max-width: 1000px) {
+	:host > div {
+		width: 60%;
+	}
+}
+@media (max-width: 800px) {
+	:host > div {
+		width: 80%;
+	}
+}

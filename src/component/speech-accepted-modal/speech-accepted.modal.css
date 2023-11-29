@@ -1,0 +1,29 @@
+:host .video-container {
+	display: flex;
+	justify-content: center;
+	gap: 1em;
+	padding-top: 0.75em;
+}
+
+:host video {
+	width: 200px;
+}
+:host([cameraBlocked]) video {
+	display: none;
+}
+
+:host #meter {
+	display: flex;
+	margin: 0 auto;
+	width: 200px;
+}
+
+:host sl-alert {
+	margin: 0.75em 0;
+}
+
+:host sl-alert::part(message) {
+	display: flex;
+	gap: 1em;
+	flex-direction: column;
+}

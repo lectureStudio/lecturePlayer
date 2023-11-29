@@ -1,0 +1,135 @@
+:host {
+	width: 100%;
+	position: relative;
+	display: flex;
+	flex-direction: row;
+	background-color: var(--sl-color-neutral-100);
+	padding: 0;
+	margin: 0;
+	align-items: center;
+}
+:host::before {
+	position: absolute;
+	content: '';
+	z-index: -1;
+}
+
+:host .col {
+	flex: 1;
+	display: flex;
+	align-items: center;
+}
+:host .nav-left {
+	flex: 1;
+	justify-content: flex-start;
+}
+:host .nav-center {
+	flex: 1;
+	justify-content: center;
+}
+:host .nav-right {
+	flex: 1;
+	justify-content: flex-end;
+}
+:host .course-duration {
+	padding: 0 0.5em;
+}
+
+.col sl-button::part(base),
+.col sl-button::part(label) {
+	padding-inline-start: var(--sl-spacing-x-small);
+}
+.col sl-button::part(prefix) {
+	font-size: 2em;
+}
+sl-button::part(base) {
+	background-color: transparent;
+	border: 0;
+	border-radius: 0.333em;
+}
+sl-button::part(base):hover {
+	background-color: var(--sl-color-neutral-200);
+}
+sl-button:hover sl-icon {
+	fill: var(--sl-color-primary-600);
+}
+
+:host([fullscreen]) #fullscreen,
+:not([fullscreen]) #fullscreen-exit {
+	display: none;
+}
+:host([fullscreen]) #fullscreen-exit,
+:not([fullscreen]) #fullscreen {
+	display: initial;
+}
+
+:host(:not([hasChat])) #chat-button,
+:host(:not([hasParticipants])) #participants-button {
+	display: none;
+}
+:host([hasQuiz]) #quiz-button {
+	animation: button-pulse 2s 5;
+}
+:host(:not([hasQuiz])) #quiz-button {
+	display: none;
+}
+:host([mutedMic]) #microphone,
+:not([mutedMic]) #microphone-mute {
+	display: none;
+}
+:host([mutedMic]) #microphone-mute,
+:not([mutedMic]) #microphone {
+	display: initial;
+}
+:host([mutedMic]) #microphone-mute sl-icon {
+	fill: var(--sl-color-danger-700);
+}
+:host([mutedCam]) #camera,
+:not([mutedCam]) #camera-mute {
+	display: none;
+}
+:host([mutedCam]) #camera-mute,
+:not([mutedCam]) #camera {
+	display: initial;
+}
+:host([mutedCam]) #camera-mute {
+	fill: var(--sl-color-danger-700);
+}
+:host([handUp]) #hand-button sl-icon,
+:host([shareScreen]) #share-screen-button sl-icon {
+	fill: var(--sl-color-emerald-600);
+}
+:host(:not([isConference])) .conference-control {
+	display: none;
+}
+:host([shareScreenBlocked]) #share-screen-button {
+	pointer-events:none;
+	opacity: 0.5;
+}
+:host([shareScreenBlocked]) #share-screen-button::part(base) {
+	background-color: transparent;
+}
+
+:host #quiz-button {
+	border-radius: 0.333em;
+}
+:host #quiz-button sl-icon {
+	fill: var(--sl-color-emerald-600);
+}
+
+media-device-button {
+	margin-right: 0.75em;
+}
+
+
+@keyframes button-pulse {
+	0% {
+		background-color: transparent;
+	}
+	50% {
+		background-color: var(--sl-color-emerald-200);
+	}
+	100% {
+		background-color: transparent;
+	}
+}
