@@ -230,7 +230,7 @@ export class PlayerController extends Controller implements ReactiveController {
 
 				deviceStore.microphoneBlocked = false;
 			})
-			.catch(error => {
+			.catch(_error => {
 				deviceStore.microphoneBlocked = true;
 			});
 	}

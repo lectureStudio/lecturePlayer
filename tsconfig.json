@@ -23,7 +23,7 @@
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,
 		"moduleResolution": "node",
-		"target": "es2019",
+		"target": "es2021",
 		"module": "es2020",
 		"lib": [
 			"es2020",

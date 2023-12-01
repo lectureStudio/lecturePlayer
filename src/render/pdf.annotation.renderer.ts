@@ -105,7 +105,10 @@ class Translator {
 
 	// replace {{arguments}} with their values
 	private substArguments(str: string, args: object) {
-		const reArgs = /\{\{\s*(.+?)\s*\}\}/g;
+		str = str.replace(/ /g, '');
+
+		const reArgs = /\{\{(.+?)\}\}/g;
+
 		return str.replace(reArgs, (matched_text: string, arg: string): string => {
 			if (args && arg in (args as object)) {
 				return (args as Indexable)[arg] as string;
