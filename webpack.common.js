@@ -22,7 +22,7 @@ export default {
 			patterns: [
 				// Copy pdf-worker to build.
 				{
-					from: path.resolve(__dirname, "node_modules/pdfjs-dist/build/pdf.worker.min.js"),
+					from: path.resolve(__dirname, "node_modules/pdfjs-dist/build/pdf.worker.min.mjs"),
 					to: path.resolve(__dirname, `${build_dir}/js/pdf.worker.js`)
 				},
 				// Copy icons to build/icons.

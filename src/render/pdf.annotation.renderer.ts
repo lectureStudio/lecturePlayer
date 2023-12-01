@@ -1,4 +1,4 @@
-import * as pdfViever from "pdfjs-dist/web/pdf_viewer";
+import * as pdfViever from "pdfjs-dist/web/pdf_viewer.mjs";
 import { PDFPageProxy } from "pdfjs-dist/types/src/display/api";
 // import { AnnotationLayer } from "pdfjs-dist";
 
