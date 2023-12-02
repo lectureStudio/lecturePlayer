@@ -91,8 +91,6 @@ export class ChatBox extends Component {
 
 		this.chatService.postMessage(chatForm.getFormData())
 			.then(() => {
-				Toaster.showSuccess(`${t("course.feature.message.sent")}`);
-
 				// Reset form only on success.
 				chatForm.resetForm();
 			})

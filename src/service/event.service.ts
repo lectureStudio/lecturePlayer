@@ -5,7 +5,7 @@ import { Client, Message } from '@stomp/stompjs';
 
 export interface EventSubService {
 
-	initialize(courseId: number, client: Client): void;
+	initialize(courseId: number, client: Client, eventEmitter: EventEmitter): void;
 
 }
 
@@ -73,7 +73,7 @@ export class EventService extends EventTarget {
 			});
 
 			for (const subService of this.subServices) {
-				subService.initialize(this.courseId, client);
+				subService.initialize(this.courseId, client, this.eventEmitter);
 			}
 		};
 		client.onDisconnect = () => {

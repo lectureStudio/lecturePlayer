@@ -1,3 +1,4 @@
+export * from './lp-chat-response.event';
 export * from "./lp-chat-state.event";
 export * from './lp-device-change.event';
 export * from './lp-device-mute.event';

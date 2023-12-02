@@ -31,7 +31,9 @@ import { EventEmitter } from '../../utils/event-emitter';
 import { RootController } from '../controller/root.controller';
 import { Controller } from '../controller/controller';
 import { streamStatsStore } from '../../store/stream-stats.store';
-import { LpChatStateEvent, LpEventServiceStateEvent, LpMediaStateEvent, LpParticipantPresenceEvent, LpQuizStateEvent, LpRecordingStateEvent, LpStreamStateEvent } from '../../event';
+import { LpChatResponseEvent, LpChatStateEvent, LpEventServiceStateEvent, LpMediaStateEvent, LpParticipantPresenceEvent, LpQuizStateEvent, LpRecordingStateEvent, LpStreamStateEvent } from '../../event';
+import { Toaster } from '../../utils/toaster';
+import { t } from 'i18next';
 
 export class PlayerController extends Controller implements ReactiveController {
 
@@ -69,6 +71,8 @@ export class PlayerController extends Controller implements ReactiveController {
 
 		this.eventEmitter.addEventListener("lp-event-service-state", this.onEventServiceState.bind(this));
 		this.eventEmitter.addEventListener("lp-chat-state", this.onChatState.bind(this));
+		this.eventEmitter.addEventListener("lp-chat-error", this.onChatError.bind(this));
+		this.eventEmitter.addEventListener("lp-chat-response", this.onChatResponse.bind(this));
 		this.eventEmitter.addEventListener("lp-quiz-state", this.onQuizState.bind(this));
 		this.eventEmitter.addEventListener("lp-recording-state", this.onRecordingState.bind(this));
 		this.eventEmitter.addEventListener("lp-stream-state", this.onStreamState.bind(this));
@@ -361,6 +365,22 @@ export class PlayerController extends Controller implements ReactiveController {
 		}
 
 		this.updateConnectionState();
+	}
+
+	private onChatError(event: LpChatResponseEvent) {
+		const response = event.detail;
+
+		if (response.statusCode != 0) {
+			Toaster.showError(t("course.feature.message.send.error"));
+		}
+	}
+
+	private onChatResponse(event: LpChatResponseEvent) {
+		const response = event.detail;
+
+		if (response.statusCode == 0) {
+			Toaster.showSuccess(t("course.feature.message.sent"));
+		}
 	}
 
 	private onQuizState(event: LpQuizStateEvent) {
