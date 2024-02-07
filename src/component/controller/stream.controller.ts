@@ -60,7 +60,7 @@ export class StreamController extends Controller {
 
 	testConnection() {
 		return new HttpRequest({ timeout: 0 })
-			.post<void, {}>(`https://${window.location.hostname}:8089/janus`, { "janus": "keepalive" });
+			.post<void, {}>(`https://${window.location.hostname}/janus`, { "janus": "keepalive" });
 	}
 
 	onPeerConnected(peerId: bigint, displayName: string) {

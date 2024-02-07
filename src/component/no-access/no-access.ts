@@ -2,7 +2,7 @@ import {CSSResultGroup, html} from 'lit';
 import {customElement} from 'lit/decorators.js';
 import {I18nLitElement} from '../i18n-mixin';
 import {Component} from '../component';
-import style from './player-no-access.css';
+import style from './no-access.css';
 import {t} from "i18next";
 
 @customElement('player-no-access')
