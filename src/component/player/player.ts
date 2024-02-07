@@ -27,9 +27,9 @@ export class LecturePlayer extends Component {
 				return html`<player-loading .text="${t("course.loading")}"></player-loading>`;
 			case State.CONNECTED:
 			case State.RECONNECTING:
-				return html`<player-view .eventEmitter="${this.controller.eventEmitter}" .playerController="${this.controller}" .chatService="${this.controller.chatService}"></player-view>`;
+				return html`<player-view .eventEmitter="${this.controller.eventEmitter}" .playerController="${this.controller}" .chatService="${this.controller.chatService}" .moderationService="${this.controller.moderationService}"></player-view>`;
 			case State.CONNECTED_FEATURES:
-				return html`<player-feature-view .chatService="${this.controller.chatService}"></player-feature-view>`;
+				return html`<player-feature-view .chatService="${this.controller.chatService}" .moderationService="${this.controller.moderationService}"></player-feature-view>`;
 			case State.DISCONNECTED:
 				return html`<player-offline></player-offline>`;
 			case State.NO_ACCESS:

@@ -1,16 +1,17 @@
-import { CSSResultGroup, PropertyValues, html } from 'lit';
-import { customElement, property, query } from 'lit/decorators.js';
-import { when } from 'lit/directives/when.js';
-import { ChatService } from '../../service/chat.service';
-import { I18nLitElement, t } from '../i18n-mixin';
-import { SlSplitPanel, SlTab, SlTabGroup, SlTabHideEvent } from '@shoelace-style/shoelace';
-import { SwipeObserver } from '../../utils/swipe-observer';
-import { Component } from '../component';
-import { featureStore } from '../../store/feature.store';
-import { autorun } from 'mobx';
-import { privilegeStore } from '../../store/privilege.store';
-import { chatStore } from '../../store/chat.store';
+import {CSSResultGroup, html, PropertyValues} from 'lit';
+import {customElement, property, query} from 'lit/decorators.js';
+import {when} from 'lit/directives/when.js';
+import {ChatService} from '../../service/chat.service';
+import {I18nLitElement, t} from '../i18n-mixin';
+import {SlSplitPanel, SlTab, SlTabGroup, SlTabHideEvent} from '@shoelace-style/shoelace';
+import {SwipeObserver} from '../../utils/swipe-observer';
+import {Component} from '../component';
+import {featureStore} from '../../store/feature.store';
+import {autorun} from 'mobx';
+import {privilegeStore} from '../../store/privilege.store';
+import {chatStore} from '../../store/chat.store';
 import featureViewStyles from './feature-view.css';
+import {ModerationService} from "../../service/moderation.service";
 
 @customElement('player-feature-view')
 export class PlayerFeatureView extends Component {
@@ -26,6 +27,9 @@ export class PlayerFeatureView extends Component {
 
 	@property()
 	chatService: ChatService;
+
+	@property()
+	moderationService: ModerationService;
 
 	@query("#outer-split-panel")
 	outerSplitPanel: SlSplitPanel;
@@ -164,7 +168,7 @@ export class PlayerFeatureView extends Component {
 					<div slot="start" class="left-container">
 						<div class="participants-container">
 						${when(this.participantsVisible, () => html`
-							<participant-list></participant-list>
+							<participant-list .moderationService="${this.moderationService}"></participant-list>
 						`)}
 						</div>
 					</div>
@@ -221,7 +225,7 @@ export class PlayerFeatureView extends Component {
 		return html`
 			<sl-tab slot="nav" panel="participants">${t("course.participants")}</sl-tab>
 			<sl-tab-panel name="participants">
-				<participant-list></participant-list>
+				<participant-list .moderationService="${this.moderationService}"></participant-list>
 			</sl-tab-panel>
 		`;
 	}

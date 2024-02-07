@@ -35,14 +35,15 @@ import {
 	LpChatStateEvent,
 	LpEventServiceStateEvent,
 	LpMediaStateEvent,
+	LpParticipantModerationEvent,
 	LpParticipantPresenceEvent,
 	LpQuizStateEvent,
 	LpRecordingStateEvent,
-	LpStreamStateEvent
+	LpStreamStateEvent,
 } from '../../event';
-import {LpParticipantModerationEvent} from "../../event/lp-participant-moderation.event";
 import {Toaster} from "../../utils/toaster";
 import {t} from "i18next";
+import {ModerationService} from "../../service/moderation.service";
 
 export class PlayerController extends Controller implements ReactiveController {
 
@@ -59,6 +60,7 @@ export class PlayerController extends Controller implements ReactiveController {
 		const context: ApplicationContext = {
 			eventEmitter: new EventEmitter(),
 			chatService: new ChatService(),
+			moderationService: new ModerationService(),
 			host: host,
 		}
 
@@ -74,6 +76,8 @@ export class PlayerController extends Controller implements ReactiveController {
 
 		this.eventService = new EventService(this.host.courseId, this.eventEmitter);
 		this.eventService.addEventSubService(this.context.chatService);
+
+		this.context.moderationService.initialize(this.host.courseId);
 
 		this.host.addEventListener("participant-audio-play-error", this.onAudioPlayError.bind(this), false);
 		this.host.addEventListener("participant-video-play-error", this.onVideoPlayError.bind(this), false);

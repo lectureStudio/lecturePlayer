@@ -1,25 +1,26 @@
-import { CSSResultGroup, html } from 'lit';
-import { when } from 'lit/directives/when.js';
-import { repeat } from 'lit/directives/repeat.js';
-import { customElement, property, query } from 'lit/decorators.js';
-import { ChatService } from '../../service/chat.service';
-import { PlayerControls } from '../controls/player-controls';
-import { I18nLitElement } from '../i18n-mixin';
-import { ParticipantView } from '../participant-view/participant-view';
-import { PlayerViewController } from './player-view.controller';
-import { ScreenView } from '../screen-view/screen-view';
-import { autorun } from 'mobx';
-import { privilegeStore } from '../../store/privilege.store';
-import { courseStore } from '../../store/course.store';
-import { SlSplitPanel } from '@shoelace-style/shoelace';
-import { ConferenceView } from '../conference-view/conference-view';
-import { uiStateStore } from '../../store/ui-state.store';
-import { PlayerController } from '../player/player.controller';
-import { participantStore } from '../../store/participants.store';
-import { Component } from '../component';
-import { EventEmitter } from '../../utils/event-emitter';
-import { SlideView } from '../slide-view/slide-view';
+import {CSSResultGroup, html} from 'lit';
+import {when} from 'lit/directives/when.js';
+import {repeat} from 'lit/directives/repeat.js';
+import {customElement, property, query} from 'lit/decorators.js';
+import {ChatService} from '../../service/chat.service';
+import {PlayerControls} from '../controls/player-controls';
+import {I18nLitElement} from '../i18n-mixin';
+import {ParticipantView} from '../participant-view/participant-view';
+import {PlayerViewController} from './player-view.controller';
+import {ScreenView} from '../screen-view/screen-view';
+import {autorun} from 'mobx';
+import {privilegeStore} from '../../store/privilege.store';
+import {courseStore} from '../../store/course.store';
+import {SlSplitPanel} from '@shoelace-style/shoelace';
+import {ConferenceView} from '../conference-view/conference-view';
+import {uiStateStore} from '../../store/ui-state.store';
+import {PlayerController} from '../player/player.controller';
+import {participantStore} from '../../store/participants.store';
+import {Component} from '../component';
+import {EventEmitter} from '../../utils/event-emitter';
+import {SlideView} from '../slide-view/slide-view';
 import playerViewStyles from './player-view.css';
+import {ModerationService} from "../../service/moderation.service";
 
 @customElement('player-view')
 export class PlayerView extends Component {
@@ -37,6 +38,9 @@ export class PlayerView extends Component {
 
 	@property()
 	chatService: ChatService;
+
+	@property()
+	moderationService: ModerationService;
 
 	@property({ type: Boolean, reflect: true })
 	chatVisible: boolean = true;
@@ -113,7 +117,7 @@ export class PlayerView extends Component {
 				<div slot="start" class="left-container">
 					<div class="feature-container">
 						${when(privilegeStore.canViewParticipants(), () => html`
-							<participant-list></participant-list>
+							<participant-list .moderationService="${this.moderationService}"></participant-list>
 						`)}
 					</div>
 				</div>
@@ -142,7 +146,7 @@ export class PlayerView extends Component {
 						<div slot="end" class="right-container">
 							<div class="video-feeds">
 							${repeat(participantStore.getWithStream(), (participant) => participant.userId, (participant) => html`
-								<participant-view .participant="${participant}"></participant-view>
+								<participant-view .participant="${participant}" ></participant-view>
 							`)}
 							</div>
 							<div class="feature-container">

@@ -1,5 +1,5 @@
-import { CoursePrivilege } from "../model/course-state";
-import { makeAutoObservable } from "mobx";
+import {CoursePrivilege} from "../model/course-state";
+import {makeAutoObservable} from "mobx";
 
 class PrivilegeStore {
 
@@ -68,6 +68,10 @@ class PrivilegeStore {
 
 	canShareDocuments(): boolean {
 		return this.privileges.findIndex(privilege => privilege.name === "COURSE_STREAM") > -1;
+	}
+
+	canBanParticipants(): boolean {
+		return this.privileges.findIndex(privilege => privilege.name === "PARTICIPANTS_BAN") > -1;
 	}
 
 	reset() {

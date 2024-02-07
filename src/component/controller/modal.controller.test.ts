@@ -1,16 +1,17 @@
-import { expect, html, fixture, oneEvent } from "@open-wc/testing";
+import {expect, fixture, html, oneEvent} from "@open-wc/testing";
 
-import type { LecturePlayer } from "../player/player.js";
+import type {LecturePlayer} from "../player/player.js";
 import "../player/player.js";
 
 import "@shoelace-style/shoelace";
 
-import { ModalController } from "./modal.controller.js";
-import { EntryModal } from "../entry-modal/entry.modal.js";
-import { ApplicationContext } from "./context.js";
-import { EventEmitter } from "../../utils/event-emitter.js";
-import { ChatService } from "../../service/chat.service.js";
-import { RootController } from "./root.controller.js";
+import {ModalController} from "./modal.controller.js";
+import {EntryModal} from "../entry-modal/entry.modal.js";
+import {ApplicationContext} from "./context.js";
+import {EventEmitter} from "../../utils/event-emitter.js";
+import {ChatService} from "../../service/chat.service.js";
+import {RootController} from "./root.controller.js";
+import {ModerationService} from "../../service/moderation.service";
 
 describe("ModalController", () => {
 	const modalName = "EntryModal";
@@ -24,7 +25,8 @@ describe("ModalController", () => {
 		const context: ApplicationContext = {
 			eventEmitter: new EventEmitter(),
 			host: element,
-			chatService: new ChatService()
+			chatService: new ChatService(),
+			moderationService: new ModerationService(),
 		}
 
 		const rootController = new RootController(context);
