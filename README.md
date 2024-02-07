@@ -8,7 +8,7 @@ Browser-based streaming player that is used to render real-time presentations st
 
 Building with npm:
 
-Run `npm run build:prod` or `npm run build:dev` for a production or development build.
+Run `npm run webpack:prod` or `npm run webpack:dev` for a production or development build.
 
 The target directory for build files is: `build`
 
