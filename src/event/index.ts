@@ -11,6 +11,7 @@ export * from "./lp-participant-destroyed.event";
 export * from "./lp-participant-error.event";
 export * from "./lp-participant-joined.event";
 export * from "./lp-participant-left.event";
+export * from "./lp-participant-moderation.event";
 export * from "./lp-participant-presence.event";
 export * from "./lp-participant-state.event";
 export * from './lp-quiz-state.event';

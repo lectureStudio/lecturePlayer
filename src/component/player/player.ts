@@ -32,6 +32,8 @@ export class LecturePlayer extends Component {
 				return html`<player-feature-view .chatService="${this.controller.chatService}"></player-feature-view>`;
 			case State.DISCONNECTED:
 				return html`<player-offline></player-offline>`;
+			case State.NO_ACCESS:
+				return html`<player-no-access></player-no-access>`;
 		}
 	}
 }

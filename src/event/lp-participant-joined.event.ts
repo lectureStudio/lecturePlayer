@@ -1,3 +1,5 @@
+import {VideoRoomParticipant} from "janus-gateway";
+
 export type LpParticipantJoinedEvent = CustomEvent<VideoRoomParticipant>;
 
 declare global {

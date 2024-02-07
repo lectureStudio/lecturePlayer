@@ -31,7 +31,7 @@ import { EventEmitter } from '../../utils/event-emitter';
 import { RootController } from '../controller/root.controller';
 import { Controller } from '../controller/controller';
 import { streamStatsStore } from '../../store/stream-stats.store';
-import { LpChatResponseEvent, LpChatStateEvent, LpEventServiceStateEvent, LpMediaStateEvent, LpParticipantPresenceEvent, LpQuizStateEvent, LpRecordingStateEvent, LpStreamStateEvent } from '../../event';
+import { LpChatResponseEvent, LpChatStateEvent, LpEventServiceStateEvent, LpMediaStateEvent, LpParticipantPresenceEvent, LpParticipantModerationEvent, LpQuizStateEvent, LpRecordingStateEvent, LpStreamStateEvent } from '../../event';
 import { Toaster } from '../../utils/toaster';
 import { t } from 'i18next';
 
@@ -79,6 +79,7 @@ export class PlayerController extends Controller implements ReactiveController {
 		this.eventEmitter.addEventListener("lp-media-state", this.onMediaState.bind(this));
 		this.eventEmitter.addEventListener("lp-participant-presence", this.onParticipantPresence.bind(this));
 		this.eventEmitter.addEventListener("lp-stream-connection-state", this.onStreamConnectionState.bind(this));
+		this.eventEmitter.addEventListener("lp-participant-moderation", this.onParticipantModeration.bind(this));
 
 		if (this.host.courseId) {
 			this.eventService.connect();
@@ -519,12 +520,43 @@ export class PlayerController extends Controller implements ReactiveController {
 		this.updateConnectionState();
 	}
 
+	private onParticipantModeration(event: LpParticipantModerationEvent) {
+		const moderation = event.detail;
+
+		if (moderation.userId !== userStore.userId) {
+			console.log("User moderation event for user, but not me.")
+			return;
+		}
+
+		if (moderation.moderationType === "PERMANENT_BAN") {
+			console.log("User banned.")
+			this.modalController.closeAllModals();
+
+			uiStateStore.setStreamState(State.NO_ACCESS);
+			uiStateStore.setDocumentState(State.NO_ACCESS);
+			this.streamController.disconnect();
+			this.eventService.close();
+			this.updateConnectionState();
+
+			Toaster.showWarning(t("course.moderation.toast.permanent_banned.title"),
+				t("course.moderation.toast.permanent_banned.description"), Infinity);
+		}
+	}
+
 	private updateConnectionState() {
 		const state = uiStateStore.state;
 		const streamState = uiStateStore.streamState;
 		const documentState = uiStateStore.documentState;
 
-		console.log("** update state:", State[state], ", streamState", State[streamState], ", documentState", State[documentState], ", has features", featureStore.hasFeatures());
+		console.log("** update state:", State[state],
+			", streamState", State[streamState],
+			", documentState", State[documentState],
+			", has features", featureStore.hasFeatures());
+
+		if (streamState == State.NO_ACCESS || documentState == State.NO_ACCESS) {
+			this.setConnectionState(State.NO_ACCESS);
+			return;
+		}
 
 		if (this.hasStream() && !courseStore.isClassroom) {
 			if (streamState === State.CONNECTED && documentState === State.CONNECTED) {
@@ -555,6 +587,10 @@ export class PlayerController extends Controller implements ReactiveController {
 
 	private setConnectionState(state: State) {
 		if (uiStateStore.state === state) {
+			return;
+		}
+		if (uiStateStore.state == State.NO_ACCESS) {
+			console.log("no access, skip state change");
 			return;
 		}
 

@@ -10,6 +10,7 @@ export * from './controls/documents-button';
 export * from './controls/document-navigation';
 export * from './controls/settings-button';
 export * from './loading/player-loading';
+export * from './no-access/no-access';
 export * from './offline/player-offline';
 export * from './feature-view/feature-view';
 export * from './chat-box/chat-box';

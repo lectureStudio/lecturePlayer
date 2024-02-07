@@ -1,23 +1,23 @@
 export class Toaster {
 
-	public static show(title: string, message?: string): void {
-		this.showNotification(title, message, "neutral", "info-circle");
+	public static show(title: string, message?: string, duration = 3000): void {
+		this.showNotification(title, message, "neutral", "info-circle", duration);
 	}
 
-	public static showInfo(title: string, message?: string): void {
-		this.showNotification(title, message, "primary", "info-circle");
+	public static showInfo(title: string, message?: string, duration = 3000): void {
+		this.showNotification(title, message, "primary", "info-circle", duration);
 	}
 
-	public static showSuccess(title: string, message?: string): void {
-		this.showNotification(title, message, "success", "check2-circle");
+	public static showSuccess(title: string, message?: string, duration = 3000): void {
+		this.showNotification(title, message, "success", "check2-circle", duration);
 	}
 
-	public static showWarning(title: string, message?: string): void {
-		this.showNotification(title, message, "warning", "exclamation-triangle");
+	public static showWarning(title: string, message?: string, duration = 3000): void {
+		this.showNotification(title, message, "warning", "exclamation-triangle", duration);
 	}
 
-	public static showError(title: string, message?: string): void {
-		this.showNotification(title, message, "danger", "exclamation-octagon");
+	public static showError(title: string, message?: string, duration = 3000): void {
+		this.showNotification(title, message, "danger", "exclamation-octagon", duration);
 	}
 
 	public static showNotification(title: string, message: string | undefined, variant: string, icon: string, duration = 3000): Promise<void> {

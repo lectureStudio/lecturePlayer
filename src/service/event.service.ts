@@ -17,6 +17,8 @@ export class EventService extends EventTarget {
 
 	private readonly subServices: EventSubService[];
 
+	private client: Client | undefined;
+
 
 	constructor(courseId: number, eventEmitter: EventEmitter) {
 		super();
@@ -85,7 +87,14 @@ export class EventService extends EventTarget {
 			client.deactivate();
 		});
 
+		this.client = client;
+
 		return client;
+	}
+
+	close() {
+		console.log("** EventService closes, disconnecting STOMP");
+		this.client?.deactivate()
 	}
 
 	private handleEvent(eventName: string, body: string) {
