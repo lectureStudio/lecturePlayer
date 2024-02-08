@@ -10,6 +10,7 @@ import { EntryModal } from "../entry-modal/entry.modal.js";
 import { ApplicationContext } from "./context.js";
 import { EventEmitter } from "../../utils/event-emitter.js";
 import { ChatService } from "../../service/chat.service.js";
+import { ModerationService } from "../../service/moderation.service";
 import { RootController } from "./root.controller.js";
 
 describe("ModalController", () => {
@@ -24,7 +25,8 @@ describe("ModalController", () => {
 		const context: ApplicationContext = {
 			eventEmitter: new EventEmitter(),
 			host: element,
-			chatService: new ChatService()
+			chatService: new ChatService(),
+			moderationService: new ModerationService(),
 		}
 
 		const rootController = new RootController(context);

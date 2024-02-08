@@ -21,6 +21,10 @@ export class Controller {
 		return this.context.chatService;
 	}
 
+	get moderationService() {
+		return this.context.moderationService;
+	}
+
 	get documentController() {
 		return this.rootController.documentController;
 	}

@@ -70,6 +70,10 @@ class PrivilegeStore {
 		return this.privileges.findIndex(privilege => privilege.name === "COURSE_STREAM") > -1;
 	}
 
+	canBanParticipants(): boolean {
+		return this.privileges.findIndex(privilege => privilege.name === "PARTICIPANTS_BAN") > -1;
+	}
+
 	reset() {
 		this.privileges = [];
 	}

@@ -134,6 +134,7 @@ export class ViewController extends Controller {
 	private onParticipantsVisibility() {
 		if (this.compactLayoutQuery.matches) {
 			const participantsModal = new ParticipantsModal();
+			participantsModal.moderationService = this.moderationService;
 
 			this.modalController.registerModal("ParticipantsModal", participantsModal);
 		}

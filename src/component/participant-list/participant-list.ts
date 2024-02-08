@@ -1,5 +1,5 @@
 import { CSSResultGroup, html } from 'lit';
-import { customElement, query, state } from 'lit/decorators.js';
+import { customElement, property, query, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { SortOrder, SortConfig } from '../../utils/sort';
@@ -7,6 +7,7 @@ import { CourseParticipant } from '../../model/participant';
 import { SlMenu, SlMenuItem } from '@shoelace-style/shoelace';
 import { FirstNameComparator, LastNameComparator, ParticipantSortProperty, ParticipantSortPropertyType, ParticipantSortPropertyUtil, ParticipantTypeComparator, participantStore } from '../../store/participants.store';
 import { Component } from '../component';
+import { ModerationService } from "../../service/moderation.service";
 import participantListStyles from './participant-list.css';
 
 @customElement('participant-list')
@@ -16,6 +17,9 @@ export class ParticipantList extends Component {
 		I18nLitElement.styles,
 		participantListStyles
 	];
+
+	@property()
+	moderationService: ModerationService;
 
 	@state()
 	sortProperty = ParticipantSortProperty.LastName;
@@ -79,7 +83,7 @@ export class ParticipantList extends Component {
 				<div class="participants">
 					<div class="participant-log">
 					${repeat(participantStore.sort(this.sortConfig), (participant) => participant.userId, (participant) => html`
-						<participant-list-item .participant="${participant}"></participant-list-item>
+						<participant-list-item .participant="${participant}" .moderationService="${this.moderationService}"></participant-list-item>
 					`)}
 					</div>
 				</div>

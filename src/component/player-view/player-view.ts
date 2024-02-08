@@ -3,6 +3,7 @@ import { when } from 'lit/directives/when.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { customElement, property, query } from 'lit/decorators.js';
 import { ChatService } from '../../service/chat.service';
+import { ModerationService } from "../../service/moderation.service";
 import { PlayerControls } from '../controls/player-controls';
 import { I18nLitElement } from '../i18n-mixin';
 import { ParticipantView } from '../participant-view/participant-view';
@@ -37,6 +38,9 @@ export class PlayerView extends Component {
 
 	@property()
 	chatService: ChatService;
+
+	@property()
+	moderationService: ModerationService;
 
 	@property({ type: Boolean, reflect: true })
 	chatVisible: boolean = true;
@@ -113,7 +117,7 @@ export class PlayerView extends Component {
 				<div slot="start" class="left-container">
 					<div class="feature-container">
 						${when(privilegeStore.canViewParticipants(), () => html`
-							<participant-list></participant-list>
+							<participant-list .moderationService="${this.moderationService}"></participant-list>
 						`)}
 					</div>
 				</div>
