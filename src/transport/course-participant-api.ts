@@ -8,7 +8,7 @@ export namespace CourseParticipantApi {
 	}
 
 	export function banParticipant(courseId: number, userId: string): Promise<void> {
-		return new HttpRequest().post(`/api/v1/course/${courseId}/ban/${userId}`);
+		return new HttpRequest().post(`/api/v1/course/${courseId}/user/ban/${userId}`);
 	}
 
 }
