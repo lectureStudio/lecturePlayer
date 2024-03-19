@@ -11,6 +11,7 @@ export * from './controls/document-navigation';
 export * from './controls/settings-button';
 export * from './loading/player-loading';
 export * from './offline/player-offline';
+export * from './no-access/player-no-access';
 export * from './feature-view/feature-view';
 export * from './chat-box/chat-box';
 export * from './chat-form/chat-form';

@@ -14,3 +14,15 @@ sl-icon {
 	font-size: 1.4em;
 	margin-left: auto;
 }
+
+sl-icon-button{
+	display: none;
+	margin-left: auto;
+	font-size: 1.2em;
+	align-items: center;
+}
+
+
+#ban::part(base) {
+	padding: 0.1em;
+}

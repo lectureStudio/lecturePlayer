@@ -21,3 +21,4 @@ export * from "./lp-stream-capture-stats.event";
 export * from "./lp-stream-connection-state.event";
 export * from './lp-stream-state.event';
 export * from './lp-void.event';
+export * from './lp-participant-moderation.event';

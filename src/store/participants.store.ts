@@ -232,6 +232,12 @@ export function ParticipantTypeComparator(a: CourseParticipant, b: CoursePartici
 	if (rhs === "CO_ORGANISATOR") {
 		return -1;
 	}
+	if (lhs === "GUEST_LECTURER") {
+		return 1;
+	}
+	if (rhs === "GUEST_LECTURER") {
+		return -1;
+	}
 
 	return 0;
 }

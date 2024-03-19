@@ -1,5 +1,5 @@
-import { ApplicationContext } from "./context";
-import { RootController } from "./root.controller";
+import {ApplicationContext} from "./context";
+import {RootController} from "./root.controller";
 
 export class Controller {
 
@@ -19,6 +19,10 @@ export class Controller {
 
 	get chatService() {
 		return this.context.chatService;
+	}
+
+	get moderationService() {
+		return this.context.moderationService;
 	}
 
 	get documentController() {

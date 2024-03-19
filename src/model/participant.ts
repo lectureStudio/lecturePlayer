@@ -2,7 +2,7 @@ import { t } from "../component/i18n-mixin";
 import { userStore } from "../store/user.store";
 import { State } from "../utils/state";
 
-export type ParticipantType = "ORGANISATOR" | "CO_ORGANISATOR" | "PARTICIPANT";
+export type ParticipantType = "ORGANISATOR" | "CO_ORGANISATOR" | "PARTICIPANT" | "GUEST_LECTURER";
 
 export interface CourseParticipant {
 

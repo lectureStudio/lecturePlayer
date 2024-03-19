@@ -1,8 +1,9 @@
-import { html } from "lit";
-import { Modal } from "../modal/modal";
-import { customElement } from "lit/decorators.js";
-import { t } from '../i18n-mixin';
+import {html} from "lit";
+import {Modal} from "../modal/modal";
+import {customElement, property} from "lit/decorators.js";
+import {t} from '../i18n-mixin';
 import participantsModalStyles from "./participants.modal.css";
+import {ModerationService} from "../../service/moderation.service";
 
 @customElement("participants-modal")
 export class ParticipantsModal extends Modal {
@@ -12,12 +13,14 @@ export class ParticipantsModal extends Modal {
 		participantsModalStyles
 	];
 
+	@property()
+	moderationService: ModerationService;
 
 	protected override render() {
 		return html`
-			<sl-dialog label="${t("settings.title")}" noHeader>
+			<sl-dialog label="${t("course.participants")}" noHeader>
 				<article>
-					<participant-list></participant-list>
+					<participant-list .moderationService="${this.moderationService}"></participant-list>
 				</article>
 				<div slot="footer">
 					<sl-button @click="${this.close}" size="small">

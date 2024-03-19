@@ -1,14 +1,14 @@
-import { autorun } from "mobx";
-import { ColorScheme, uiStateStore } from "../../store/ui-state.store";
-import { ChatModal } from "../chat-modal/chat.modal";
-import { ParticipantsModal } from "../participants-modal/participants.modal";
-import { QuizModal } from "../quiz-modal/quiz.modal";
-import { SettingsModal } from "../settings-modal/settings.modal";
-import { StreamStatsModal } from "../stream-stats-modal/stream-stats.modal";
-import { ApplicationContext } from "./context";
-import { Controller } from "./controller";
-import { RootController } from "./root.controller";
-import { LpFullscreenEvent } from "../../event";
+import {autorun} from "mobx";
+import {ColorScheme, uiStateStore} from "../../store/ui-state.store";
+import {ChatModal} from "../chat-modal/chat.modal";
+import {ParticipantsModal} from "../participants-modal/participants.modal";
+import {QuizModal} from "../quiz-modal/quiz.modal";
+import {SettingsModal} from "../settings-modal/settings.modal";
+import {StreamStatsModal} from "../stream-stats-modal/stream-stats.modal";
+import {ApplicationContext} from "./context";
+import {Controller} from "./controller";
+import {RootController} from "./root.controller";
+import {LpFullscreenEvent} from "../../event";
 
 interface BreakpointConfig {
 
@@ -134,7 +134,7 @@ export class ViewController extends Controller {
 	private onParticipantsVisibility() {
 		if (this.compactLayoutQuery.matches) {
 			const participantsModal = new ParticipantsModal();
-
+			participantsModal.moderationService = this.moderationService;
 			this.modalController.registerModal("ParticipantsModal", participantsModal);
 		}
 		else {

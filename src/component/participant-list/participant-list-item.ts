@@ -1,10 +1,13 @@
-import { CSSResultGroup, html } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
-import { I18nLitElement, t } from '../i18n-mixin';
-import { CourseParticipant, Participant } from '../../model/participant';
-import { Component } from '../component';
-import { observable } from 'mobx';
+import {CSSResultGroup, html} from 'lit';
+import {customElement, property} from 'lit/decorators.js';
+import {I18nLitElement, t} from '../i18n-mixin';
+import {CourseParticipant, Participant} from '../../model/participant';
+import {Component} from '../component';
+import {observable} from 'mobx';
 import participantStyles from './participant-list-item.css';
+import {privilegeStore} from "../../store/privilege.store";
+import {ModerationService} from "../../service/moderation.service";
+import {Toaster} from "../../utils/toaster";
 
 @customElement('participant-list-item')
 export class ParticipantListItem extends Component {
@@ -18,6 +21,32 @@ export class ParticipantListItem extends Component {
 	@observable
 	participant: CourseParticipant;
 
+	@property()
+	moderationService: ModerationService;
+
+	private mouseEnterHandler = () => {
+		const button = this.shadowRoot?.querySelector('sl-icon-button');
+		if (button) button.style.display = 'block';
+	};
+
+	private mouseLeaveHandler = () => {
+		const button = this.shadowRoot?.querySelector('sl-icon-button');
+		if (button) button.style.display = 'none';
+	};
+
+	override connectedCallback() {
+		super.connectedCallback();
+
+		this.addEventListener('mouseenter', this.mouseEnterHandler);
+		this.addEventListener('mouseleave', this.mouseLeaveHandler);
+	}
+
+	override disconnectedCallback() {
+		super.disconnectedCallback();
+
+		this.removeEventListener('mouseenter', this.mouseEnterHandler);
+		this.removeEventListener('mouseleave', this.mouseLeaveHandler);
+	}
 
 	protected override render() {
 		return html`
@@ -37,7 +66,32 @@ export class ParticipantListItem extends Component {
 				</sl-tooltip>
 			`;
 		}
+		console.log('canBanParticipants', privilegeStore.canBanParticipants());
+		if (privilegeStore.canBanParticipants() && this.participant.participantType === "PARTICIPANT") {
+			return html`<sl-icon-button id="ban" name="shield-x" label="Ban" @click="${this.banParticipant}"></sl-icon-button>`;
+		}
+
 
 		return null;
+	}
+
+	private banParticipant(event: Event) {
+		const submitButton = <HTMLButtonElement> event.target;
+		submitButton.disabled = true;
+
+		console.info('Will ban participant with id', this.participant.userId);
+		this.moderationService.banUser(this.participant.userId).then(() => {
+			console.info('Participant banned');
+			Toaster.showSuccess(t("course.feature.participant.ban.success", {name: Participant.getFullName(this.participant)}));
+		}).catch((error) => {
+			console.error('Failed to ban participant', error);
+			if (error === "Not allowed") {
+				Toaster.showError(t("course.feature.participant.ban.error.not-allowed"));
+			} else {
+				Toaster.showError(t("course.feature.participant.ban.error", {name: Participant.getFullName(this.participant)}));
+			}
+		}).finally(() => {
+			submitButton.disabled = false;
+		});
 	}
 }

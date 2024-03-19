@@ -1,7 +1,7 @@
-import { EventEmitter } from "../utils/event-emitter";
-import { State } from "../utils/state";
-import { Utils } from "../utils/utils";
-import { Client, Message } from '@stomp/stompjs';
+import {EventEmitter} from "../utils/event-emitter";
+import {State} from "../utils/state";
+import {Utils} from "../utils/utils";
+import {Client, Message} from '@stomp/stompjs';
 
 export interface EventSubService {
 
@@ -16,6 +16,8 @@ export class EventService extends EventTarget {
 	private readonly eventEmitter: EventEmitter;
 
 	private readonly subServices: EventSubService[];
+
+	private client: Client | undefined;
 
 
 	constructor(courseId: number, eventEmitter: EventEmitter) {
@@ -71,6 +73,9 @@ export class EventService extends EventTarget {
 			client.subscribe("/topic/course/event/" + this.courseId + "/publisher", (message: Message) => {
 				this.handleEvent("lp-publisher-presence", message.body);
 			});
+			client.subscribe("/topic/course/event/" + this.courseId + "/moderation", (message: Message) => {
+				this.handleEvent("lp-participant-moderation", message.body);
+			});
 
 			for (const subService of this.subServices) {
 				subService.initialize(this.courseId, client);
@@ -84,8 +89,13 @@ export class EventService extends EventTarget {
 		window.addEventListener("beforeunload", () => {
 			client.deactivate();
 		});
-
+		this.client = client;
 		return client;
+	}
+
+	close() {
+		console.log("** EventService closes, disconnecting STOMP");
+		this.client?.deactivate()
 	}
 
 	private handleEvent(eventName: string, body: string) {
