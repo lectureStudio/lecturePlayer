@@ -106,6 +106,7 @@
 	"course.role.organisator": "Organisator:in",
 	"course.role.co_organisator": "Co-Organisator:in",
 	"course.role.participant": "Teilnehmer:in",
+	"course.role.guest_lecturer": "Gastdozent:in",
 	"course.speech.request.accepted": "Redebeitrag angenommen",
 	"course.speech.request.accepted.description": "Redebeitrag jetzt starten oder abbrechen, falls Sie es sich anders überlegt haben.",
 	"course.speech.request.rejected": "Redebeitrag abgelehnt",

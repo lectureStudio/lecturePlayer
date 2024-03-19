@@ -106,6 +106,7 @@
 	"course.role.organisator": "Organisator",
 	"course.role.co_organisator": "Co-Organisator",
 	"course.role.participant": "Participant",
+	"course.role.guest_lecturer": "Guest Lecturer",
 	"course.speech.request.accepted": "Speech request accepted",
 	"course.speech.request.accepted.description": "Start your speech now or cancel it if you have changed your mind.",
 	"course.speech.request.rejected": "Speech request rejected",
