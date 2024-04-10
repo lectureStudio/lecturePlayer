@@ -115,14 +115,14 @@ export class ChatBoxMessage extends Component {
 		return html`
 			<div class="modify-buttons">
 				<sl-tooltip id="reply-tooltip" .content="${t("course.feature.message.reply.button")}" trigger="hover">
-					<sl-icon-button name="reply" @click="${this.replyToMessage}" form="course-message-form" size="small" ?disabled="${!this.canReply()}"></sl-icon-button>
+					<sl-icon-button name="chat-reply" @click="${this.replyToMessage}" form="course-message-form" size="small" ?disabled="${!this.canReply()}"></sl-icon-button>
 				</sl-tooltip>
 				${when(this.myself, () => html`
 					<sl-tooltip id="delete-tooltip" .content="${t("course.feature.message.delete.button")}" trigger="hover">
-						<sl-icon-button name="trash" @click="${this.deleteMessage}" form="course-message-form" size="small" ?disabled="${disableButtons}"></sl-icon-button>
+						<sl-icon-button name="chat-delete" @click="${this.deleteMessage}" form="course-message-form" size="small" ?disabled="${disableButtons}"></sl-icon-button>
 					</sl-tooltip>
 					<sl-tooltip id="edit-tooltip" .content="${t("course.feature.message.edit.button")}" trigger="hover">
-						<sl-icon-button name="pen" @click="${this.editMessage}" form="course-message-form" size="small" ?disabled="${disableButtons}"></sl-icon-button>
+						<sl-icon-button name="chat-edit" @click="${this.editMessage}" form="course-message-form" size="small" ?disabled="${disableButtons}"></sl-icon-button>
 					</sl-tooltip>
 				`)}
 			</div>

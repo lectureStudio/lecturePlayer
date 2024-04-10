@@ -18,7 +18,7 @@
 	-webkit-border-radius: 0 5px 5px 5px;
 	-moz-border-radius: 0 5px 5px 5px;
 	border-radius: 0 5px 5px 5px;
-	background: var(--sl-color-gray-400);
+	background: var(--sl-color-gray-200);
 	overflow-wrap: break-word;
 	padding: 0.4rem 1rem;
 	margin: 0 15% 0 0;
@@ -30,10 +30,10 @@
 }
 .reply-message-boxed {
 	font-size: var(--sl-font-size-x-small);
-	background: var(--sl-color-gray-300);
+	background: var(--sl-color-gray-100);
 	width: 100%;
 	border-radius: 3px;
-	border-left: 3px solid black;
+	border-left: 3px solid var(--sl-color-neutral-500);
 }
 .reply-message-content {
 	overflow-wrap: break-word;
@@ -94,7 +94,7 @@
 }
 :host([myself]) .reply-message-boxed {
 	background: var(--sl-color-primary-50);
-	border-left: 3px solid mediumblue;
+	border-left: 3px solid var(--sl-color-primary-600);
 }
 :host([myself]) .modify-buttons {
 	justify-content: flex-end;
