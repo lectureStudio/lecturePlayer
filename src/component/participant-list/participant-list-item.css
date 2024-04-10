@@ -35,9 +35,11 @@ sl-tooltip.tooltip-avatar {
 	align-items: flex-start;
 	gap: 10px;
 }
-
 .tooltip-avatar-image {
 	width: 100px;
-	height: 100px;
 	border-radius: var(--sl-border-radius-medium);
+}
+.tooltip-avatar-info {
+	display: flex;
+	flex-direction: column;
 }

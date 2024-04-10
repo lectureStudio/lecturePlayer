@@ -85,21 +85,26 @@ export class ParticipantListItem extends Component {
 		let userCanSeeAvatar: boolean | undefined = userStore.userId == this.participant.userId; //user can always see his own avatar
 		const participantUser = participantStore.findByUserId((userStore.userId!));
 		userCanSeeAvatar = userCanSeeAvatar || (participantUser ? participantUser.canSeeOthersAvatar : false); // can only see others' if he has the privilege
+		const fullName = Participant.getFullName(this.participant);
+		const type = this.participant.participantType.toLowerCase();
 
 		if (Participant.hasAvatar(this.participant) && Participant.canShowAvatar(this.participant) && userCanSeeAvatar) {
 			return html`
 				<sl-tooltip class="tooltip-avatar" trigger="hover">
 					<div class="tooltip-avatar-container" slot="content">
-						<img class="tooltip-avatar-image" src="${Participant.getAvatar(this.participant)}">
-						<span>${Participant.getFullName(this.participant)}</span>
+						<img class="tooltip-avatar-image" src="${Participant.getAvatar(this.participant)}" alt="${fullName}">
+						<div class="tooltip-avatar-info">
+							<span>${fullName}</span>
+							<span>${t("course.role." + type)}</span>
+						</div>
 					</div>
-					<span>${Participant.getFullName(this.participant)}</span>
+					<span>${fullName}</span>
 				</sl-tooltip>	
 			`;
 		}
 
 		return html`
-			<span>${Participant.getFullName(this.participant)}</span>	
+			<span>${fullName}</span>	
 		`;
 	}
 
