@@ -4,7 +4,7 @@ import { customElement, property, query } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { I18nLitElement, t } from '../i18n-mixin';
-import { ChatService } from '../../service/chat.service';
+import { ChatService} from '../../service/chat.service';
 import { ChatBoxMessage } from './chat-message';
 import { privilegeStore } from '../../store/privilege.store';
 import { chatStore } from '../../store/chat.store';
@@ -27,6 +27,9 @@ export class ChatBox extends Component {
 	@query(".chat-history-log")
 	messageContainer: HTMLElement;
 
+	@query("chat-form")
+	chatForm: ChatForm;
+
 	messageObserver: IntersectionObserver;
 
 	visibilityObserver: IntersectionObserver;
@@ -37,7 +40,7 @@ export class ChatBox extends Component {
 	override connectedCallback() {
 		super.connectedCallback();
 
-		// Observe the messsage container and register added message elements for visibility observation.
+		// Observe the message container and register added message elements for visibility observation.
 		this.mutationObserver = new MutationObserver(this.onMessageContainerMutation.bind(this));
 
 		// Get notified whenever a message element is hidden or gets visible to the user.
@@ -73,9 +76,10 @@ export class ChatBox extends Component {
 	protected override firstUpdated(): void {
 		this.mutationObserver.observe(this.messageContainer, { childList: true });
 
-		// Mark already added messages as read.
+		// Mark already added messages as read and set their chatForm property.
 		for (const child of this.messageContainer.children) {
 			(child as ChatBoxMessage).message.read = true;
+			(child as ChatBoxMessage).chatForm = this.chatForm;
 		}
 	}
 
@@ -89,8 +93,11 @@ export class ChatBox extends Component {
 			throw new Error("Form is null");
 		}
 
-		this.chatService.postMessage(chatForm.getFormData())
+		const msgToReplyTo: string | undefined = chatForm.replying ? chatForm.getMessageToReplyTo() : undefined;
+		this.chatService.postMessage(chatForm.getFormData(), msgToReplyTo)
 			.then(() => {
+				Toaster.showSuccess(`${t("course.feature.message.sent")}`);
+
 				// Reset form only on success.
 				chatForm.resetForm();
 			})
@@ -113,6 +120,7 @@ export class ChatBox extends Component {
 			})
 			.finally(() => {
 				submitButton.disabled = false;
+				chatForm.notifyAboutMessageSending();
 			});
 	}
 
@@ -127,7 +135,9 @@ export class ChatBox extends Component {
 					<div class="chat-history-log">
 					${when(privilegeStore.canReadMessages(), () => html`
 						${repeat(chatStore.messages, (message) => message.messageId, (message) => html`
-							<chat-box-message .message="${message}"></chat-box-message>
+							${when(!message.deleted, () => html`
+								<chat-box-message .message="${message}" .chatService="${this.chatService}" .chatForm="${this.renderRoot.querySelector("chat-form")}"></chat-box-message>
+							`)}
 						`)}
 					`)}
 					</div>
@@ -136,7 +146,7 @@ export class ChatBox extends Component {
 
 			<footer part="footer">
 				${when(privilegeStore.canWriteMessages(), () => html`
-				<chat-form>
+				<chat-form id="chat-form" .chatService="${this.chatService}">
 					<sl-button slot="right-pane" @click="${this.post}" type="submit" form="course-message-form" id="message-submit" size="medium" circle>
 						<sl-icon name="send"></sl-icon>
 					</sl-button>

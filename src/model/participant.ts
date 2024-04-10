@@ -14,6 +14,12 @@ export interface CourseParticipant {
 
 	readonly participantType: ParticipantType;
 
+	readonly avatarImageData: string | null;
+
+	readonly canShowAvatar: boolean;
+
+	readonly canSeeOthersAvatar: boolean;
+
 	streamState: State;
 
 	microphoneActive: boolean;
@@ -52,4 +58,19 @@ export namespace Participant {
 		return name;
 	}
 
+	export function getAvatar(participant: CourseParticipant) {
+		return participant.avatarImageData;
+	}
+
+	export function hasAvatar(participant: CourseParticipant) {
+		return !!participant.avatarImageData;
+	}
+
+	export function canShowAvatar(participant: CourseParticipant) {
+		return participant.canShowAvatar;
+	}
+
+	export function canSeeOthersAvatar(participant: CourseParticipant) {
+		return participant.canSeeOthersAvatar;
+	}
 }

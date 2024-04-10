@@ -9,6 +9,8 @@ import { deviceStore } from "../../store/device.store";
 import { CourseParticipant, Participant } from "../../model/participant";
 import { Component } from "../component";
 import { LpDeviceChangeEvent } from "../../event";
+import { userStore } from "../../store/user.store";
+import { participantStore } from "../../store/participants.store";
 import participantViewStyles from "./participant-view.css";
 
 @customElement('participant-view')
@@ -85,19 +87,30 @@ export class ParticipantView extends Component {
 		this.micActive = this.participant.microphoneActive ?? false;
 		this.camActive = this.participant.cameraActive ?? false;
 
+		const controlsSection = html`
+			<div class="controls">
+				<div class="media-state">
+					<div class="mic-state">
+						<sl-icon .name="${this.getMicrophoneIcon()}" id="mic-remote"></sl-icon>
+					</div>
+				</div>
+			</div>
+			<audio autoplay></audio>
+			<video autoplay playsInline></video>
+		`;
+
+		if (this.shouldRenderAvatar()) {
+			return html`
+				<div part="base" class="container" style="background-image: url('${this.participant.avatarImageData}');">
+					${controlsSection}
+				</div>
+			`;
+		}
+
 		return html`
 			<div part="base" class="container">
 				<span class="name">${Participant.getFullName(this.participant)}</span>
-				<div class="controls">
-					<div class="media-state">
-						<div class="mic-state">
-							<sl-icon .name="${this.getMicrophoneIcon()}" id="mic-remote"></sl-icon>
-						</div>
-					</div>
-				</div>
-
-				<audio autoplay></audio>
-				<video autoplay playsInline></video>
+				${controlsSection}
 			</div>
 		`;
 	}
@@ -121,7 +134,7 @@ export class ParticipantView extends Component {
 			const deviceId = deviceSetting.deviceId;
 
 			if (deviceSetting.kind !== "audiooutput") {
-				// As subscriber we are interested only in speaker devices.
+				// As subscriber, we are interested only in speaker devices.
 				return;
 			}
 
@@ -176,5 +189,16 @@ export class ParticipantView extends Component {
 					this.dispatchEvent(Utils.createEvent("participant-video-play-error"));
 				}
 			});
+	}
+
+	private shouldRenderAvatar(): boolean {
+		if(!Participant.hasAvatar(this.participant)) return false;
+
+		const meParticipant: CourseParticipant = participantStore.findByUserId(userStore.userId!)!;
+		const participantToRender: CourseParticipant = this.participant;
+
+		if(meParticipant.userId == participantToRender.userId) return true; //user can always see own avatar
+
+		return Participant.canSeeOthersAvatar(meParticipant) && Participant.canShowAvatar(participantToRender); // can only see others' if he has the privilege
 	}
 }
