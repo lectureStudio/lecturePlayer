@@ -25,3 +25,19 @@ sl-icon-button{
 #ban::part(base) {
 	padding: 0.1em;
 }
+
+sl-tooltip.tooltip-avatar {
+	--max-width: 100%;
+}
+
+.tooltip-avatar-container {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+}
+
+.tooltip-avatar-image {
+	width: 100px;
+	height: 100px;
+	border-radius: var(--sl-border-radius-medium);
+}

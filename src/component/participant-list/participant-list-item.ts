@@ -4,6 +4,8 @@ import { I18nLitElement, t } from '../i18n-mixin';
 import { CourseParticipant, Participant } from '../../model/participant';
 import { Component } from '../component';
 import { observable } from 'mobx';
+import { userStore } from "../../store/user.store";
+import { participantStore } from "../../store/participants.store";
 import { ModerationService } from "../../service/moderation.service";
 import { privilegeStore } from "../../store/privilege.store";
 import { Toaster } from "../../utils/toaster";
@@ -56,7 +58,7 @@ export class ParticipantListItem extends Component {
 	protected override render() {
 		return html`
 			<sl-avatar shape="rounded" initials="${Participant.getInitials(this.participant)}"></sl-avatar>
-			<span>${Participant.getFullName(this.participant)}</span>
+			${this.renderNameWithOptionalTooltip()}
 			${this.renderType()}
 		`;
 	}
@@ -77,6 +79,28 @@ export class ParticipantListItem extends Component {
 		}
 
 		return null;
+	}
+
+	private renderNameWithOptionalTooltip() {
+		let userCanSeeAvatar: boolean | undefined = userStore.userId == this.participant.userId; //user can always see his own avatar
+		const participantUser = participantStore.findByUserId((userStore.userId!));
+		userCanSeeAvatar = userCanSeeAvatar || (participantUser ? participantUser.canSeeOthersAvatar : false); // can only see others' if he has the privilege
+
+		if (Participant.hasAvatar(this.participant) && Participant.canShowAvatar(this.participant) && userCanSeeAvatar) {
+			return html`
+				<sl-tooltip class="tooltip-avatar" trigger="hover">
+					<div class="tooltip-avatar-container" slot="content">
+						<img class="tooltip-avatar-image" src="${Participant.getAvatar(this.participant)}">
+						<span>${Participant.getFullName(this.participant)}</span>
+					</div>
+					<span>${Participant.getFullName(this.participant)}</span>
+				</sl-tooltip>	
+			`;
+		}
+
+		return html`
+			<span>${Participant.getFullName(this.participant)}</span>	
+		`;
 	}
 
 	private banParticipant(event: Event) {

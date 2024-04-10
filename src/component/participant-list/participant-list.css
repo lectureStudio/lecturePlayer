@@ -49,6 +49,32 @@ section {
 	background-color: var(--sl-color-sky-100);
 }
 
+.participant-log .tooltip-text {
+	visibility: hidden;
+	width: 120px;
+	background-color: #555;
+	color: #fff;
+	text-align: center;
+	padding: 5px 0;
+	border-radius: 6px;
+
+	/* Position the tooltip text */
+	position: absolute;
+	z-index: 1;
+	bottom: 125%;
+	left: 50%;
+	margin-left: -60px;
+
+	/* Fade in tooltip */
+	opacity: 0;
+	transition: opacity 0.3s;
+}
+
+.participant-log > :hover .tooltip-text {
+	visibility: visible;
+	opacity: 1;
+}
+
 sl-menu ::part(base) {
 	font-size: var(--sl-font-size-small);
 }

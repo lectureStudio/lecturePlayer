@@ -15,6 +15,10 @@ form sl-textarea,
 form sl-option {
 	width: 100%;
 }
+:host([replying]) form sl-textarea {
+	background-color: var(--sl-color-primary-100);
+	border-radius: 0 0 5px 5px;
+}
 form sl-option::part(base) {
 	font-size: var(--sl-font-size-x-small);
 }
@@ -31,4 +35,30 @@ form .message-container {
 	display: flex;
 	align-items: center;
 	gap: 0.25rem;
+}
+
+form .reply-message-container {
+	background-color: var(--sl-color-primary-100);
+	border-radius: 5px 5px 0 0;
+	padding: 0.2rem 0.5rem;
+	overflow-wrap: break-word;
+	position: relative;
+}
+
+form .message {
+	width: 100%;
+}
+
+#reply-msg-sender {
+	font-weight: bold;
+}
+
+#cancel-reply {
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+#cancel-reply:hover {
+	fill: var(--sl-color-red-300);
 }

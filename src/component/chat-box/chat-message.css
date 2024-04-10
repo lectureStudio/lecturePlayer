@@ -2,9 +2,11 @@
 	display: flex;
 	font-size: 0.8rem;
 	margin-bottom: 0.3em;
+	flex-wrap: wrap-reverse;
 }
 .message-sender {
 	font-weight: bold;
+	margin: 0 1em 0 0;
 }
 .message-time {
 	color: var(--sl-color-neutral-700);
@@ -12,11 +14,11 @@
 	justify-content: end;
 	margin: 0 1em 0 0;
 }
-.chat-message-boxed {
+.chat-message-container {
 	-webkit-border-radius: 0 5px 5px 5px;
 	-moz-border-radius: 0 5px 5px 5px;
 	border-radius: 0 5px 5px 5px;
-	background: var(--sl-color-neutral-100);
+	background: var(--sl-color-gray-400);
 	overflow-wrap: break-word;
 	padding: 0.4rem 1rem;
 	margin: 0 15% 0 0;
@@ -26,6 +28,26 @@
 .chat-message-content {
 	overflow-wrap: break-word;
 }
+.reply-message-boxed {
+	font-size: var(--sl-font-size-x-small);
+	background: var(--sl-color-gray-300);
+	width: 100%;
+	border-radius: 3px;
+	border-left: 3px solid black;
+}
+.reply-message-content {
+	overflow-wrap: break-word;
+	border-radius: 5px;
+	margin: 0 0 0 auto;
+	width: 100%;
+	padding: 0 0.3rem;
+}
+.reply-message-header {
+	font-weight: bold;
+	margin: 0 0 0 auto;
+	border-radius: 5px 5px 0 0;
+	padding: 0 0.3rem;
+}
 .message-private {
 	background: var(--sl-color-rose-200);
 	border-radius: 4px;
@@ -33,9 +55,28 @@
 	margin: 0 0 0 1em;
 	height: fit-content;
 }
-
+.message-edited {
+	background: var(--sl-color-sky-100);
+	border-radius: 4px;
+	padding: 1px 6px;
+	margin: 0 1em 0 0;
+	height: fit-content;
+	text-align: right;
+}
+.modify-buttons {
+	display: flex;
+	flex-direction: row;
+}
+.deleted-message-content {
+	font-style: italic;
+}
 :host([myself]) .message-head {
 	flex-direction: row-reverse;
+	flex-wrap: wrap-reverse;
+}
+:host([myself]) .message-sender {
+	font-weight: bold;
+	margin: 0 0 0 1em;
 }
 :host([myself]) .message-time {
 	margin: 0 0 0 1em;
@@ -43,11 +84,36 @@
 :host([myself]) .message-private {
 	margin: 0 1em 0 0;
 }
-:host([myself]) .chat-message-boxed {
+:host([myself]) .chat-message-container {
 	-webkit-border-radius: 5px 0 5px 5px;
 	-moz-border-radius: 5px 0 5px 5px;
 	border-radius: 5px 0 5px 5px;
 	background: var(--sl-color-primary-100);
 	margin: 0 0 0 15%;
 	margin-left: auto;
+}
+:host([myself]) .reply-message-boxed {
+	background: var(--sl-color-primary-50);
+	border-left: 3px solid mediumblue;
+}
+:host([myself]) .modify-buttons {
+	justify-content: flex-end;
+}
+:host([edited]) .message-private {
+	margin: 0 1em 0 0;
+}
+
+#deletedMsg {
+	color: gray;
+	font-style: italic;
+}
+
+.chat-message-edit {
+	display: flex;
+	align-items: center;
+}
+  
+textarea {
+	flex: 1;
+	margin-right: 8px;
 }
