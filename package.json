@@ -75,7 +75,7 @@
 		"janus-gateway": "^1.2.0",
 		"lit": "^2.8.0",
 		"mobx": "^6.12.0",
-		"pdfjs-dist": "^4.0.269",
+		"pdfjs-dist": "^4.2.67",
 		"typescript-event-target": "^1.1.0"
 	}
 }
