@@ -27,6 +27,7 @@
 }
 .chat-message-content {
 	overflow-wrap: break-word;
+	white-space: pre;
 }
 .reply-message-boxed {
 	font-size: var(--sl-font-size-x-small);
