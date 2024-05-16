@@ -159,7 +159,7 @@ export class ChatForm extends Component {
 					<span id="reply-msg-sender">${sender}</span>
 					<sl-icon-button id="cancel-reply" name="close" @click="${this.cancelReply}" size="small"></sl-icon-button>
 				</div>
-				<div>${chatStore.getMessageById(this.msgIdToReplyTo)!.text}</div>
+				<pre>${chatStore.getMessageById(this.msgIdToReplyTo)!.text}</pre>
 			</div>
 		`;
 	}

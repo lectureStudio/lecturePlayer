@@ -50,9 +50,6 @@ export class ChatBoxMessage extends Component {
 	@query(".chat-message-boxed")
 	chatMessageBoxed: HTMLElement;
 
-	@query(".chat-message-content")
-	chatMessageContent: HTMLElement;
-
 	editedText: string = "";
 
 	timestamp: string;
@@ -74,11 +71,6 @@ export class ChatBoxMessage extends Component {
 	}
 
 	protected override render() {
-		if (this.chatMessageContent) {
-			// Fixes new lines.
-			this.chatMessageContent.innerText = this.message.text;
-		}
-
 		return html`
 			<div class="message-head">
 				<span class="message-time">${this.timestamp}</span>
@@ -107,9 +99,7 @@ export class ChatBoxMessage extends Component {
 						</div>
 					`)}
 					${when(!this.editing, () => html`
-						<div class="chat-message-content">
-							
-						</div>
+						<pre class="chat-message-content">${this.message.text}</pre>
 					`)}
 				</div>
 			</div>
@@ -148,8 +138,8 @@ export class ChatBoxMessage extends Component {
 				</div>
 				<div class="reply-message-content">
 					${when(messageToReplyTo.deleted,
-						() => html`<span class="deleted-message-content"> ${t("course.feature.message.deleted.content")} </span>`,
-						() => html`<span> ${messageToReplyTo.text} </span>`)}
+						() => html`<span class="deleted-message-content">${t("course.feature.message.deleted.content")}</span>`,
+						() => html`<pre>${messageToReplyTo.text}</pre>`)}
 				</div>
 			</div>
 		`;
