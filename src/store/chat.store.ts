@@ -31,7 +31,7 @@ class ChatStore {
 	}
 
 	get unreadMessages() {
-		return this.messages.reduce((unread, message) => message.read ? unread : ++unread, 0);
+		return this.messages.reduce((unread, message) => message.read || message.deleted ? unread : ++unread, 0);
 	}
 
 	getMessageById(messageId: string) : ChatMessage | undefined {
