@@ -14,13 +14,15 @@ import { RootController } from "./root.controller";
 
 export class StreamController extends Controller {
 
+	private readonly janusEndpoint = `https://${window.location.hostname}:8089/janus`;
+
 	private readonly janusService: JanusService;
 
 
 	constructor(rootController: RootController, context: ApplicationContext) {
 		super(rootController, context);
 
-		this.janusService = new JanusService(`https://${window.location.hostname}:8089/janus`, this.context.eventEmitter);
+		this.janusService = new JanusService(this.janusEndpoint, this.context.eventEmitter);
 		this.janusService.addEventListener("lp-stream-connection-state", this.onStreamConnectionState.bind(this));
 
 		this.eventEmitter.addEventListener("lp-stream-capture-stats", this.onCaptureStats.bind(this));
@@ -60,7 +62,7 @@ export class StreamController extends Controller {
 
 	testConnection() {
 		return new HttpRequest({ timeout: 0 })
-			.post<void, {}>(`https://${window.location.hostname}/janus`, { "janus": "keepalive" });
+			.post<void, {}>(this.janusEndpoint, { "janus": "keepalive" });
 	}
 
 	onPeerConnected(peerId: bigint, displayName: string) {
