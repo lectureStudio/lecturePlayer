@@ -33,49 +33,49 @@ export class ConferenceView extends I18nLitElement {
 
 	/** Specifies how many tiles should be shown at a given time.  */
 	@property({ type: Number, attribute: 'tiles-per-page' })
-	tilesPerPage = 1;
+	accessor tilesPerPage = 1;
 
 	@property({ type: Number, attribute: 'tile-height' })
-	tileHeight: number;
+	accessor tileHeight: number;
 
 	@property({ type: Number, attribute: 'tile-width' })
-	tileWidth: number;
+	accessor tileWidth: number;
 
-	@property({ reflect: true })
-	layout: ContentLayout;
+	@property({ type: Number, reflect: true })
+	accessor layout: ContentLayout;
 
-	@property({ reflect: true })
-	contentFocus: ContentFocus;
-
-	@state()
-	gridCounter: number = 0;
+	@property({ type: Number, reflect: true })
+	accessor contentFocus: ContentFocus;
 
 	@state()
-	gridColumns: number = 0;
+	accessor gridCounter: number = 0;
 
 	@state()
-	gridRows: number = 0;
+	accessor gridColumns: number = 0;
 
-	@property()
-	gridElementsLimit: number = 20;
+	@state()
+	accessor gridRows: number = 0;
 
-	@property()
-	columnLimit: number = 5;
+	@property({ type: Number })
+	accessor gridElementsLimit: number = 20;
 
-	@property()
-	rowsLimit: number = 3;
+	@property({ type: Number })
+	accessor columnLimit: number = 5;
+
+	@property({ type: Number })
+	accessor rowsLimit: number = 3;
 
 	@property({ type: Boolean, reflect: true })
-	isSpeaker: boolean = false;
+	accessor isSpeaker: boolean = false;
 
 	@query('.grid-container')
-	gridContainer: HTMLElement;
+	accessor gridContainer: HTMLElement;
 
 	@query('.presentation-container')
-	presentationContainer: HTMLElement;
+	accessor presentationContainer: HTMLElement;
 
 	@query("screen-view")
-	screenView: ScreenView;
+	accessor screenView: ScreenView;
 
 
 	public addGridElement(view: ParticipantView) {

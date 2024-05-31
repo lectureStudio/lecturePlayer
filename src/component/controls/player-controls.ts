@@ -22,34 +22,34 @@ export class PlayerControls extends Component {
 	readonly eventEmitter: EventEmitter;
 
 	@query('#volumeIndicator')
-	volumeIndicator: HTMLElement;
+	accessor volumeIndicator: HTMLElement;
 
 	@query('.text-layer')
-	textLayer: HTMLElement;
+	accessor textLayer: HTMLElement;
 
-	@property()
-	duration: number;
-
-	@property({ type: Boolean, reflect: true })
-	hasQuiz: boolean = false;
+	@property({ type: Number })
+	accessor duration: number;
 
 	@property({ type: Boolean, reflect: true })
-	hasChat: boolean = false;
+	accessor hasQuiz: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
-	chatVisible: boolean = false;
+	accessor hasChat: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
-	hasParticipants: boolean = false;
+	accessor chatVisible: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
-	participantsVisible: boolean = false;
+	accessor hasParticipants: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
-	fullscreen: boolean = false;
+	accessor participantsVisible: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
-	handUp: boolean = false;
+	accessor fullscreen: boolean = false;
+
+	@property({ type: Boolean, reflect: true })
+	accessor handUp: boolean = false;
 
 
 	override connectedCallback() {

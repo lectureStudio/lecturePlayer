@@ -15,22 +15,22 @@ export class MediaDeviceButton extends I18nLitElement {
 	];
 
 	@property({ type: String })
-	type: "audio" | "video";
+	accessor type: "audio" | "video";
 
 	@property({ type: String, reflect: false })
-	tooltip: string;
+	accessor tooltip: string;
 
 	@state()
-	devices: Map<string, MediaDeviceInfo> = new Map();
+	accessor devices: Map<string, MediaDeviceInfo> = new Map();
 
 	// @state()
 	// deviceSettings: DeviceSettings;
 
 	@query('sl-menu')
-	menu: SlMenu;
+	accessor menu: SlMenu;
 
 	@property({ type: Boolean, reflect: true })
-	muted: boolean = false;
+	accessor muted: boolean = false;
 
 	selectedDevice: MediaDeviceInfo;
 

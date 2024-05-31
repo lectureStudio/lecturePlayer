@@ -18,20 +18,20 @@ export class ParticipantList extends Component {
 		participantListStyles
 	];
 
-	@property()
-	moderationService: ModerationService;
+	@property({ attribute: false })
+	accessor moderationService: ModerationService;
 
 	@state()
-	sortProperty = ParticipantSortProperty.LastName;
+	accessor sortProperty = ParticipantSortProperty.LastName;
 
 	@state()
-	sortConfig: SortConfig<CourseParticipant> = {
+	accessor sortConfig: SortConfig<CourseParticipant> = {
 		order: SortOrder.Ascending,
 		comparators: []
 	};
 
 	@query('#custom-sort-menu')
-	customSortMenu: SlMenu;
+	accessor customSortMenu: SlMenu;
 
 
 	override connectedCallback() {

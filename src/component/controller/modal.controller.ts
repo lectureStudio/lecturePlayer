@@ -15,7 +15,7 @@ export class ModalController extends Controller {
 
 		modal.container = this.context.host.renderRoot;
 
-		// Close potentially opened modal of same type to prevent modal overlapping.
+		// Close potentially opened modal of the same type to prevent modal overlapping.
 		this.closeModal(name);
 
 		this.modals.set(name, modal);

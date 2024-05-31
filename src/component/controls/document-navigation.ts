@@ -19,10 +19,10 @@ export class DocumentNavigation extends I18nLitElement {
 	private readonly pageChangeListener = this.onPageChanged.bind(this);
 
 	@query("sl-color-picker")
-	colorPicker: SlColorPicker;
+	accessor colorPicker: SlColorPicker;
 
 	@state()
-	toolType: ToolType | null;
+	accessor toolType: ToolType | null;
 
 
 	override connectedCallback(): void {

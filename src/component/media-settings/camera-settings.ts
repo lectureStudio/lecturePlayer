@@ -17,14 +17,14 @@ export class CameraSettings extends MediaSettings {
 		cameraSettingsStyles
 	];
 
-	@property()
-	videoInputDevices: MediaDeviceInfo[] = [];
+	@property({ attribute: false })
+	accessor videoInputDevices: MediaDeviceInfo[] = [];
 
 	@query('#cameraPreview')
-	video: HTMLVideoElement;
+	accessor video: HTMLVideoElement;
 
 	@query('#cameraSelect')
-	cameraSelect: SlSelect;
+	accessor cameraSelect: SlSelect;
 
 
 	override disconnectedCallback() {

@@ -19,12 +19,12 @@ export class ParticipantListItem extends Component {
 		participantStyles
 	];
 
-	@property()
+	@property({ type: Object })
 	@observable
-	participant: CourseParticipant;
+	accessor participant: CourseParticipant;
 
-	@property()
-	moderationService: ModerationService;
+	@property({ attribute: false })
+	accessor moderationService: ModerationService;
 
 
 	private mouseEnterHandler = () => {

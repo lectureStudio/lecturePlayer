@@ -19,7 +19,7 @@ export class QuizBox extends Component {
 	];
 
 	@query('quiz-form')
-	quizForm: QuizForm;
+	accessor quizForm: QuizForm;
 
 
 	protected post(): Promise<void> {

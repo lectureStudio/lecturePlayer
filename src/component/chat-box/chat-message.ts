@@ -20,35 +20,35 @@ export class ChatBoxMessage extends Component {
 		chatMessageStyles,
 	];
 
-	@property()
-	message: ChatMessage;
+	@property({ type: Object })
+	accessor message: ChatMessage;
 
-	@property()
-	chatService: ChatService;
+	@property({ type: Object })
+	accessor chatService: ChatService;
 
-	@property()
-	chatForm: ChatForm;
-
-	@property({ type: Boolean, reflect: true })
-	myself: boolean;
+	@property({ type: Object })
+	accessor chatForm: ChatForm;
 
 	@property({ type: Boolean, reflect: true })
-	private: boolean;
+	accessor myself: boolean;
+
+	@property({ type: Boolean, reflect: true })
+	accessor private: boolean;
 
 	@property({ type: Boolean })
-	editing: boolean = false;
+	accessor editing: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
-	edited: boolean = false;
+	accessor edited: boolean = false;
 
 	@query('#delete-tooltip')
-	deleteTooltip: SlTooltip;
+	accessor deleteTooltip: SlTooltip;
 
 	@query('#edit-tooltip')
-	editTooltip: SlTooltip;
+	accessor editTooltip: SlTooltip;
 
 	@query(".chat-message-boxed")
-	chatMessageBoxed: HTMLElement;
+	accessor chatMessageBoxed: HTMLElement;
 
 	editedText: string = "";
 

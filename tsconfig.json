@@ -33,6 +33,12 @@
 		"typeRoots": [
 			"node_modules/@types",
 			"./src/types"
+		],
+		"plugins": [
+			{
+				"name": "ts-lit-plugin",
+				"strict": true
+			}
 		]
 	},
 	"include": [

@@ -11,7 +11,7 @@ export class PlayerLoading extends I18nLitElement {
 	];
 
 	@property()
-	text: string;
+	accessor text: string;
 
 
 	override render() {

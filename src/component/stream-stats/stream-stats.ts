@@ -41,7 +41,7 @@ export class StreamStats extends Component {
 
 	protected override render() {
 		return html`
-			<sl-tab-group noScrollControls="true">
+			<sl-tab-group noscrollcontrols>
 				<sl-tab slot="nav" panel="audio">${t("stats.audio")}</sl-tab>
 				<sl-tab slot="nav" panel="camera">${t("stats.camera")}</sl-tab>
 				<sl-tab slot="nav" panel="screen">${t("stats.screen")}</sl-tab>

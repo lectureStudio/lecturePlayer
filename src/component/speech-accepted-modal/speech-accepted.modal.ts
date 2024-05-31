@@ -15,13 +15,13 @@ export class SpeechAcceptedModal extends Modal {
 	];
 
 	@query('video')
-	video: HTMLVideoElement;
+	accessor video: HTMLVideoElement;
 
 	@query('#meter')
-	meterCanvas: HTMLCanvasElement;
+	accessor meterCanvas: HTMLCanvasElement;
 
 	@property({ type: Boolean, reflect: true })
-	cameraBlocked: boolean;
+	accessor cameraBlocked: boolean;
 
 	stream: MediaStream;
 

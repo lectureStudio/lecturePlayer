@@ -17,16 +17,16 @@ export class DocumentsButton extends Component {
 	];
 
 	@state()
-	disabled: boolean;
+	accessor disabled: boolean;
 
 	@query('sl-menu')
-	menu: SlMenu;
+	accessor menu: SlMenu;
 
 	@query('sl-tooltip')
-	tooltip: SlTooltip;
+	accessor tooltip: SlTooltip;
 
-	@property()
-	documents: Map<bigint, CourseStateDocument>;
+	@property({ type: Object })
+	accessor documents: Map<bigint, CourseStateDocument>;
 
 	selectedDocId: string;
 
@@ -65,7 +65,7 @@ export class DocumentsButton extends Component {
 				this.selectedDocId = docId.toString();
 			}
 
-			itemTemplates.push(html`<sl-menu-item type="checkbox" value="${docId}" ?checked="${selected}">${doc.getDocumentName()}</sl-menu-item>`);
+			itemTemplates.push(html`<sl-menu-item type="checkbox" value="${docId.toString()}" ?checked="${selected}">${doc.getDocumentName()}</sl-menu-item>`);
 		}
 
 		if (itemTemplates.length > 0) {

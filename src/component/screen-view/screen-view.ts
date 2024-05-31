@@ -16,10 +16,10 @@ export class ScreenView extends Component {
 	];
 
 	@property({ type: Boolean, reflect: true })
-	private hasVideo: boolean = false;
+	accessor hasVideo: boolean = false;
 
 	@query("video")
-	private video: HTMLVideoElement;
+	private accessor video: HTMLVideoElement;
 
 	participant: CourseParticipant;
 

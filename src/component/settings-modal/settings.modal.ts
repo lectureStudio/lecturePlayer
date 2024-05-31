@@ -13,13 +13,13 @@ import { uiStateStore } from '../../store/ui-state.store';
 export class SettingsModal extends Modal {
 
 	@property()
-	section: string = "audio";
+	accessor section: string = "audio";
 
 	@query('camera-settings')
-	cameraSettings: CameraSettings;
+	accessor cameraSettings: CameraSettings;
 
 	@query('sound-settings')
-	soundSettings: SoundSettings;
+	accessor soundSettings: SoundSettings;
 
 
 	save() {

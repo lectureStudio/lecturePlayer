@@ -40,13 +40,13 @@ export class SlideView extends LitElement {
 	private scale: number = 1;
 
 	@query('.slide-container')
-	private container: HTMLElement;
+	private accessor container: HTMLElement;
 
 	@query(".volatile-canvas")
-	private volatileCanvas: HTMLCanvasElement;
+	private accessor volatileCanvas: HTMLCanvasElement;
 
 	@property({ type: Boolean, reflect: true })
-	textLayerEnabled: boolean = true;
+	accessor textLayerEnabled: boolean = true;
 
 
 	override firstUpdated() {

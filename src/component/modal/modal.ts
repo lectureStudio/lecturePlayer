@@ -13,9 +13,9 @@ export abstract class Modal extends I18nLitElement {
 	];
 
 	@query('sl-dialog')
-	dialog: SlDialog;
+	accessor dialog: SlDialog;
 
-	container: HTMLElement | ShadowRoot = document.body;
+	container: HTMLElement | DocumentFragment = document.body;
 
 
 	protected override firstUpdated(): void {

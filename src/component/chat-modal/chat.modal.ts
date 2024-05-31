@@ -13,8 +13,8 @@ export class ChatModal extends Modal {
 		chatModalStyles
 	];
 
-	@property()
-	chatService: ChatService;
+	@property({ attribute: false })
+	accessor chatService: ChatService;
 
 
 	protected override render() {

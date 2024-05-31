@@ -8,7 +8,7 @@ import { ColorScheme, uiStateStore } from "../../store/ui-state.store";
 export class ThemeSettings extends Component {
 
 	@query('sl-select')
-	private select: HTMLSelectElement;
+	private accessor select: HTMLSelectElement;
 
 
 	protected override render() {

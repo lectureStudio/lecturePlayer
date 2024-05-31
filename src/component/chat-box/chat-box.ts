@@ -21,14 +21,14 @@ export class ChatBox extends Component {
 		chatBoxStyles,
 	];
 
-	@property()
-	chatService: ChatService;
+	@property({ attribute: false })
+	accessor chatService: ChatService;
 
 	@query(".chat-history-log")
-	messageContainer: HTMLElement;
+	accessor messageContainer: HTMLElement;
 
 	@query("chat-form")
-	chatForm: ChatForm;
+	accessor chatForm: ChatForm;
 
 	messageObserver: IntersectionObserver;
 
@@ -136,7 +136,7 @@ export class ChatBox extends Component {
 					${when(privilegeStore.canReadMessages(), () => html`
 						${repeat(chatStore.messages, (message) => message.messageId, (message) => html`
 							${when(!message.deleted, () => html`
-								<chat-box-message .message="${message}" .chatService="${this.chatService}" .chatForm="${this.renderRoot.querySelector("chat-form")}"></chat-box-message>
+								<chat-box-message .message="${message}" .chatService="${this.chatService}" .chatForm="${this.renderRoot.querySelector<ChatForm>("chat-form")}"></chat-box-message>
 							`)}
 						`)}
 					`)}
@@ -179,15 +179,15 @@ export class ChatBox extends Component {
 	private onMessageIntersection(entries: IntersectionObserverEntry[]) {
 		for (const entry of entries) {
 			if (entry.isIntersecting) {
-				// Message is visible to the user. Mark it as read.
+				// The Message is visible to the user. Mark it as read.
 				const message = (entry.target as ChatBoxMessage).message;
 				message.read = true;
 
-				// Not necessary to observe any more.
+				// Not necessary to observe anymore.
 				this.messageObserver.unobserve(entry.target);
 			}
 			else {
-				// Message was added to the container but is not visible.
+				// The Message was added to the container but is not visible.
 				if (chatStore.unreadMessages < 2) {
 					// Show the recent message only if there are no other unread messages left.
 					this.messageContainer.scrollTo({ top: this.messageContainer.scrollHeight, left: 0, behavior: "smooth" });

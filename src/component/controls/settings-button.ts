@@ -18,13 +18,13 @@ export class SettingsButton extends Component {
 	readonly eventEmitter: EventEmitter;
 
 	@query('sl-menu')
-	menu: SlMenu;
+	accessor menu: SlMenu;
 
 	@query('sl-tooltip')
-	tooltip: SlTooltip;
+	accessor tooltip: SlTooltip;
 
 	@query('#camera-feed')
-	cameraFeed: SlMenuItem;
+	accessor cameraFeed: SlMenuItem;
 
 	selectedDocId: string;
 

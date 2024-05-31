@@ -18,7 +18,7 @@ export class LecturePlayer extends Component {
 	readonly controller = new PlayerController(this);
 
 	@property({ type: Number })
-	courseId: number;
+	accessor courseId: number;
 
 
 	protected override render() {

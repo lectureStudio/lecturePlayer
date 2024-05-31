@@ -36,41 +36,41 @@ export class PlayerView extends Component {
 
 	eventEmitter: EventEmitter;
 
-	@property()
-	chatService: ChatService;
+	@property({ attribute: false })
+	accessor chatService: ChatService;
 
-	@property()
-	moderationService: ModerationService;
-
-	@property({ type: Boolean, reflect: true })
-	chatVisible: boolean = true;
+	@property({ attribute: false })
+	accessor moderationService: ModerationService;
 
 	@property({ type: Boolean, reflect: true })
-	participantsVisible: boolean = true;
+	accessor chatVisible: boolean = true;
 
 	@property({ type: Boolean, reflect: true })
-	screenVisible: boolean = false;
+	accessor participantsVisible: boolean = true;
 
 	@property({ type: Boolean, reflect: true })
-	rightContainerVisible: boolean = false;
+	accessor screenVisible: boolean = false;
+
+	@property({ type: Boolean, reflect: true })
+	accessor rightContainerVisible: boolean = false;
 
 	@query("player-controls")
-	controls: PlayerControls;
+	accessor controls: PlayerControls;
 
 	@query("screen-view")
-	screenView: ScreenView;
+	accessor screenView: ScreenView;
 
 	@query("conference-view")
-	conferenceView: ConferenceView;
+	accessor conferenceView: ConferenceView;
 
 	@query(".video-conference")
-	videoConferenceContainer: HTMLElement;
+	accessor videoConferenceContainer: HTMLElement;
 
 	@query("#inner-split-panel")
-	innterSplitPanel: SlSplitPanel;
+	accessor innterSplitPanel: SlSplitPanel;
 
 	@query("#outer-split-panel")
-	outerSplitPanel: SlSplitPanel;
+	accessor outerSplitPanel: SlSplitPanel;
 
 
 	addParticipant(view: ParticipantView) {

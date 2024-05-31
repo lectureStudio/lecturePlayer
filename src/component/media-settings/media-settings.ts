@@ -16,16 +16,16 @@ export abstract class MediaSettings extends Component {
 	protected initialized: boolean;
 
 	@property({ type: Boolean, reflect: true })
-	enabled: boolean = false;
+	accessor enabled: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
-	error: boolean = false;
+	accessor error: boolean = false;
 
-	@property()
-	devicesBlocked: boolean;
+	@property({ type: Boolean })
+	accessor devicesBlocked: boolean;
 
-	@property()
-	inputBlocked: boolean;
+	@property({ type: Boolean })
+	accessor inputBlocked: boolean;
 
 
 	abstract queryDevices(): void;

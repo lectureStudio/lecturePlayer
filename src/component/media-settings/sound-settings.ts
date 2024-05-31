@@ -11,23 +11,23 @@ import { courseStore } from '../../store/course.store';
 @customElement("sound-settings")
 export class SoundSettings extends MediaSettings {
 
-	@property()
-	audioInputDevices: MediaDeviceInfo[] = [];
+	@property({ attribute: false })
+	accessor audioInputDevices: MediaDeviceInfo[] = [];
 
-	@property()
-	audioOutputDevices: MediaDeviceInfo[] = [];
+	@property({ attribute: false })
+	accessor audioOutputDevices: MediaDeviceInfo[] = [];
 
 	@query('#audio')
-	audio: HTMLAudioElement;
+	accessor audio: HTMLAudioElement;
 
 	@query('#microphoneSelect')
-	microphoneSelect: SlSelect;
+	accessor microphoneSelect: SlSelect;
 
 	@query('#speakerSelect')
-	speakerSelect: SlSelect;
+	accessor speakerSelect: SlSelect;
 
 	@query('#meter')
-	meterCanvas: HTMLCanvasElement;
+	accessor meterCanvas: HTMLCanvasElement;
 
 
 	override disconnectedCallback() {

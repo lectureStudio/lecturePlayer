@@ -13,8 +13,8 @@ export class ParticipantsModal extends Modal {
 		participantsModalStyles
 	];
 
-	@property()
-	moderationService: ModerationService;
+	@property({ attribute: false })
+	accessor moderationService: ModerationService;
 
 
 	protected override render() {

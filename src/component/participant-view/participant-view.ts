@@ -22,36 +22,36 @@ export class ParticipantView extends Component {
 	];
 
 	@observable
-	participant: CourseParticipant;
+	accessor participant: CourseParticipant;
 
 	@property({ type: Boolean, reflect: true })
-	micActive: boolean = false;
+	accessor micActive: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
-	camActive: boolean = false;
+	accessor camActive: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
-	isVisible: boolean = true;
+	accessor isVisible: boolean = true;
 
 	@property({ type: Boolean, reflect: true })
-	isTalking: boolean = false;
+	accessor isTalking: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
-	isConference: boolean = false;
+	accessor isConference: boolean = false;
 
-	@property()
-	isLocal: boolean = false;
-
-	publisherId: bigint;
+	@property({ type: Boolean, reflect: true })
+	accessor isLocal: boolean = false;
 
 	@query(".container")
-	container: HTMLElement;
+	accessor container: HTMLElement;
 
 	@query("audio")
-	audio: HTMLAudioElement;
+	accessor audio: HTMLAudioElement;
 
 	@query("video")
-	video: HTMLVideoElement;
+	accessor video: HTMLVideoElement;
+
+	publisherId: bigint;
 
 
 	constructor() {

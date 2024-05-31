@@ -20,7 +20,7 @@
 		[
 			"@babel/plugin-proposal-decorators",
 			{
-				"version": "2018-09",
+				"version": "2023-05",
 				"decoratorsBeforeExport": true
 			}
 		],

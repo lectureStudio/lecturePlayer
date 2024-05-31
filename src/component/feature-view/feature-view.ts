@@ -25,23 +25,23 @@ export class PlayerFeatureView extends Component {
 
 	private readonly maxWidth600Query: MediaQueryList;
 
-	@property()
-	chatService: ChatService;
+	@property({ attribute: false })
+	accessor chatService: ChatService;
 
-	@property()
-	moderationService: ModerationService;
+	@property({ attribute: false })
+	accessor moderationService: ModerationService;
 
 	@query("#outer-split-panel")
-	outerSplitPanel: SlSplitPanel;
+	accessor outerSplitPanel: SlSplitPanel;
 
 	@query("sl-tab-group")
-	tabGroup: SlTabGroup;
+	accessor tabGroup: SlTabGroup;
 
 	@property({ type: Boolean, reflect: true })
-	participantsVisible: boolean = true;
+	accessor participantsVisible: boolean = true;
 
 	@property({ type: Boolean, reflect: true })
-	unreadMessagesVisible: boolean = false;
+	accessor unreadMessagesVisible: boolean = false;
 
 	unreadMessagesExist: boolean = false;
 

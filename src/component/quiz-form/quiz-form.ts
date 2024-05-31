@@ -1,6 +1,7 @@
 import { CSSResultGroup, html, TemplateResult } from 'lit';
 import { when } from "lit/directives/when.js";
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { ifDefined } from "lit-html/directives/if-defined.js";
 import { customElement, property, query } from 'lit/decorators.js';
 import { I18nLitElement, t } from '../i18n-mixin';
 import { CourseFeatureResponse, QuizMinMaxRule, QuizType } from '../../model/course-feature';
@@ -17,10 +18,10 @@ export class QuizForm extends Component {
 	];
 
 	@query('form')
-	private form: HTMLFormElement;
+	private accessor form: HTMLFormElement;
 
 	@property()
-	fieldErrors = {};
+	accessor fieldErrors = {};
 
 
 	setResponse(response: CourseFeatureResponse) {
@@ -97,7 +98,7 @@ export class QuizForm extends Component {
 
 		return html`
 			<form id="quiz-form">
-				<input type="hidden" name="serviceId" value="${feature?.featureId}" />
+				<input type="hidden" name="serviceId" value="${ifDefined(feature?.featureId)}" />
 
 				<div class="quiz-question">
 					${unsafeHTML(feature?.question)}

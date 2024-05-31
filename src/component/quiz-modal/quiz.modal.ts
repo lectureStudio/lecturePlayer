@@ -12,14 +12,14 @@ import { uiStateStore } from "../../store/ui-state.store";
 @customElement("quiz-modal")
 export class QuizModal extends Modal {
 
-	@property()
-	courseId: number;
+	@property({ type: Number })
+	accessor courseId: number;
 
-	@property()
-	feature: QuizFeature;
+	@property({ type: Object })
+	accessor feature: QuizFeature;
 
 	@query('quiz-form')
-	quizForm: QuizForm;
+	accessor quizForm: QuizForm;
 
 
 	protected post(): Promise<void> {

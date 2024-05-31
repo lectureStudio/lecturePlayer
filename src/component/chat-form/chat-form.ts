@@ -20,16 +20,16 @@ export class ChatForm extends Component {
 	];
 
 	@property({ type: Boolean, reflect: true })
-	replying: boolean = false;
+	accessor replying: boolean = false;
 
-	@property()
-	chatService: ChatService;
+	@property({ attribute: false })
+	accessor chatService: ChatService;
 
 	@query('#recipients')
-	private recipientSelect: HTMLSelectElement;
+	private accessor recipientSelect: HTMLSelectElement;
 
 	@query('form')
-	private form: HTMLFormElement;
+	private accessor form: HTMLFormElement;
 
 	private selectedRecipient: string;
 

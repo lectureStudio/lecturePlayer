@@ -15,21 +15,21 @@ export class AudioVolumeButton extends I18nLitElement {
 	];
 
 	@property({ type: Number, reflect: true })
-	volume: number = 100;
+	accessor volume: number = 100;
 
 	@property({ type: Number, reflect: true })
-	volumeState: number;
+	accessor volumeState: number;
 
 	@property({ type: Boolean, reflect: true })
-	muted: boolean = false;
-
-	mutedVolume: number | undefined;
+	accessor muted: boolean = false;
 
 	@query('sl-menu')
-	menu: SlMenu;
+	accessor menu: SlMenu;
 
 	@query('#button-tooltip')
-	tooltip: SlTooltip;
+	accessor tooltip: SlTooltip;
+
+	mutedVolume: number | undefined;
 
 
 	protected override firstUpdated(): void {
