@@ -88,10 +88,10 @@ export class ChatBoxMessage extends Component {
 				<div class="chat-message-boxed">
 					${when(this.editing, () => html`
 						<div class="chat-message-edit">
-				    		    <textarea
-									@input="${(e: InputEvent) => this.editedText = (e.target as HTMLTextAreaElement).value}"
-									.value="${this.editedText}" id="edit-message-textarea">
-							    </textarea>
+							<textarea
+								@input="${(e: InputEvent) => this.editedText = (e.target as HTMLTextAreaElement).value}"
+								.value="${this.editedText}" id="edit-message-textarea">
+							</textarea>
 							<sl-button id="message-submit" slot="right-pane" @click="${this.postEditedMessage}"
 									   type="submit" form="course-message-form" size="medium" circle>
 								<sl-icon name="send"></sl-icon>
