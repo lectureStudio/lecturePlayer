@@ -16,7 +16,7 @@
 		"downlevelIteration": true,
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
-		"experimentalDecorators": true,
+		"experimentalDecorators": false,
 		"emitDecoratorMetadata": false,
 		"useDefineForClassFields": false,
 		"strictBindCallApply": true,

@@ -1,5 +1,6 @@
 import { CSSResultGroup, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { ifDefined } from "lit-html/directives/if-defined.js";
 import { I18nLitElement, t } from '../i18n-mixin';
 import { CourseParticipant, Participant } from '../../model/participant';
 import { Component } from '../component';
@@ -92,7 +93,7 @@ export class ParticipantListItem extends Component {
 			return html`
 				<sl-tooltip class="tooltip-avatar" trigger="hover">
 					<div class="tooltip-avatar-container" slot="content">
-						<img class="tooltip-avatar-image" src="${Participant.getAvatar(this.participant)}" alt="${fullName}">
+						<img class="tooltip-avatar-image" src="${ifDefined(Participant.getAvatar(this.participant))}" alt="${fullName}">
 						<div class="tooltip-avatar-info">
 							<span>${fullName}</span>
 							<span>${t("course.role." + type)}</span>
