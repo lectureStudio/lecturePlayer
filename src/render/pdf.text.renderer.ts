@@ -1,4 +1,5 @@
 import * as pdfjs from "pdfjs-dist";
+import { TextLayer } from "pdfjs-dist";
 import { PDFPageProxy } from "pdfjs-dist/types/src/display/api";
 import { Transform } from "../geometry/transform";
 
@@ -16,17 +17,12 @@ export class PdfTextRenderer {
 			disableNormalization: true,
 		});
 
-		const textLayerRenderTask = pdfjs.renderTextLayer({
+		const textLayer = new TextLayer({
 			textContentSource: readableStream,
 			container: root,
-			viewport,
-			textDivs: [],
-			textDivProperties: new WeakMap(),
-			textContentItemsStr: [],
-			isOffscreenCanvasSupported: true
+			viewport: viewport,
 		});
-
-		await textLayerRenderTask.promise;
+		await textLayer.render();
 	}
 
 }
