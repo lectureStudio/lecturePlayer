@@ -5,6 +5,7 @@ export * from '@shoelace-style/shoelace/dist/components/button/button.js';
 export * from '@shoelace-style/shoelace/dist/components/button-group/button-group.js';
 export * from '@shoelace-style/shoelace/dist/components/checkbox/checkbox.js';
 export * from '@shoelace-style/shoelace/dist/components/color-picker/color-picker.js';
+export * from '@shoelace-style/shoelace/dist/components/details/details.js';
 export * from '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
 export * from '@shoelace-style/shoelace/dist/components/divider/divider.js';
 export * from '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js';
