@@ -2,6 +2,7 @@ export * from "./extension";
 
 // Make components available to the document.
 export * from "./component";
+export * from "./pages";
 
 import i18next from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";

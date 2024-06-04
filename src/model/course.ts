@@ -1,17 +1,25 @@
 import { MessageFeature, QuizFeature } from "./course-feature";
 import { CoursePrivilege } from "./course-state";
 
+export interface CourseAuthor {
+
+	readonly firstName: string;
+
+	readonly familyName: string;
+
+}
+
 export interface Course {
 
 	readonly courseId: number;
 
 	readonly defaultAccessLink: string;
 
-	readonly roomId: string;
-
 	readonly title: string;
 
 	readonly description: string;
+
+	readonly authors: CourseAuthor[];
 
 	readonly messageFeature: MessageFeature;
 

@@ -2,6 +2,7 @@ import { ReactiveController } from 'lit';
 import { EventService } from '../../service/event.service';
 import { ChatService } from '../../service/chat.service';
 import { ModerationService } from "../../service/moderation.service";
+import { CourseApi } from "../../transport/course-api";
 import { DeviceInfo, Devices } from '../../utils/devices';
 import { MediaProfile, Settings } from '../../utils/settings';
 import { State } from '../../utils/state';
@@ -118,7 +119,7 @@ export class PlayerController extends Controller implements ReactiveController {
 
 		// console.log("isLive", courseStore.isLive, "isClassroom", courseStore.isClassroom)
 
-		// Early state recognition to avoid view flickering.
+		// Early state recognition to avoid the view flickering.
 		if (courseStore.isLive) {
 			if (courseStore.isClassroom) {
 				uiStateStore.setState(State.CONNECTED_FEATURES);
@@ -135,6 +136,11 @@ export class PlayerController extends Controller implements ReactiveController {
 	private connect() {
 		uiStateStore.setStreamState(State.DISCONNECTED);
 		uiStateStore.setDocumentState(State.DISCONNECTED);
+
+		this.loadCourses()
+			.then(value => {
+
+			});
 
 		this.loadCourseState()
 			.then(async () => {
@@ -160,6 +166,15 @@ export class PlayerController extends Controller implements ReactiveController {
 				}
 
 				this.updateConnectionState();
+			});
+	}
+
+	private loadCourses() {
+		return CourseApi.getCourses()
+			.then(courses => {
+				console.log("* on courses", courses);
+
+				courseStore.setCourses(courses);
 			});
 	}
 

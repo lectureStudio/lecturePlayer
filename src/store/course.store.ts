@@ -1,6 +1,9 @@
 import { makeAutoObservable } from "mobx";
+import { Course } from "../model/course";
 
 class CourseStore {
+
+	courses: Course[] = [];
 
 	courseId: number;
 
@@ -21,6 +24,10 @@ class CourseStore {
 
 	constructor() {
 		makeAutoObservable(this);
+	}
+
+	setCourses(courses: Course[]) {
+		this.courses = courses;
 	}
 
 	setCourseId(id: number) {
