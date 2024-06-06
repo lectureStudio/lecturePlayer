@@ -1,11 +1,9 @@
 import { PropertyValues } from "@lit/reactive-element";
 import { Router } from "@vaadin/router";
 import { CSSResultGroup, html } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement } from 'lit/decorators.js';
 import { PlayerController } from './player.controller';
 import { I18nLitElement, t } from '../i18n-mixin';
-import { State } from '../../utils/state';
-import { uiStateStore } from '../../store/ui-state.store';
 import { Component } from '../component';
 import playerStyles from './player.css';
 
@@ -19,18 +17,15 @@ export class LecturePlayer extends Component {
 
 	readonly controller = new PlayerController(this);
 
-	@property({ type: Number })
-	accessor courseId: number;
-
 
 	protected override firstUpdated(_changedProperties: PropertyValues) {
 		super.firstUpdated(_changedProperties);
 
 		const router = new Router(this.shadowRoot?.querySelector('#outlet'));
 		router.setRoutes([
-			{ path: '/', component: 'course-list' },
-			// { path: '/course/:courseId', component: 'player-view' },
-			{ path: '(.*)', redirect: '/' },
+			{ path: "/", component: "course-list" },
+			{ path: "/course/:courseId", component: "player-view" },
+			{ path: "(.*)", redirect: "/" },
 		]);
 	}
 

@@ -15,17 +15,17 @@ sl-details::part(content) {
 	padding: 0 var(--sl-spacing-medium);
 }
 .course-container {
+	background-color: var(--sl-color-neutral-0);
 	width: 50%;
 }
 .course-item {
 	display: flex;
 	flex-direction: column;
-	padding: 0.5rem 1rem;
+	padding: 1rem;
 	margin: 0.25rem;
-
-	border: solid 1px var(--sl-color-neutral-200);
-	border-radius: var(--sl-border-radius-medium);
-	background-color: var(--sl-color-neutral-0);
+}
+.course-item + .course-item {
+	border-top: solid var(--sl-color-neutral-100) 1px;
 }
 .course-item-header {
 	display: flex;
