@@ -11,19 +11,19 @@ export class RootController {
 
 	protected readonly context: ApplicationContext;
 
-	documentController: DocumentController;
+	readonly documentController: DocumentController;
 
-	modalController: ModalController;
+	readonly modalController: ModalController;
 
-	playbackController: PlaybackController;
+	readonly playbackController: PlaybackController;
 
-	speechController: SpeechController;
+	readonly speechController: SpeechController;
 
-	renderController: RenderController;
+	readonly renderController: RenderController;
 
-	streamController: StreamController;
+	readonly streamController: StreamController;
 
-	viewController: ViewController;
+	readonly viewController: ViewController;
 
 
 	constructor(context: ApplicationContext) {

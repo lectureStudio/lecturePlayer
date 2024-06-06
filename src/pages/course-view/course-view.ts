@@ -1,15 +1,11 @@
 import { PropertyValues } from "@lit/reactive-element";
-import { Router, BeforeEnterObserver, PreventAndRedirectCommands, RouterLocation } from "@vaadin/router";
+import { BeforeEnterObserver, RouterLocation } from "@vaadin/router";
 import { CSSResultGroup, html } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
-import { repeat } from "lit/directives/repeat.js";
-import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { when } from "lit/directives/when.js";
+import { customElement } from 'lit/decorators.js';
 import { Component } from "../../component/component";
-import { I18nLitElement } from "../../component/i18n-mixin";
-import { t } from "i18next";
-import { Course, CourseAuthor } from "../../model/course";
-import { courseStore } from "../../store/course.store";
+import { I18nLitElement, t } from "../../component/i18n-mixin";
+import { uiStateStore } from "../../store/ui-state.store";
+import { State } from "../../utils/state";
 import style from './course-view.css';
 
 @customElement('course-view')
@@ -20,12 +16,12 @@ export class CourseView extends Component implements BeforeEnterObserver {
 		style,
 	];
 
-	@property({ type: Number })
-	accessor courseId: number;
+	courseId: number;
 
 
-	public onBeforeEnter(location: RouterLocation, commands: PreventAndRedirectCommands, router: Router) {
-		console.log(location)
+	public onBeforeEnter(location: RouterLocation) {
+		const courseId: string = location.params.courseId.toString();
+
 	}
 
 	protected override firstUpdated(_changedProperties: PropertyValues) {
@@ -35,8 +31,18 @@ export class CourseView extends Component implements BeforeEnterObserver {
 	}
 
 	protected override render() {
-		return html`
-			
-		`;
+		switch (uiStateStore.state) {
+			case State.CONNECTING:
+				return html`<player-loading .text="${t("course.loading")}"></player-loading>`;
+			case State.CONNECTED:
+			case State.RECONNECTING:
+				return html`<player-view .eventEmitter="${this.controller.eventEmitter}" .playerController="${this.controller}" .chatService="${this.controller.chatService}" .moderationService="${this.controller.moderationService}"></player-view>`;
+			case State.CONNECTED_FEATURES:
+				return html`<player-feature-view .chatService="${this.controller.chatService}" .moderationService="${this.controller.moderationService}"></player-feature-view>`;
+			case State.DISCONNECTED:
+				return html`<player-offline></player-offline>`;
+			case State.NO_ACCESS:
+				return html`<player-no-access></player-no-access>`;
+		}
 	}
 }
