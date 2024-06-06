@@ -17,6 +17,10 @@ export class Controller {
 		return this.context.eventEmitter;
 	}
 
+	get eventService() {
+		return this.context.eventService;
+	}
+
 	get chatService() {
 		return this.context.chatService;
 	}

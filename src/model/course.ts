@@ -11,7 +11,7 @@ export interface CourseAuthor {
 
 export interface Course {
 
-	readonly courseId: number;
+	readonly id: number;
 
 	readonly defaultAccessLink: string;
 
@@ -21,20 +21,22 @@ export interface Course {
 
 	readonly authors: CourseAuthor[];
 
-	readonly messageFeature: MessageFeature;
+	messageFeature: MessageFeature | null;
 
-	readonly quizFeature: QuizFeature;
+	quizFeature: QuizFeature | null;
 
-	readonly conference: boolean;
+	isConference: boolean;
 
-	readonly protected: boolean;
+	isProtected: boolean;
 
-	readonly recorded: boolean;
+	isRecorded: boolean;
 
-	readonly canEdit: boolean;
+	isLive: boolean;
 
-	readonly canDelete: boolean;
+	canEdit: boolean;
 
-	readonly userPrivileges: CoursePrivilege[];
+	canDelete: boolean;
+
+	userPrivileges: CoursePrivilege[];
 
 }

@@ -75,15 +75,20 @@ export interface ChatHistory {
 
 export class ChatService extends EventTarget implements EventSubService {
 
-	private courseId: number;
+	private readonly courseId: number;
 
 	private client: Client;
 
 	private eventEmitter: EventEmitter;
 
 
-	initialize(courseId: number, client: Client, eventEmitter: EventEmitter): void {
+	constructor(courseId: number) {
+		super();
+
 		this.courseId = courseId;
+	}
+
+	initialize(client: Client, eventEmitter: EventEmitter): void {
 		this.client = client;
 		this.eventEmitter = eventEmitter;
 

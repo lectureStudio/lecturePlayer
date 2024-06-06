@@ -1,13 +1,13 @@
-import { MessageFeature, QuizFeature } from "./course-feature";
+import { CourseFeature, MessageFeature, QuizFeature } from "./course-feature";
 import { CourseStateDocument } from "./course-state-document";
 
-export interface CourseFeatureState<Feature> {
+export interface CourseFeatureState<CourseFeature> {
 
 	readonly courseId: number;
 
 	readonly started: boolean;
 
-	readonly feature: Feature;
+	readonly feature: CourseFeature;
 
 }
 

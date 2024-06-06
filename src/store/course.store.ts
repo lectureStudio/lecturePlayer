@@ -30,6 +30,10 @@ class CourseStore {
 		this.courses = courses;
 	}
 
+	findCourse(courseId: number): Course | undefined {
+		return this.courses.find((course) => course.id === courseId);
+	}
+
 	setCourseId(id: number) {
 		this.courseId = id;
 	}

@@ -30,6 +30,7 @@ sl-details::part(content) {
 .course-item-header {
 	display: flex;
 	flex-direction: row;
+	align-items: center;
 	justify-content: space-between;
 }
 .course-item-header sl-button[disabled]::part(base) {
@@ -41,6 +42,7 @@ sl-details::part(content) {
 }
 .course-title {
 	font-weight: var(--sl-font-weight-semibold);
+	padding: 0.2rem 0;
 }
 .course-authors {
 	font-size: var(--sl-font-size-small);

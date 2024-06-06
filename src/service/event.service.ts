@@ -1,17 +1,15 @@
 import { EventEmitter } from "../utils/event-emitter";
 import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
-import { Client, Message } from '@stomp/stompjs';
+import { Client } from '@stomp/stompjs';
 
 export interface EventSubService {
 
-	initialize(courseId: number, client: Client, eventEmitter: EventEmitter): void;
+	initialize(client: Client, eventEmitter: EventEmitter): void;
 
 }
 
 export class EventService extends EventTarget {
-
-	private readonly courseId: number;
 
 	private readonly eventEmitter: EventEmitter;
 
@@ -20,10 +18,9 @@ export class EventService extends EventTarget {
 	private client: Client | undefined;
 
 
-	constructor(courseId: number, eventEmitter: EventEmitter) {
+	constructor(eventEmitter: EventEmitter) {
 		super();
 
-		this.courseId = courseId;
 		this.eventEmitter = eventEmitter;
 		this.subServices = [];
 	}
@@ -35,9 +32,9 @@ export class EventService extends EventTarget {
 	connect() {
 		const client = new Client({
 			brokerURL: "wss://" + window.location.host + "/ws-state",
-			connectHeaders: {
-				"course-id": this.courseId.toString()
-			},
+			// connectHeaders: {
+			// 	"course-id": this.courseId.toString()
+			// },
 			reconnectDelay: 1000,
 			heartbeatIncoming: 1000,
 			heartbeatOutgoing: 1000,
@@ -49,36 +46,21 @@ export class EventService extends EventTarget {
 		client.onConnect = () => {
 			this.eventEmitter.dispatchEvent(Utils.createEvent("lp-event-service-state", State.CONNECTED));
 
-			client.subscribe("/topic/course/event/" + this.courseId + "/stream", (message: Message) => {
+			client.subscribe("/topic/course/event/all/stream", (message) => {
 				this.handleEvent("lp-stream-state", message.body);
 			});
-			client.subscribe("/topic/course/event/" + this.courseId + "/recording", (message: Message) => {
+			client.subscribe("/topic/course/event/all/recording", (message) => {
 				this.handleEvent("lp-recording-state", message.body);
 			});
-			client.subscribe("/user/queue/course/" + this.courseId + "/speech", (message: Message) => {
-				this.handleEvent("lp-speech-state", message.body);
-			});
-			client.subscribe("/topic/course/event/" + this.courseId + "/chat", (message: Message) => {
+			client.subscribe("/topic/course/event/all/chat", (message) => {
 				this.handleEvent("lp-chat-state", message.body);
 			});
-			client.subscribe("/topic/course/event/" + this.courseId + "/quiz", (message: Message) => {
+			client.subscribe("/topic/course/event/all/quiz", (message) => {
 				this.handleEvent("lp-quiz-state", message.body);
-			});
-			client.subscribe("/topic/course/event/" + this.courseId + "/media", (message: Message) => {
-				this.handleEvent("lp-media-state", message.body);
-			});
-			client.subscribe("/topic/course/event/" + this.courseId + "/presence", (message: Message) => {
-				this.handleEvent("lp-participant-presence", message.body);
-			});
-			client.subscribe("/topic/course/event/" + this.courseId + "/publisher", (message: Message) => {
-				this.handleEvent("lp-publisher-presence", message.body);
-			});
-			client.subscribe("/topic/course/event/" + this.courseId + "/moderation", (message: Message) => {
-				this.handleEvent("lp-participant-moderation", message.body);
 			});
 
 			for (const subService of this.subServices) {
-				subService.initialize(this.courseId, client, this.eventEmitter);
+				subService.initialize(client, this.eventEmitter);
 			}
 		};
 		client.onDisconnect = () => {

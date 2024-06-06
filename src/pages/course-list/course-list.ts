@@ -31,12 +31,12 @@ export class CourseList extends Component {
 	protected override render() {
 		return html`
 			<div class="course-container">
-				${repeat(courseStore.courses, (course) => course.courseId, (course) => html`
+				${repeat(courseStore.courses, (course) => course.id, (course) => html`
 					<div class="course-item" @click=${(): void => { this.selectCourse(course) }}>
 						<div class="course-item-header">
 							<span class="course-title">${ course.title }</span>
 							<sl-button-group label="features">
-								${when(course.protected, () => html`
+								${when(course.isProtected, () => html`
 									<sl-tooltip content="${t("course.list.protected")}">
 										<sl-button size="small" disabled><sl-icon name="course-lock"></sl-icon></sl-button>
 									</sl-tooltip>
@@ -51,7 +51,7 @@ export class CourseList extends Component {
 										<sl-button size="small" disabled><sl-icon name="course-quiz"></sl-icon></sl-button>
 									</sl-tooltip>
 								`)}
-								${when(course.recorded, () => html`
+								${when(course.isLive, () => html`
 									<sl-tooltip content="${t("course.list.live")}">
 										<sl-button size="small" disabled><sl-icon name="course-live"></sl-icon></sl-button>
 									</sl-tooltip>
