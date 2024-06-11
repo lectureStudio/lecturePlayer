@@ -42,14 +42,14 @@ export class StreamController {
 	}
 
 	connect() {
-		if (!courseStore.courseId) {
-			throw new Error("Course id is not set");
+		if (!courseStore.activeCourse) {
+			throw new Error("Course is not set");
 		}
 		if (!userStore.userId) {
 			throw new Error("User id is not set");
 		}
 
-		this.janusService.setRoomId(courseStore.courseId);
+		this.janusService.setRoomId(courseStore.activeCourse.id);
 		this.janusService.setUserId(userStore.userId);
 
 		return this.janusService.connect();

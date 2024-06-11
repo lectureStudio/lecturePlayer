@@ -1,29 +1,22 @@
 import { makeAutoObservable } from "mobx";
 import { Course } from "../model/course";
+import { privilegeStore } from "./privilege.store";
 
 class CourseStore {
 
 	courses: Course[] = [];
 
-	courseId: number;
-
-	timeStarted: number | undefined;
-
-	title: string;
-
-	description: string;
-
-	conference: boolean | undefined;
-
-	recorded: boolean | undefined;
+	activeCourse: Course;
 
 	isClassroom: boolean;
-
-	isLive: boolean;
 
 
 	constructor() {
 		makeAutoObservable(this);
+	}
+
+	setActiveCourse(activeCourse: Course) {
+		this.activeCourse = activeCourse;
 	}
 
 	setCourses(courses: Course[]) {
@@ -38,35 +31,20 @@ class CourseStore {
 		return this.courses.find((course) => course.defaultAccessLink === accessLink);
 	}
 
-	setCourseId(id: number) {
-		this.courseId = id;
+	hasChatFeature() {
+		return this.activeCourse.messageFeature != null && privilegeStore.canReadMessages();
 	}
 
-	setTimeStarted(timestamp: number) {
-		this.timeStarted = timestamp;
+	hasQuizFeature() {
+		return this.activeCourse.quizFeature != null && privilegeStore.canParticipateInQuiz();
 	}
 
-	setTitle(title: string) {
-		this.title = title;
-	}
-
-	setDescription(description: string) {
-		this.description = description;
-	}
-
-	setConference(conference: boolean) {
-		this.conference = conference;
-	}
-
-	setRecorded(recorded: boolean) {
-		this.recorded = recorded;
+	hasFeatures() {
+		return this.hasChatFeature() || this.hasQuizFeature();
 	}
 
 	reset() {
 		// Do not reset fields that are used in any state.
-		this.timeStarted = undefined;
-		this.conference = undefined;
-		this.recorded = undefined;
 	}
 }
 

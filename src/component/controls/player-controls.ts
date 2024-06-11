@@ -1,13 +1,15 @@
+import { consume } from "@lit/context";
 import { CSSResultGroup, html } from 'lit';
 import { when } from 'lit/directives/when.js';
 import { autorun } from 'mobx';
 import { customElement, property, query } from 'lit/decorators.js';
+import { applicationContext, ApplicationContext } from "../../context/application.context";
+import { courseStore } from "../../store/course.store";
+import { EventEmitter } from "../../utils/event-emitter";
 import { Utils } from '../../utils/utils';
 import { I18nLitElement, t } from '../i18n-mixin';
-import { featureStore } from '../../store/feature.store';
 import { privilegeStore } from '../../store/privilege.store';
 import { deviceStore } from '../../store/device.store';
-import { EventEmitter } from '../../utils/event-emitter';
 import { Component } from '../component';
 import playerControlsStyles from './player-controls.css';
 
@@ -19,7 +21,10 @@ export class PlayerControls extends Component {
 		playerControlsStyles,
 	];
 
-	readonly eventEmitter: EventEmitter;
+	eventEmitter: EventEmitter;
+
+	@consume({ context: applicationContext })
+	accessor applicationContext: ApplicationContext;
 
 	@query('#volumeIndicator')
 	accessor volumeIndicator: HTMLElement;
@@ -55,13 +60,15 @@ export class PlayerControls extends Component {
 	override connectedCallback() {
 		super.connectedCallback()
 
+		this.eventEmitter = this.applicationContext.eventEmitter;
+
 		autorun(() => {
 			this.hasParticipants = privilegeStore.canViewParticipants();
 		});
 
 		autorun(() => {
-			this.hasChat = featureStore.hasChatFeature();
-			this.hasQuiz = featureStore.hasQuizFeature();
+			this.hasChat = courseStore.hasChatFeature();
+			this.hasQuiz = courseStore.hasQuizFeature();
 
 			this.requestUpdate();
 		});

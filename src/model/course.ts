@@ -25,6 +25,8 @@ export interface Course {
 
 	quizFeature: QuizFeature | null;
 
+	timeStarted: number | null;
+
 	isConference: boolean;
 
 	isProtected: boolean;

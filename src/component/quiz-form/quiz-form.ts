@@ -3,9 +3,9 @@ import { when } from "lit/directives/when.js";
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { ifDefined } from "lit-html/directives/if-defined.js";
 import { customElement, property, query } from 'lit/decorators.js';
+import { courseStore } from "../../store/course.store";
 import { I18nLitElement, t } from '../i18n-mixin';
 import { CourseFeatureResponse, QuizMinMaxRule, QuizType } from '../../model/course-feature';
-import { featureStore } from '../../store/feature.store';
 import { Component } from '../component';
 import quizFormStyles from './quiz-form.css';
 
@@ -40,7 +40,7 @@ export class QuizForm extends Component {
 	}
 
 	override render() {
-		const feature = featureStore.quizFeature;
+		const feature = courseStore.activeCourse.quizFeature;
 		const itemTemplates = new Array<TemplateResult>();
 		const inputRules = feature?.fieldFilter?.rules;
 		const type = feature?.type;

@@ -1,6 +1,6 @@
 import { html } from "lit";
 import { fixture, expect } from "@open-wc/testing";
-import { RenderController } from "./render-controller.js";
+import { RenderController } from "../controller/render.controller.js";
 import { jsPDF } from "jspdf";
 import { SlideDocument } from "../model/document.js";
 import { PdfJsDocument } from "../model/pdf-js-document.js";

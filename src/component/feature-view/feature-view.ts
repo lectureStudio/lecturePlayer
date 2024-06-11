@@ -3,11 +3,11 @@ import { customElement, property, query } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { ChatService } from '../../service/chat.service';
 import { ModerationService } from "../../service/moderation.service";
+import { courseStore } from "../../store/course.store";
 import { I18nLitElement, t } from '../i18n-mixin';
 import { SlSplitPanel, SlTab, SlTabGroup, SlTabHideEvent } from '@shoelace-style/shoelace';
 import { SwipeObserver } from '../../utils/swipe-observer';
 import { Component } from '../component';
-import { featureStore } from '../../store/feature.store';
 import { autorun } from 'mobx';
 import { privilegeStore } from '../../store/privilege.store';
 import { chatStore } from '../../store/chat.store';
@@ -72,7 +72,7 @@ export class PlayerFeatureView extends Component {
 		this.isCompactMode = this.maxWidth600Query.matches;
 
 		autorun(async () => {
-			this.hasChat = featureStore.hasChatFeature();
+			this.hasChat = courseStore.hasChatFeature();
 
 			if (!this.hasChat) {
 				// Chat is gone.
@@ -82,7 +82,7 @@ export class PlayerFeatureView extends Component {
 			this.refresh();
 		});
 		autorun(async () => {
-			this.hasQuiz = featureStore.hasQuizFeature();
+			this.hasQuiz = courseStore.hasQuizFeature();
 
 			if (this.hasQuiz) {
 				// Quiz has been started, show it automatically.

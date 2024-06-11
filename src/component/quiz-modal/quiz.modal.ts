@@ -43,7 +43,7 @@ export class QuizModal extends Modal {
 			options: options as string[]
 		};
 
-		return CourseQuizApi.postQuizAnswer(courseStore.courseId, answer)
+		return CourseQuizApi.postQuizAnswer(courseStore.activeCourse.id, answer)
 			.then(response => {
 				this.quizForm.setResponse(response);
 

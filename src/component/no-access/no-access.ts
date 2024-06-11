@@ -1,9 +1,10 @@
-import {CSSResultGroup, html} from 'lit';
-import {customElement} from 'lit/decorators.js';
-import {I18nLitElement} from '../i18n-mixin';
-import {Component} from '../component';
+import { Router } from "@vaadin/router";
+import { CSSResultGroup, html } from 'lit';
+import { customElement } from 'lit/decorators.js';
+import { I18nLitElement } from '../i18n-mixin';
+import { Component } from '../component';
+import { t } from "i18next";
 import style from './no-access.css';
-import {t} from "i18next";
 
 @customElement('player-no-access')
 export class PlayerNoAccess extends Component {
@@ -15,15 +16,15 @@ export class PlayerNoAccess extends Component {
 
 
 	private home() {
-		// Use location to navigate to the home page.
-		location.assign("/")
+		// Navigate to the home page.
+		Router.go("/")
 	}
 
 	protected override render() {
 		return html`
 			<div>
 				<sl-icon name="shield-x"></sl-icon>
-				<h1>${t("course.no_access.title")}</h1>
+				<strong>${t("course.no_access.title")}</strong>
 				<p>${t("course.no_access.description")}</p>
 				<sl-button @click="${this.home}" variant="default">${t("course.overview")}</sl-button>
 			</div>

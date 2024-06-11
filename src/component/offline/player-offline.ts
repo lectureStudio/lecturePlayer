@@ -40,7 +40,7 @@ export class PlayerOffline extends Component {
 
 				<sl-divider></sl-divider>
 				<small>
-					${unsafeHTML(courseStore.description)}
+					${unsafeHTML(courseStore.activeCourse.description)}
 				</small>
 			</div>
 		`;

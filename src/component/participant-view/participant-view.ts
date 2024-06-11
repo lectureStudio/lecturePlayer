@@ -71,7 +71,7 @@ export class ParticipantView extends Component {
 			}
 		});
 
-		this.isConference = courseStore.conference ?? false;
+		this.isConference = courseStore.activeCourse.isConference ?? false;
 	}
 
 	protected override firstUpdated() {

@@ -12,7 +12,7 @@
 	width: 50%;
 	padding-top: 3rem;
 }
-:host > div > h1 {
+:host > div > strong {
 	padding: 0.5rem 0;
 	align-self: center;
 }
@@ -21,16 +21,14 @@
 }
 :host > div > sl-icon {
 	fill: var(--sl-color-primary-600);
-	font-size: 6rem;
+	font-size: 2rem;
 	align-self: center;
 	padding-bottom: 0.5rem;
 }
-
 :host > div > sl-button {
 	margin: var(--sl-spacing-medium);
 	align-self: center;
 }
-
 :host p {
 	margin-top: 0;
 	margin-bottom: 1rem;

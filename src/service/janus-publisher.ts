@@ -634,7 +634,7 @@ export class JanusPublisher extends JanusParticipant {
 			participantStore.setParticipantMicrophoneActive(userStore.userId, active);
 		}
 
-		CourseMediaApi.updateMediaStreamState(courseStore.courseId, { Audio: active })
+		CourseMediaApi.updateMediaStreamState(courseStore.activeCourse.id, { Audio: active })
 			.catch(error => {
 				console.error("Update media state failed", error);
 			});
@@ -645,7 +645,7 @@ export class JanusPublisher extends JanusParticipant {
 			participantStore.setParticipantCameraActive(userStore.userId, active);
 		}
 
-		CourseMediaApi.updateMediaStreamState(courseStore.courseId, { Camera: active })
+		CourseMediaApi.updateMediaStreamState(courseStore.activeCourse.id, { Camera: active })
 			.catch(error => {
 				console.error("Update media state failed", error);
 			});
@@ -656,7 +656,7 @@ export class JanusPublisher extends JanusParticipant {
 			participantStore.setParticipantScreenActive(userStore.userId, active);
 		}
 
-		CourseMediaApi.updateMediaStreamState(courseStore.courseId, { Screen: active })
+		CourseMediaApi.updateMediaStreamState(courseStore.activeCourse.id, { Screen: active })
 			.catch(error => {
 				console.error("Update media state failed", error);
 			});

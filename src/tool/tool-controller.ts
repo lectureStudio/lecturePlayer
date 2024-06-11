@@ -1,6 +1,6 @@
+import { RenderController } from "../controller/render.controller";
 import { PenPoint } from "../geometry/pen-point";
 import { SlideDocument } from "../model/document";
-import { RenderController } from "../render/render-controller";
 import { AtomicTool } from "./atomic.tool";
 import { CursorTool } from "./cursor.tool";
 import { ClearShapesTool } from "./clear-shapes.tool";

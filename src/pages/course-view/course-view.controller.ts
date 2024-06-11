@@ -2,24 +2,22 @@ import { ReactiveController } from 'lit';
 import { StreamStatsModal } from "../../component/stream-stats-modal/stream-stats.modal";
 import { ApplicationContext } from "../../context/application.context";
 import { CourseContext } from "../../context/course.context";
+import { Course } from "../../model/course";
+import { privilegeStore } from "../../store/privilege.store";
+import { CourseStateApi } from "../../transport/course-state-api";
 import { DeviceInfo, Devices } from '../../utils/devices';
 import { MediaProfile, Settings } from '../../utils/settings';
 import { State } from '../../utils/state';
 import { Utils } from '../../utils/utils';
 import { EntryModal } from '../../component/entry-modal/entry.modal';
-import { PlayerViewController } from '../../component/player-view/player-view.controller';
 import { ReconnectModal } from '../../component/reconnect-modal/reconnect.modal';
 import { RecordedModal } from '../../component/recorded-modal/recorded.modal';
-import { featureStore } from '../../store/feature.store';
 import { chatStore } from '../../store/chat.store';
 import { participantStore } from '../../store/participants.store';
 import { courseStore } from '../../store/course.store';
 import { userStore } from '../../store/user.store';
 import { documentStore } from '../../store/document.store';
 import { uiStateStore } from '../../store/ui-state.store';
-import { ToolController } from '../../tool/tool-controller';
-import { MouseListener } from '../../event/mouse-listener';
-import { SlideView } from '../../component';
 import { deviceStore } from '../../store/device.store';
 import { CourseUserApi } from '../../transport/course-user-api';
 import { CourseParticipantApi } from '../../transport/course-participant-api';
@@ -34,17 +32,18 @@ export class CourseViewController implements ReactiveController {
 
 	private readonly host: CourseView;
 
+	private readonly course: Course | undefined;
+
 	private applicationContext: ApplicationContext;
 
 	private courseContext: CourseContext;
-
-	private playerViewController: PlayerViewController;
 
 	private connecting: boolean;
 
 
 	constructor(host: CourseView) {
 		this.host = host;
+		this.course = host.course;
 		this.applicationContext = this.host.applicationContext;
 		this.courseContext = this.host.courseContext;
 
@@ -75,25 +74,9 @@ export class CourseViewController implements ReactiveController {
 		eventEmitter.addEventListener("lp-stream-connection-state", this.onStreamConnectionState.bind(this));
 		eventEmitter.addEventListener("lp-participant-moderation", this.onParticipantModeration.bind(this));
 
-		if (this.host.course?.id) {
+		if (courseStore.activeCourse.isLive) {
 			this.connect();
 		}
-	}
-
-	setPlayerViewController(viewController: PlayerViewController) {
-		this.playerViewController = viewController;
-		this.playerViewController.update();
-
-		this.courseContext.layoutController.update();
-	}
-
-	setSlideView(slideView: SlideView) {
-		this.courseContext.renderController.setSlideView(slideView);
-
-		const toolController = new ToolController(this.courseContext.renderController);
-		const mouseListener = new MouseListener(toolController);
-
-		slideView.addMouseListener(mouseListener);
 	}
 
 	private testConnection() {
@@ -102,13 +85,10 @@ export class CourseViewController implements ReactiveController {
 	}
 
 	private setInitialState() {
-		courseStore.isLive = this.host.getAttribute("islive") == "true";
 		courseStore.isClassroom = this.host.getAttribute("isClassroom") == "true" || Settings.getMediaProfile() === MediaProfile.Classroom;
 
-		// console.log("isLive", courseStore.isLive, "isClassroom", courseStore.isClassroom)
-
 		// Early state recognition to avoid the view flickering.
-		if (courseStore.isLive) {
+		if (courseStore.activeCourse.isLive) {
 			if (courseStore.isClassroom) {
 				uiStateStore.setState(State.CONNECTED_FEATURES);
 			}
@@ -125,53 +105,47 @@ export class CourseViewController implements ReactiveController {
 		uiStateStore.setStreamState(State.DISCONNECTED);
 		uiStateStore.setDocumentState(State.DISCONNECTED);
 
-		// this.loadCourseState()
-		// 	.then(async () => {
-		// 		if (featureStore.hasFeatures() || courseStore.isLive) {
-		// 			this.connecting = true;
-		//
-		// 			try {
-		// 				await this.loadUserInfo();
-		// 				await this.loadParticipants();
-		//
-		// 				if (featureStore.hasChatFeature()) {
-		// 					await this.loadChatHistory();
-		// 				}
-		// 				if (courseStore.isLive && !courseStore.isClassroom) {
-		// 					await this.loadMediaDevices();
-		// 					await this.loadStream();
-		// 					await this.loadDocuments();
-		// 				}
-		// 			}
-		// 			catch (error) {
-		// 				this.onConnectionError(error);
-		// 			}
-		// 		}
-		//
-		// 		this.updateConnectionState();
-		// 	});
+		if (!this.course) {
+			throw new Error("Course not found");
+		}
+
+		this.loadCourseState(this.course)
+			.then(async () => {
+				if (courseStore.hasFeatures() || courseStore.activeCourse.isLive) {
+					this.connecting = true;
+
+					try {
+						await this.loadUserInfo();
+						await this.loadParticipants();
+
+						if (courseStore.hasChatFeature()) {
+							await this.loadChatHistory();
+						}
+						if (courseStore.activeCourse.isLive && !courseStore.isClassroom) {
+							await this.loadMediaDevices();
+							await this.loadStream();
+							await this.loadDocuments();
+						}
+					}
+					catch (error) {
+						this.onConnectionError(error);
+					}
+				}
+
+				this.updateConnectionState();
+			});
 	}
 
-	private loadCourseState() {
-		// return CourseStateApi.getCourseState(this.host.courseId)
-		// 	.then(state => {
-		// 		console.log("* on course state");
-		//
-		// 		courseStore.setCourseId(state.courseId);
-		// 		courseStore.setTimeStarted(state.timeStarted);
-		// 		courseStore.setTitle(state.title);
-		// 		courseStore.setDescription(state.description);
-		// 		courseStore.setConference(state.conference);
-		// 		courseStore.setRecorded(state.recorded);
-		//
-		// 		privilegeStore.setPrivileges(state.userPrivileges);
-		//
-		// 		featureStore.setChatFeature(state.messageFeature);
-		// 		featureStore.setQuizFeature(state.quizFeature);
-		//
-		// 		documentStore.setActiveDocument(state.activeDocument);
-		// 		documentStore.setDocumentMap(state.documentMap);
-		// 	});
+	private loadCourseState(course: Course) {
+		return CourseStateApi.getCourseState(course.id)
+			.then(state => {
+				console.log("* on course state");
+
+				privilegeStore.setPrivileges(state.userPrivileges);
+
+				documentStore.setActiveDocument(state.activeDocument);
+				documentStore.setDocumentMap(state.documentMap);
+			});
 	}
 
 	private loadUserInfo() {
@@ -186,7 +160,7 @@ export class CourseViewController implements ReactiveController {
 	}
 
 	private loadParticipants() {
-		return CourseParticipantApi.getParticipants(courseStore.courseId)
+		return CourseParticipantApi.getParticipants(courseStore.activeCourse.id)
 			.then(participants => {
 				console.log("* on participants", participants);
 
@@ -195,7 +169,7 @@ export class CourseViewController implements ReactiveController {
 	}
 
 	private loadChatHistory() {
-		return CourseChatApi.getChatHistory(courseStore.courseId)
+		return CourseChatApi.getChatHistory(courseStore.activeCourse.id)
 			.then(history => {
 				console.log("* on chat history");
 
@@ -257,7 +231,7 @@ export class CourseViewController implements ReactiveController {
 
 				this.applicationContext.modalController.registerModal("RecordedModal", new RecordedModal(), false, false);
 
-				if (courseStore.recorded) {
+				if (courseStore.activeCourse.isRecorded) {
 					this.applicationContext.modalController.openModal("RecordedModal");
 				}
 
@@ -282,10 +256,6 @@ export class CourseViewController implements ReactiveController {
 		this.applicationContext.eventEmitter.dispatchEvent(Utils.createEvent("lp-fullscreen", false));
 
 		this.courseContext.playbackController.setDisconnected();
-
-		if (this.playerViewController) {
-			this.playerViewController.setDisconnected();
-		}
 	}
 
 	private setReconnecting() {
@@ -336,7 +306,7 @@ export class CourseViewController implements ReactiveController {
 
 		console.log("~ fetch");
 
-		if (featureStore.hasChatFeature()) {
+		if (courseStore.hasChatFeature()) {
 			await this.loadUserInfo();
 			await this.loadParticipants();
 			await this.loadChatHistory()
@@ -347,8 +317,6 @@ export class CourseViewController implements ReactiveController {
 		const chatState = event.detail;
 
 		console.log("* on chat", chatState, uiStateStore.state);
-
-		featureStore.setChatFeature(chatState.started ? chatState.feature : undefined);
 
 		if (this.connecting) {
 			// Do not proceed with chat loading if the stream is connecting.
@@ -392,7 +360,6 @@ export class CourseViewController implements ReactiveController {
 		}
 
 		uiStateStore.setQuizSent(!quizState.started);
-		featureStore.setQuizFeature(quizState.started ? quizState.feature : undefined);
 
 		this.updateConnectionState();
 	}
@@ -419,9 +386,6 @@ export class CourseViewController implements ReactiveController {
 		}
 
 		if (streamState.started) {
-			courseStore.isLive = true;
-			courseStore.setTimeStarted(streamState.timeStarted);
-
 			if (uiStateStore.state === State.CONNECTED) {
 				console.log("reconnecting ...");
 				this.courseContext.streamController.disconnect();
@@ -430,8 +394,6 @@ export class CourseViewController implements ReactiveController {
 			this.connect();
 		}
 		else {
-			courseStore.isLive = false;
-
 			this.applicationContext.modalController.closeAllModals();
 
 			uiStateStore.setStreamState(State.DISCONNECTED);
@@ -439,7 +401,6 @@ export class CourseViewController implements ReactiveController {
 
 			courseStore.reset();
 			documentStore.reset();
-			featureStore.reset();
 			participantStore.reset();
 			userStore.reset();
 			chatStore.reset();
@@ -551,7 +512,7 @@ export class CourseViewController implements ReactiveController {
 		console.log("** update state:", State[state],
 			", streamState", State[streamState],
 			", documentState", State[documentState],
-			", has features", featureStore.hasFeatures());
+			", has features", courseStore.hasFeatures());
 
 		if (streamState == State.NO_ACCESS || documentState == State.NO_ACCESS) {
 			this.setConnectionState(State.NO_ACCESS);
@@ -575,7 +536,7 @@ export class CourseViewController implements ReactiveController {
 				}
 			}
 		}
-		else if (featureStore.hasFeatures()) {
+		else if (courseStore.hasFeatures()) {
 			this.setConnectionState(State.CONNECTED_FEATURES);
 
 			this.connecting = false;

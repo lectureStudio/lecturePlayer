@@ -44,6 +44,8 @@ export class CourseView extends Component implements BeforeEnterObserver {
 		if (!this.course) {
 			throw new Error("Course not found");
 		}
+
+		courseStore.setActiveCourse(this.course);
 	}
 
 	protected override firstUpdated(_changedProperties: PropertyValues) {

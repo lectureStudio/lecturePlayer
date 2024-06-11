@@ -1,6 +1,6 @@
 import { Client, Message, StompHeaders } from '@stomp/stompjs';
+import { courseStore } from "../store/course.store";
 import { EventSubService } from "./event.service";
-import { featureStore } from '../store/feature.store';
 import { chatStore } from '../store/chat.store';
 import { userStore } from "../store/user.store";
 import { t } from "../component/i18n-mixin";
@@ -133,15 +133,12 @@ export class ChatService extends EventTarget implements EventSubService {
 		if (!this.client.connected) {
 			return Promise.reject("Not connected");
 		}
-		if (!featureStore.chatFeature) {
-			return Promise.reject("Feature must be active");
-		}
-		if (!featureStore.chatFeature) {
+		if (!courseStore.activeCourse.messageFeature) {
 			return Promise.reject("Feature must be active");
 		}
 
 		const message: ChatMessageDto | ChatMessageAsReplyDto = this.buildChatMessageDto(
-			featureStore.chatFeature.featureId,
+			courseStore.activeCourse.messageFeature.featureId,
 			text.toString(),
 			msgToReplyTo);
 
@@ -168,15 +165,12 @@ export class ChatService extends EventTarget implements EventSubService {
 		if (!this.client.connected) {
 			return Promise.reject("Not connected");
 		}
-		if (!featureStore.chatFeature) {
-			return Promise.reject("Feature must be active");
-		}
-		if (!featureStore.chatFeature) {
+		if (!courseStore.activeCourse.messageFeature) {
 			return Promise.reject("Feature must be active");
 		}
 
 		const message: ChatMessageDto = {
-			serviceId: featureStore.chatFeature.featureId,
+			serviceId: courseStore.activeCourse.messageFeature.featureId,
 			text: messageId
 		}
 
@@ -200,12 +194,12 @@ export class ChatService extends EventTarget implements EventSubService {
 		if (!this.client.connected) {
 			return Promise.reject("Not connected");
 		}
-		if (!featureStore.chatFeature) {
+		if (!courseStore.activeCourse.messageFeature) {
 			return Promise.reject("Feature must be active");
 		}
 
 		const editedMessage: ChatMessageDto = {
-			serviceId: featureStore.chatFeature.featureId,
+			serviceId: courseStore.activeCourse.messageFeature.featureId,
 			text: text,
 		};
 

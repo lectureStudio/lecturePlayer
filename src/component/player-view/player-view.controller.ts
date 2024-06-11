@@ -1,6 +1,5 @@
 import { ReactiveController } from "lit";
 import { PlayerView } from "./player-view";
-import { featureStore } from "../../store/feature.store";
 import { courseStore } from "../../store/course.store";
 import { autorun } from "mobx"
 import { uiStateStore } from "../../store/ui-state.store";
@@ -10,7 +9,7 @@ export class PlayerViewController implements ReactiveController {
 
 	readonly host: PlayerView;
 
-	private clockIntervalId: number;
+	private clockIntervalId: number = 0;
 
 
 	constructor(host: PlayerView) {
@@ -23,17 +22,24 @@ export class PlayerViewController implements ReactiveController {
 			uiStateStore.setRightContainerVisible((privilegeStore.canUseChat() && uiStateStore.chatVisible) || uiStateStore.receiveCameraFeed);
 		});
 		autorun(() => {
-			featureStore.hasChatFeature();
-			featureStore.hasQuizFeature();
+			courseStore.hasChatFeature();
+			courseStore.hasQuizFeature();
 
 			this.host.requestUpdate();
 		});
 	}
 
-	update() {
+	startTimer() {
+		console.log("---- start timer")
+
+		if (this.clockIntervalId !== 0) {
+			// Make sure the previous timer is cleared/disposed.
+			this.stopTimer();
+		}
+
 		this.clockIntervalId = window.setInterval(() => {
 			try {
-				this.host.controls.duration = (Date.now() - (courseStore.timeStarted ?? 0));
+				this.host.controls.duration = (Date.now() - (courseStore.activeCourse.timeStarted ?? 0));
 			}
 			catch (error) {
 				window.clearInterval(this.clockIntervalId);
@@ -41,7 +47,11 @@ export class PlayerViewController implements ReactiveController {
 		}, 500);
 	}
 
-	setDisconnected() {
+	stopTimer() {
+		console.log("---- stop timer")
+
 		window.clearInterval(this.clockIntervalId);
+
+		this.clockIntervalId = 0;
 	}
 }

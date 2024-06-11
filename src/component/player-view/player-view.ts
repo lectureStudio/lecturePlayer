@@ -1,9 +1,12 @@
+import { consume } from "@lit/context";
 import { CSSResultGroup, html } from 'lit';
 import { when } from 'lit/directives/when.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { customElement, property, query } from 'lit/decorators.js';
-import { ChatService } from '../../service/chat.service';
-import { ModerationService } from "../../service/moderation.service";
+import { applicationContext, ApplicationContext } from "../../context/application.context";
+import { CourseContext, courseContext } from "../../context/course.context";
+import { MouseListener } from "../../event/mouse-listener";
+import { ToolController } from "../../tool/tool-controller";
 import { PlayerControls } from '../controls/player-controls';
 import { I18nLitElement } from '../i18n-mixin';
 import { ParticipantView } from '../participant-view/participant-view';
@@ -15,10 +18,8 @@ import { courseStore } from '../../store/course.store';
 import { SlSplitPanel } from '@shoelace-style/shoelace';
 import { ConferenceView } from '../conference-view/conference-view';
 import { uiStateStore } from '../../store/ui-state.store';
-import { PlayerController } from '../player/player.controller';
 import { participantStore } from '../../store/participants.store';
 import { Component } from '../component';
-import { EventEmitter } from '../../utils/event-emitter';
 import { SlideView } from '../slide-view/slide-view';
 import playerViewStyles from './player-view.css';
 
@@ -30,17 +31,13 @@ export class PlayerView extends Component {
 		playerViewStyles,
 	];
 
-	private controller = new PlayerViewController(this);
+	private readonly controller = new PlayerViewController(this);
 
-	playerController: PlayerController;
+	@consume({ context: applicationContext })
+	accessor applicationContext: ApplicationContext;
 
-	eventEmitter: EventEmitter;
-
-	@property({ attribute: false })
-	accessor chatService: ChatService;
-
-	@property({ attribute: false })
-	accessor moderationService: ModerationService;
+	@consume({ context: courseContext })
+	accessor courseContext: CourseContext;
 
 	@property({ type: Boolean, reflect: true })
 	accessor chatVisible: boolean = true;
@@ -74,12 +71,14 @@ export class PlayerView extends Component {
 
 
 	addParticipant(view: ParticipantView) {
-		if (courseStore.conference) {
+		if (courseStore.activeCourse.isConference) {
 			this.conferenceView.addGridElement(view);
 		}
 	}
 
 	override connectedCallback() {
+		console.log("--- player view connectedCallback")
+
 		super.connectedCallback()
 
 		autorun(() => {
@@ -93,19 +92,29 @@ export class PlayerView extends Component {
 		});
 	}
 
+	override disconnectedCallback() {
+		console.log("--- player view disconnectedCallback")
+		this.controller.stopTimer();
+	}
+
 	protected override async firstUpdated() {
+		console.log("--- player view firstUpdated")
+
 		const slideView = this.renderRoot.querySelector<SlideView>("slide-view");
 
 		if (slideView) {
 			await slideView.updateComplete;
 
-			this.playerController.setPlayerViewController(this.controller);
-			this.playerController.setSlideView(slideView);
+			this.controller.startTimer();
+
+			this.courseContext.layoutController.update();
+
+			this.setSlideView(slideView);
 		}
 	}
 
 	protected override render() {
-		if (!courseStore.courseId) {
+		if (!courseStore.activeCourse) {
 			// Course not loaded, nothing to show.
 			return null;
 		}
@@ -117,14 +126,14 @@ export class PlayerView extends Component {
 				<div slot="start" class="left-container">
 					<div class="feature-container">
 						${when(privilegeStore.canViewParticipants(), () => html`
-							<participant-list .moderationService="${this.moderationService}"></participant-list>
+							<participant-list .moderationService="${this.courseContext.moderationService}"></participant-list>
 						`)}
 					</div>
 				</div>
 				<div slot="end">
 					<sl-split-panel position="100" id="inner-split-panel">
 						<div slot="start" class="center-container">
-							${when(courseStore.conference,
+							${when(courseStore.activeCourse.isConference,
 								() => html`
 								<div class="conference-container">
 									<conference-view></conference-view>
@@ -140,7 +149,7 @@ export class PlayerView extends Component {
 								`)
 							}
 							<div class="controls-container">
-								<player-controls .eventEmitter="${this.eventEmitter}" .chatVisible="${this.chatVisible}" .participantsVisible="${this.participantsVisible}"></player-controls>
+								<player-controls .chatVisible="${this.chatVisible}" .participantsVisible="${this.participantsVisible}"></player-controls>
 							</div>
 						</div>
 						<div slot="end" class="right-container">
@@ -151,7 +160,7 @@ export class PlayerView extends Component {
 							</div>
 							<div class="feature-container">
 								${when(privilegeStore.canUseChat(), () => html`
-								<chat-box .chatService="${this.chatService}"></chat-box>
+								<chat-box .chatService="${this.courseContext.chatService}"></chat-box>
 								`)}
 							</div>
 						</div>
@@ -159,5 +168,14 @@ export class PlayerView extends Component {
 				</div>
 			</sl-split-panel>
 		`;
+	}
+
+	private setSlideView(slideView: SlideView) {
+		this.courseContext.renderController.setSlideView(slideView);
+
+		const toolController = new ToolController(this.courseContext.renderController);
+		const mouseListener = new MouseListener(toolController);
+
+		slideView.addMouseListener(mouseListener);
 	}
 }

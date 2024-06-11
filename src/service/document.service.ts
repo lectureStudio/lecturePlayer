@@ -28,7 +28,7 @@ export class DocumentService {
 				.then((slideDoc: SlideDocument) => {
 					slideDoc.setDocumentId(stateDoc.documentId);
 
-					DocumentService.preloadSlideDocument(courseStore.courseId, stateDoc, slideDoc)
+					DocumentService.preloadSlideDocument(courseStore.activeCourse.id, stateDoc, slideDoc)
 						.then(() => {
 							resolve(slideDoc);
 						})

@@ -116,7 +116,7 @@ export class SpeechController {
 	}
 
 	private sendSpeechRequest() {
-		CourseSpeechApi.requestSpeech(courseStore.courseId)
+		CourseSpeechApi.requestSpeech(courseStore.activeCourse.id)
 			.then(requestId => {
 				this.speechRequestId = requestId;
 			})
@@ -130,7 +130,7 @@ export class SpeechController {
 			return;
 		}
 
-		CourseSpeechApi.cancelSpeech(courseStore.courseId, this.speechRequestId)
+		CourseSpeechApi.cancelSpeech(courseStore.activeCourse.id, this.speechRequestId)
 			.then(() => {
 				this.speechCanceled();
 				this.showWithdrawn();
