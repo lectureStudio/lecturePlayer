@@ -28,6 +28,10 @@ export class DocumentService {
 				.then((slideDoc: SlideDocument) => {
 					slideDoc.setDocumentId(stateDoc.documentId);
 
+					if (!courseStore.activeCourse) {
+						throw new Error("Course is not set");
+					}
+
 					DocumentService.preloadSlideDocument(courseStore.activeCourse.id, stateDoc, slideDoc)
 						.then(() => {
 							resolve(slideDoc);

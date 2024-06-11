@@ -116,6 +116,10 @@ export class SpeechController {
 	}
 
 	private sendSpeechRequest() {
+		if (!courseStore.activeCourse) {
+			throw new Error("Course is not set");
+		}
+
 		CourseSpeechApi.requestSpeech(courseStore.activeCourse.id)
 			.then(requestId => {
 				this.speechRequestId = requestId;
@@ -128,6 +132,10 @@ export class SpeechController {
 			this.speechCanceled();
 			this.showWithdrawn();
 			return;
+		}
+
+		if (!courseStore.activeCourse) {
+			throw new Error("Course is not set");
 		}
 
 		CourseSpeechApi.cancelSpeech(courseStore.activeCourse.id, this.speechRequestId)

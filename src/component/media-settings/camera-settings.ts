@@ -163,7 +163,7 @@ export class CameraSettings extends MediaSettings {
 			</sl-alert>
 
 			<form id="device-select-form">
-				${when(courseStore.activeCourse.isConference, () => html`
+				${when(courseStore.activeCourse?.isConference, () => html`
 				<sl-switch id="cameraMuteOnEntry" name="cameraMuteOnEntry" size="small" ?checked=${deviceStore.cameraMuteOnEntry}>${t("devices.camera.mute.on.entry")}</sl-switch>
 				`)}
 

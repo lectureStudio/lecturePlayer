@@ -74,9 +74,15 @@ export class CourseViewController implements ReactiveController {
 		eventEmitter.addEventListener("lp-stream-connection-state", this.onStreamConnectionState.bind(this));
 		eventEmitter.addEventListener("lp-participant-moderation", this.onParticipantModeration.bind(this));
 
-		if (courseStore.activeCourse.isLive) {
+		if (courseStore.activeCourse?.isLive) {
 			this.connect();
 		}
+	}
+
+	hostDisconnected() {
+		uiStateStore.setState(State.DISCONNECTED);
+		uiStateStore.setStreamState(State.DISCONNECTED);
+		uiStateStore.setDocumentState(State.DISCONNECTED);
 	}
 
 	private testConnection() {
@@ -88,7 +94,7 @@ export class CourseViewController implements ReactiveController {
 		courseStore.isClassroom = this.host.getAttribute("isClassroom") == "true" || Settings.getMediaProfile() === MediaProfile.Classroom;
 
 		// Early state recognition to avoid the view flickering.
-		if (courseStore.activeCourse.isLive) {
+		if (courseStore.activeCourse?.isLive) {
 			if (courseStore.isClassroom) {
 				uiStateStore.setState(State.CONNECTED_FEATURES);
 			}
@@ -111,7 +117,7 @@ export class CourseViewController implements ReactiveController {
 
 		this.loadCourseState(this.course)
 			.then(async () => {
-				if (courseStore.hasFeatures() || courseStore.activeCourse.isLive) {
+				if (courseStore.hasFeatures() || courseStore.activeCourse?.isLive) {
 					this.connecting = true;
 
 					try {
@@ -121,7 +127,7 @@ export class CourseViewController implements ReactiveController {
 						if (courseStore.hasChatFeature()) {
 							await this.loadChatHistory();
 						}
-						if (courseStore.activeCourse.isLive && !courseStore.isClassroom) {
+						if (courseStore.activeCourse?.isLive && !courseStore.isClassroom) {
 							await this.loadMediaDevices();
 							await this.loadStream();
 							await this.loadDocuments();
@@ -160,6 +166,10 @@ export class CourseViewController implements ReactiveController {
 	}
 
 	private loadParticipants() {
+		if (!courseStore.activeCourse) {
+			throw new Error("Course is not set");
+		}
+
 		return CourseParticipantApi.getParticipants(courseStore.activeCourse.id)
 			.then(participants => {
 				console.log("* on participants", participants);
@@ -169,6 +179,10 @@ export class CourseViewController implements ReactiveController {
 	}
 
 	private loadChatHistory() {
+		if (!courseStore.activeCourse) {
+			throw new Error("Course is not set");
+		}
+
 		return CourseChatApi.getChatHistory(courseStore.activeCourse.id)
 			.then(history => {
 				console.log("* on chat history");
@@ -231,7 +245,7 @@ export class CourseViewController implements ReactiveController {
 
 				this.applicationContext.modalController.registerModal("RecordedModal", new RecordedModal(), false, false);
 
-				if (courseStore.activeCourse.isRecorded) {
+				if (courseStore.activeCourse?.isRecorded) {
 					this.applicationContext.modalController.openModal("RecordedModal");
 				}
 

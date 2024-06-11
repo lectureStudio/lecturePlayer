@@ -71,14 +71,12 @@ export class PlayerView extends Component {
 
 
 	addParticipant(view: ParticipantView) {
-		if (courseStore.activeCourse.isConference) {
+		if (courseStore.activeCourse?.isConference) {
 			this.conferenceView.addGridElement(view);
 		}
 	}
 
 	override connectedCallback() {
-		console.log("--- player view connectedCallback")
-
 		super.connectedCallback()
 
 		autorun(() => {
@@ -93,13 +91,10 @@ export class PlayerView extends Component {
 	}
 
 	override disconnectedCallback() {
-		console.log("--- player view disconnectedCallback")
 		this.controller.stopTimer();
 	}
 
 	protected override async firstUpdated() {
-		console.log("--- player view firstUpdated")
-
 		const slideView = this.renderRoot.querySelector<SlideView>("slide-view");
 
 		if (slideView) {

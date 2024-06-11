@@ -142,7 +142,7 @@ export class SoundSettings extends MediaSettings {
 
 			${when(!this.error, () => html`
 				<form id="device-select-form">
-					${when(courseStore.activeCourse.isConference, () => html`
+					${when(courseStore.activeCourse?.isConference, () => html`
 						<sl-switch id="microphoneMuteOnEntry" name="microphoneMuteOnEntry" size="small" ?checked=${deviceStore.microphoneMuteOnEntry}>${t("devices.microphone.mute.on.entry")}</sl-switch>
 					`)}
 

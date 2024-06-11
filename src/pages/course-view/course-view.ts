@@ -48,6 +48,12 @@ export class CourseView extends Component implements BeforeEnterObserver {
 		courseStore.setActiveCourse(this.course);
 	}
 
+	override disconnectedCallback() {
+		super.disconnectedCallback();
+
+		courseStore.setActiveCourse(null);
+	}
+
 	protected override firstUpdated(_changedProperties: PropertyValues) {
 		super.firstUpdated(_changedProperties);
 

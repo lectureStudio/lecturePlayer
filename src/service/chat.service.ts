@@ -133,8 +133,8 @@ export class ChatService extends EventTarget implements EventSubService {
 		if (!this.client.connected) {
 			return Promise.reject("Not connected");
 		}
-		if (!courseStore.activeCourse.messageFeature) {
-			return Promise.reject("Feature must be active");
+		if (!courseStore.activeCourse?.messageFeature) {
+			return Promise.reject("Chat must be active");
 		}
 
 		const message: ChatMessageDto | ChatMessageAsReplyDto = this.buildChatMessageDto(
@@ -165,8 +165,8 @@ export class ChatService extends EventTarget implements EventSubService {
 		if (!this.client.connected) {
 			return Promise.reject("Not connected");
 		}
-		if (!courseStore.activeCourse.messageFeature) {
-			return Promise.reject("Feature must be active");
+		if (!courseStore.activeCourse?.messageFeature) {
+			return Promise.reject("Chat must be active");
 		}
 
 		const message: ChatMessageDto = {
@@ -194,8 +194,8 @@ export class ChatService extends EventTarget implements EventSubService {
 		if (!this.client.connected) {
 			return Promise.reject("Not connected");
 		}
-		if (!courseStore.activeCourse.messageFeature) {
-			return Promise.reject("Feature must be active");
+		if (!courseStore.activeCourse?.messageFeature) {
+			return Promise.reject("Chat must be active");
 		}
 
 		const editedMessage: ChatMessageDto = {

@@ -6,7 +6,7 @@ class CourseStore {
 
 	courses: Course[] = [];
 
-	activeCourse: Course;
+	activeCourse: Course | null;
 
 	isClassroom: boolean;
 
@@ -15,7 +15,7 @@ class CourseStore {
 		makeAutoObservable(this);
 	}
 
-	setActiveCourse(activeCourse: Course) {
+	setActiveCourse(activeCourse: Course | null) {
 		this.activeCourse = activeCourse;
 	}
 
@@ -32,11 +32,11 @@ class CourseStore {
 	}
 
 	hasChatFeature() {
-		return this.activeCourse.messageFeature != null && privilegeStore.canReadMessages();
+		return this.activeCourse?.messageFeature != null && privilegeStore.canReadMessages();
 	}
 
 	hasQuizFeature() {
-		return this.activeCourse.quizFeature != null && privilegeStore.canParticipateInQuiz();
+		return this.activeCourse?.quizFeature != null && privilegeStore.canParticipateInQuiz();
 	}
 
 	hasFeatures() {

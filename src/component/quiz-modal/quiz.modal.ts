@@ -23,6 +23,9 @@ export class QuizModal extends Modal {
 
 
 	protected post(): Promise<void> {
+		if (!courseStore.activeCourse) {
+			throw new Error("Quiz is not active");
+		}
 		if (!this.quizForm) {
 			throw new Error("Form is null");
 		}

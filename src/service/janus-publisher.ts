@@ -633,6 +633,9 @@ export class JanusPublisher extends JanusParticipant {
 		if (userStore.userId) {
 			participantStore.setParticipantMicrophoneActive(userStore.userId, active);
 		}
+		if (!courseStore.activeCourse) {
+			throw new Error("Course must be set");
+		}
 
 		CourseMediaApi.updateMediaStreamState(courseStore.activeCourse.id, { Audio: active })
 			.catch(error => {
@@ -644,6 +647,9 @@ export class JanusPublisher extends JanusParticipant {
 		if (userStore.userId) {
 			participantStore.setParticipantCameraActive(userStore.userId, active);
 		}
+		if (!courseStore.activeCourse) {
+			throw new Error("Course must be set");
+		}
 
 		CourseMediaApi.updateMediaStreamState(courseStore.activeCourse.id, { Camera: active })
 			.catch(error => {
@@ -654,6 +660,9 @@ export class JanusPublisher extends JanusParticipant {
 	private setScreenState(active: boolean) {
 		if (userStore.userId) {
 			participantStore.setParticipantScreenActive(userStore.userId, active);
+		}
+		if (!courseStore.activeCourse) {
+			throw new Error("Course must be set");
 		}
 
 		CourseMediaApi.updateMediaStreamState(courseStore.activeCourse.id, { Screen: active })

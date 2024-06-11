@@ -40,7 +40,7 @@ export class QuizForm extends Component {
 	}
 
 	override render() {
-		const feature = courseStore.activeCourse.quizFeature;
+		const feature = courseStore.activeCourse?.quizFeature;
 		const itemTemplates = new Array<TemplateResult>();
 		const inputRules = feature?.fieldFilter?.rules;
 		const type = feature?.type;
