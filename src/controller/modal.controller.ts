@@ -1,7 +1,7 @@
-import { Modal } from "../modal/modal";
-import { Controller } from "./controller";
+import { Modal } from "../component";
+import { uiStateStore } from "../store/ui-state.store";
 
-export class ModalController extends Controller {
+export class ModalController {
 
 	private modals: Map<string, Modal> = new Map();
 
@@ -13,7 +13,7 @@ export class ModalController extends Controller {
 			});
 		}
 
-		modal.container = this.context.host.renderRoot;
+		modal.container = uiStateStore.host.renderRoot;
 
 		// Close potentially opened modal of the same type to prevent modal overlapping.
 		this.closeModal(name);

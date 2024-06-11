@@ -1,4 +1,3 @@
-import { PropertyValues } from "@lit/reactive-element";
 import { Router } from "@vaadin/router";
 import { CSSResultGroup, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
@@ -10,7 +9,6 @@ import { I18nLitElement } from "../../component/i18n-mixin";
 import { t } from "i18next";
 import { Course, CourseAuthor } from "../../model/course";
 import { courseStore } from "../../store/course.store";
-import { CourseApi } from "../../transport/course-api";
 import style from './course-list.css';
 
 @customElement('course-list')
@@ -21,12 +19,6 @@ export class CourseList extends Component {
 		style,
 	];
 
-
-	protected override firstUpdated(_changedProperties: PropertyValues) {
-		super.firstUpdated(_changedProperties);
-
-		this.loadCourses();
-	}
 
 	protected override render() {
 		return html`
@@ -77,12 +69,5 @@ export class CourseList extends Component {
 
 	private toAuthorsString(authors: CourseAuthor[]): string {
 		return authors.map(author => author.firstName + " " + author.familyName).join(", ");
-	}
-
-	private loadCourses() {
-		CourseApi.getCourses()
-			.then(courses => {
-				courseStore.setCourses(courses);
-			});
 	}
 }

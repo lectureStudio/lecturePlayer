@@ -175,7 +175,7 @@ export class ChatBoxMessage extends Component {
 
 	}
 
-	private replyToMessage(event: Event) : void {
+	private replyToMessage(_event: Event) : void {
 		if (!this.chatForm) {
 			throw new Error("Form is null");
 		}

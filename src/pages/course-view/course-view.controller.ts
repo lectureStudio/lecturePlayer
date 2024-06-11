@@ -1,20 +1,17 @@
 import { ReactiveController } from 'lit';
-import { EventService } from '../../service/event.service';
-import { ChatService } from '../../service/chat.service';
-import { ModerationService } from "../../service/moderation.service";
-import { CourseApi } from "../../transport/course-api";
+import { StreamStatsModal } from "../../component/stream-stats-modal/stream-stats.modal";
+import { ApplicationContext } from "../../context/application.context";
+import { CourseContext } from "../../context/course.context";
 import { DeviceInfo, Devices } from '../../utils/devices';
 import { MediaProfile, Settings } from '../../utils/settings';
 import { State } from '../../utils/state';
 import { Utils } from '../../utils/utils';
-import { EntryModal } from '../entry-modal/entry.modal';
-import { PlayerViewController } from '../player-view/player-view.controller';
-import { LecturePlayer } from "../player/player";
-import { ReconnectModal } from '../reconnect-modal/reconnect.modal';
-import { RecordedModal } from '../recorded-modal/recorded.modal';
+import { EntryModal } from '../../component/entry-modal/entry.modal';
+import { PlayerViewController } from '../../component/player-view/player-view.controller';
+import { ReconnectModal } from '../../component/reconnect-modal/reconnect.modal';
+import { RecordedModal } from '../../component/recorded-modal/recorded.modal';
 import { featureStore } from '../../store/feature.store';
 import { chatStore } from '../../store/chat.store';
-import { privilegeStore } from '../../store/privilege.store';
 import { participantStore } from '../../store/participants.store';
 import { courseStore } from '../../store/course.store';
 import { userStore } from '../../store/user.store';
@@ -22,94 +19,85 @@ import { documentStore } from '../../store/document.store';
 import { uiStateStore } from '../../store/ui-state.store';
 import { ToolController } from '../../tool/tool-controller';
 import { MouseListener } from '../../event/mouse-listener';
-import { SlideView } from '../slide-view/slide-view';
+import { SlideView } from '../../component';
 import { deviceStore } from '../../store/device.store';
-import { CourseStateApi } from '../../transport/course-state-api';
 import { CourseUserApi } from '../../transport/course-user-api';
 import { CourseParticipantApi } from '../../transport/course-participant-api';
 import { CourseChatApi } from '../../transport/course-chat-api';
-import { ApplicationContext } from '../controller/context';
-import { EventEmitter } from '../../utils/event-emitter';
-import { RootController } from '../controller/root.controller';
-import { Controller } from '../controller/controller';
 import { streamStatsStore } from '../../store/stream-stats.store';
 import { LpChatResponseEvent, LpChatStateEvent, LpEventServiceStateEvent, LpMediaStateEvent, LpParticipantPresenceEvent, LpParticipantModerationEvent, LpQuizStateEvent, LpRecordingStateEvent, LpStreamStateEvent } from '../../event';
 import { Toaster } from '../../utils/toaster';
 import { t } from 'i18next';
+import { CourseView } from "./course-view";
 
-export class PlayerController extends Controller implements ReactiveController {
+export class CourseViewController implements ReactiveController {
 
-	private readonly host: LecturePlayer;
+	private readonly host: CourseView;
 
-	private eventService: EventService;
+	private applicationContext: ApplicationContext;
+
+	private courseContext: CourseContext;
 
 	private playerViewController: PlayerViewController;
 
 	private connecting: boolean;
 
 
-	constructor(host: LecturePlayer) {
-		const context: ApplicationContext = {
-			eventEmitter: new EventEmitter(),
-			chatService: new ChatService(),
-			moderationService: new ModerationService(),
-			host: host,
-		}
-
-		super(new RootController(context), context);
-
+	constructor(host: CourseView) {
 		this.host = host;
-		this.host.addController(this);
+		this.applicationContext = this.host.applicationContext;
+		this.courseContext = this.host.courseContext;
+
+		host.addController(this);
 	}
 
 	hostConnected() {
+		const eventEmitter = this.applicationContext.eventEmitter;
+
 		this.testConnection();
 		this.setInitialState();
 
-		// this.eventService = new EventService(this.host.courseId, this.eventEmitter);
 		// this.eventService.addEventSubService(this.context.chatService);
-
-		// this.context.moderationService.initialize(this.host.courseId);
 
 		this.host.addEventListener("participant-audio-play-error", this.onAudioPlayError.bind(this), false);
 		this.host.addEventListener("participant-video-play-error", this.onVideoPlayError.bind(this), false);
 
-		this.eventEmitter.addEventListener("lp-event-service-state", this.onEventServiceState.bind(this));
-		this.eventEmitter.addEventListener("lp-chat-state", this.onChatState.bind(this));
-		this.eventEmitter.addEventListener("lp-chat-error", this.onChatError.bind(this));
-		this.eventEmitter.addEventListener("lp-chat-response", this.onChatResponse.bind(this));
-		this.eventEmitter.addEventListener("lp-quiz-state", this.onQuizState.bind(this));
-		this.eventEmitter.addEventListener("lp-recording-state", this.onRecordingState.bind(this));
-		this.eventEmitter.addEventListener("lp-stream-state", this.onStreamState.bind(this));
-		this.eventEmitter.addEventListener("lp-media-state", this.onMediaState.bind(this));
-		this.eventEmitter.addEventListener("lp-participant-presence", this.onParticipantPresence.bind(this));
-		this.eventEmitter.addEventListener("lp-stream-connection-state", this.onStreamConnectionState.bind(this));
-		this.eventEmitter.addEventListener("lp-participant-moderation", this.onParticipantModeration.bind(this));
+		eventEmitter.addEventListener("lp-stream-statistics", this.onStatistics.bind(this));
+		eventEmitter.addEventListener("lp-event-service-state", this.onEventServiceState.bind(this));
+		eventEmitter.addEventListener("lp-chat-state", this.onChatState.bind(this));
+		eventEmitter.addEventListener("lp-chat-error", this.onChatError.bind(this));
+		eventEmitter.addEventListener("lp-chat-response", this.onChatResponse.bind(this));
+		eventEmitter.addEventListener("lp-quiz-state", this.onQuizState.bind(this));
+		eventEmitter.addEventListener("lp-recording-state", this.onRecordingState.bind(this));
+		eventEmitter.addEventListener("lp-stream-state", this.onStreamState.bind(this));
+		eventEmitter.addEventListener("lp-media-state", this.onMediaState.bind(this));
+		eventEmitter.addEventListener("lp-participant-presence", this.onParticipantPresence.bind(this));
+		eventEmitter.addEventListener("lp-stream-connection-state", this.onStreamConnectionState.bind(this));
+		eventEmitter.addEventListener("lp-participant-moderation", this.onParticipantModeration.bind(this));
 
-		// if (this.host.courseId) {
-		// 	this.eventService.connect();
-		// 	this.connect();
-		// }
+		if (this.host.course?.id) {
+			this.connect();
+		}
 	}
 
 	setPlayerViewController(viewController: PlayerViewController) {
 		this.playerViewController = viewController;
 		this.playerViewController.update();
 
-		this.rootController.viewController.update();
+		this.courseContext.layoutController.update();
 	}
 
 	setSlideView(slideView: SlideView) {
-		this.renderController.setSlideView(slideView);
+		this.courseContext.renderController.setSlideView(slideView);
 
-		const toolController = new ToolController(this.renderController);
+		const toolController = new ToolController(this.courseContext.renderController);
 		const mouseListener = new MouseListener(toolController);
 
 		slideView.addMouseListener(mouseListener);
 	}
 
 	private testConnection() {
-		this.streamController.testConnection()
+		this.courseContext.streamController.testConnection()
 			.catch(() => uiStateStore.setStreamProbeFailed(true));
 	}
 
@@ -246,7 +234,7 @@ export class PlayerController extends Controller implements ReactiveController {
 	}
 
 	private loadStream() {
-		return this.streamController.connect();
+		return this.courseContext.streamController.connect();
 	}
 
 	private loadDocuments() {
@@ -256,21 +244,21 @@ export class PlayerController extends Controller implements ReactiveController {
 			return Promise.reject("No documents to load");
 		}
 
-		return this.documentController.getDocuments(documentStore.documentMap)
+		return this.courseContext.documentService.getDocuments(documentStore.documentMap)
 			.then(documents => {
 				console.log("* on documents loaded");
 
-				this.playbackController.start();
-				this.playbackController.setDocuments(documents);
+				this.courseContext.playbackController.start();
+				this.courseContext.playbackController.setDocuments(documents);
 
 				if (documentStore.activeDocument) {
-					this.playbackController.setActiveDocument(documentStore.activeDocument);
+					this.courseContext.playbackController.setActiveDocument(documentStore.activeDocument);
 				}
 
-				this.modalController.registerModal("RecordedModal", new RecordedModal(), false, false);
+				this.applicationContext.modalController.registerModal("RecordedModal", new RecordedModal(), false, false);
 
 				if (courseStore.recorded) {
-					this.modalController.openModal("RecordedModal");
+					this.applicationContext.modalController.openModal("RecordedModal");
 				}
 
 				uiStateStore.setDocumentState(State.CONNECTED);
@@ -291,9 +279,9 @@ export class PlayerController extends Controller implements ReactiveController {
 	}
 
 	private setDisconnected() {
-		this.rootController.viewController.setFullscreen(false);
+		this.applicationContext.eventEmitter.dispatchEvent(Utils.createEvent("lp-fullscreen", false));
 
-		this.playbackController.setDisconnected();
+		this.courseContext.playbackController.setDisconnected();
 
 		if (this.playerViewController) {
 			this.playerViewController.setDisconnected();
@@ -307,7 +295,14 @@ export class PlayerController extends Controller implements ReactiveController {
 			location.reload();
 		});
 
-		this.modalController.registerModal("ReconnectModal", reconnectModal);
+		this.applicationContext.modalController.registerModal("ReconnectModal", reconnectModal);
+	}
+
+	private onStatistics() {
+		const statisticsModal = new StreamStatsModal();
+		statisticsModal.eventEmitter = this.applicationContext.eventEmitter;
+
+		this.applicationContext.modalController.registerModal("StreamStatsModal", statisticsModal);
 	}
 
 	private onEventServiceState(event: LpEventServiceStateEvent) {
@@ -328,7 +323,7 @@ export class PlayerController extends Controller implements ReactiveController {
 		if (uiStateStore.streamState === State.DISCONNECTED && uiStateStore.state === State.RECONNECTING) {
 			//this.streamController.reconnect();
 
-			this.streamController.disconnect();
+			this.courseContext.streamController.disconnect();
 			this.connect();
 		}
 	}
@@ -365,7 +360,7 @@ export class PlayerController extends Controller implements ReactiveController {
 
 		}
 		else {
-			this.modalController.closeAndDeleteModal("ChatModal");
+			this.applicationContext.modalController.closeAndDeleteModal("ChatModal");
 
 			chatStore.reset();
 		}
@@ -393,7 +388,7 @@ export class PlayerController extends Controller implements ReactiveController {
 		const quizState = event.detail;
 
 		if (!quizState.started) {
-			this.modalController.closeAndDeleteModal("QuizModal");
+			this.applicationContext.modalController.closeAndDeleteModal("QuizModal");
 		}
 
 		uiStateStore.setQuizSent(!quizState.started);
@@ -406,10 +401,10 @@ export class PlayerController extends Controller implements ReactiveController {
 		const recordingState = event.detail;
 
 		if (recordingState.recorded) {
-			this.modalController.openModal("RecordedModal");
+			this.applicationContext.modalController.openModal("RecordedModal");
 		}
 		else {
-			this.modalController.closeModal("RecordedModal");
+			this.applicationContext.modalController.closeModal("RecordedModal");
 		}
 	}
 
@@ -429,7 +424,7 @@ export class PlayerController extends Controller implements ReactiveController {
 
 			if (uiStateStore.state === State.CONNECTED) {
 				console.log("reconnecting ...");
-				this.streamController.disconnect();
+				this.courseContext.streamController.disconnect();
 			}
 
 			this.connect();
@@ -437,7 +432,7 @@ export class PlayerController extends Controller implements ReactiveController {
 		else {
 			courseStore.isLive = false;
 
-			this.modalController.closeAllModals();
+			this.applicationContext.modalController.closeAllModals();
 
 			uiStateStore.setStreamState(State.DISCONNECTED);
 			uiStateStore.setDocumentState(State.DISCONNECTED);
@@ -452,7 +447,7 @@ export class PlayerController extends Controller implements ReactiveController {
 
 			this.updateConnectionState();
 
-			this.streamController.disconnect();
+			this.courseContext.streamController.disconnect();
 		}
 	}
 
@@ -509,7 +504,7 @@ export class PlayerController extends Controller implements ReactiveController {
 	private onVideoPlayError() {
 		console.log("** video play error");
 
-		if (this.modalController.hasModalRegistered("EntryModal")) {
+		if (this.applicationContext.modalController.hasModalRegistered("EntryModal")) {
 			return;
 		}
 
@@ -518,7 +513,7 @@ export class PlayerController extends Controller implements ReactiveController {
 			this.host.dispatchEvent(Utils.createEvent("player-start-media"));
 		});
 
-		this.modalController.registerModal("EntryModal", entryModal);
+		this.applicationContext.modalController.registerModal("EntryModal", entryModal);
 	}
 
 	private onStreamConnectionState() {
@@ -535,12 +530,12 @@ export class PlayerController extends Controller implements ReactiveController {
 
 		if (moderation.moderationType === "PERMANENT_BAN") {
 			console.log("User banned.")
-			this.modalController.closeAllModals();
+			this.applicationContext.modalController.closeAllModals();
 
 			uiStateStore.setStreamState(State.NO_ACCESS);
 			uiStateStore.setDocumentState(State.NO_ACCESS);
-			this.streamController.disconnect();
-			this.eventService.close();
+			this.courseContext.streamController.disconnect();
+			// this.eventService.close();
 			this.updateConnectionState();
 
 			Toaster.showWarning(t("course.moderation.toast.permanent_banned.title"),
@@ -575,7 +570,7 @@ export class PlayerController extends Controller implements ReactiveController {
 				}
 				else if (state === State.RECONNECTING) {
 					console.log("** reconnecting ...");
-					this.streamController.disconnect();
+					this.courseContext.streamController.disconnect();
 					this.connect();
 				}
 			}
@@ -604,7 +599,7 @@ export class PlayerController extends Controller implements ReactiveController {
 		uiStateStore.setState(state);
 
 		if (uiStateStore.state !== State.RECONNECTING) {
-			this.modalController.closeAndDeleteModal("ReconnectModal");
+			this.applicationContext.modalController.closeAndDeleteModal("ReconnectModal");
 		}
 
 		switch (state) {

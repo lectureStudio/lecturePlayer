@@ -1,7 +1,11 @@
+import { provide } from "@lit/context";
 import { PropertyValues } from "@lit/reactive-element";
 import { Router } from "@vaadin/router";
 import { CSSResultGroup, html } from 'lit';
-import { customElement } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
+import { applicationContext, ApplicationContext } from "../../context/application.context";
+import { courseStore } from "../../store/course.store";
+import { CourseApi } from "../../transport/course-api";
 import { PlayerController } from './player.controller';
 import { I18nLitElement } from '../i18n-mixin';
 import { Component } from '../component';
@@ -15,23 +19,39 @@ export class LecturePlayer extends Component {
 		playerStyles,
 	];
 
+	@provide({ context: applicationContext })
+	@property({ attribute: false })
+	accessor appContext: ApplicationContext = new ApplicationContext();
+
 	readonly controller = new PlayerController(this);
 
 
-	protected override firstUpdated(_changedProperties: PropertyValues) {
+	protected override async firstUpdated(_changedProperties: PropertyValues) {
 		super.firstUpdated(_changedProperties);
 
-		const router = new Router(this.shadowRoot?.querySelector('#outlet'));
-		router.setRoutes([
-			{ path: "/", component: "course-list" },
-			{ path: "/course/:courseId", component: "course-view" },
-			{ path: "(.*)", redirect: "/" },
-		]);
+		await this.loadCourses();
+		await this.initRouter();
 	}
 
 	protected override render() {
 		return html`
 			<div id="outlet"></div>
 		`;
+	}
+
+	private async initRouter() {
+		const router = new Router(this.shadowRoot?.querySelector('#outlet'));
+		await router.setRoutes([
+			{ path: "/", component: "course-list" },
+			{ path: "/course/:courseId", component: "course-view" },
+			{ path: "(.*)", redirect: "/" },
+		]);
+	}
+
+	private async loadCourses() {
+		await CourseApi.getCourses()
+			.then(courses => {
+				courseStore.setCourses(courses);
+			});
 	}
 }

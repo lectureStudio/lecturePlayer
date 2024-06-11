@@ -3,10 +3,10 @@ import { CourseParticipantApi } from "../transport/course-participant-api";
 
 export class ModerationService {
 
-	private  courseId: number;
+	private readonly courseId: number;
 
 
-	initialize(courseId: number): void {
+	constructor(courseId: number) {
 		this.courseId = courseId;
 	}
 

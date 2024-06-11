@@ -1,4 +1,5 @@
 import { makeAutoObservable } from "mobx";
+import { LecturePlayer } from "../component";
 import { Dimension } from "../geometry/dimension";
 import { ContentFocus, ContentLayout } from "../model/content";
 import { State } from "../utils/state";
@@ -13,6 +14,8 @@ export enum ColorScheme {
 
 
 class UiStateStore {
+
+	host: LecturePlayer;
 
 	systemColorScheme: ColorScheme;
 
@@ -51,6 +54,10 @@ class UiStateStore {
 		makeAutoObservable(this);
 
 		this.load();
+	}
+
+	setHost(host: LecturePlayer) {
+		this.host = host;
 	}
 
 	setColorScheme(scheme: ColorScheme) {

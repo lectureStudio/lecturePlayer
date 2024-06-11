@@ -1,18 +1,21 @@
 import { t } from "i18next";
-import { Toaster } from "../../utils/toaster";
-import { ApplicationContext } from "./context";
-import { Controller } from "./controller";
-import { SettingsModal } from "../settings-modal/settings.modal";
-import { SpeechAcceptedModal } from "../speech-accepted-modal/speech-accepted.modal";
-import { Devices } from "../../utils/devices";
-import { Utils } from "../../utils/utils";
-import { CourseSpeechApi } from "../../transport/course-speech-api";
-import { courseStore } from "../../store/course.store";
-import { deviceStore } from "../../store/device.store";
-import { RootController } from "./root.controller";
-import { LpSpeechRequestEvent, LpSpeechStateEvent } from "../../event";
+import { SettingsModal } from "../component/settings-modal/settings.modal";
+import { SpeechAcceptedModal } from "../component/speech-accepted-modal/speech-accepted.modal";
+import { ApplicationContext } from "../context/application.context";
+import { CourseContext } from "../context/course.context";
+import { LpSpeechRequestEvent, LpSpeechStateEvent } from "../event";
+import { courseStore } from "../store/course.store";
+import { deviceStore } from "../store/device.store";
+import { CourseSpeechApi } from "../transport/course-speech-api";
+import { Devices } from "../utils/devices";
+import { Toaster } from "../utils/toaster";
+import { Utils } from "../utils/utils";
 
-export class SpeechController extends Controller {
+export class SpeechController {
+
+	private readonly applicationContext: ApplicationContext;
+
+	private readonly courseContext: CourseContext;
 
 	private speechRequestId: string | undefined;
 
@@ -21,11 +24,14 @@ export class SpeechController extends Controller {
 	private devicesSelected: boolean;
 
 
-	constructor(rootController: RootController, context: ApplicationContext) {
-		super(rootController, context);
+	constructor(context: CourseContext) {
+		this.applicationContext = context.applicationContext
+		this.courseContext = context;
 
-		context.eventEmitter.addEventListener("lp-speech-state", this.onSpeechState.bind(this));
-		context.eventEmitter.addEventListener("lp-speech-request", this.onSpeechRequest.bind(this));
+		const eventEmitter = this.applicationContext.eventEmitter;
+
+		eventEmitter.addEventListener("lp-speech-state", this.onSpeechState.bind(this));
+		eventEmitter.addEventListener("lp-speech-request", this.onSpeechRequest.bind(this));
 	}
 
 	private onSpeechState(event: LpSpeechStateEvent) {
@@ -52,7 +58,7 @@ export class SpeechController extends Controller {
 			this.initSpeech();
 		}
 		else {
-			this.streamController.stopSpeech();
+			this.courseContext.streamController.stopSpeech();
 
 			this.cancelSpeech();
 		}
@@ -101,7 +107,7 @@ export class SpeechController extends Controller {
 					.catch(error => {
 						console.error(error.name);
 
-						// Give up. Show error message.
+						// Give up. Show an error message.
 						this.cancelSpeech();
 
 						Toaster.showError(t("course.speech.request.aborted"));
@@ -141,9 +147,9 @@ export class SpeechController extends Controller {
 		this.speechStarted = false;
 
 		// Close dialog in case the request was initially accepted.
-		this.modalController.closeAndDeleteModal("SpeechAcceptedModal");
+		this.applicationContext.modalController.closeAndDeleteModal("SpeechAcceptedModal");
 
-		this.eventEmitter.dispatchEvent(Utils.createEvent<void>("lp-speech-canceled"));
+		this.applicationContext.eventEmitter.dispatchEvent(Utils.createEvent<void>("lp-speech-canceled"));
 	}
 
 	private showSpeechAcceptedModal(stream: MediaStream, camBlocked: boolean) {
@@ -155,12 +161,12 @@ export class SpeechController extends Controller {
 				this.cancelSpeech();
 			});
 			speechModal.addEventListener("speech-accepted-start", () => {
-				this.streamController.startSpeech(!camBlocked);
+				this.courseContext.streamController.startSpeech(!camBlocked);
 
 				this.speechStarted = true;
 			});
 
-			this.modalController.registerModal("SpeechAcceptedModal", speechModal);
+			this.applicationContext.modalController.registerModal("SpeechAcceptedModal", speechModal);
 		}
 		else {
 			// Speech has been aborted by the remote peer.
@@ -178,6 +184,6 @@ export class SpeechController extends Controller {
 			this.sendSpeechRequest();
 		});
 
-		this.modalController.registerModal("SettingsModal", settingsModal);
+		this.applicationContext.modalController.registerModal("SettingsModal", settingsModal);
 	}
 }

@@ -1,18 +1,17 @@
 import * as pdfjs from "pdfjs-dist";
 import { PDFDocumentProxy } from "pdfjs-dist";
-import { RecordedPageParser } from "../../action/parser/recorded-page.parser";
-import { SimpleActionExecutor } from "../../action/simple-action-executor";
-import { CourseStateDocument } from "../../model/course-state-document";
-import { SlideDocument } from "../../model/document";
-import { PdfJsDocument } from "../../model/pdf-js-document";
-import { RecordedPage } from "../../model/recorded-page";
-import { courseStore } from "../../store/course.store";
-import { streamStatsStore } from "../../store/stream-stats.store";
-import { CourseFileApi } from "../../transport/course-file-api";
-import { CourseStateApi } from "../../transport/course-state-api";
-import { Controller } from "./controller";
+import { RecordedPageParser } from "../action/parser/recorded-page.parser";
+import { SimpleActionExecutor } from "../action/simple-action-executor";
+import { CourseStateDocument } from "../model/course-state-document";
+import { SlideDocument } from "../model/document";
+import { PdfJsDocument } from "../model/pdf-js-document";
+import { RecordedPage } from "../model/recorded-page";
+import { courseStore } from "../store/course.store";
+import { streamStatsStore } from "../store/stream-stats.store";
+import { CourseFileApi } from "../transport/course-file-api";
+import { CourseStateApi } from "../transport/course-state-api";
 
-export class DocumentController extends Controller {
+export class DocumentService {
 
 	getDocument(stateDoc: CourseStateDocument): Promise<SlideDocument> {
 		return new Promise<SlideDocument>((resolve, reject) => {
@@ -22,14 +21,14 @@ export class DocumentController extends Controller {
 						throw new Error("Received empty course document");
 					}
 
-					DocumentController.updateDocumentStats(dataBuffer.byteLength);
+					DocumentService.updateDocumentStats(dataBuffer.byteLength);
 
-					return DocumentController.loadDocument(new Uint8Array(dataBuffer));
+					return DocumentService.loadDocument(new Uint8Array(dataBuffer));
 				})
 				.then((slideDoc: SlideDocument) => {
 					slideDoc.setDocumentId(stateDoc.documentId);
 
-					DocumentController.preloadSlideDocument(courseStore.courseId, stateDoc, slideDoc)
+					DocumentService.preloadSlideDocument(courseStore.courseId, stateDoc, slideDoc)
 						.then(() => {
 							resolve(slideDoc);
 						})
@@ -106,7 +105,7 @@ export class DocumentController extends Controller {
 	private static preloadSlideDocument(courseId: number, stateDoc: CourseStateDocument, slideDoc: SlideDocument): Promise<void> {
 		return this.getStateDocumentActions(courseId, stateDoc)
 			.then((pages: RecordedPage[]) => {
-				// Pre-load actions for all pages in the document.
+				// Preload actions for all pages in the document.
 				const executor = new SimpleActionExecutor(slideDoc);
 
 				for (const page of pages) {

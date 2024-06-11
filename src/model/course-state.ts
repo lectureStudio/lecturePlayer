@@ -1,4 +1,4 @@
-import { CourseFeature, MessageFeature, QuizFeature } from "./course-feature";
+import { MessageFeature, QuizFeature } from "./course-feature";
 import { CourseStateDocument } from "./course-state-document";
 
 export interface CourseFeatureState<CourseFeature> {

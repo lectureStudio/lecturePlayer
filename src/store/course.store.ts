@@ -30,8 +30,12 @@ class CourseStore {
 		this.courses = courses;
 	}
 
-	findCourse(courseId: number): Course | undefined {
+	findCourseById(courseId: number): Course | undefined {
 		return this.courses.find((course) => course.id === courseId);
+	}
+
+	findCourseByAccessLink(accessLink: string): Course | undefined {
+		return this.courses.find((course) => course.defaultAccessLink === accessLink);
 	}
 
 	setCourseId(id: number) {

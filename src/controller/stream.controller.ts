@@ -1,33 +1,36 @@
-import { LpStreamCaptureStatsEvent, LpStreamConnectionStateEvent } from "../../event";
-import { LpPublisherPresenceEvent } from "../../event/lp-publisher-presence.event";
-import { JanusService } from "../../service/janus.service";
-import { courseStore } from "../../store/course.store";
-import { participantStore } from "../../store/participants.store";
-import { uiStateStore } from "../../store/ui-state.store";
-import { userStore } from "../../store/user.store";
-import { HttpRequest } from "../../utils/http-request";
-import { State } from "../../utils/state";
-import { Utils } from "../../utils/utils";
-import { ApplicationContext } from "./context";
-import { Controller } from "./controller";
-import { RootController } from "./root.controller";
+import { CourseContext } from "../context/course.context";
+import { LpStreamCaptureStatsEvent, LpStreamConnectionStateEvent } from "../event";
+import { LpPublisherPresenceEvent } from "../event/lp-publisher-presence.event";
+import { JanusService } from "../service/janus.service";
+import { courseStore } from "../store/course.store";
+import { participantStore } from "../store/participants.store";
+import { uiStateStore } from "../store/ui-state.store";
+import { userStore } from "../store/user.store";
+import { EventEmitter } from "../utils/event-emitter";
+import { HttpRequest } from "../utils/http-request";
+import { State } from "../utils/state";
+import { Utils } from "../utils/utils";
 
-export class StreamController extends Controller {
+export class StreamController {
 
 	private readonly janusEndpoint = `https://${window.location.hostname}:8089/janus`;
 
 	private readonly janusService: JanusService;
 
+	private readonly eventEmitter: EventEmitter;
 
-	constructor(rootController: RootController, context: ApplicationContext) {
-		super(rootController, context);
 
-		this.janusService = new JanusService(this.janusEndpoint, this.context.eventEmitter);
+	constructor(context: CourseContext) {
+		const eventEmitter = context.applicationContext.eventEmitter;
+
+		this.janusService = new JanusService(this.janusEndpoint, eventEmitter);
 		this.janusService.addEventListener("lp-stream-connection-state", this.onStreamConnectionState.bind(this));
 
-		this.eventEmitter.addEventListener("lp-stream-capture-stats", this.onCaptureStats.bind(this));
-		this.eventEmitter.addEventListener("lp-receive-camera-feed", this.onReceiveCameraFeed.bind(this));
-		this.eventEmitter.addEventListener("lp-publisher-presence", this.onPublisherPresence.bind(this));
+		eventEmitter.addEventListener("lp-stream-capture-stats", this.onCaptureStats.bind(this));
+		eventEmitter.addEventListener("lp-receive-camera-feed", this.onReceiveCameraFeed.bind(this));
+		eventEmitter.addEventListener("lp-publisher-presence", this.onPublisherPresence.bind(this));
+
+		this.eventEmitter = eventEmitter;
 	}
 
 	startSpeech(withCamera: boolean) {

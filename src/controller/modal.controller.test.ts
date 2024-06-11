@@ -1,17 +1,13 @@
 import { expect, html, fixture, oneEvent } from "@open-wc/testing";
 
-import type { LecturePlayer } from "../player/player.js";
 import "../player/player.js";
 
 import "@shoelace-style/shoelace";
+import { LecturePlayer } from "../component";
 
+import { EntryModal } from "../component/entry-modal/entry.modal";
+import { ApplicationContext } from "../context/application.context";
 import { ModalController } from "./modal.controller.js";
-import { EntryModal } from "../entry-modal/entry.modal.js";
-import { ApplicationContext } from "./context.js";
-import { EventEmitter } from "../../utils/event-emitter.js";
-import { ChatService } from "../../service/chat.service.js";
-import { ModerationService } from "../../service/moderation.service";
-import { RootController } from "./root.controller.js";
 
 describe("ModalController", () => {
 	const modalName = "EntryModal";
@@ -24,7 +20,6 @@ describe("ModalController", () => {
 
 		const context: ApplicationContext = {
 			eventEmitter: new EventEmitter(),
-			host: element,
 			chatService: new ChatService(),
 			moderationService: new ModerationService(),
 		}
