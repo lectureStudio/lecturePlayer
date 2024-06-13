@@ -10,27 +10,32 @@ import { EventEmitter } from "../utils/event-emitter";
 import { HttpRequest } from "../utils/http-request";
 import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
+import { Controller } from "./controller";
 
-export class StreamController {
+export class StreamController extends Controller {
 
 	private readonly janusEndpoint = `https://${window.location.hostname}:8089/janus`;
 
 	private readonly janusService: JanusService;
 
-	private readonly eventEmitter: EventEmitter;
-
 
 	constructor(context: CourseContext) {
-		const eventEmitter = context.applicationContext.eventEmitter;
+		super(context.applicationContext);
 
-		this.janusService = new JanusService(this.janusEndpoint, eventEmitter);
+		this.janusService = new JanusService(this.janusEndpoint, this.applicationContext.eventEmitter);
 		this.janusService.addEventListener("lp-stream-connection-state", this.onStreamConnectionState.bind(this));
+	}
 
+	protected override initializeEvents(eventEmitter: EventEmitter) {
 		eventEmitter.addEventListener("lp-stream-capture-stats", this.onCaptureStats.bind(this));
 		eventEmitter.addEventListener("lp-receive-camera-feed", this.onReceiveCameraFeed.bind(this));
 		eventEmitter.addEventListener("lp-publisher-presence", this.onPublisherPresence.bind(this));
+	}
 
-		this.eventEmitter = eventEmitter;
+	public override dispose() {
+		super.dispose();
+
+		this.disconnect();
 	}
 
 	startSpeech(withCamera: boolean) {
@@ -113,6 +118,6 @@ export class StreamController {
 	private setStreamState(state: State) {
 		uiStateStore.setStreamState(state);
 
-		this.eventEmitter.dispatchEvent(Utils.createEvent("lp-stream-connection-state", state));
+		this.applicationContext.eventEmitter.dispatchEvent(Utils.createEvent("lp-stream-connection-state", state));
 	}
 }

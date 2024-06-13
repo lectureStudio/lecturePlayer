@@ -4,24 +4,29 @@ import { LpParticipantDataEvent } from "../event";
 import { CourseStateDocument } from "../model/course-state-document";
 import { SlideDocument } from "../model/document";
 import { PlaybackService } from "../service/playback.service";
+import { EventEmitter } from "../utils/event-emitter";
+import { Controller } from "./controller";
+import { StreamController } from "./stream.controller";
 
-export class PlaybackController {
+export class PlaybackController extends Controller {
 
 	private readonly playbackService: PlaybackService;
 
 	private readonly actionProcessor: StreamActionProcessor;
 
 
-	constructor(context: CourseContext) {
+	constructor(context: CourseContext, streamController: StreamController) {
+		super(context.applicationContext);
+
 		this.playbackService = new PlaybackService();
 		this.playbackService.initialize(context.renderController);
 
 		this.actionProcessor = new StreamActionProcessor(this.playbackService);
 		this.actionProcessor.onGetDocument = context.documentService.getDocument;
-		this.actionProcessor.onPeerConnected = context.streamController.onPeerConnected.bind(context.streamController);
+		this.actionProcessor.onPeerConnected = streamController.onPeerConnected.bind(streamController);
+	}
 
-		const eventEmitter = context.applicationContext.eventEmitter;
-
+	protected override initializeEvents(eventEmitter: EventEmitter) {
 		eventEmitter.addEventListener("lp-participant-data", this.onData.bind(this));
 	}
 
@@ -43,6 +48,12 @@ export class PlaybackController {
 
 	setDisconnected() {
 		this.playbackService.stop();
+	}
+
+	public override dispose(): void {
+		super.dispose();
+
+		this.setDisconnected();
 	}
 
 	private onData(event: LpParticipantDataEvent) {

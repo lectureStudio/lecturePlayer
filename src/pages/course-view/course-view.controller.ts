@@ -2,6 +2,10 @@ import { ReactiveController } from 'lit';
 import { StreamStatsModal } from "../../component/stream-stats-modal/stream-stats.modal";
 import { ApplicationContext } from "../../context/application.context";
 import { CourseContext } from "../../context/course.context";
+import { PlaybackController } from "../../controller/playback.controller";
+import { SpeechController } from "../../controller/speech.controller";
+import { StreamController } from "../../controller/stream.controller";
+import EventContext from "../../decorator/event-context.decorator";
 import { Course } from "../../model/course";
 import { privilegeStore } from "../../store/privilege.store";
 import { CourseStateApi } from "../../transport/course-state-api";
@@ -34,9 +38,15 @@ export class CourseViewController implements ReactiveController {
 
 	private readonly course: Course | undefined;
 
-	private applicationContext: ApplicationContext;
+	private readonly applicationContext: ApplicationContext;
 
-	private courseContext: CourseContext;
+	private readonly courseContext: CourseContext;
+
+	private streamController: StreamController;
+
+	private playbackController: PlaybackController;
+
+	private speechController: SpeechController;
 
 	private connecting: boolean;
 
@@ -50,8 +60,11 @@ export class CourseViewController implements ReactiveController {
 		host.addController(this);
 	}
 
+	@EventContext("course-view")
 	hostConnected() {
 		const eventEmitter = this.applicationContext.eventEmitter;
+
+		this.streamController = new StreamController(this.courseContext);
 
 		this.testConnection();
 		this.setInitialState();
@@ -83,10 +96,23 @@ export class CourseViewController implements ReactiveController {
 		uiStateStore.setState(State.DISCONNECTED);
 		uiStateStore.setStreamState(State.DISCONNECTED);
 		uiStateStore.setDocumentState(State.DISCONNECTED);
+
+		// Remove all registered event listeners.
+		this.applicationContext.eventEmitter.disposeContext("course-view");
+
+		if (this.playbackController) {
+			this.playbackController.dispose();
+		}
+		if (this.speechController) {
+			this.speechController.dispose();
+		}
+		if (this.streamController) {
+			this.streamController.dispose();
+		}
 	}
 
 	private testConnection() {
-		this.courseContext.streamController.testConnection()
+		this.streamController.testConnection()
 			.catch(() => uiStateStore.setStreamProbeFailed(true));
 	}
 
@@ -107,6 +133,11 @@ export class CourseViewController implements ReactiveController {
 		}
 	}
 
+	private initControllers() {
+		this.playbackController = new PlaybackController(this.courseContext, this.streamController);
+		this.speechController = new SpeechController(this.courseContext, this.streamController);
+	}
+
 	private connect() {
 		uiStateStore.setStreamState(State.DISCONNECTED);
 		uiStateStore.setDocumentState(State.DISCONNECTED);
@@ -114,6 +145,8 @@ export class CourseViewController implements ReactiveController {
 		if (!this.course) {
 			throw new Error("Course not found");
 		}
+
+		this.initControllers();
 
 		this.loadCourseState(this.course)
 			.then(async () => {
@@ -222,7 +255,7 @@ export class CourseViewController implements ReactiveController {
 	}
 
 	private loadStream() {
-		return this.courseContext.streamController.connect();
+		return this.streamController.connect();
 	}
 
 	private loadDocuments() {
@@ -236,11 +269,11 @@ export class CourseViewController implements ReactiveController {
 			.then(documents => {
 				console.log("* on documents loaded");
 
-				this.courseContext.playbackController.start();
-				this.courseContext.playbackController.setDocuments(documents);
+				this.playbackController.start();
+				this.playbackController.setDocuments(documents);
 
 				if (documentStore.activeDocument) {
-					this.courseContext.playbackController.setActiveDocument(documentStore.activeDocument);
+					this.playbackController.setActiveDocument(documentStore.activeDocument);
 				}
 
 				this.applicationContext.modalController.registerModal("RecordedModal", new RecordedModal(), false, false);
@@ -269,7 +302,7 @@ export class CourseViewController implements ReactiveController {
 	private setDisconnected() {
 		this.applicationContext.eventEmitter.dispatchEvent(Utils.createEvent("lp-fullscreen", false));
 
-		this.courseContext.playbackController.setDisconnected();
+		this.playbackController.setDisconnected();
 	}
 
 	private setReconnecting() {
@@ -307,7 +340,7 @@ export class CourseViewController implements ReactiveController {
 		if (uiStateStore.streamState === State.DISCONNECTED && uiStateStore.state === State.RECONNECTING) {
 			//this.streamController.reconnect();
 
-			this.courseContext.streamController.disconnect();
+			this.streamController.disconnect();
 			this.connect();
 		}
 	}
@@ -402,7 +435,7 @@ export class CourseViewController implements ReactiveController {
 		if (streamState.started) {
 			if (uiStateStore.state === State.CONNECTED) {
 				console.log("reconnecting ...");
-				this.courseContext.streamController.disconnect();
+				this.streamController.disconnect();
 			}
 
 			this.connect();
@@ -422,7 +455,7 @@ export class CourseViewController implements ReactiveController {
 
 			this.updateConnectionState();
 
-			this.courseContext.streamController.disconnect();
+			this.streamController.disconnect();
 		}
 	}
 
@@ -509,7 +542,7 @@ export class CourseViewController implements ReactiveController {
 
 			uiStateStore.setStreamState(State.NO_ACCESS);
 			uiStateStore.setDocumentState(State.NO_ACCESS);
-			this.courseContext.streamController.disconnect();
+			this.streamController.disconnect();
 			// this.eventService.close();
 			this.updateConnectionState();
 
@@ -545,7 +578,7 @@ export class CourseViewController implements ReactiveController {
 				}
 				else if (state === State.RECONNECTING) {
 					console.log("** reconnecting ...");
-					this.courseContext.streamController.disconnect();
+					this.streamController.disconnect();
 					this.connect();
 				}
 			}

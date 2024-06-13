@@ -1,21 +1,21 @@
 import { t } from "i18next";
 import { SettingsModal } from "../component/settings-modal/settings.modal";
 import { SpeechAcceptedModal } from "../component/speech-accepted-modal/speech-accepted.modal";
-import { ApplicationContext } from "../context/application.context";
 import { CourseContext } from "../context/course.context";
 import { LpSpeechRequestEvent, LpSpeechStateEvent } from "../event";
 import { courseStore } from "../store/course.store";
 import { deviceStore } from "../store/device.store";
 import { CourseSpeechApi } from "../transport/course-speech-api";
 import { Devices } from "../utils/devices";
+import { EventEmitter } from "../utils/event-emitter";
 import { Toaster } from "../utils/toaster";
 import { Utils } from "../utils/utils";
+import { Controller } from "./controller";
+import { StreamController } from "./stream.controller";
 
-export class SpeechController {
+export class SpeechController extends Controller {
 
-	private readonly applicationContext: ApplicationContext;
-
-	private readonly courseContext: CourseContext;
+	private readonly streamController: StreamController;
 
 	private speechRequestId: string | undefined;
 
@@ -24,14 +24,21 @@ export class SpeechController {
 	private devicesSelected: boolean;
 
 
-	constructor(context: CourseContext) {
-		this.applicationContext = context.applicationContext
-		this.courseContext = context;
+	constructor(context: CourseContext, streamController: StreamController) {
+		super(context.applicationContext);
 
-		const eventEmitter = this.applicationContext.eventEmitter;
+		this.streamController = streamController;
+	}
 
+	protected override initializeEvents(eventEmitter: EventEmitter): void {
 		eventEmitter.addEventListener("lp-speech-state", this.onSpeechState.bind(this));
 		eventEmitter.addEventListener("lp-speech-request", this.onSpeechRequest.bind(this));
+	}
+
+	public override dispose(): void {
+		super.dispose();
+
+		this.cancelSpeech();
 	}
 
 	private onSpeechState(event: LpSpeechStateEvent) {
@@ -58,7 +65,7 @@ export class SpeechController {
 			this.initSpeech();
 		}
 		else {
-			this.courseContext.streamController.stopSpeech();
+			this.streamController.stopSpeech();
 
 			this.cancelSpeech();
 		}
@@ -130,7 +137,7 @@ export class SpeechController {
 	private cancelSpeech() {
 		if (!this.speechRequestId) {
 			this.speechCanceled();
-			this.showWithdrawn();
+			// this.showWithdrawn();
 			return;
 		}
 
@@ -169,7 +176,7 @@ export class SpeechController {
 				this.cancelSpeech();
 			});
 			speechModal.addEventListener("speech-accepted-start", () => {
-				this.courseContext.streamController.startSpeech(!camBlocked);
+				this.streamController.startSpeech(!camBlocked);
 
 				this.speechStarted = true;
 			});

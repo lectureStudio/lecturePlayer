@@ -61,7 +61,7 @@ export class CourseView extends Component implements BeforeEnterObserver {
 			throw new Error("Course not found");
 		}
 
-		this.courseContext = new CourseContext(this.applicationContext, this.course.id);
+		this.courseContext = new CourseContext(this.applicationContext, this.course);
 		this.controller = new CourseViewController(this);
 	}
 
