@@ -1,9 +1,9 @@
 import { PenPoint } from "../geometry/pen-point";
-import { ToolController } from "../tool/tool-controller";
+import { ToolController } from "../controller/tool-controller";
 
 export class MouseListener {
 
-	// Keep function pointers in order to remove them as event listeners.
+	// Keep function pointers to remove them as event listeners.
 	private readonly mouseDownCallback = this.onMouseDown.bind(this);
 	private readonly mouseUpCallback = this.onMouseUp.bind(this);
 	private readonly mouseMoveCallback = this.onMouseMove.bind(this);

@@ -21,7 +21,7 @@ export class ParticipantView extends Component {
 		participantViewStyles
 	];
 
-	@observable
+	// @observable
 	accessor participant: CourseParticipant;
 
 	@property({ type: Boolean, reflect: true })

@@ -1,6 +1,6 @@
 import { Action } from "../action/action";
+import { RenderController } from "../controller/render.controller";
 import { Page } from "../model/page";
-import { RenderController } from "../render/render-controller";
 
 export class ToolContext {
 

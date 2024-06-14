@@ -1,19 +1,19 @@
-import { RenderController } from "../controller/render.controller";
+import { RenderController } from "./render.controller";
 import { PenPoint } from "../geometry/pen-point";
 import { SlideDocument } from "../model/document";
-import { AtomicTool } from "./atomic.tool";
-import { CursorTool } from "./cursor.tool";
-import { ClearShapesTool } from "./clear-shapes.tool";
-import { HighlighterTool } from "./highlighter.tool";
-import { PenTool } from "./pen.tool";
-import { PointerTool } from "./pointer.tool";
-import { RedoTool } from "./redo.tool";
-import { RubberTool } from "./rubber.tool";
-import { Tool, ToolType } from "./tool";
-import { ToolContext } from "./tool-context";
-import { UndoTool } from "./undo.tool";
+import { AtomicTool } from "../tool/atomic.tool";
+import { CursorTool } from "../tool/cursor.tool";
+import { ClearShapesTool } from "../tool/clear-shapes.tool";
+import { HighlighterTool } from "../tool/highlighter.tool";
+import { PenTool } from "../tool/pen.tool";
+import { PointerTool } from "../tool/pointer.tool";
+import { RedoTool } from "../tool/redo.tool";
+import { RubberTool } from "../tool/rubber.tool";
+import { Tool, ToolType } from "../tool/tool";
+import { ToolContext } from "../tool/tool-context";
+import { UndoTool } from "../tool/undo.tool";
 import { Action } from "../action/action";
-import { autorun } from "mobx";
+import { autorun, runInAction } from "mobx";
 import { documentStore } from "../store/document.store";
 import { toolStore } from "../store/tool.store";
 import { uiStateStore } from "../store/ui-state.store";
@@ -40,7 +40,9 @@ export class ToolController {
 			this.setPageNumber(documentStore.selectedPageNumber);
 		});
 		autorun(() => {
-			this.selectTool(toolStore.selectedToolType);
+			runInAction(() => {
+				this.selectTool(toolStore.selectedToolType);
+			})
 		});
 	}
 

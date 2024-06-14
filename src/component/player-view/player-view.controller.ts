@@ -1,7 +1,7 @@
 import { ReactiveController } from "lit";
 import { PlayerView } from "./player-view";
 import { courseStore } from "../../store/course.store";
-import { autorun } from "mobx"
+import { autorun, runInAction } from "mobx"
 import { uiStateStore } from "../../store/ui-state.store";
 import { privilegeStore } from "../../store/privilege.store";
 
@@ -19,7 +19,9 @@ export class PlayerViewController implements ReactiveController {
 
 	hostConnected() {
 		autorun(() => {
-			uiStateStore.setRightContainerVisible((privilegeStore.canUseChat() && uiStateStore.chatVisible) || uiStateStore.receiveCameraFeed);
+			runInAction(() => {
+				uiStateStore.setRightContainerVisible((privilegeStore.canUseChat() && uiStateStore.chatVisible) || uiStateStore.receiveCameraFeed);
+			})
 		});
 		autorun(() => {
 			courseStore.hasChatFeature();

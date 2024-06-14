@@ -6,13 +6,12 @@ import { customElement, property, query } from 'lit/decorators.js';
 import { applicationContext, ApplicationContext } from "../../context/application.context";
 import { CourseContext, courseContext } from "../../context/course.context";
 import { MouseListener } from "../../event/mouse-listener";
-import { ToolController } from "../../tool/tool-controller";
+import { ToolController } from "../../controller/tool-controller";
 import { PlayerControls } from '../controls/player-controls';
 import { I18nLitElement } from '../i18n-mixin';
 import { ParticipantView } from '../participant-view/participant-view';
 import { PlayerViewController } from './player-view.controller';
 import { ScreenView } from '../screen-view/screen-view';
-import { autorun } from 'mobx';
 import { privilegeStore } from '../../store/privilege.store';
 import { courseStore } from '../../store/course.store';
 import { SlSplitPanel } from '@shoelace-style/shoelace';
@@ -79,15 +78,9 @@ export class PlayerView extends Component {
 	override connectedCallback() {
 		super.connectedCallback()
 
-		autorun(() => {
-			this.participantsVisible = privilegeStore.canViewParticipants() && uiStateStore.participantsVisible;
-		});
-		autorun(() => {
-			this.rightContainerVisible = uiStateStore.rightContainerVisible;
-		});
-		autorun(() => {
-			this.chatVisible = uiStateStore.chatVisible;
-		});
+		this.participantsVisible = privilegeStore.canViewParticipants() && uiStateStore.participantsVisible;
+		this.rightContainerVisible = uiStateStore.rightContainerVisible;
+		this.chatVisible = uiStateStore.chatVisible;
 	}
 
 	override disconnectedCallback() {
@@ -114,6 +107,9 @@ export class PlayerView extends Component {
 			return null;
 		}
 
+		this.participantsVisible = privilegeStore.canViewParticipants() && uiStateStore.participantsVisible;
+		this.rightContainerVisible = uiStateStore.rightContainerVisible;
+		this.chatVisible = uiStateStore.chatVisible;
 		this.screenVisible = participantStore.hasScreenStream();
 
 		return html`

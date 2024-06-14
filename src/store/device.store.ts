@@ -26,6 +26,10 @@ class DeviceStore {
 		this.load();
 	}
 
+	setSpeakerVolume(volume: number) {
+		this.speakerVolume = volume;
+	}
+
 	persist() {
 		localStorage.setItem("device.store", JSON.stringify(this));
 	}

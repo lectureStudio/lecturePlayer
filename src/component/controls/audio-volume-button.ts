@@ -88,7 +88,7 @@ export class AudioVolumeButton extends I18nLitElement {
 			this.volumeState = 4;
 		}
 
-		deviceStore.speakerVolume = (this.volume / 100.0);
+		deviceStore.setSpeakerVolume(this.volume / 100.0);
 	}
 
 	private onVolume(e: Event): void {

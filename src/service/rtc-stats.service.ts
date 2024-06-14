@@ -1,4 +1,11 @@
-import { AudioStats, DataStats, StreamAudioStats, StreamMediaStats, StreamVideoStats, VideoStats } from "../model/stream-stats";
+import { runInAction } from "mobx";
+import {
+	AudioStats,
+	StreamAudioStats,
+	StreamMediaStats,
+	StreamVideoStats,
+	VideoStats,
+} from "../model/stream-stats";
 import { streamStatsStore } from "../store/stream-stats.store";
 
 export class RTCStatsService {
@@ -15,27 +22,29 @@ export class RTCStatsService {
 
 		this.pc.getStats()
 			.then(report => {
-				this.prepareAudioStats(streamStatsStore.audioStats);
-				this.prepareVideoStats(streamStatsStore.cameraStats);
-				this.prepareVideoStats(streamStatsStore.screenStats);
+				runInAction(() => {
+					this.prepareAudioStats(streamStatsStore.audioStats);
+					this.prepareVideoStats(streamStatsStore.cameraStats);
+					this.prepareVideoStats(streamStatsStore.screenStats);
 
-				for (const entry of report.values()) {
-					const type: RTCStatsType = entry.type;
+					for (const entry of report.values()) {
+						const type: RTCStatsType = entry.type;
 
-					if (!type) {
-						continue;
-					}
+						if (!type) {
+							continue;
+						}
 
-					if (type === "inbound-rtp") {
-						this.getRtpStats(report, entry, true);
+						if (type === "inbound-rtp") {
+							this.getRtpStats(report, entry, true);
+						}
+						else if (type === "outbound-rtp") {
+							this.getRtpStats(report, entry, false);
+						}
+						else if (type === "data-channel") {
+							this.getDataChannelStats(report, entry);
+						}
 					}
-					else if (type === "outbound-rtp") {
-						this.getRtpStats(report, entry, false);
-					}
-					else if (type === "data-channel") {
-						this.getDataChannelStats(report, entry);
-					}
-				}
+				})
 			});
 	}
 
@@ -105,7 +114,7 @@ export class RTCStatsService {
 		};
 
 		if (inbound) {
-			const inboundStats: RTCInboundRtpStreamStats = stats;
+			const inboundStats = stats as RTCInboundRtpStreamStats;
 
 			audioStats.bytesReceived = inboundStats.bytesReceived;
 			audioStats.jitter = inboundStats.jitter;
@@ -113,7 +122,7 @@ export class RTCStatsService {
 			audioStats.packetsLost = inboundStats.packetsLost;
 		}
 		else {
-			const outboundStats: RTCOutboundRtpStreamStats = stats;
+			const outboundStats = stats as RTCOutboundRtpStreamStats;
 
 			audioStats.bytesSent = outboundStats.bytesSent;
 			audioStats.packetsSent = outboundStats.packetsSent;
@@ -138,7 +147,7 @@ export class RTCStatsService {
 		};
 
 		if (inbound) {
-			const inboundStats: RTCInboundRtpStreamStats = stats;
+			const inboundStats = stats as RTCInboundRtpStreamStats;
 
 			videoStats.bytesReceived = inboundStats.bytesReceived;
 			videoStats.jitter = inboundStats.jitter;
@@ -146,7 +155,7 @@ export class RTCStatsService {
 			videoStats.packetsLost = inboundStats.packetsLost;
 		}
 		else {
-			const outboundStats: RTCOutboundRtpStreamStats = stats;
+			const outboundStats = stats as RTCOutboundRtpStreamStats;
 
 			videoStats.bytesSent = outboundStats.bytesSent;
 			videoStats.packetsSent = outboundStats.packetsSent;
@@ -155,13 +164,11 @@ export class RTCStatsService {
 		return videoStats;
 	}
 
-	private getDataChannelStats(report: RTCStatsReport, channelStats: RTCDataChannelStats) {
-		const dataStats: DataStats = {
+	private getDataChannelStats(_report: RTCStatsReport, channelStats: RTCDataChannelStats) {
+		streamStatsStore.dataStats = {
 			bytesReceived: channelStats.bytesReceived,
 			bytesSent: channelStats.bytesSent
 		};
-
-		streamStatsStore.dataStats = dataStats;
 	}
 
 	private getTrackDescription(ssrc: number) {
