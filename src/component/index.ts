@@ -21,6 +21,7 @@ export * from './participant-view/participant-view';
 export * from './quiz-box/quiz-box';
 export * from './quiz-form/quiz-form';
 export * from './modal/modal';
+export * from './navbar/navbar';
 export * from './screen-view/screen-view';
 export * from './stream-stats/stream-stats';
 export * from './theme-settings/theme-settings';

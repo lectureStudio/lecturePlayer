@@ -35,6 +35,7 @@ export class LecturePlayer extends Component {
 
 	protected override render() {
 		return html`
+			<player-navbar></player-navbar>
 			<div id="outlet"></div>
 		`;
 	}

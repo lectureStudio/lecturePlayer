@@ -1,0 +1,105 @@
+nav {
+	position: relative;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	padding-top: .5rem;
+	padding-bottom: .5rem;
+}
+nav > .nav-container {
+	display: flex;
+	flex-wrap: inherit;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding-right: .75rem;
+	padding-left: .75rem;
+	margin-right: auto;
+	margin-left: auto;
+}
+nav > .nav-container > .nav-brand {
+	color: var(--sl-color-neutral-1000);
+	padding-top: .3125rem;
+	padding-bottom: .3125rem;
+	margin-right: 1rem;
+	font-size: 1.25rem;
+	text-decoration: none;
+	white-space: nowrap;
+}
+nav > .nav-container > .nav-collapse {
+	align-items: center;
+	flex-basis: 100%;
+	flex-grow: 1;
+	overflow: hidden;
+}
+nav > .nav-container ul {
+	margin-top: 0;
+}
+nav .ml-auto {
+	margin-left: auto !important;
+}
+.nav-item {
+	display: flex;
+	flex-direction: column;
+	padding-left: 0;
+	margin-bottom: 0;
+	list-style: none;
+}
+.nav-item a {
+	color: var(--sl-color-neutral-700);
+	display: block;
+	text-decoration: none;
+	transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out;
+}
+.nav-item a:hover {
+	color: var(--sl-color-neutral-1000);
+}
+.nav-item > * > a {
+	padding: .5rem;
+}
+.nav-item sl-dropdown ::part(base) {
+	background-color: transparent;
+	border: 0;
+	font-size: inherit;
+	font-weight: inherit;
+	font-family: inherit;
+	padding-inline-end: inherit;
+	transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out;
+}
+.nav-item sl-dropdown ::part(base):hover {
+	color: var(--sl-color-neutral-1000);
+}
+.nav-item sl-button::part(label) {
+	align-content: center;
+	padding: 0 var(--sl-spacing-x-small);
+	padding-inline-end: var(--sl-spacing-2x-small);
+}
+.nav-item sl-menu-item::part(base) {
+	padding: 0;
+}
+.nav-toggle::part(base) {
+	background-color: transparent;
+	fill: var(--sl-color-neutral-700);
+	font-size: var(--sl-font-size-x-large);
+}
+
+
+
+@media (min-width: 576px) {
+	nav {
+		flex-wrap: nowrap;
+		justify-content: flex-start;
+	}
+	.nav-collapse {
+		display: flex !important;
+		flex-basis: auto;
+		height: auto !important;
+	}
+	.nav-item {
+		flex-direction: row;
+	}
+	.nav-toggle {
+		display: none;
+	}
+}
