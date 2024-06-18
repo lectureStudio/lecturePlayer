@@ -69,7 +69,7 @@ export class CourseViewController implements ReactiveController {
 		this.testConnection();
 		this.setInitialState();
 
-		// this.eventService.addEventSubService(this.context.chatService);
+		this.applicationContext.eventService.initializeSubService(this.courseContext.chatService);
 
 		this.host.addEventListener("participant-audio-play-error", this.onAudioPlayError.bind(this), false);
 		this.host.addEventListener("participant-video-play-error", this.onVideoPlayError.bind(this), false);
@@ -96,6 +96,8 @@ export class CourseViewController implements ReactiveController {
 		uiStateStore.setState(State.DISCONNECTED);
 		uiStateStore.setStreamState(State.DISCONNECTED);
 		uiStateStore.setDocumentState(State.DISCONNECTED);
+
+		this.applicationContext.eventService.disposeSubService(this.courseContext.chatService);
 
 		// Remove all registered event listeners.
 		this.applicationContext.eventEmitter.disposeContext("course-view");

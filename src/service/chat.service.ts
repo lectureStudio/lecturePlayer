@@ -92,22 +92,24 @@ export class ChatService extends EventTarget implements EventSubService {
 		this.client = client;
 		this.eventEmitter = eventEmitter;
 
-		client.subscribe("/topic/course/" + this.courseId + "/chat", (message: Message) => {
+		client.subscribe(`/topic/course/${this.courseId}/chat`, (message: Message) => {
 			const chatMessage = JSON.parse(message.body);
+
+			console.log("new message", chatMessage);
 
 			chatStore.addMessage(chatMessage);
 		});
-		client.subscribe("/topic/course/" + this.courseId + "/chat/deletion", (message: Message) => {
+		client.subscribe(`/topic/course/${this.courseId}/chat/deletion`, (message: Message) => {
 			const messageToDelete = JSON.parse(message.body);
 
 			chatStore.updateMessage(messageToDelete);
 		});
-		client.subscribe("/topic/course/" + this.courseId + "/chat/edit", (message: Message) => {
+		client.subscribe(`/topic/course/${this.courseId}/chat/edit`, (message: Message) => {
             const messageToEdit = JSON.parse(message.body);
 
             chatStore.updateMessage(messageToEdit);
         });
-		client.subscribe("/user/queue/course/" + this.courseId + "/chat", (message: Message) => {
+		client.subscribe(`/user/queue/course/${this.courseId}/chat`, (message: Message) => {
 			const chatMessage = JSON.parse(message.body);
 
 			chatStore.addMessage(chatMessage);
@@ -118,6 +120,15 @@ export class ChatService extends EventTarget implements EventSubService {
 		client.subscribe("/user/queue/chat/error", (message: Message) => {
 			this.handleEvent("lp-chat-error", message.body);
 		});
+	}
+
+	dispose(client: Client): void {
+		client.unsubscribe(`/topic/course/${this.courseId}/chat`);
+		client.unsubscribe(`/topic/course/${this.courseId}/chat/deletion`);
+		client.unsubscribe(`/topic/course/${this.courseId}/chat/edit`);
+		client.unsubscribe(`/user/queue/course/${this.courseId}/chat`);
+		client.unsubscribe("/user/queue/chat/response");
+		client.unsubscribe("/user/queue/chat/error");
 	}
 
 	postMessage(data: FormData, msgToReplyTo: string | undefined): Promise<void> {

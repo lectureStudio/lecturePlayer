@@ -7,13 +7,13 @@ export interface EventSubService {
 
 	initialize(client: Client, eventEmitter: EventEmitter): void;
 
+	dispose(client: Client): void;
+
 }
 
 export class EventService extends EventTarget {
 
 	private readonly eventEmitter: EventEmitter;
-
-	private readonly subServices: EventSubService[];
 
 	private client: Client | undefined;
 
@@ -22,11 +22,6 @@ export class EventService extends EventTarget {
 		super();
 
 		this.eventEmitter = eventEmitter;
-		this.subServices = [];
-	}
-
-	addEventSubService(service: EventSubService) {
-		this.subServices.push(service);
 	}
 
 	connect() {
@@ -40,7 +35,7 @@ export class EventService extends EventTarget {
 			heartbeatOutgoing: 1000,
 			discardWebsocketOnCommFailure: false,
 			debug: (_message) => {
-				// console.log("STOMP: " + _message);
+				console.log("STOMP: " + _message);
 			},
 		});
 		client.onConnect = () => {
@@ -58,10 +53,6 @@ export class EventService extends EventTarget {
 			client.subscribe("/topic/course/event/all/quiz", (message) => {
 				this.handleEvent("lp-quiz-state", message.body);
 			});
-
-			for (const subService of this.subServices) {
-				subService.initialize(client, this.eventEmitter);
-			}
 		};
 		client.onDisconnect = () => {
 			console.log("STOMP disconnected");
@@ -80,6 +71,22 @@ export class EventService extends EventTarget {
 	close() {
 		console.log("** EventService closes, disconnecting STOMP");
 		this.client?.deactivate()
+	}
+
+	initializeSubService(service: EventSubService) {
+		if (!this.client) {
+			throw new Error("EventService must be initialized and connected");
+		}
+
+		service.initialize(this.client, this.eventEmitter);
+	}
+
+	disposeSubService(service: EventSubService) {
+		if (!this.client) {
+			throw new Error("EventService must be initialized and connected");
+		}
+
+		service.dispose(this.client);
 	}
 
 	private handleEvent(eventName: string, body: string) {
