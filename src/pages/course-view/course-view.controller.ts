@@ -5,7 +5,6 @@ import { CourseContext } from "../../context/course.context";
 import { PlaybackController } from "../../controller/playback.controller";
 import { SpeechController } from "../../controller/speech.controller";
 import { StreamController } from "../../controller/stream.controller";
-import EventContext from "../../decorator/event-context.decorator";
 import { Course } from "../../model/course";
 import { privilegeStore } from "../../store/privilege.store";
 import { CourseStateApi } from "../../transport/course-state-api";
@@ -31,6 +30,7 @@ import { LpChatResponseEvent, LpChatStateEvent, LpEventServiceStateEvent, LpMedi
 import { Toaster } from '../../utils/toaster';
 import { t } from 'i18next';
 import { CourseView } from "./course-view";
+import EventContext from "../../decorator/event-context.decorator";
 
 export class CourseViewController implements ReactiveController {
 
@@ -175,117 +175,111 @@ export class CourseViewController implements ReactiveController {
 			});
 	}
 
-	private loadCourseState(course: Course) {
-		return CourseStateApi.getCourseState(course.id)
-			.then(state => {
-				console.log("* on course state");
+	private async loadCourseState(course: Course) {
+		const state = await CourseStateApi.getCourseState(course.id);
 
-				privilegeStore.setPrivileges(state.userPrivileges);
+		console.log("* on course state");
 
-				documentStore.setActiveDocument(state.activeDocument);
-				documentStore.setDocumentMap(state.documentMap);
-			});
+		privilegeStore.setPrivileges(state.userPrivileges);
+		documentStore.setActiveDocument(state.activeDocument);
+		documentStore.setDocumentMap(state.documentMap);
 	}
 
-	private loadUserInfo() {
-		return CourseUserApi.getUserInformation()
-			.then(userInfo => {
-				console.log("* on user info");
+	private async loadUserInfo() {
+		const userInfo = await CourseUserApi.getUserInformation();
 
-				userStore.setUserId(userInfo.userId);
-				userStore.setName(userInfo.firstName, userInfo.familyName);
-				userStore.setParticipantType(userInfo.participantType);
-			});
+		console.log("* on user info");
+
+		userStore.setUserId(userInfo.userId);
+		userStore.setName(userInfo.firstName, userInfo.familyName);
+		userStore.setParticipantType(userInfo.participantType);
 	}
 
-	private loadParticipants() {
+	private async loadParticipants() {
 		if (!courseStore.activeCourse) {
 			throw new Error("Course is not set");
 		}
 
-		return CourseParticipantApi.getParticipants(courseStore.activeCourse.id)
-			.then(participants => {
-				console.log("* on participants", participants);
+		const participants = await CourseParticipantApi.getParticipants(courseStore.activeCourse.id);
 
-				participantStore.setParticipants(participants);
-			});
+		console.log("* on participants", participants);
+
+		participantStore.setParticipants(participants);
 	}
 
-	private loadChatHistory() {
+	private async loadChatHistory() {
 		if (!courseStore.activeCourse) {
 			throw new Error("Course is not set");
 		}
 
-		return CourseChatApi.getChatHistory(courseStore.activeCourse.id)
-			.then(history => {
-				console.log("* on chat history");
+		const history = await CourseChatApi.getChatHistory(courseStore.activeCourse.id);
 
-				chatStore.setMessages(history.messages);
-			});
+		console.log("* on chat history");
+
+		chatStore.setMessages(history.messages);
 	}
 
-	private loadMediaDevices() {
-		return Devices.enumerateAudioDevices(false)
-			.then((deviceInfo: DeviceInfo) => {
-				console.log("* on media devices");
+	private async loadMediaDevices() {
+		try {
+			const deviceInfo = await Devices.enumerateAudioDevices(false);
+			console.log("* on media devices");
 
-				// Stream is not needed.
-				Devices.stopMediaTracks(deviceInfo.stream);
+			// Stream is not needed.
+			Devices.stopMediaTracks(deviceInfo.stream);
 
-				// Select default devices.
-				if (!deviceStore.microphoneDeviceId) {
-					const audioInputDevices = deviceInfo.devices.filter(device => device.kind === "audioinput");
+			// Select default devices.
+			if (!deviceStore.microphoneDeviceId) {
+				const audioInputDevices = deviceInfo.devices.filter(device => device.kind === "audioinput");
 
-					deviceStore.microphoneDeviceId = Devices.getDefaultDevice(audioInputDevices).deviceId;
-				}
-				if (!deviceStore.speakerDeviceId && deviceStore.canSelectSpeaker && !Utils.isFirefox()) {
-					const audioOutputDevices = deviceInfo.devices.filter(device => device.kind === "audiooutput");
+				deviceStore.microphoneDeviceId = Devices.getDefaultDevice(audioInputDevices).deviceId;
+			}
+			if (!deviceStore.speakerDeviceId && deviceStore.canSelectSpeaker && !Utils.isFirefox()) {
+				const audioOutputDevices = deviceInfo.devices.filter(device_1 => device_1.kind === "audiooutput");
 
-					deviceStore.speakerDeviceId = Devices.getDefaultDevice(audioOutputDevices).deviceId;
-				}
-				if (!deviceStore.cameraDeviceId) {
-					deviceStore.cameraDeviceId = "none";
-				}
+				deviceStore.speakerDeviceId = Devices.getDefaultDevice(audioOutputDevices).deviceId;
+			}
+			if (!deviceStore.cameraDeviceId) {
+				deviceStore.cameraDeviceId = "none";
+			}
 
-				deviceStore.microphoneBlocked = false;
-			})
-			.catch(_error => {
-				deviceStore.microphoneBlocked = true;
-			});
+			deviceStore.microphoneBlocked = false;
+		}
+		catch (_error) {
+			deviceStore.microphoneBlocked = true;
+		}
 	}
 
 	private loadStream() {
 		return this.streamController.connect();
 	}
 
-	private loadDocuments() {
+	private async loadDocuments() {
 		uiStateStore.setDocumentState(State.CONNECTING);
 
 		if (!documentStore.documentMap) {
 			return Promise.reject("No documents to load");
 		}
 
-		return this.courseContext.documentService.getDocuments(documentStore.documentMap)
-			.then(documents => {
-				console.log("* on documents loaded");
+		const documents = await this.courseContext.documentService.getDocuments(documentStore.documentMap);
 
-				this.playbackController.start();
-				this.playbackController.setDocuments(documents);
+		console.log("* on documents loaded");
 
-				if (documentStore.activeDocument) {
-					this.playbackController.setActiveDocument(documentStore.activeDocument);
-				}
+		this.playbackController.start();
+		this.playbackController.setDocuments(documents);
 
-				this.applicationContext.modalController.registerModal("RecordedModal", new RecordedModal(), false, false);
+		if (documentStore.activeDocument) {
+			this.playbackController.setActiveDocument(documentStore.activeDocument);
+		}
 
-				if (courseStore.activeCourse?.isRecorded) {
-					this.applicationContext.modalController.openModal("RecordedModal");
-				}
+		this.applicationContext.modalController.registerModal("RecordedModal", new RecordedModal(), false, false);
 
-				uiStateStore.setDocumentState(State.CONNECTED);
+		if (courseStore.activeCourse?.isRecorded) {
+			this.applicationContext.modalController.openModal("RecordedModal");
+		}
 
-				this.updateConnectionState();
-			});
+		uiStateStore.setDocumentState(State.CONNECTED);
+
+		this.updateConnectionState();
 	}
 
 	private onConnectionError(cause: unknown) {

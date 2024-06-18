@@ -32,8 +32,6 @@ export class PlayerViewController implements ReactiveController {
 	}
 
 	startTimer() {
-		console.log("---- start timer")
-
 		if (this.clockIntervalId !== 0) {
 			// Make sure the previous timer is cleared/disposed.
 			this.stopTimer();
@@ -50,8 +48,6 @@ export class PlayerViewController implements ReactiveController {
 	}
 
 	stopTimer() {
-		console.log("---- stop timer")
-
 		window.clearInterval(this.clockIntervalId);
 
 		this.clockIntervalId = 0;
