@@ -58,7 +58,8 @@ nav .ml-auto {
 .nav-item > * > a {
 	padding: .5rem;
 }
-.nav-item sl-dropdown ::part(base) {
+.nav-item sl-dropdown ::part(base),
+.nav-item sl-button::part(base) {
 	background-color: transparent;
 	border: 0;
 	font-size: inherit;
@@ -67,7 +68,8 @@ nav .ml-auto {
 	padding-inline-end: inherit;
 	transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out;
 }
-.nav-item sl-dropdown ::part(base):hover {
+.nav-item sl-dropdown ::part(base):hover,
+.nav-item sl-button::part(base):hover {
 	color: var(--sl-color-neutral-1000);
 }
 .nav-item sl-button::part(label) {
@@ -83,7 +85,23 @@ nav .ml-auto {
 	fill: var(--sl-color-neutral-700);
 	font-size: var(--sl-font-size-x-large);
 }
+sl-popup::part(popup) {
+	position: static;
+	/*transition: opacity .15s ease-in-out;*/
+	/*opacity: 0;*/
+}
 
+sl-popup[active]::part(popup) {
+	/*transition: opacity .15s ease-in-out;*/
+	/*opacity: 1;*/
+}
+
+
+sl-dropdown::part(popup) {
+	position: static;
+	/*transition: opacity .15s ease-in-out;*/
+	/*opacity: 0;*/
+}
 
 
 @media (min-width: 576px) {
@@ -101,5 +119,8 @@ nav .ml-auto {
 	}
 	.nav-toggle {
 		display: none;
+	}
+	sl-popup::part(popup) {
+		position: absolute;
 	}
 }

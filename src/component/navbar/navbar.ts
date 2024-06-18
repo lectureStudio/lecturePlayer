@@ -1,3 +1,4 @@
+import { SlPopup } from "@shoelace-style/shoelace";
 import { html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { animateTo, shimKeyframesHeightAuto, stopAnimations } from "../../utils/animate";
@@ -17,8 +18,14 @@ export class PlayerNavbar extends I18nLitElement {
 	@property({ type: Boolean })
 	accessor expanded: boolean;
 
+	@property({ type: Boolean })
+	accessor expandedPopup: boolean;
+
 	@query(".nav-collapse")
 	accessor collapsible: HTMLElement;
+
+	@query("#user-popup")
+	accessor popup: SlPopup;
 
 
 	async expandMenu() {
@@ -61,6 +68,36 @@ export class PlayerNavbar extends I18nLitElement {
 		this.collapsible.style.height = "0";
 	}
 
+	async expandUserMenu() {
+		await stopAnimations(this.popup.popup);
+
+		this.popup.active = true;
+
+		const { keyframes, options } = {
+			keyframes: [
+				{ opacity: 0, scale: 0.9 },
+				{ opacity: 1, scale: 1 }
+			],
+			options: { duration: 100, easing: "ease" }
+		};
+		await animateTo(this.popup.popup, keyframes, options);
+	}
+
+	async hideUserMenu() {
+		await stopAnimations(this.popup.popup);
+
+		const { keyframes, options } = {
+			keyframes: [
+				{ opacity: 1, scale: 1 },
+				{ opacity: 0, scale: 0.9 }
+			],
+			options: { duration: 100, easing: "ease" }
+		};
+		await animateTo(this.popup.popup, keyframes, options);
+
+		this.popup.active = false;
+	}
+
 	private async toggleMenu() {
 		if (this.expanded) {
 			await this.hideMenu();
@@ -70,8 +107,20 @@ export class PlayerNavbar extends I18nLitElement {
 		}
 	}
 
+	private async toggleUserMenu() {
+		if (this.expandedPopup) {
+			await this.hideUserMenu();
+		}
+		else {
+			await this.expandUserMenu();
+		}
+
+		this.expandedPopup = !this.expandedPopup;
+	}
+
 	override firstUpdated() {
 		this.collapsible.style.height = this.expanded ? "auto" : "0";
+		this.popup.active = this.expandedPopup;
 	}
 
 	override render() {
@@ -99,6 +148,18 @@ export class PlayerNavbar extends I18nLitElement {
 							</li>
 							<li>
 								<a href="/settings">Einstellungen</a>
+							</li>
+							<li>
+								<sl-button @click="${this.toggleUserMenu}" id="external-anchor" caret>Alex Andres</sl-button>
+								<sl-popup anchor="external-anchor" placement="bottom-end" id="user-popup">
+									<sl-menu>
+										<sl-menu-item value="add-course"><a href="/course/add">Kurs hinzufügen</a></sl-menu-item>
+										<sl-divider></sl-divider>
+										<sl-menu-item value="profile"><a href="/profile">Profil</a></sl-menu-item>
+										<sl-divider></sl-divider>
+										<sl-menu-item value="logout"><a href="/logout">Ausloggen</a></sl-menu-item>
+									</sl-menu>
+								</sl-popup>
 							</li>
 							<li>
 								<sl-dropdown>
