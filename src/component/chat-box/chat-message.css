@@ -78,6 +78,13 @@ pre {
 .modify-buttons {
 	display: flex;
 	flex-direction: row;
+	margin-top: 1px;
+}
+.modify-buttons sl-button::part(base) {
+	border: 0;
+	min-height: var(--sl-input-height-small);
+	font-size: var(--sl-button-font-size-small);
+	line-height: calc(var(--sl-input-height-small) - var(--sl-input-border-width) * 2);
 }
 .deleted-message-content {
 	font-style: italic;
@@ -124,8 +131,11 @@ pre {
 	display: flex;
 	align-items: center;
 }
-  
-textarea {
-	flex: 1;
-	margin-right: 8px;
+
+[contenteditable] {
+	border-radius: 2px;
+	outline: 1px dashed var(--sl-color-primary-800);
+	outline-offset: 2px;
+	position: relative;
+	white-space: pre-wrap;
 }
