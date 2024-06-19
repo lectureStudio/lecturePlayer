@@ -7,7 +7,7 @@ export interface EventSubService {
 
 	initialize(client: Client, eventEmitter: EventEmitter): void;
 
-	dispose(client: Client): void;
+	dispose(): void;
 
 }
 
@@ -35,7 +35,7 @@ export class EventService extends EventTarget {
 			heartbeatOutgoing: 1000,
 			discardWebsocketOnCommFailure: false,
 			debug: (_message) => {
-				console.log("STOMP: " + _message);
+				// console.log("STOMP: " + _message);
 			},
 		});
 		client.onConnect = () => {
@@ -86,7 +86,7 @@ export class EventService extends EventTarget {
 			throw new Error("EventService must be initialized and connected");
 		}
 
-		service.dispose(this.client);
+		service.dispose();
 	}
 
 	private handleEvent(eventName: string, body: string) {

@@ -1,4 +1,5 @@
 import { Client, Message, StompHeaders } from '@stomp/stompjs';
+import { StompSubscription } from "@stomp/stompjs/src/stomp-subscription";
 import { courseStore } from "../store/course.store";
 import { EventSubService } from "./event.service";
 import { chatStore } from '../store/chat.store';
@@ -77,6 +78,8 @@ export class ChatService extends EventTarget implements EventSubService {
 
 	private readonly courseId: number;
 
+	private readonly subscriptions: Array<StompSubscription>;
+
 	private client: Client;
 
 	private eventEmitter: EventEmitter;
@@ -86,49 +89,43 @@ export class ChatService extends EventTarget implements EventSubService {
 		super();
 
 		this.courseId = courseId;
+		this.subscriptions = [];
 	}
 
 	initialize(client: Client, eventEmitter: EventEmitter): void {
 		this.client = client;
 		this.eventEmitter = eventEmitter;
 
-		client.subscribe(`/topic/course/${this.courseId}/chat`, (message: Message) => {
+		this.subscriptions.push(client.subscribe(`/topic/course/${this.courseId}/chat`, (message: Message) => {
 			const chatMessage = JSON.parse(message.body);
 
-			console.log("new message", chatMessage);
-
 			chatStore.addMessage(chatMessage);
-		});
-		client.subscribe(`/topic/course/${this.courseId}/chat/deletion`, (message: Message) => {
+		}));
+		this.subscriptions.push(client.subscribe(`/topic/course/${this.courseId}/chat/deletion`, (message: Message) => {
 			const messageToDelete = JSON.parse(message.body);
 
 			chatStore.updateMessage(messageToDelete);
-		});
-		client.subscribe(`/topic/course/${this.courseId}/chat/edit`, (message: Message) => {
+		}));
+		this.subscriptions.push(client.subscribe(`/topic/course/${this.courseId}/chat/edit`, (message: Message) => {
             const messageToEdit = JSON.parse(message.body);
 
             chatStore.updateMessage(messageToEdit);
-        });
-		client.subscribe(`/user/queue/course/${this.courseId}/chat`, (message: Message) => {
+        }));
+		this.subscriptions.push(client.subscribe(`/user/queue/course/${this.courseId}/chat`, (message: Message) => {
 			const chatMessage = JSON.parse(message.body);
 
 			chatStore.addMessage(chatMessage);
-		});
-		client.subscribe("/user/queue/chat/response", (message: Message) => {
+		}));
+		this.subscriptions.push(client.subscribe("/user/queue/chat/response", (message: Message) => {
 			this.handleEvent("lp-chat-response", message.body);
-		});
-		client.subscribe("/user/queue/chat/error", (message: Message) => {
+		}));
+		this.subscriptions.push(client.subscribe("/user/queue/chat/error", (message: Message) => {
 			this.handleEvent("lp-chat-error", message.body);
-		});
+		}));
 	}
 
-	dispose(client: Client): void {
-		client.unsubscribe(`/topic/course/${this.courseId}/chat`);
-		client.unsubscribe(`/topic/course/${this.courseId}/chat/deletion`);
-		client.unsubscribe(`/topic/course/${this.courseId}/chat/edit`);
-		client.unsubscribe(`/user/queue/course/${this.courseId}/chat`);
-		client.unsubscribe("/user/queue/chat/response");
-		client.unsubscribe("/user/queue/chat/error");
+	dispose(): void {
+		this.subscriptions.forEach(subscription => subscription.unsubscribe());
 	}
 
 	postMessage(data: FormData, msgToReplyTo: string | undefined): Promise<void> {
