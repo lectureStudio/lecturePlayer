@@ -47,10 +47,14 @@ export class ChatBoxMessage extends Component {
 	@query('#edit-tooltip')
 	accessor editTooltip: SlTooltip;
 
+	@query('#message-editor')
+	accessor messageEditor: HTMLElement;
+
+	@query('#message-submit')
+	accessor messageSubmit: HTMLButtonElement;
+
 	@query(".chat-message-boxed")
 	accessor chatMessageBoxed: HTMLElement;
-
-	editedText: string = "";
 
 	timestamp: string;
 
@@ -88,14 +92,7 @@ export class ChatBoxMessage extends Component {
 				<div class="chat-message-boxed">
 					${when(this.editing, () => html`
 						<div class="chat-message-edit">
-							<textarea
-								@input="${(e: InputEvent) => this.editedText = (e.target as HTMLTextAreaElement).value}"
-								.value="${this.editedText}" id="edit-message-textarea">
-							</textarea>
-							<sl-button id="message-submit" slot="right-pane" @click="${this.postEditedMessage}"
-									   type="submit" form="course-message-form" size="medium" circle>
-								<sl-icon name="send"></sl-icon>
-							</sl-button>
+							<div id="message-editor" contenteditable="true">${this.message.text}</div>
 						</div>
 					`)}
 					${when(!this.editing, () => html`
@@ -112,6 +109,14 @@ export class ChatBoxMessage extends Component {
 
 		return html`
 			<div class="modify-buttons">
+				${when(this.editing, () => html`
+					<sl-button id="message-submit" slot="right-pane" @click="${this.postEditedMessage}"
+							   type="submit" form="course-message-form" size="medium">
+						<sl-icon slot="prefix" name="send"></sl-icon>
+						${t("course.feature.message.send")}
+					</sl-button>
+				`)}
+
 				<sl-tooltip id="reply-tooltip" .content="${t("course.feature.message.reply.button")}" trigger="hover">
 					<sl-icon-button name="chat-reply" @click="${this.replyToMessage}" form="course-message-form" size="small" ?disabled="${!this.canReply()}"></sl-icon-button>
 				</sl-tooltip>
@@ -175,7 +180,7 @@ export class ChatBoxMessage extends Component {
 
 	}
 
-	private replyToMessage(event: Event) : void {
+	private replyToMessage(_event: Event) : void {
 		if (!this.chatForm) {
 			throw new Error("Form is null");
 		}
@@ -189,23 +194,36 @@ export class ChatBoxMessage extends Component {
 		this.hideTooltips();
 
 		this.editing = true;
-		this.editedText = this.message.text;
 
 		const clickListener = (e: MouseEvent) => this.cancelEditing(e);
         document.addEventListener('mousedown', clickListener);
 
-        this.globalClickListener = clickListener;
+		this.globalClickListener = clickListener;
+
+		setTimeout(() => {
+			this.messageEditor.focus();
+		}, 0);
 	}
 
-	private postEditedMessage(event: Event) : void{
+	private postEditedMessage(event: Event): void {
+		const editedText = this.messageEditor.innerText;
+
+		if (editedText == this.message.text) {
+			this.editing = false;
+			return;
+		}
+
 		document.removeEventListener('mousedown', this.globalClickListener);
 		const editButton = <HTMLButtonElement> event.target;
 		editButton.disabled = true;
 
-        this.chatService.editMessage(this.editedText, this.message.messageId)
+		this.chatService.editMessage(editedText, this.message.messageId)
             .then(() => {
+				this.message.text = editedText;
 				this.editing = false;
-				if (this.editedText != this.message.text) Toaster.showSuccess(`${t("course.feature.message.edited")}`);
+
+				Toaster.showSuccess(`${t("course.feature.message.edited")}`);
+
 				editButton.disabled = false;
             })
             .catch(error => {
@@ -232,29 +250,39 @@ export class ChatBoxMessage extends Component {
     }
 
 	private canReply(): boolean {
-		if(this.editing || this.message.deleted) return false;
-
-		if(!privilegeStore.canWriteMessages()) return false;
-		if(ChatService.isPrivateMessage(this.message) && !privilegeStore.canWritePrivateMessages()) return false;
-		if(ChatService.isMessageToOrganisers(this.message) && !privilegeStore.canWriteMessagesToOrganisators()) return false;
+		if (this.editing || this.message.deleted) {
+			return false;
+		}
+		if (!privilegeStore.canWriteMessages()) {
+			return false;
+		}
+		if (ChatService.isPrivateMessage(this.message) && !privilegeStore.canWritePrivateMessages()) {
+			return false;
+		}
+		if (ChatService.isMessageToOrganisers(this.message) && !privilegeStore.canWriteMessagesToOrganisators()) {
+			return false;
+		}
 
 		return privilegeStore.canWriteMessagesToAll();
 	}
 
-	private cancelEditing(event: MouseEvent) : void {
-		if(!this.chatMessageBoxed) return;
-
-        const clickWithinMessageBox: boolean = ChatBoxMessage.isWithinRect(
-			event.clientX, event.clientY,
-			this.chatMessageBoxed.getBoundingClientRect())
-
-		if(clickWithinMessageBox) {
+	private cancelEditing(event: MouseEvent): void {
+		if (!this.chatMessageBoxed) {
 			return;
 		}
 
-        this.editing = false;
+		const clickWithinMessageSubmit = ChatBoxMessage.isWithinRect(event.clientX, event.clientY,
+			this.messageSubmit?.getBoundingClientRect() ?? new DOMRect());
+		const clickWithinMessageBox = ChatBoxMessage.isWithinRect(event.clientX, event.clientY,
+			this.chatMessageBoxed.getBoundingClientRect());
 
-        document.removeEventListener('mousedown', this.globalClickListener);
+		if (clickWithinMessageBox || clickWithinMessageSubmit) {
+			return;
+		}
+
+		this.editing = false;
+
+		document.removeEventListener('mousedown', this.globalClickListener);
 	}
 
 	private static getMessageDate(message: ChatMessage) {
