@@ -4,7 +4,7 @@ import { Devices } from "../../utils/devices";
 import { Utils } from "../../utils/utils";
 import { I18nLitElement } from "../i18n-mixin";
 import { courseStore } from "../../store/course.store";
-import { autorun, observable } from "mobx";
+import { autorun } from "mobx";
 import { deviceStore } from "../../store/device.store";
 import { CourseParticipant, Participant } from "../../model/participant";
 import { Component } from "../component";

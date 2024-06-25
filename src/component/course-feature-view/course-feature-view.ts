@@ -1,8 +1,8 @@
+import { consume } from "@lit/context";
 import { CSSResultGroup, PropertyValues, html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
-import { ChatService } from '../../service/chat.service';
-import { ModerationService } from "../../service/moderation.service";
+import { courseContext, CourseContext } from "../../context/course.context";
 import { courseStore } from "../../store/course.store";
 import { I18nLitElement, t } from '../i18n-mixin';
 import { SlSplitPanel, SlTab, SlTabGroup, SlTabHideEvent } from '@shoelace-style/shoelace';
@@ -11,25 +11,22 @@ import { Component } from '../component';
 import { autorun } from 'mobx';
 import { privilegeStore } from '../../store/privilege.store';
 import { chatStore } from '../../store/chat.store';
-import featureViewStyles from './feature-view.css';
+import styles from './course-feature-view.css';
 
-@customElement('player-feature-view')
-export class PlayerFeatureView extends Component {
+@customElement('course-feature-view')
+export class CourseFeatureView extends Component {
 
 	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
-		featureViewStyles,
+		styles,
 	];
 
 	private tabSwipeObserver: SwipeObserver;
 
 	private readonly maxWidth600Query: MediaQueryList;
 
-	@property({ attribute: false })
-	accessor chatService: ChatService;
-
-	@property({ attribute: false })
-	accessor moderationService: ModerationService;
+	@consume({ context: courseContext })
+	accessor courseContext: CourseContext;
 
 	@query("#outer-split-panel")
 	accessor outerSplitPanel: SlSplitPanel;
@@ -168,7 +165,7 @@ export class PlayerFeatureView extends Component {
 					<div slot="start" class="left-container">
 						<div class="participants-container">
 						${when(this.participantsVisible, () => html`
-							<participant-list .moderationService="${this.moderationService}"></participant-list>
+							<participant-list .moderationService="${this.courseContext.moderationService}"></participant-list>
 						`)}
 						</div>
 					</div>
@@ -197,7 +194,7 @@ export class PlayerFeatureView extends Component {
 				<sl-badge pill>${chatStore.unreadMessages}</sl-badge>
 			</sl-tab>
 			<sl-tab-panel name="chat">
-				<chat-box @chat-visibility="${this.onChatVisibility}" .chatService="${this.chatService}"></chat-box>
+				<chat-box @chat-visibility="${this.onChatVisibility}" .chatService="${this.courseContext.chatService}"></chat-box>
 			</sl-tab-panel>
 		`;
 	}
@@ -225,7 +222,7 @@ export class PlayerFeatureView extends Component {
 		return html`
 			<sl-tab slot="nav" panel="participants">${t("course.participants")}</sl-tab>
 			<sl-tab-panel name="participants">
-				<participant-list .moderationService="${this.moderationService}"></participant-list>
+				<participant-list .moderationService="${this.courseContext.moderationService}"></participant-list>
 			</sl-tab-panel>
 		`;
 	}
@@ -247,7 +244,7 @@ export class PlayerFeatureView extends Component {
 			this.section = tab.panel;
 		}
 		else {
-			// Participants tab is selected and disapeared due to layout change.
+			// The Participants tab is selected and disappeared due to layout change.
 			tab = this.checkOrGetDefaultTab(null);
 			if (tab) {
 				this.section = tab.panel;

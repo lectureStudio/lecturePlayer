@@ -1,8 +1,9 @@
 import { html } from "lit";
 import { customElement, query } from "lit/decorators.js";
+import { ColorScheme } from "../../model/ui-state";
 import { t } from '../i18n-mixin';
 import { Component } from "../component";
-import { ColorScheme, uiStateStore } from "../../store/ui-state.store";
+import { uiStateStore } from "../../store/ui-state.store";
 
 @customElement("theme-settings")
 export class ThemeSettings extends Component {

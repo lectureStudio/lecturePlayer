@@ -1,0 +1,29 @@
+:host {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	justify-content: center;
+}
+.error-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+.error-code {
+	font-size: var(--sl-font-size-4x-large);
+	letter-spacing: var(--sl-letter-spacing-loose);
+	line-height: var(--sl-line-height-dense);
+}
+.error-message {
+	color: var(--sl-color-primary-400);
+	font-size: var(--sl-font-size-medium);
+	letter-spacing: var(--sl-letter-spacing-looser);
+	padding-bottom: 1rem;
+	text-transform: uppercase;
+}
+.error-description {
+	color: var(--sl-color-neutral-800);
+	font-size: var(--sl-font-size-medium);
+	text-align: center;
+	padding: 0 1rem 1rem 1rem;
+}

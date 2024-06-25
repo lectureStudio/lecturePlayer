@@ -41,11 +41,11 @@ export class LecturePlayer extends Component {
 	}
 
 	private async initRouter() {
-		const router = new Router(this.shadowRoot?.querySelector('#outlet'));
+		const router = new Router(this.shadowRoot?.querySelector("#outlet"));
 		await router.setRoutes([
 			{ path: "/", component: "course-list" },
 			{ path: "/course/:courseId", component: "course-view" },
-			{ path: "(.*)", redirect: "/" },
+			{ path: "(.*)", component: "not-found" },
 		]);
 	}
 

@@ -23,14 +23,16 @@ export class SettingsModal extends Modal {
 
 
 	save() {
-		deviceStore.persist();
-		uiStateStore.persist();
+		// TODO
 
 		this.dispatchEvent(Utils.createEvent("device-settings-saved"));
 		this.close();
 	}
 
 	cancel() {
+		deviceStore.persist();
+		uiStateStore.persist();
+
 		this.dispatchEvent(Utils.createEvent("device-settings-canceled"));
 		this.close();
 	}
@@ -59,6 +61,7 @@ export class SettingsModal extends Modal {
 					<sl-tab slot="nav" panel="audio">${t("settings.audio")}</sl-tab>
 					<sl-tab slot="nav" panel="video">${t("settings.camera")}</sl-tab>
 					<sl-tab slot="nav" panel="theme">${t("settings.theme")}</sl-tab>
+					<sl-tab slot="nav" panel="media-profile">${t("settings.media.profile")}</sl-tab>
 
 					<sl-tab-panel name="audio">
 						<sound-settings></sound-settings>
@@ -69,10 +72,12 @@ export class SettingsModal extends Modal {
 					<sl-tab-panel name="theme">
 						<theme-settings></theme-settings>
 					</sl-tab-panel>
+					<sl-tab-panel name="media-profile">
+						<media-profile-settings></media-profile-settings>
+					</sl-tab-panel>
 				</sl-tab-group>
 				<div slot="footer">
 					<sl-button @click="${this.cancel}" variant="default" size="small">${t("settings.close")}</sl-button>
-					<sl-button @click="${this.save}" variant="primary" size="small" id="save-button">${t("settings.save")}</sl-button>
 				</div>
 			</sl-dialog>
 		`;

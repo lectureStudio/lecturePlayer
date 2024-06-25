@@ -6,10 +6,10 @@ import { PlaybackController } from "../../controller/playback.controller";
 import { SpeechController } from "../../controller/speech.controller";
 import { StreamController } from "../../controller/stream.controller";
 import { Course } from "../../model/course";
+import { MediaProfile } from "../../model/ui-state";
 import { privilegeStore } from "../../store/privilege.store";
 import { CourseStateApi } from "../../transport/course-state-api";
 import { DeviceInfo, Devices } from '../../utils/devices';
-import { MediaProfile, Settings } from '../../utils/settings';
 import { State } from '../../utils/state';
 import { Utils } from '../../utils/utils';
 import { EntryModal } from '../../component/entry-modal/entry.modal';
@@ -119,7 +119,7 @@ export class CourseViewController implements ReactiveController {
 	}
 
 	private setInitialState() {
-		courseStore.isClassroom = this.host.getAttribute("isClassroom") == "true" || Settings.getMediaProfile() === MediaProfile.Classroom;
+		courseStore.isClassroom = uiStateStore.mediaProfile === MediaProfile.CLASSROOM;
 
 		// Early state recognition to avoid the view flickering.
 		if (courseStore.activeCourse?.isLive) {

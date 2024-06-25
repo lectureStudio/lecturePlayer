@@ -10,7 +10,7 @@ import { ToolController } from "../../controller/tool-controller";
 import { PlayerControls } from '../controls/player-controls';
 import { I18nLitElement } from '../i18n-mixin';
 import { ParticipantView } from '../participant-view/participant-view';
-import { PlayerViewController } from './player-view.controller';
+import { CourseStreamViewController } from './course-stream-view.controller';
 import { ScreenView } from '../screen-view/screen-view';
 import { privilegeStore } from '../../store/privilege.store';
 import { courseStore } from '../../store/course.store';
@@ -20,17 +20,17 @@ import { uiStateStore } from '../../store/ui-state.store';
 import { participantStore } from '../../store/participants.store';
 import { Component } from '../component';
 import { SlideView } from '../slide-view/slide-view';
-import playerViewStyles from './player-view.css';
+import styles from './course-stream-view.css';
 
-@customElement('player-view')
-export class PlayerView extends Component {
+@customElement('course-stream-view')
+export class CourseStreamView extends Component {
 
 	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
-		playerViewStyles,
+		styles,
 	];
 
-	private readonly controller = new PlayerViewController(this);
+	private readonly controller = new CourseStreamViewController(this);
 
 	@consume({ context: applicationContext })
 	accessor applicationContext: ApplicationContext;

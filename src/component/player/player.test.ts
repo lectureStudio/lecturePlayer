@@ -40,24 +40,24 @@ describe("Lecture Player", () => {
 	it("default disconnected state", async () => {
 		await expect(uiStateStore.state).to.equal(State.DISCONNECTED);
 
-		expect(element.shadowRoot!.querySelector("player-offline")).not.null;
+		expect(element.shadowRoot!.querySelector("course-offline")).not.null;
 	});
 
 	it("connected feature state", async () => {
 		await changeState(element, State.CONNECTED_FEATURES);
 
-		expect(element.shadowRoot!.querySelector("player-feature-view")).not.null;
+		expect(element.shadowRoot!.querySelector("course-feature-view")).not.null;
 	});
 
 	it("connecting state", async () => {
 		await changeState(element, State.CONNECTING);
 
-		expect(element.shadowRoot!.querySelector("player-loading")).not.null;
+		expect(element.shadowRoot!.querySelector("course-loading")).not.null;
 	});
 
 	it("connected state", async () => {
 		await changeState(element, State.CONNECTED);
 
-		expect(element.shadowRoot!.querySelector("player-view")).not.null;
+		expect(element.shadowRoot!.querySelector("course-view")).not.null;
 	});
 });

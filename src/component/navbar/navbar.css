@@ -85,23 +85,6 @@ nav .ml-auto {
 	fill: var(--sl-color-neutral-700);
 	font-size: var(--sl-font-size-x-large);
 }
-sl-popup::part(popup) {
-	position: static;
-	/*transition: opacity .15s ease-in-out;*/
-	/*opacity: 0;*/
-}
-
-sl-popup[active]::part(popup) {
-	/*transition: opacity .15s ease-in-out;*/
-	/*opacity: 1;*/
-}
-
-
-sl-dropdown::part(popup) {
-	position: static;
-	/*transition: opacity .15s ease-in-out;*/
-	/*opacity: 0;*/
-}
 
 
 @media (min-width: 576px) {

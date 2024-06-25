@@ -1,7 +1,8 @@
 import { ReactiveController } from 'lit';
 import { autorun } from "mobx";
+import { ColorScheme } from "../../model/ui-state";
 import { courseStore } from "../../store/course.store";
-import { ColorScheme, uiStateStore } from "../../store/ui-state.store";
+import { uiStateStore } from "../../store/ui-state.store";
 import { SettingsModal } from "../settings-modal/settings.modal";
 import { LecturePlayer } from './player';
 import {

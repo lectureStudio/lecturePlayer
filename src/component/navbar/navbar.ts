@@ -1,12 +1,14 @@
 import { SlPopup } from "@shoelace-style/shoelace";
+import { t } from "i18next";
 import { html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
+import { uiStateStore } from "../../store/ui-state.store";
 import { animateTo, shimKeyframesHeightAuto, stopAnimations } from "../../utils/animate";
-import { I18nLitElement } from '../i18n-mixin';
+import { Component } from "../component";
 import navbarStyles from './navbar.css';
 
 @customElement('player-navbar')
-export class PlayerNavbar extends I18nLitElement {
+export class PlayerNavbar extends Component {
 
 	static override styles = [
 		navbarStyles,
@@ -136,7 +138,7 @@ export class PlayerNavbar extends I18nLitElement {
 					<div class="nav-collapse">
 						<ul class="nav-item">
 							<li>
-								<sl-badge variant="neutral">Neutral</sl-badge>
+								<sl-badge variant="neutral">${t(`media.profile.${uiStateStore.mediaProfile}`)}</sl-badge>
 							</li>
 						</ul>
 						<ul class="nav-item ml-auto">
@@ -144,20 +146,20 @@ export class PlayerNavbar extends I18nLitElement {
 						</ul>
 						<ul class="nav-item ml-auto">
 							<li>
-								<a href="/">Kurse</a>
+								<a href="/">${t("nav.courses")}</a>
 							</li>
 							<li>
-								<a href="/settings">Einstellungen</a>
+								<a href="/settings">${t("nav.settings")}</a>
 							</li>
 							<li>
 								<sl-button @click="${this.toggleUserMenu}" id="external-anchor" caret>Alex Andres</sl-button>
 								<sl-popup anchor="external-anchor" placement="bottom-end" id="user-popup">
 									<sl-menu>
-										<sl-menu-item value="add-course"><a href="/course/add">Kurs hinzufügen</a></sl-menu-item>
+										<sl-menu-item value="add-course"><a href="/course/add">${t("nav.course.add")}</a></sl-menu-item>
 										<sl-divider></sl-divider>
-										<sl-menu-item value="profile"><a href="/profile">Profil</a></sl-menu-item>
+										<sl-menu-item value="profile"><a href="/profile">${t("nav.profile")}</a></sl-menu-item>
 										<sl-divider></sl-divider>
-										<sl-menu-item value="logout"><a href="/logout">Ausloggen</a></sl-menu-item>
+										<sl-menu-item value="logout"><a href="/logout">${t("nav.logout")}</a></sl-menu-item>
 									</sl-menu>
 								</sl-popup>
 							</li>

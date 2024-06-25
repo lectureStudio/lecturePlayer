@@ -68,16 +68,16 @@ export class CourseView extends Component implements BeforeEnterObserver {
 	protected override render() {
 		switch (uiStateStore.state) {
 			case State.CONNECTING:
-				return html`<player-loading .text="${t("course.loading")}"></player-loading>`;
+				return html`<loading-indicator .text="${t("course.loading")}"></loading-indicator>`;
 			case State.CONNECTED:
 			case State.RECONNECTING:
-				return html`<player-view></player-view>`;
+				return html`<course-stream-view></course-stream-view>`;
 			case State.CONNECTED_FEATURES:
-				return html`<player-feature-view></player-feature-view>`;
+				return html`<course-feature-view></course-feature-view>`;
 			case State.DISCONNECTED:
-				return html`<player-offline></player-offline>`;
+				return html`<course-offline></course-offline>`;
 			case State.NO_ACCESS:
-				return html`<player-no-access></player-no-access>`;
+				return html`<course-no-access></course-no-access>`;
 		}
 	}
 }

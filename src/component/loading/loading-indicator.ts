@@ -1,13 +1,13 @@
 import { html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { I18nLitElement } from '../i18n-mixin';
-import playerLoadingStyles from './player-loading.css';
+import styles from './loading-indicator.css';
 
-@customElement('player-loading')
-export class PlayerLoading extends I18nLitElement {
+@customElement('loading-indicator')
+export class LoadingIndicator extends I18nLitElement {
 
 	static override styles = [
-		playerLoadingStyles,
+		styles,
 	];
 
 	@property()

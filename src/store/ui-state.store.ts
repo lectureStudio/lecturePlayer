@@ -2,16 +2,8 @@ import { makeAutoObservable } from "mobx";
 import { LecturePlayer } from "../component";
 import { Dimension } from "../geometry/dimension";
 import { ContentFocus, ContentLayout } from "../model/content";
+import { ColorScheme, MediaProfile } from "../model/ui-state";
 import { State } from "../utils/state";
-
-export enum ColorScheme {
-
-	DARK = "dark",
-	LIGHT = "light",
-	SYSTEM = "system"
-
-}
-
 
 class UiStateStore {
 
@@ -20,6 +12,8 @@ class UiStateStore {
 	systemColorScheme: ColorScheme;
 
 	colorScheme: ColorScheme;
+
+	mediaProfile: MediaProfile;
 
 	state: State = State.DISCONNECTED;
 
@@ -62,6 +56,10 @@ class UiStateStore {
 
 	setColorScheme(scheme: ColorScheme) {
 		this.colorScheme = scheme;
+	}
+
+	setMediaProfile(profile: MediaProfile) {
+		this.mediaProfile = profile;
 	}
 
 	setState(state: State) {
@@ -137,9 +135,9 @@ class UiStateStore {
 	}
 
 	persist() {
-		const { colorScheme } = this;
+		const { colorScheme, mediaProfile } = this;
 
-		localStorage.setItem("ui.store", JSON.stringify({ colorScheme }));
+		localStorage.setItem("ui.store", JSON.stringify({ colorScheme, mediaProfile }));
 	}
 
 	private load() {
@@ -152,6 +150,9 @@ class UiStateStore {
 		// Set default values.
 		if (!this.colorScheme) {
 			this.setColorScheme(ColorScheme.SYSTEM);
+		}
+		if (!this.mediaProfile) {
+			this.setMediaProfile(MediaProfile.HOME);
 		}
 	}
 }

@@ -1,18 +1,18 @@
 import { ReactiveController } from "lit";
-import { PlayerView } from "./player-view";
+import { CourseStreamView } from "./course-stream-view";
 import { courseStore } from "../../store/course.store";
 import { autorun, runInAction } from "mobx"
 import { uiStateStore } from "../../store/ui-state.store";
 import { privilegeStore } from "../../store/privilege.store";
 
-export class PlayerViewController implements ReactiveController {
+export class CourseStreamViewController implements ReactiveController {
 
-	readonly host: PlayerView;
+	readonly host: CourseStreamView;
 
 	private clockIntervalId: number = 0;
 
 
-	constructor(host: PlayerView) {
+	constructor(host: CourseStreamView) {
 		this.host = host;
 		this.host.addController(this);
 	}

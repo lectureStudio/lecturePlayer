@@ -23,6 +23,17 @@ sl-option::part(base) {
 	font-size: var(--sl-font-size-small);
 }
 
+.help-text {
+	display: block;
+	color: var(--sl-input-help-text-color);
+	font-size: var(--sl-input-help-text-font-size-medium);
+	margin-top: var(--sl-spacing-2x-small);
+}
+
+sl-radio-group .help-text {
+	margin-inline-start: 2em;
+}
+
 #meter {
 	background-color: var(--sl-color-neutral-200);
 	fill: var(--sl-color-primary-500);

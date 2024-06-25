@@ -4,10 +4,10 @@ import { customElement } from 'lit/decorators.js';
 import { I18nLitElement } from '../i18n-mixin';
 import { Component } from '../component';
 import { t } from "i18next";
-import style from './no-access.css';
+import style from './course-no-access.css';
 
-@customElement('player-no-access')
-export class PlayerNoAccess extends Component {
+@customElement('course-no-access')
+export class CourseNoAccess extends Component {
 
 	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,

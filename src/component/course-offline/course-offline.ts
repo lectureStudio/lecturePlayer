@@ -6,14 +6,14 @@ import { I18nLitElement, t } from '../i18n-mixin';
 import { courseStore } from '../../store/course.store';
 import { Component } from '../component';
 import { uiStateStore } from '../../store/ui-state.store';
-import playerOfflineStyles from './player-offline.css';
+import styles from './course-offline.css';
 
-@customElement('player-offline')
-export class PlayerOffline extends Component {
+@customElement('course-offline')
+export class CourseOffline extends Component {
 
 	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
-		playerOfflineStyles,
+		styles,
 	];
 
 

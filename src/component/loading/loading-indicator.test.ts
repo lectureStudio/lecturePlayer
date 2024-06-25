@@ -1,18 +1,18 @@
 import { html } from "lit";
 import { fixture, expect, elementUpdated } from "@open-wc/testing";
 
-import type { PlayerLoading } from "./player-loading.js";
-import "./player-loading.js";
+import type { LoadingIndicator } from "./loading-indicator";
+import "./loading-indicator";
 
-describe("Player Loading", () => {
-	let element: PlayerLoading;
+describe("Loading Indicator", () => {
+	let element: LoadingIndicator;
 
 	beforeEach(async () => {
-		element = await fixture(html`<player-loading></player-loading>`);
+		element = await fixture(html`<loading-indicator></loading-indicator>`);
 	});
 
 	it("renders custom text", async () => {
-		const text = "Player is loading!";
+		const text = "Course is loading!";
 		element.text = text;
 
 		await elementUpdated(element);
