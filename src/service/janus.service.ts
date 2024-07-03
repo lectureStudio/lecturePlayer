@@ -13,10 +13,9 @@ import { SlideDocument } from "../model/document";
 import { participantStore } from "../store/participants.store";
 import { userStore } from "../store/user.store";
 import { EventEmitter } from "../utils/event-emitter";
-import { TypedEventTarget } from "typescript-event-target";
 import { LpParticipantConnectionStateEvent, LpParticipantDataEvent, LpParticipantDestroyedEvent, LpParticipantErrorEvent, LpParticipantJoinedEvent, LpParticipantLeftEvent, LpParticipantStateEvent, ParticipantData } from "../event";
 
-export class JanusService extends TypedEventTarget<DocumentEventMap> {
+export class JanusService extends EventTarget {
 
 	private readonly statsIntervalMs = 1000;
 

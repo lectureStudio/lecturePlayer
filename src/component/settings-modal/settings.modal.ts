@@ -1,4 +1,4 @@
-import { html } from 'lit';
+import { CSSResultGroup, html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { t } from '../i18n-mixin';
 import { Modal } from '../modal/modal';
@@ -6,11 +6,15 @@ import { Utils } from '../../utils/utils';
 import { SoundSettings } from '../media-settings/sound-settings';
 import { CameraSettings } from '../media-settings/camera-settings';
 import { SlTab, SlTabPanel } from '@shoelace-style/shoelace';
-import { deviceStore } from '../../store/device.store';
-import { uiStateStore } from '../../store/ui-state.store';
+import styles from "./settings.modal.css";
 
 @customElement("settings-modal")
 export class SettingsModal extends Modal {
+
+	static override styles = <CSSResultGroup>[
+		Modal.styles,
+		styles
+	];
 
 	@property()
 	accessor section: string = "audio";
@@ -30,9 +34,6 @@ export class SettingsModal extends Modal {
 	}
 
 	cancel() {
-		deviceStore.persist();
-		uiStateStore.persist();
-
 		this.dispatchEvent(Utils.createEvent("device-settings-canceled"));
 		this.close();
 	}
@@ -60,20 +61,12 @@ export class SettingsModal extends Modal {
 				<sl-tab-group @sl-tab-show="${(event: CustomEvent) => { this.onTab(event.detail.name) }}">
 					<sl-tab slot="nav" panel="audio">${t("settings.audio")}</sl-tab>
 					<sl-tab slot="nav" panel="video">${t("settings.camera")}</sl-tab>
-					<sl-tab slot="nav" panel="theme">${t("settings.theme")}</sl-tab>
-					<sl-tab slot="nav" panel="media-profile">${t("settings.media.profile")}</sl-tab>
 
 					<sl-tab-panel name="audio">
 						<sound-settings></sound-settings>
 					</sl-tab-panel>
 					<sl-tab-panel name="video">
 						<camera-settings></camera-settings>
-					</sl-tab-panel>
-					<sl-tab-panel name="theme">
-						<theme-settings></theme-settings>
-					</sl-tab-panel>
-					<sl-tab-panel name="media-profile">
-						<media-profile-settings></media-profile-settings>
 					</sl-tab-panel>
 				</sl-tab-group>
 				<div slot="footer">

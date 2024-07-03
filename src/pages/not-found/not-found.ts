@@ -3,14 +3,14 @@ import { CSSResultGroup, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { Component } from "../../component/component";
 import { I18nLitElement } from "../../component/i18n-mixin";
-import style from './not-found.css';
+import styles from './not-found.css';
 
 @customElement('not-found')
 export class NotFound extends Component {
 
 	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
-		style,
+		styles,
 	];
 
 

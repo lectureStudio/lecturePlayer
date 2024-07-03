@@ -1,0 +1,59 @@
+:host {
+	display: flex;
+	flex: auto;
+	justify-content: center;
+	height: 100%;
+}
+sl-tab-group {
+	width: 100%;
+}
+sl-tab-group::part(base),
+sl-tab-group::part(tabs) {
+	height: 100%;
+}
+sl-tab-group::part(nav) {
+	display: flex;
+	height: 100%;
+}
+sl-tab::part(base) {
+	padding: var(--sl-spacing-small) var(--sl-spacing-large);
+	width: 100%;
+}
+sl-tab .tab-container {
+	display: grid;
+	grid-template-areas:
+		"icon title"
+		"icon description";
+}
+sl-tab sl-icon {
+	align-self: center;
+	grid-area: icon;
+	font-size: var(--sl-font-size-large);
+	padding-right: var(--sl-spacing-small);
+}
+sl-tab .help-text {
+	font-size: var(--sl-font-size-x-small);
+	margin: 0;
+}
+
+
+@media (min-width: 576px) {
+	sl-tab-group {
+		width: 80%;
+	}
+}
+@media (min-width: 768px) {
+	sl-tab-group {
+		width: 70%;
+	}
+}
+@media (min-width: 992px) {
+	sl-tab-group {
+		width: 60%;
+	}
+}
+@media (min-width: 1200px) {
+	sl-tab-group {
+		width: 50%;
+	}
+}

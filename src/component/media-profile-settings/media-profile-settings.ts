@@ -19,10 +19,10 @@ export class MediaProfileSettings extends Component {
 		return html`
 			<form id="profile-form">
 				<sl-radio-group name="profile" .value="${uiStateStore.mediaProfile}" @sl-change=${this.onMediaProfile}>
-					<sl-radio value="${MediaProfile.HOME}">${t("media.profile.home")}</sl-radio>
-					<span class="help-text">${t("media.profile.home.description")}</span>
-					<sl-radio value="${MediaProfile.CLASSROOM}">${t("media.profile.classroom")}</sl-radio>
-					<span class="help-text">${t("media.profile.classroom.description")}</span>
+					<sl-radio value="${MediaProfile.HOME}">${t("settings.ui.media.profile.home")}</sl-radio>
+					<span class="help-text">${t("settings.ui.media.profile.home.description")}</span>
+					<sl-radio value="${MediaProfile.CLASSROOM}">${t("settings.ui.media.profile.classroom")}</sl-radio>
+					<span class="help-text">${t("settings.ui.media.profile.classroom.description")}</span>
 				</sl-radio-group>
 			</form>
 		`;

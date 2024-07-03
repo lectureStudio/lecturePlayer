@@ -77,8 +77,8 @@ export class HttpRequest {
 		return this;
 	}
 
-	delete(url: string) {
-		return this.request("DELETE", url);
+	delete<T>(url: string) {
+		return this.request("DELETE", url) as Promise<T>;
 	}
 
 	get<T>(url: string) {

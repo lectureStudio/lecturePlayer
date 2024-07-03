@@ -9,14 +9,14 @@ import { I18nLitElement } from "../../component/i18n-mixin";
 import { t } from "i18next";
 import { Course, CourseAuthor } from "../../model/course";
 import { courseStore } from "../../store/course.store";
-import style from './course-list.css';
+import styles from './course-list.css';
 
 @customElement('course-list')
 export class CourseList extends Component {
 
 	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
-		style,
+		styles,
 	];
 
 

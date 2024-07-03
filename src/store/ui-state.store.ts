@@ -13,6 +13,8 @@ class UiStateStore {
 
 	colorScheme: ColorScheme;
 
+	language: string;
+
 	mediaProfile: MediaProfile;
 
 	state: State = State.DISCONNECTED;
@@ -56,6 +58,10 @@ class UiStateStore {
 
 	setColorScheme(scheme: ColorScheme) {
 		this.colorScheme = scheme;
+	}
+
+	setLanguage(lang: string) {
+		this.language = lang;
 	}
 
 	setMediaProfile(profile: MediaProfile) {
@@ -135,9 +141,9 @@ class UiStateStore {
 	}
 
 	persist() {
-		const { colorScheme, mediaProfile } = this;
+		const { colorScheme, language, mediaProfile } = this;
 
-		localStorage.setItem("ui.store", JSON.stringify({ colorScheme, mediaProfile }));
+		localStorage.setItem("ui.store", JSON.stringify({ colorScheme, language, mediaProfile }));
 	}
 
 	private load() {

@@ -4,8 +4,6 @@ import { Router } from "@vaadin/router";
 import { CSSResultGroup, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { applicationContext, ApplicationContext } from "../../context/application.context";
-import { courseStore } from "../../store/course.store";
-import { CourseApi } from "../../transport/course-api";
 import { PlayerController } from './player.controller';
 import { I18nLitElement } from '../i18n-mixin';
 import { Component } from '../component';
@@ -29,7 +27,7 @@ export class LecturePlayer extends Component {
 	protected override async firstUpdated(_changedProperties: PropertyValues) {
 		super.firstUpdated(_changedProperties);
 
-		await this.loadCourses();
+		await this.controller.load();
 		await this.initRouter();
 	}
 
@@ -45,14 +43,8 @@ export class LecturePlayer extends Component {
 		await router.setRoutes([
 			{ path: "/", component: "course-list" },
 			{ path: "/course/:courseId", component: "course-view" },
+			{ path: "/settings", component: "app-settings" },
 			{ path: "(.*)", component: "not-found" },
 		]);
-	}
-
-	private async loadCourses() {
-		await CourseApi.getCourses()
-			.then(courses => {
-				courseStore.setCourses(courses);
-			});
 	}
 }

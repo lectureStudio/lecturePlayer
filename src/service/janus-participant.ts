@@ -4,7 +4,6 @@ import { State } from "../utils/state";
 import { Utils } from "../utils/utils";
 import { RTCStatsService } from "./rtc-stats.service";
 import { EventEmitter } from "../utils/event-emitter";
-import { TypedEventTarget } from "typescript-event-target";
 import { LpDeviceMuteEvent, ParticipantConnectionState, ParticipantError, ParticipantState } from "../event";
 
 export enum JanusStreamType {
@@ -16,13 +15,13 @@ export enum JanusStreamType {
 
 }
 
-export abstract class JanusParticipant extends TypedEventTarget<DocumentEventMap> {
+export abstract class JanusParticipant extends EventTarget {
 
 	private statsService: RTCStatsService;
 
 	protected readonly eventEmitter: EventEmitter;
 
-	// Janus stream type to mid mapping.
+	// Janus stream type to mid-mapping.
 	protected readonly streamMids: Map<string, string>;
 
 	protected readonly janus: Janus;
@@ -55,7 +54,7 @@ export abstract class JanusParticipant extends TypedEventTarget<DocumentEventMap
 	abstract connect(): void;
 
 	reconnect() {
-		// Proactively keep connection alive.
+		// Proactively keep the connection alive.
 		this.janus.reconnect({
 			success: () => {
 				console.log("~ janus reconnected", this.janus.isConnected());

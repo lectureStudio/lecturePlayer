@@ -1,15 +1,14 @@
 import { CSSResultGroup, html, TemplateResult } from 'lit';
 import { property } from 'lit/decorators.js';
-import { I18nLitElement } from '../i18n-mixin';
 import { DeviceInfo, Devices } from '../../utils/devices';
 import { Utils } from '../../utils/utils';
-import { Component } from '../component';
+import { SettingsBase } from "../settings-base/settings-base";
 import mediaSettingsStyles from './media-settings.css';
 
-export abstract class MediaSettings extends Component {
+export abstract class MediaSettings extends SettingsBase {
 
 	static override styles = <CSSResultGroup>[
-		I18nLitElement.styles,
+		SettingsBase.styles,
 		mediaSettingsStyles
 	];
 
@@ -70,7 +69,7 @@ export abstract class MediaSettings extends Component {
 		}
 	}
 
-	protected renderDevices(devices: MediaDeviceInfo[], onChange: (event: Event) => void, name: string, id: string, label: string) {
+	protected renderDevices(devices: MediaDeviceInfo[], onChange: (event: Event) => void, name: string, id: string) {
 		// Speaker feature is behind the 'media.setsinkid.enabled' preferences (needs to be set to true).
 		// To change preferences in Firefox, visit about:config.
 		if (name === "speakerDeviceId" && Utils.isFirefox()) {
@@ -78,7 +77,7 @@ export abstract class MediaSettings extends Component {
 		}
 
 		return html`
-			<sl-select @sl-change="${onChange}" name="${name}" label="${label}" id="${id}" size="small" hoist>
+			<sl-select @sl-change="${onChange}" name="${name}" id="${id}" size="small" hoist>
 				${this.renderDeviceOptions(devices)}
 			</sl-select>
 		`;

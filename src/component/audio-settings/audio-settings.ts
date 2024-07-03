@@ -1,15 +1,15 @@
-import { html } from 'lit';
-import { customElement, property, query } from 'lit/decorators.js';
-import { when } from 'lit/directives/when.js';
-import { t } from '../i18n-mixin';
-import { DeviceInfo, Devices } from '../../utils/devices';
-import { SlSelect } from '@shoelace-style/shoelace';
-import { MediaSettings } from './media-settings';
-import { deviceStore } from '../../store/device.store';
-import { courseStore } from '../../store/course.store';
+import { SlSelect } from "@shoelace-style/shoelace";
+import { html } from "lit";
+import { customElement, property, query } from "lit/decorators.js";
+import { when } from "lit/directives/when.js";
+import { courseStore } from "../../store/course.store";
+import { deviceStore } from "../../store/device.store";
+import { DeviceInfo, Devices } from "../../utils/devices";
+import { t } from "../i18n-mixin";
+import { MediaSettings } from "../media-settings/media-settings";
 
-@customElement("sound-settings")
-export class SoundSettings extends MediaSettings {
+@customElement("audio-settings")
+export class AudioSettings extends MediaSettings {
 
 	@property({ attribute: false })
 	accessor audioInputDevices: MediaDeviceInfo[] = [];
@@ -142,19 +142,24 @@ export class SoundSettings extends MediaSettings {
 
 			${when(!this.error, () => html`
 				<form id="device-select-form">
-					${when(courseStore.activeCourse?.isConference, () => html`
-						<sl-switch id="microphoneMuteOnEntry" name="microphoneMuteOnEntry" size="small" ?checked=${deviceStore.microphoneMuteOnEntry}>${t("devices.microphone.mute.on.entry")}</sl-switch>
-					`)}
+					<span>${t("settings.audio.microphone")}</span>
+					<div class="content">
+						${when(courseStore.activeCourse?.isConference, () => html`
+							<sl-switch id="microphoneMuteOnEntry" name="microphoneMuteOnEntry" size="small" ?checked=${deviceStore.microphoneMuteOnEntry}>${t("devices.microphone.mute.on.entry")}</sl-switch>
+						`)}
+						${this.renderDevices(this.audioInputDevices, this.onMicrophoneChange, "microphoneDeviceId", "microphoneSelect")}
+						<canvas id="meter" width="300" height="5"></canvas>
+					</div>
 
-					${this.renderDevices(this.audioInputDevices, this.onMicrophoneChange, "microphoneDeviceId", "microphoneSelect")}
-
-					${when(deviceStore.canSelectSpeaker, () => html`
-						${this.renderDevices(this.audioOutputDevices, this.onSpeakerChange, "speakerDeviceId", "speakerSelect")}
-					`)}
+					<span>${t("settings.audio.speaker")}</span>
+					<div class="content">
+						${when(deviceStore.canSelectSpeaker, () => html`
+							${this.renderDevices(this.audioOutputDevices, this.onSpeakerChange, "speakerDeviceId", "speakerSelect")}
+						`)}
+					</div>
 				</form>
 
 				<audio id="audio" playsinline autoplay muted></audio>
-				<canvas id="meter" width="300" height="5"></canvas>
 			`)}
 		`;
 	}

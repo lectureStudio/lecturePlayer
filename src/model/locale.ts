@@ -2,6 +2,6 @@ export interface Locale {
 
 	readonly tag: string;
 
-	readonly name: string;
+	readonly displayName: string;
 
 }

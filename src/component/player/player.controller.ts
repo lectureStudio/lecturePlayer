@@ -1,8 +1,10 @@
 import { ReactiveController } from 'lit';
-import { autorun } from "mobx";
-import { ColorScheme } from "../../model/ui-state";
 import { courseStore } from "../../store/course.store";
+import { deviceStore } from "../../store/device.store";
 import { uiStateStore } from "../../store/ui-state.store";
+import { userStore } from "../../store/user.store";
+import { CourseApi } from "../../transport/course-api";
+import { CourseUserApi } from "../../transport/course-user-api";
 import { SettingsModal } from "../settings-modal/settings.modal";
 import { LecturePlayer } from './player';
 import {
@@ -17,8 +19,6 @@ export class PlayerController implements ReactiveController {
 
 	private readonly host: LecturePlayer;
 
-	private colorSchemeQuery: MediaQueryList;
-
 
 	constructor(host: LecturePlayer) {
 		this.host = host;
@@ -26,35 +26,53 @@ export class PlayerController implements ReactiveController {
 		host.addController(this);
 
 		uiStateStore.host = host;
-
-		this.observeColorScheme();
 	}
 
 	hostConnected() {
 		const { eventService, eventEmitter } = this.host.appContext;
 
+		addEventListener("beforeunload", () => {
+			uiStateStore.persist();
+			deviceStore.persist();
+		});
+
 		eventService.connect();
 
 		// Application wide events.
 		eventEmitter.addEventListener("lp-fullscreen", this.onFullscreen.bind(this));
-		eventEmitter.addEventListener("lp-settings", this.onSettings.bind(this));
+		eventEmitter.addEventListener("lp-settings", this.onDeviceSettings.bind(this));
 		// Global course events.
 		eventEmitter.addEventListener("lp-event-service-state", this.onEventServiceState.bind(this));
 		eventEmitter.addEventListener("lp-chat-state", this.onChatState.bind(this));
 		eventEmitter.addEventListener("lp-quiz-state", this.onQuizState.bind(this));
 		eventEmitter.addEventListener("lp-recording-state", this.onRecordingState.bind(this));
 		eventEmitter.addEventListener("lp-stream-state", this.onStreamState.bind(this));
+	}
 
-		autorun(() => {
-			this.applyColorScheme();
-		});
+	async load() {
+		await this.loadUserInfo();
+		await this.loadCourses();
+	}
+
+	private async loadUserInfo() {
+		const userInfo = await CourseUserApi.getUserInformation();
+
+		userStore.setUserId(userInfo.userId);
+		userStore.setName(userInfo.firstName, userInfo.familyName);
+		userStore.setParticipantType(userInfo.participantType);
+	}
+
+	private async loadCourses() {
+		const courses = await CourseApi.getCourses();
+
+		courseStore.setCourses(courses);
 	}
 
 	private onFullscreen(event: LpFullscreenEvent) {
 		this.setFullscreen(event.detail);
 	}
 
-	private onSettings() {
+	private onDeviceSettings() {
 		const settingsModal = new SettingsModal();
 
 		this.host.appContext.modalController.registerModal("SettingsModal", settingsModal);
@@ -122,32 +140,6 @@ export class PlayerController implements ReactiveController {
 		const course = courseStore.findCourseById(streamState.courseId);
 		if (course) {
 			course.isLive = streamState.started;
-		}
-	}
-
-	private applyColorScheme() {
-		if (!document.body) {
-			return;
-		}
-
-		const isDark = uiStateStore.isSystemAndUserDark();
-
-		if (isDark) {
-			document.body.classList.add("sl-theme-dark");
-		}
-		else {
-			document.body.classList.remove("sl-theme-dark");
-		}
-	}
-
-	private observeColorScheme() {
-		if (window.matchMedia) {
-			this.colorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
-			this.colorSchemeQuery.addEventListener("change", event => {
-				uiStateStore.setSystemColorScheme(event.matches ? ColorScheme.DARK : ColorScheme.LIGHT);
-			});
-
-			uiStateStore.setSystemColorScheme(this.colorSchemeQuery.matches ? ColorScheme.DARK : ColorScheme.LIGHT);
 		}
 	}
 }

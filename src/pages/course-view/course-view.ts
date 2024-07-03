@@ -12,14 +12,14 @@ import { courseStore } from "../../store/course.store";
 import { uiStateStore } from "../../store/ui-state.store";
 import { State } from "../../utils/state";
 import { CourseViewController } from "./course-view.controller";
-import style from './course-view.css';
+import styles from './course-view.css';
 
 @customElement('course-view')
 export class CourseView extends Component implements BeforeEnterObserver {
 
 	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
-		style,
+		styles,
 	];
 
 	controller: CourseViewController;

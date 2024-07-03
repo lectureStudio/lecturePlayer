@@ -3,13 +3,13 @@ import { query } from "lit/decorators.js";
 import { Utils } from "../../utils/utils";
 import { I18nLitElement } from "../i18n-mixin";
 import { SlDialog } from "@shoelace-style/shoelace";
-import modalStyles from "./modal.css";
+import styles from "./modal.css";
 
 export abstract class Modal extends I18nLitElement {
 
 	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
-		modalStyles
+		styles
 	];
 
 	@query('sl-dialog')

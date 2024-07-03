@@ -22,7 +22,6 @@ import { userStore } from '../../store/user.store';
 import { documentStore } from '../../store/document.store';
 import { uiStateStore } from '../../store/ui-state.store';
 import { deviceStore } from '../../store/device.store';
-import { CourseUserApi } from '../../transport/course-user-api';
 import { CourseParticipantApi } from '../../transport/course-participant-api';
 import { CourseChatApi } from '../../transport/course-chat-api';
 import { streamStatsStore } from '../../store/stream-stats.store';
@@ -156,7 +155,6 @@ export class CourseViewController implements ReactiveController {
 					this.connecting = true;
 
 					try {
-						await this.loadUserInfo();
 						await this.loadParticipants();
 
 						if (courseStore.hasChatFeature()) {
@@ -185,16 +183,6 @@ export class CourseViewController implements ReactiveController {
 		privilegeStore.setPrivileges(state.userPrivileges);
 		documentStore.setActiveDocument(state.activeDocument);
 		documentStore.setDocumentMap(state.documentMap);
-	}
-
-	private async loadUserInfo() {
-		const userInfo = await CourseUserApi.getUserInformation();
-
-		console.log("* on user info");
-
-		userStore.setUserId(userInfo.userId);
-		userStore.setName(userInfo.firstName, userInfo.familyName);
-		userStore.setParticipantType(userInfo.participantType);
 	}
 
 	private async loadParticipants() {
@@ -350,7 +338,6 @@ export class CourseViewController implements ReactiveController {
 		console.log("~ fetch");
 
 		if (courseStore.hasChatFeature()) {
-			await this.loadUserInfo();
 			await this.loadParticipants();
 			await this.loadChatHistory()
 		}
