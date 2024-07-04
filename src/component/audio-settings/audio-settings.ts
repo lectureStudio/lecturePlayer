@@ -11,6 +11,11 @@ import { MediaSettings } from "../media-settings/media-settings";
 @customElement("audio-settings")
 export class AudioSettings extends MediaSettings {
 
+	private audioContext: AudioContext;
+
+	@property({ type: Boolean })
+	accessor active: boolean;
+
 	@property({ attribute: false })
 	accessor audioInputDevices: MediaDeviceInfo[] = [];
 
@@ -30,14 +35,19 @@ export class AudioSettings extends MediaSettings {
 	accessor meterCanvas: HTMLCanvasElement;
 
 
-	override disconnectedCallback() {
-		if (this.audio) {
-			Devices.stopMediaTracks(<MediaStream> this.audio.srcObject);
-
-			this.audio.srcObject = null;
+	override attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null) {
+		if (name === "active") {
+			if (newValue != null) {
+				console.log("queryDevices");
+				this.queryDevices();
+			}
+			else {
+				console.log("stopCapture");
+				this.stopCapture();
+			}
 		}
 
-		super.disconnectedCallback();
+		super.attributeChangedCallback(name, oldValue, newValue);
 	}
 
 	queryDevices(): void {
@@ -73,11 +83,11 @@ export class AudioSettings extends MediaSettings {
 		}
 	}
 
-	protected override updateModel(result: DeviceInfo, _cameraBlocked: boolean) {
+	protected override async updateModel(result: DeviceInfo, _cameraBlocked: boolean) {
 		const devices = result.devices;
 		const stream = result.stream;
 
-		Devices.stopMediaTracks(<MediaStream> this.audio.srcObject);
+		this.stopCapture();
 
 		this.audioInputDevices = devices.filter(device => device.kind === "audioinput");
 		this.audioOutputDevices = devices.filter(device => device.kind === "audiooutput");
@@ -86,9 +96,15 @@ export class AudioSettings extends MediaSettings {
 		this.audio.muted = true;
 
 		if (stream) {
-			const audioTrack = stream.getAudioTracks()[0];
+			this.audioContext = new AudioContext();
+			await this.audioContext.resume();
 
-			Devices.getAudioLevel(audioTrack, this.meterCanvas);
+			try {
+				Devices.getAudioLevel(this.audioContext, stream, this.meterCanvas).catch(reason => console.error(reason));
+			}
+			catch (e) {
+				console.error(e);
+			}
 		}
 
 		this.setEnabled(true);
@@ -111,10 +127,11 @@ export class AudioSettings extends MediaSettings {
 		deviceStore.microphoneDeviceId = audioSource;
 
 		navigator.mediaDevices.getUserMedia(audioConstraints)
-			.then(audioStream => {
-				audioStream.getAudioTracks().forEach(track => (<MediaStream> this.audio.srcObject).addTrack(track));
+			.then(async audioStream => {
+				audioStream.getAudioTracks().forEach(track => (<MediaStream>this.audio.srcObject).addTrack(track));
 
-				Devices.getAudioLevel(audioStream.getAudioTracks()[0], this.meterCanvas);
+				await this.audioContext.resume();
+				await Devices.getAudioLevel(this.audioContext, audioStream, this.meterCanvas);
 			})
 			.catch(error => {
 				console.error(error);
@@ -129,6 +146,14 @@ export class AudioSettings extends MediaSettings {
 		deviceStore.speakerDeviceId = audioSink;
 
 		Devices.setAudioSink(this.audio, audioSink);
+	}
+
+	private stopCapture() {
+		if (this.audio) {
+			Devices.stopMediaTracks(<MediaStream> this.audio.srcObject);
+
+			this.audio.srcObject = null;
+		}
 	}
 
 	protected override render() {

@@ -163,61 +163,28 @@ export class Devices {
 		});
 	}
 
-	static getAudioLevel(audioTrack: MediaStreamTrack, canvas: HTMLCanvasElement) {
+	static async getAudioLevel(context: AudioContext, mediaStream: MediaStream, canvas: HTMLCanvasElement) {
 		const meterContext = canvas.getContext("2d");
-
 		if (meterContext == null) {
 			return;
 		}
 
-		Devices.pollAudioLevel(audioTrack, (level: number) => {
+		await context.audioWorklet.addModule("/js/volume-meter.worklet.js");
+
+		const micNode = context.createMediaStreamSource(mediaStream);
+		const volumeMeterNode = new AudioWorkletNode(context, "volume-meter");
+		volumeMeterNode.port.onmessage = ({ data }) => {
 			meterContext.fillStyle = getComputedStyle(canvas).getPropertyValue("background-color");
 			meterContext.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
 			meterContext.fillStyle = getComputedStyle(canvas).getPropertyValue("fill");
-			meterContext.fillRect(0, 0, level * canvas.clientWidth, canvas.clientHeight);
-		});
+			meterContext.fillRect(0, 0, data * canvas.clientWidth, canvas.clientHeight);
+		};
+
+		micNode
+			.connect(volumeMeterNode)
+			.connect(context.destination);
 	}
 
-	static async pollAudioLevel(track: MediaStreamTrack, onLevelChanged: (value: number) => void) {
-		const audioContext = new AudioContext();
-	
-		// Due to browsers' autoplay policy.
-		await audioContext.resume();
-	
-		const analyser = audioContext.createAnalyser();
-		analyser.minDecibels = -127;
-		analyser.maxDecibels = 0;
-		analyser.fftSize = 1024;
-		analyser.smoothingTimeConstant = 0.5;
-	
-		const stream = new MediaStream([track]);
-		const source = audioContext.createMediaStreamSource(stream);
-		source.connect(analyser);
-	
-		const samples = new Uint8Array(analyser.frequencyBinCount);
-	
-		function rootMeanSquare(samples: Uint8Array) {
-			const sumSq = samples.reduce((sumSq, sample) => sumSq + sample, 0);
-			return sumSq / samples.length;
-		}
-	
-		requestAnimationFrame(function checkLevel() {
-			analyser.getByteFrequencyData(samples);
-	
-			const level = rootMeanSquare(samples) / 255;
-	
-			onLevelChanged(Math.max(Math.min(level, 1), 0));
-	
-			// Continue calculating the level only if the audio track is live.
-			if (track.readyState === "live") {
-				requestAnimationFrame(checkLevel);
-			}
-			else {
-				requestAnimationFrame(() => onLevelChanged(0));
-			}
-		});
-	}
-	
 	static removeHwId(label: string) {
 		const matches = label.match(/\s\([a-zA-Z0-9]{4}:[a-zA-Z0-9]{4}\)/g);
 		let hwId = null;

@@ -4,6 +4,8 @@
 	align-items: center;
 	height: inherit;
 	justify-content: center;
+
+	--size: 13px;
 }
 .lds-ellipsis {
 	display: flex;
@@ -15,8 +17,8 @@
 }
 .lds-ellipsis div {
 	position: absolute;
-	width: 13px;
-	height: 13px;
+	width: var(--size);
+	height: var(--size);
 	border-radius: 50%;
 	background: #0d6efd;
 	animation-timing-function: cubic-bezier(0, 1, 1, 0);

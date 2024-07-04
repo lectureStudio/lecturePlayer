@@ -2,6 +2,7 @@
 	display: flex;
 	flex-direction: column;
 	gap: 1.0em;
+	position: relative;
 }
 :host form {
 	display: grid;
@@ -16,7 +17,7 @@
 	flex-direction: column;
 	row-gap: 0.5rem;
 }
-:host(:not([enabled])) form {
+:host(:not([enabled])) sl-select {
 	pointer-events: none;
 	opacity: 0.4;
 }
@@ -28,10 +29,18 @@
 	flex-direction: row;
 	justify-content: left;
 }
-:host([enabled]) player-loading,
-:host([error]) player-loading {
+:host([enabled]) loading-indicator,
+:host([error]) loading-indicator {
 	display: none;
 }
 :host([error]) #save-button {
 	display: none;
+}
+
+loading-indicator {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 1;
 }

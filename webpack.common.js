@@ -20,10 +20,15 @@ export default {
 	plugins: [
 		new CopyPlugin({
 			patterns: [
-				// Copy pdf-worker to build.
+				// Copy pdf-worker to the build dir.
 				{
 					from: path.resolve(__dirname, "node_modules/pdfjs-dist/build/pdf.worker.min.mjs"),
 					to: path.resolve(__dirname, `${build_dir}/js/pdf.worker.js`)
+				},
+				// Copy volume-meter.worklet to the build dir.
+				{
+					from: path.resolve(__dirname, "src/worklet/volume-meter.worklet.js"),
+					to: path.resolve(__dirname, `${build_dir}/js/volume-meter.worklet.js`)
 				},
 				// Copy icons to build/icons.
 				{

@@ -16,10 +16,10 @@ export class LoadingIndicator extends I18nLitElement {
 
 	override render() {
 		return html`
-			<div class="lds-ellipsis">
+			<div part="indicator" class="lds-ellipsis">
 				<div></div><div></div><div></div><div></div>
 			</div>
-			<span>${this.text}</span>
+			<span part="label">${this.text}</span>
 		`;
 	}
 }

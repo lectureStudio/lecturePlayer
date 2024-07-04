@@ -1,6 +1,8 @@
+import { SlTabPanel } from "@shoelace-style/shoelace";
 import { t } from "i18next";
 import { CSSResultGroup, html } from 'lit';
-import { customElement } from 'lit/decorators.js';
+import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { customElement, property } from 'lit/decorators.js';
 import { Component } from "../../component/component";
 import { I18nLitElement } from "../../component/i18n-mixin";
 import styles from './settings.css';
@@ -13,10 +15,19 @@ export class Settings extends Component {
 		styles,
 	];
 
+	@property({ reflect: false })
+	accessor audioPanelRef: Ref<SlTabPanel> = createRef();
+
+
+	override firstUpdated() {
+		this.updateComplete.then(() => {
+			this.requestUpdate();
+		});
+	}
 
 	protected override render() {
 		return html`
-			<sl-tab-group placement="start">
+			<sl-tab-group placement="start" @sl-tab-show="${(_event: CustomEvent) => { this.requestUpdate() }}">
 				<sl-tab slot="nav" panel="ui">
 					<div class="tab-container">
 						<sl-icon name="layout"></sl-icon>
@@ -52,8 +63,8 @@ export class Settings extends Component {
 				<sl-tab-panel name="api">
 					<api-settings></api-settings>
 				</sl-tab-panel>
-				<sl-tab-panel name="audio">
-					<audio-settings></audio-settings>
+				<sl-tab-panel ${ref(this.audioPanelRef)} name="audio">
+					<audio-settings ?active="${this.audioPanelRef.value?.active}"></audio-settings>
 				</sl-tab-panel>
 				<sl-tab-panel name="video">
 					This is the custom tab panel.
