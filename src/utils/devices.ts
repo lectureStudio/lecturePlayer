@@ -163,28 +163,6 @@ export class Devices {
 		});
 	}
 
-	static async getAudioLevel(context: AudioContext, mediaStream: MediaStream, canvas: HTMLCanvasElement) {
-		const meterContext = canvas.getContext("2d");
-		if (meterContext == null) {
-			return;
-		}
-
-		await context.audioWorklet.addModule("/js/volume-meter.worklet.js");
-
-		const micNode = context.createMediaStreamSource(mediaStream);
-		const volumeMeterNode = new AudioWorkletNode(context, "volume-meter");
-		volumeMeterNode.port.onmessage = ({ data }) => {
-			meterContext.fillStyle = getComputedStyle(canvas).getPropertyValue("background-color");
-			meterContext.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-			meterContext.fillStyle = getComputedStyle(canvas).getPropertyValue("fill");
-			meterContext.fillRect(0, 0, data * canvas.clientWidth, canvas.clientHeight);
-		};
-
-		micNode
-			.connect(volumeMeterNode)
-			.connect(context.destination);
-	}
-
 	static removeHwId(label: string) {
 		const matches = label.match(/\s\([a-zA-Z0-9]{4}:[a-zA-Z0-9]{4}\)/g);
 		let hwId = null;

@@ -5,6 +5,7 @@ import { when } from "lit/directives/when.js";
 import { courseStore } from "../../store/course.store";
 import { deviceStore } from "../../store/device.store";
 import { DeviceInfo, Devices } from "../../utils/devices";
+import { VolumeMeter } from "../../utils/volume-meter";
 import { t } from "../i18n-mixin";
 import { MediaSettings } from "../media-settings/media-settings";
 
@@ -12,6 +13,8 @@ import { MediaSettings } from "../media-settings/media-settings";
 export class AudioSettings extends MediaSettings {
 
 	private audioContext: AudioContext;
+
+	private volumeMeter: VolumeMeter;
 
 	@property({ type: Boolean })
 	accessor active: boolean;
@@ -38,11 +41,9 @@ export class AudioSettings extends MediaSettings {
 	override attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null) {
 		if (name === "active") {
 			if (newValue != null) {
-				console.log("queryDevices");
 				this.queryDevices();
 			}
 			else {
-				console.log("stopCapture");
 				this.stopCapture();
 			}
 		}
@@ -50,11 +51,16 @@ export class AudioSettings extends MediaSettings {
 		super.attributeChangedCallback(name, oldValue, newValue);
 	}
 
-	queryDevices(): void {
-		if (this.initialized) {
-			return;
-		}
+	protected override async firstUpdated() {
+		super.firstUpdated();
 
+		this.audioContext = new AudioContext();
+		await this.audioContext.audioWorklet.addModule("/js/volume-meter.worklet.js");
+
+		this.volumeMeter = new VolumeMeter(this.audioContext, this.meterCanvas);
+	}
+
+	queryDevices(): void {
 		Devices.enumerateAudioDevices(true)
 			.then((result: DeviceInfo) => {
 				this.error = false;
@@ -96,15 +102,7 @@ export class AudioSettings extends MediaSettings {
 		this.audio.muted = true;
 
 		if (stream) {
-			this.audioContext = new AudioContext();
-			await this.audioContext.resume();
-
-			try {
-				Devices.getAudioLevel(this.audioContext, stream, this.meterCanvas).catch(reason => console.error(reason));
-			}
-			catch (e) {
-				console.error(e);
-			}
+			await this.volumeMeter.start(stream);
 		}
 
 		this.setEnabled(true);
@@ -130,8 +128,7 @@ export class AudioSettings extends MediaSettings {
 			.then(async audioStream => {
 				audioStream.getAudioTracks().forEach(track => (<MediaStream>this.audio.srcObject).addTrack(track));
 
-				await this.audioContext.resume();
-				await Devices.getAudioLevel(this.audioContext, audioStream, this.meterCanvas);
+				await this.volumeMeter.start(audioStream);
 			})
 			.catch(error => {
 				console.error(error);
@@ -150,6 +147,13 @@ export class AudioSettings extends MediaSettings {
 
 	private stopCapture() {
 		if (this.audio) {
+			try {
+				this.volumeMeter.stop();
+			}
+			catch (e) {
+				console.error(e);
+			}
+
 			Devices.stopMediaTracks(<MediaStream> this.audio.srcObject);
 
 			this.audio.srcObject = null;
