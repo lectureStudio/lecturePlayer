@@ -39,6 +39,12 @@ interface HTMLMediaElement {
 
 }
 
+interface AudioContext {
+
+	setSinkId(id: string): Promise<undefined>;
+
+}
+
 interface RTCCodecStats {
 
 	payloadType: number;

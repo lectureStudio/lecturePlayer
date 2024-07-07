@@ -24,7 +24,6 @@ export * from './quiz-box/quiz-box';
 export * from './quiz-form/quiz-form';
 export * from './language-chooser/language-chooser';
 export * from './media-settings/camera-settings';
-export * from './media-settings/sound-settings';
 export * from './media-profile-settings/media-profile-settings';
 export * from './modal/modal';
 export * from './navbar/navbar';

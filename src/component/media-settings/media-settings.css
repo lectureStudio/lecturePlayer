@@ -17,6 +17,12 @@
 	flex-direction: column;
 	row-gap: 0.5rem;
 }
+:host form sl-button {
+	width: fit-content;
+}
+:host form sl-button sl-icon {
+	font-size: var(--sl-button-font-size-large);
+}
 :host(:not([enabled])) sl-select {
 	pointer-events: none;
 	opacity: 0.4;

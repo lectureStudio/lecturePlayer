@@ -4,6 +4,7 @@ import { customElement, property, query } from "lit/decorators.js";
 import { when } from "lit/directives/when.js";
 import { courseStore } from "../../store/course.store";
 import { deviceStore } from "../../store/device.store";
+import { AudioFeedback } from "../../utils/audio-feedback";
 import { DeviceInfo, Devices } from "../../utils/devices";
 import { VolumeMeter } from "../../utils/volume-meter";
 import { t } from "../i18n-mixin";
@@ -12,7 +13,7 @@ import { MediaSettings } from "../media-settings/media-settings";
 @customElement("audio-settings")
 export class AudioSettings extends MediaSettings {
 
-	private audioContext: AudioContext;
+	private audioFeedback: AudioFeedback;
 
 	private volumeMeter: VolumeMeter;
 
@@ -54,14 +55,19 @@ export class AudioSettings extends MediaSettings {
 	protected override async firstUpdated() {
 		super.firstUpdated();
 
-		this.audioContext = new AudioContext();
-		await this.audioContext.audioWorklet.addModule("/js/volume-meter.worklet.js");
-
-		this.volumeMeter = new VolumeMeter(this.audioContext, this.meterCanvas);
+		this.audioFeedback = new AudioFeedback();
+		this.volumeMeter = new VolumeMeter(this.meterCanvas);
 	}
 
 	queryDevices(): void {
-		Devices.enumerateAudioDevices(true)
+		const constraints: MediaStreamConstraints = {
+			audio: {
+				noiseSuppression: false,
+				autoGainControl: false,
+			},
+		};
+
+		Devices.enumerateAudioDevices(true, constraints)
 			.then((result: DeviceInfo) => {
 				this.error = false;
 
@@ -89,6 +95,13 @@ export class AudioSettings extends MediaSettings {
 		}
 	}
 
+	private async setMediaStream(stream: MediaStream) {
+		this.audioFeedback.setMediaStream(stream);
+		this.volumeMeter.setMediaStream(stream);
+
+		await this.volumeMeter.start();
+	}
+
 	protected override async updateModel(result: DeviceInfo, _cameraBlocked: boolean) {
 		const devices = result.devices;
 		const stream = result.stream;
@@ -98,11 +111,11 @@ export class AudioSettings extends MediaSettings {
 		this.audioInputDevices = devices.filter(device => device.kind === "audioinput");
 		this.audioOutputDevices = devices.filter(device => device.kind === "audiooutput");
 
-		this.audio.srcObject = result.stream || null;
+		this.audio.srcObject = stream || null;
 		this.audio.muted = true;
 
 		if (stream) {
-			await this.volumeMeter.start(stream);
+			await this.setMediaStream(stream);
 		}
 
 		this.setEnabled(true);
@@ -128,7 +141,7 @@ export class AudioSettings extends MediaSettings {
 			.then(async audioStream => {
 				audioStream.getAudioTracks().forEach(track => (<MediaStream>this.audio.srcObject).addTrack(track));
 
-				await this.volumeMeter.start(audioStream);
+				await this.setMediaStream(audioStream);
 			})
 			.catch(error => {
 				console.error(error);
@@ -145,14 +158,19 @@ export class AudioSettings extends MediaSettings {
 		Devices.setAudioSink(this.audio, audioSink);
 	}
 
+	private async onAudioFeedback() {
+		if (this.audioFeedback.isStarted()) {
+			await this.audioFeedback.stop();
+		}
+		else {
+			await this.audioFeedback.start();
+		}
+	}
+
 	private stopCapture() {
 		if (this.audio) {
-			try {
-				this.volumeMeter.stop();
-			}
-			catch (e) {
-				console.error(e);
-			}
+			this.volumeMeter.stop();
+			this.audioFeedback.stop();
 
 			Devices.stopMediaTracks(<MediaStream> this.audio.srcObject);
 
@@ -173,7 +191,7 @@ export class AudioSettings extends MediaSettings {
 				<form id="device-select-form">
 					<span>${t("settings.audio.microphone")}</span>
 					<div class="content">
-						${when(courseStore.activeCourse?.isConference, () => html`
+						${when(courseStore.activeCourse?.isConference ?? false, () => html`
 							<sl-switch id="microphoneMuteOnEntry" name="microphoneMuteOnEntry" size="small" ?checked=${deviceStore.microphoneMuteOnEntry}>${t("devices.microphone.mute.on.entry")}</sl-switch>
 						`)}
 						${this.renderDevices(this.audioInputDevices, this.onMicrophoneChange, "microphoneDeviceId", "microphoneSelect")}
@@ -185,6 +203,15 @@ export class AudioSettings extends MediaSettings {
 						${when(deviceStore.canSelectSpeaker, () => html`
 							${this.renderDevices(this.audioOutputDevices, this.onSpeakerChange, "speakerDeviceId", "speakerSelect")}
 						`)}
+					</div>
+
+					<span>${t("settings.audio.feedback")}</span>
+					<div class="content">
+						<span>${t("settings.audio.feedback.description")}</span>
+						<sl-button @click="${this.onAudioFeedback}" variant="${this.audioFeedback?.isStarted() ? "primary" : "default"}" size="small">
+							${t(this.audioFeedback?.isStarted() ? "settings.audio.feedback.stop" : "settings.audio.feedback.start")}
+							<sl-icon slot="prefix" name="${this.audioFeedback?.isStarted() ? "microphone-mute" : "microphone"}"></sl-icon>
+						</sl-button>
 					</div>
 				</form>
 

@@ -72,15 +72,14 @@ export class Devices {
 		return devices[0];
 	}
 
-	static enumerateAudioDevices(useSettings: boolean): Promise<DeviceInfo> {
-		const constraints: MediaStreamConstraints = {};
-
+	static enumerateAudioDevices(useSettings: boolean, constraints: MediaStreamConstraints = {}): Promise<DeviceInfo> {
 		if (useSettings) {
 			const audioSource = deviceStore.microphoneDeviceId;
 
 			if (audioSource) {
 				constraints.audio = {
-					deviceId: { exact: audioSource }
+					deviceId: { exact: audioSource },
+					...constraints.audio
 				}
 			}
 		}

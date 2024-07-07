@@ -4,35 +4,47 @@ export class VolumeMeter {
 
 	private readonly meterCanvas: HTMLCanvasElement;
 
+	private stream: MediaStream;
+
 	private micNode: MediaStreamAudioSourceNode;
 
 
-	constructor(audioContext: AudioContext, meterCanvas: HTMLCanvasElement) {
-		this.audioContext = audioContext;
+	constructor(meterCanvas: HTMLCanvasElement) {
 		this.meterCanvas = meterCanvas;
+
+		this.audioContext = new AudioContext();
+		this.audioContext.audioWorklet.addModule("/js/volume-meter.worklet.js");
 	}
 
-	public async start(stream: MediaStream) {
+	public setMediaStream(stream: MediaStream) {
+		this.stream = stream;
+	}
+
+	public async start() {
+		if (!this.stream) {
+			throw new Error("No stream found.");
+		}
+
 		const meterContext = this.meterCanvas.getContext("2d");
 		if (meterContext == null) {
-			return;
+			throw new Error("Canvas context not found.");
 		}
 
 		await this.audioContext.resume();
 
-		this.micNode = this.audioContext.createMediaStreamSource(stream);
+		this.micNode = this.audioContext.createMediaStreamSource(this.stream);
 
 		const volumeMeterNode = new AudioWorkletNode(this.audioContext, "volume-meter");
 		volumeMeterNode.port.onmessage = ({ data }) => {
 			const { clientWidth, clientHeight } = this.meterCanvas;
 
-			meterContext.save();
-			const region = new Path2D();
-			region.rect(0, 0, 10, clientHeight);
-			region.rect(15, 0, 10, clientHeight);
-			region.rect(30, 0, 10, clientHeight);
-			region.rect(45, 0, 10, clientHeight);
-			meterContext.clip(region, "evenodd");
+			// meterContext.save();
+			// const region = new Path2D();
+			// region.rect(0, 0, 10, clientHeight);
+			// region.rect(15, 0, 10, clientHeight);
+			// region.rect(30, 0, 10, clientHeight);
+			// region.rect(45, 0, 10, clientHeight);
+			// meterContext.clip(region, "evenodd");
 
 			meterContext.fillStyle = getComputedStyle(this.meterCanvas).getPropertyValue("background-color");
 			meterContext.fillRect(0, 0, clientWidth, clientHeight);
