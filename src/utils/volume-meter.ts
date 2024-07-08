@@ -38,14 +38,6 @@ export class VolumeMeter {
 		volumeMeterNode.port.onmessage = ({ data }) => {
 			const { clientWidth, clientHeight } = this.meterCanvas;
 
-			// meterContext.save();
-			// const region = new Path2D();
-			// region.rect(0, 0, 10, clientHeight);
-			// region.rect(15, 0, 10, clientHeight);
-			// region.rect(30, 0, 10, clientHeight);
-			// region.rect(45, 0, 10, clientHeight);
-			// meterContext.clip(region, "evenodd");
-
 			meterContext.fillStyle = getComputedStyle(this.meterCanvas).getPropertyValue("background-color");
 			meterContext.fillRect(0, 0, clientWidth, clientHeight);
 			meterContext.fillStyle = getComputedStyle(this.meterCanvas).getPropertyValue("fill");

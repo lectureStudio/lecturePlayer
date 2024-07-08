@@ -199,7 +199,7 @@ export class Devices {
 
 	static setAudioSink(mediaElement: HTMLMediaElement, sinkId: string) {
 		if (!deviceStore.canSelectSpeaker) {
-			// In firefox this feature is behind the 'media.setsinkid.enabled' preferences (needs to be set to true).
+			// In Firefox, this feature is behind the 'media.setsinkid.enabled' preferences (needs to be set to true).
 			return;
 		}
 

@@ -1,7 +1,7 @@
 import { action, autorun, observable } from "mobx";
 import { deviceStore } from "../store/device.store";
 
-export class AudioFeedback {
+export class EchoTest {
 
 	private readonly audioContext: AudioContext;
 
@@ -18,7 +18,10 @@ export class AudioFeedback {
 
 		if ("setSinkId" in AudioContext.prototype) {
 			autorun(() => {
-				this.audioContext.setSinkId(deviceStore.speakerDeviceId)
+				// Pass empty string for default devices.
+				const devId = deviceStore.speakerDeviceId === "default" ? "" : deviceStore.speakerDeviceId;
+
+				this.audioContext.setSinkId(devId)
 					.catch(reason => console.error(reason));
 			})
 		}
@@ -42,7 +45,9 @@ export class AudioFeedback {
 
 		await this.audioContext.resume();
 
-		const synthDelay = this.audioContext.createDelay(1.0);
+		const synthDelay = this.audioContext.createDelay();
+		synthDelay.delayTime.value = 1;
+
 		this.micNode = this.audioContext.createMediaStreamSource(this.stream);
 
 		this.micNode.connect(synthDelay);

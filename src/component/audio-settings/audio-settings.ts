@@ -4,7 +4,7 @@ import { customElement, property, query } from "lit/decorators.js";
 import { when } from "lit/directives/when.js";
 import { courseStore } from "../../store/course.store";
 import { deviceStore } from "../../store/device.store";
-import { AudioFeedback } from "../../utils/audio-feedback";
+import { EchoTest } from "../../utils/echo-test";
 import { DeviceInfo, Devices } from "../../utils/devices";
 import { VolumeMeter } from "../../utils/volume-meter";
 import { t } from "../i18n-mixin";
@@ -13,7 +13,7 @@ import { MediaSettings } from "../media-settings/media-settings";
 @customElement("audio-settings")
 export class AudioSettings extends MediaSettings {
 
-	private audioFeedback: AudioFeedback;
+	private echoTest: EchoTest;
 
 	private volumeMeter: VolumeMeter;
 
@@ -55,19 +55,12 @@ export class AudioSettings extends MediaSettings {
 	protected override async firstUpdated() {
 		super.firstUpdated();
 
-		this.audioFeedback = new AudioFeedback();
+		this.echoTest = new EchoTest();
 		this.volumeMeter = new VolumeMeter(this.meterCanvas);
 	}
 
 	queryDevices(): void {
-		const constraints: MediaStreamConstraints = {
-			audio: {
-				noiseSuppression: false,
-				autoGainControl: false,
-			},
-		};
-
-		Devices.enumerateAudioDevices(true, constraints)
+		Devices.enumerateAudioDevices(true)
 			.then((result: DeviceInfo) => {
 				this.error = false;
 
@@ -96,9 +89,13 @@ export class AudioSettings extends MediaSettings {
 	}
 
 	private async setMediaStream(stream: MediaStream) {
-		this.audioFeedback.setMediaStream(stream);
+		this.audio.srcObject = stream;
+		this.audio.muted = true;
+
+		this.echoTest.setMediaStream(stream);
 		this.volumeMeter.setMediaStream(stream);
 
+		// Autostart volume-meter.
 		await this.volumeMeter.start();
 	}
 
@@ -110,9 +107,6 @@ export class AudioSettings extends MediaSettings {
 
 		this.audioInputDevices = devices.filter(device => device.kind === "audioinput");
 		this.audioOutputDevices = devices.filter(device => device.kind === "audiooutput");
-
-		this.audio.srcObject = stream || null;
-		this.audio.muted = true;
 
 		if (stream) {
 			await this.setMediaStream(stream);
@@ -126,7 +120,9 @@ export class AudioSettings extends MediaSettings {
 	}
 
 	private onMicrophoneChange(event: Event) {
-		Devices.stopAudioTracks(this.audio.srcObject as MediaStream);
+		const echoTestStarted = this.echoTest.isStarted();
+
+		this.stopCapture();
 
 		const audioSource = (<HTMLInputElement> event.target).value;
 		const audioConstraints = {
@@ -135,13 +131,17 @@ export class AudioSettings extends MediaSettings {
 			}
 		};
 
-		deviceStore.microphoneDeviceId = audioSource;
+		deviceStore.setMicrophoneDeviceId(audioSource);
 
 		navigator.mediaDevices.getUserMedia(audioConstraints)
-			.then(async audioStream => {
-				audioStream.getAudioTracks().forEach(track => (<MediaStream>this.audio.srcObject).addTrack(track));
+			.then(async stream => {
+				// stream.getAudioTracks().forEach(track => (<MediaStream>this.audio.srcObject).addTrack(track));
 
-				await this.setMediaStream(audioStream);
+				await this.setMediaStream(stream);
+
+				if (echoTestStarted) {
+					await this.echoTest.start();
+				}
 			})
 			.catch(error => {
 				console.error(error);
@@ -153,26 +153,26 @@ export class AudioSettings extends MediaSettings {
 	private onSpeakerChange(event: Event) {
 		const audioSink = (<HTMLInputElement> event.target).value;
 
-		deviceStore.speakerDeviceId = audioSink;
+		deviceStore.setSpeakerDeviceId(audioSink);
 
 		Devices.setAudioSink(this.audio, audioSink);
 	}
 
-	private async onAudioFeedback() {
-		if (this.audioFeedback.isStarted()) {
-			await this.audioFeedback.stop();
+	private async onEchoTest() {
+		if (this.echoTest.isStarted()) {
+			await this.echoTest.stop();
 		}
 		else {
-			await this.audioFeedback.start();
+			await this.echoTest.start();
 		}
 	}
 
 	private stopCapture() {
 		if (this.audio) {
 			this.volumeMeter.stop();
-			this.audioFeedback.stop();
+			this.echoTest.stop();
 
-			Devices.stopMediaTracks(<MediaStream> this.audio.srcObject);
+			Devices.stopAudioTracks(this.audio.srcObject as MediaStream);
 
 			this.audio.srcObject = null;
 		}
@@ -208,9 +208,9 @@ export class AudioSettings extends MediaSettings {
 					<span>${t("settings.audio.feedback")}</span>
 					<div class="content">
 						<span>${t("settings.audio.feedback.description")}</span>
-						<sl-button @click="${this.onAudioFeedback}" variant="${this.audioFeedback?.isStarted() ? "primary" : "default"}" size="small">
-							${t(this.audioFeedback?.isStarted() ? "settings.audio.feedback.stop" : "settings.audio.feedback.start")}
-							<sl-icon slot="prefix" name="${this.audioFeedback?.isStarted() ? "microphone-mute" : "microphone"}"></sl-icon>
+						<sl-button @click="${this.onEchoTest}" variant="${this.echoTest?.isStarted() ? "primary" : "default"}" size="small">
+							${t(this.echoTest?.isStarted() ? "settings.audio.feedback.stop" : "settings.audio.feedback.start")}
+							<sl-icon slot="prefix" name="${this.echoTest?.isStarted() ? "microphone-mute" : "microphone"}"></sl-icon>
 						</sl-button>
 					</div>
 				</form>

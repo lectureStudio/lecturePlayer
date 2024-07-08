@@ -26,6 +26,14 @@ class DeviceStore {
 		this.load();
 	}
 
+	setMicrophoneDeviceId(deviceId: string) {
+		this.microphoneDeviceId = deviceId;
+	}
+
+	setSpeakerDeviceId(deviceId: string) {
+		this.speakerDeviceId = deviceId;
+	}
+
 	setSpeakerVolume(volume: number) {
 		this.speakerVolume = volume;
 	}
