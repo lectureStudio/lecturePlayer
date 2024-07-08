@@ -1,6 +1,6 @@
 import { SlSelect } from "@shoelace-style/shoelace";
 import { html } from "lit";
-import { customElement, property, query } from "lit/decorators.js";
+import { customElement, property, query, state } from "lit/decorators.js";
 import { when } from "lit/directives/when.js";
 import { courseStore } from "../../store/course.store";
 import { deviceStore } from "../../store/device.store";
@@ -20,10 +20,10 @@ export class AudioSettings extends MediaSettings {
 	@property({ type: Boolean })
 	accessor active: boolean;
 
-	@property({ attribute: false })
+	@state()
 	accessor audioInputDevices: MediaDeviceInfo[] = [];
 
-	@property({ attribute: false })
+	@state()
 	accessor audioOutputDevices: MediaDeviceInfo[] = [];
 
 	@query('#audio')
@@ -48,8 +48,6 @@ export class AudioSettings extends MediaSettings {
 				this.stopCapture();
 			}
 		}
-
-		super.attributeChangedCallback(name, oldValue, newValue);
 	}
 
 	protected override async firstUpdated() {
@@ -59,7 +57,7 @@ export class AudioSettings extends MediaSettings {
 		this.volumeMeter = new VolumeMeter(this.meterCanvas);
 	}
 
-	queryDevices(): void {
+	override queryDevices(): void {
 		Devices.enumerateAudioDevices(true)
 			.then((result: DeviceInfo) => {
 				this.error = false;
@@ -75,6 +73,22 @@ export class AudioSettings extends MediaSettings {
 			.finally(() => {
 				this.initialized = true;
 			});
+	}
+
+	protected override async updateModel(result: DeviceInfo, _cameraBlocked: boolean) {
+		const devices = result.devices;
+		const stream = result.stream;
+
+		this.stopCapture();
+
+		this.audioInputDevices = devices.filter(device => device.kind === "audioinput");
+		this.audioOutputDevices = devices.filter(device => device.kind === "audiooutput");
+
+		if (stream) {
+			await this.setMediaStream(stream);
+		}
+
+		this.setEnabled(true);
 	}
 
 	protected override setEnabled(enabled: boolean) {
@@ -97,22 +111,6 @@ export class AudioSettings extends MediaSettings {
 
 		// Autostart volume-meter.
 		await this.volumeMeter.start();
-	}
-
-	protected override async updateModel(result: DeviceInfo, _cameraBlocked: boolean) {
-		const devices = result.devices;
-		const stream = result.stream;
-
-		this.stopCapture();
-
-		this.audioInputDevices = devices.filter(device => device.kind === "audioinput");
-		this.audioOutputDevices = devices.filter(device => device.kind === "audiooutput");
-
-		if (stream) {
-			await this.setMediaStream(stream);
-		}
-
-		this.setEnabled(true);
 	}
 
 	private updateBlockedSettings(info: DeviceInfo) {

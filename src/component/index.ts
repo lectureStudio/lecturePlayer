@@ -33,5 +33,6 @@ export * from './stream-stats/stream-stats';
 export * from './theme-chooser/theme-chooser';
 export * from './token-settings/token-settings';
 export * from './ui-settings/ui-settings';
+export * from './video-settings/video-settings';
 
 export * from './shoelace';

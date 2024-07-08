@@ -18,6 +18,9 @@ export class Settings extends Component {
 	@property({ reflect: false })
 	accessor audioPanelRef: Ref<SlTabPanel> = createRef();
 
+	@property({ reflect: false })
+	accessor videoPanelRef: Ref<SlTabPanel> = createRef();
+
 
 	override firstUpdated() {
 		this.updateComplete.then(() => {
@@ -63,11 +66,11 @@ export class Settings extends Component {
 				<sl-tab-panel name="api">
 					<api-settings></api-settings>
 				</sl-tab-panel>
-				<sl-tab-panel ${ref(this.audioPanelRef)} name="audio">
+				<sl-tab-panel name="audio" ${ref(this.audioPanelRef)}>
 					<audio-settings ?active="${this.audioPanelRef.value?.active}"></audio-settings>
 				</sl-tab-panel>
-				<sl-tab-panel name="video">
-					This is the custom tab panel.
+				<sl-tab-panel name="video" ${ref(this.videoPanelRef)}>
+					<video-settings ?active="${this.videoPanelRef.value?.active}"></video-settings>
 				</sl-tab-panel>
 			</sl-tab-group>
 		`;

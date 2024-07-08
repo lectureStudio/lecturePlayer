@@ -35,6 +35,7 @@
 	"settings.audio.speaker": "Speaker",
 	"settings.video": "Video",
 	"settings.video.description": "Webcam",
+	"settings.video.webcam": "Webcam",
 
 	"settings.title": "Device settings",
 	"settings.close": "Close",
