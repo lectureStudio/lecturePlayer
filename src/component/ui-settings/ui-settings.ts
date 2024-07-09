@@ -9,11 +9,17 @@ export class UiSettings extends SettingsBase {
 	protected override render() {
 		return html`
 			<span>${t("settings.ui.language")}</span>
-			<language-chooser></language-chooser>
+			<div class="content">
+				<language-chooser></language-chooser>
+			</div>
 			<span>${t("settings.ui.theme")}</span>
-			<theme-chooser></theme-chooser>
-			<span><span>${t("settings.ui.media.profile")}</span></span>
-			<media-profile-settings></media-profile-settings>
+			<div class="content">
+				<theme-chooser></theme-chooser>
+			</div>
+			<span>${t("settings.ui.media.profile")}</span>
+			<div class="content">
+				<media-profile-settings></media-profile-settings>
+			</div>
 		`;
 	}
 }

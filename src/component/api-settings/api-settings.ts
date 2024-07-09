@@ -9,7 +9,9 @@ export class ApiSettings extends SettingsBase {
 	protected override render() {
 		return html`
 			<span>${t("settings.api.token")}</span>
-			<token-settings></token-settings>
+			<div class="content">
+				<token-settings></token-settings>
+			</div>
 		`;
 	}
 }

@@ -3,13 +3,13 @@ import { property } from 'lit/decorators.js';
 import { DeviceInfo, Devices } from '../../utils/devices';
 import { Utils } from '../../utils/utils';
 import { SettingsBase } from "../settings-base/settings-base";
-import mediaSettingsStyles from './media-settings.css';
+import styles from './media-settings.css';
 
 export abstract class MediaSettings extends SettingsBase {
 
 	static override styles = <CSSResultGroup>[
 		SettingsBase.styles,
-		mediaSettingsStyles
+		styles
 	];
 
 	protected initialized: boolean;
@@ -19,6 +19,9 @@ export abstract class MediaSettings extends SettingsBase {
 
 	@property({ type: Boolean, reflect: true })
 	accessor error: boolean = false;
+
+	@property({ type: Boolean, reflect: true })
+	accessor querying: boolean = false;
 
 	@property({ type: Boolean })
 	accessor devicesBlocked: boolean;
@@ -45,6 +48,10 @@ export abstract class MediaSettings extends SettingsBase {
 
 	protected setEnabled(enabled: boolean) {
 		this.enabled = enabled;
+	}
+
+	protected setQuerying(querying: boolean) {
+		this.querying = querying;
 	}
 
 	protected setError() {

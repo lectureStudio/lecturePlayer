@@ -1,8 +1,23 @@
 :host {
 	display: grid;
 	column-gap: 1.5rem;
-	row-gap: 1.5rem;
-	grid-template-columns: auto 1fr;
+	row-gap: 0.5rem;
 	padding: 0.5rem;
 	width: 100%;
+}
+:host .content {
+	display: flex;
+	flex-direction: column;
+	row-gap: 0.5rem;
+	padding-bottom: 0.75rem;
+}
+
+@media (min-width: 992px) {
+	:host {
+		row-gap: 1.5rem;
+		grid-template-columns: auto 1fr;
+	}
+	:host .content {
+		padding-bottom: 0;
+	}
 }

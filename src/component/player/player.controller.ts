@@ -31,7 +31,8 @@ export class PlayerController implements ReactiveController {
 	hostConnected() {
 		const { eventService, eventEmitter } = this.host.appContext;
 
-		addEventListener("beforeunload", () => {
+		// Persist all settings.
+		addEventListener("pagehide", () => {
 			uiStateStore.persist();
 			deviceStore.persist();
 		});

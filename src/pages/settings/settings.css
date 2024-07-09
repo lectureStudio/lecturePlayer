@@ -7,10 +7,6 @@
 sl-tab-group {
 	width: 100%;
 }
-sl-tab-group::part(base),
-sl-tab-group::part(tabs) {
-	height: 100%;
-}
 sl-tab-group::part(nav) {
 	display: flex;
 	height: 100%;
@@ -37,9 +33,13 @@ sl-tab .help-text {
 }
 
 
-@media (min-width: 576px) {
+@media (min-width: 600px) {
 	sl-tab-group {
 		width: 80%;
+	}
+	sl-tab-group::part(base),
+	sl-tab-group::part(tabs) {
+		height: 100%;
 	}
 }
 @media (min-width: 768px) {

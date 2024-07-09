@@ -1,5 +1,5 @@
 import { SlSelect } from "@shoelace-style/shoelace";
-import { html } from "lit";
+import { CSSResultGroup, html } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { when } from "lit/directives/when.js";
 import { courseStore } from "../../store/course.store";
@@ -7,9 +7,15 @@ import { deviceStore } from "../../store/device.store";
 import { DeviceInfo, Devices } from "../../utils/devices";
 import { t } from "../i18n-mixin";
 import { MediaSettings } from "../media-settings/media-settings";
+import styles from './video-settings.css';
 
 @customElement("video-settings")
 export class VideoSettings extends MediaSettings {
+
+	static override styles = <CSSResultGroup>[
+		MediaSettings.styles,
+		styles
+	];
 
 	@property({ type: Boolean })
 	accessor active: boolean;
@@ -36,6 +42,12 @@ export class VideoSettings extends MediaSettings {
 	}
 
 	override queryDevices(): void {
+		if (this.initialized && this.isNone(deviceStore.cameraDeviceId)) {
+			return;
+		}
+
+		this.setQuerying(true);
+
 		Devices.enumerateVideoDevices()
 			.then((result: DeviceInfo) => {
 				this.error = false;
@@ -62,6 +74,7 @@ export class VideoSettings extends MediaSettings {
 			})
 			.finally(() => {
 				this.initialized = true;
+				this.setQuerying(false);
 			});
 	}
 
@@ -80,9 +93,10 @@ export class VideoSettings extends MediaSettings {
 		if (!this.videoInputDevices.find(devInfo => { return devInfo.deviceId === deviceStore.cameraDeviceId })) {
 			Devices.stopVideoTracks(this.video.srcObject as MediaStream);
 
-			this.video.style.visibility = "hidden";
+			this.setVideoVisible(false);
 		}
 
+		this.setQuerying(false);
 		this.setEnabled(true);
 	}
 
@@ -110,19 +124,25 @@ export class VideoSettings extends MediaSettings {
 		return name === "none";
 	}
 
+	private setVideoVisible(visible: boolean) {
+		this.video.style.display = visible ? "inherit" : "none";
+	}
+
 	private onCameraChange(event: Event) {
 		Devices.stopVideoTracks(this.video.srcObject as MediaStream);
 
 		const videoSource = (<HTMLInputElement> event.target).value;
 		const videoConstraints: MediaStreamConstraints = {};
 
-		deviceStore.cameraDeviceId = videoSource;
+		deviceStore.setCameraDeviceId(videoSource);
 
 		if (this.isNone(videoSource)) {
-			this.video.style.visibility = "hidden";
+			this.setVideoVisible(false);
 			this.inputBlocked = false;
 			return;
 		}
+
+		this.setQuerying(true);
 
 		videoConstraints.video = {
 			deviceId: videoSource ? { exact: videoSource } : undefined,
@@ -135,13 +155,17 @@ export class VideoSettings extends MediaSettings {
 			.then(videoStream => {
 				const newStream = new MediaStream();
 
-				(<MediaStream> this.video.srcObject).getAudioTracks().forEach(track => newStream.addTrack(track));
+				if (this.video.srcObject) {
+					(<MediaStream> this.video.srcObject).getAudioTracks().forEach(track => newStream.addTrack(track));
+				}
+
 				videoStream.getVideoTracks().forEach(track => newStream.addTrack(track));
 
 				this.video.srcObject = newStream;
-				this.video.style.visibility = "visible";
-
 				this.inputBlocked = false;
+
+				this.setQuerying(false);
+				this.setVideoVisible(true);
 			})
 			.catch(error => {
 				console.error(error);
@@ -152,8 +176,6 @@ export class VideoSettings extends MediaSettings {
 
 	protected override render() {
 		return html`
-			<loading-indicator .text="${t("devices.querying")}"></loading-indicator>
-
 			<sl-alert variant="warning" .open="${this.devicesBlocked}">
 				<sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
 				<strong>${t("devices.permission")}</strong>
@@ -172,7 +194,15 @@ export class VideoSettings extends MediaSettings {
 							${this.renderDeviceOptions(this.videoInputDevices)}
 						</sl-select>
 					</div>
-					<video id="cameraPreview" class="video" playsinline autoplay muted></video>
+					<div class="video-container">
+						${when(this.querying, () => html`
+							<loading-indicator .text="${t("devices.querying")}"></loading-indicator>
+						`, () => html`
+							<sl-icon name="webcam-mute"></sl-icon>
+						`)}
+
+						<video id="cameraPreview" playsinline autoplay muted></video>
+					</div>
 				</div>
 
 				${when(courseStore.activeCourse?.isConference ?? false, () => html`

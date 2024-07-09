@@ -1,0 +1,20 @@
+.video-container {
+	aspect-ratio: 16 / 9;
+	border: solid var(--sl-input-border-width) var(--sl-input-border-color);
+	border-radius: var(--sl-input-border-radius-small);
+	background-color: var(--sl-input-background-color);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 300px;
+	height: auto;
+	position: relative;
+}
+.video-container sl-icon {
+	color: var(--sl-color-neutral-600);
+	font-size: var(--sl-font-size-4x-large);
+}
+.video-container video {
+	border-radius: var(--sl-border-radius-small);
+	width: 100%;
+}

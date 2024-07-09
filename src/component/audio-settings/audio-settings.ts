@@ -58,6 +58,8 @@ export class AudioSettings extends MediaSettings {
 	}
 
 	override queryDevices(): void {
+		this.setQuerying(true);
+
 		Devices.enumerateAudioDevices(true)
 			.then((result: DeviceInfo) => {
 				this.error = false;
@@ -72,6 +74,7 @@ export class AudioSettings extends MediaSettings {
 			})
 			.finally(() => {
 				this.initialized = true;
+				this.setQuerying(false);
 			});
 	}
 
@@ -178,7 +181,9 @@ export class AudioSettings extends MediaSettings {
 
 	protected override render() {
 		return html`
-			<loading-indicator .text="${t("devices.querying")}"></loading-indicator>
+			${when(this.querying, () => html`
+				<loading-indicator .text="${t("devices.querying")}"></loading-indicator>
+			`)}
 
 			<sl-alert variant="warning" .open="${this.devicesBlocked}">
 				<sl-icon slot="icon" name="exclamation-triangle"></sl-icon>

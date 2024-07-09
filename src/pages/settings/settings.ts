@@ -2,7 +2,7 @@ import { SlTabPanel } from "@shoelace-style/shoelace";
 import { t } from "i18next";
 import { CSSResultGroup, html } from 'lit';
 import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import { Component } from "../../component/component";
 import { I18nLitElement } from "../../component/i18n-mixin";
 import styles from './settings.css';
@@ -15,12 +15,29 @@ export class Settings extends Component {
 		styles,
 	];
 
+	private readonly maxWidth600Query: MediaQueryList;
+
+	@state()
+	accessor isCompactMode: boolean = false;
+
 	@property({ reflect: false })
 	accessor audioPanelRef: Ref<SlTabPanel> = createRef();
 
 	@property({ reflect: false })
 	accessor videoPanelRef: Ref<SlTabPanel> = createRef();
 
+
+	constructor() {
+		super();
+
+		// Matches with the css query.
+		this.maxWidth600Query = window.matchMedia("(max-width: 600px) , (orientation: portrait)");
+		this.maxWidth600Query.onchange = (event) => {
+			this.isCompactMode = event.matches;
+		};
+
+		this.isCompactMode = this.maxWidth600Query.matches;
+	}
 
 	override firstUpdated() {
 		this.updateComplete.then(() => {
@@ -30,7 +47,7 @@ export class Settings extends Component {
 
 	protected override render() {
 		return html`
-			<sl-tab-group placement="start" @sl-tab-show="${(_event: CustomEvent) => { this.requestUpdate() }}">
+			<sl-tab-group .placement="${this.isCompactMode ? "top" : "start"}" @sl-tab-show="${(_event: CustomEvent) => { this.requestUpdate() }}">
 				<sl-tab slot="nav" panel="ui">
 					<div class="tab-container">
 						<sl-icon name="layout"></sl-icon>

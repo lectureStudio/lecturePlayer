@@ -7,15 +7,14 @@
 :host form {
 	display: grid;
 	column-gap: 1.5rem;
-	row-gap: 1.5rem;
-	grid-template-columns: auto 1fr;
-	padding: 0.5rem;
+	row-gap: 0.5rem;
 	width: 100%;
 }
 :host form .content {
 	display: flex;
 	flex-direction: column;
 	row-gap: 0.5rem;
+	padding-bottom: 0.75rem;
 }
 :host form sl-button {
 	width: fit-content;
@@ -27,18 +26,6 @@
 	pointer-events: none;
 	opacity: 0.4;
 }
-:host player-loading {
-	position: absolute;
-	left: 0;
-	bottom: 0;
-	margin: 0.5em;
-	flex-direction: row;
-	justify-content: left;
-}
-:host([enabled]) loading-indicator,
-:host([error]) loading-indicator {
-	display: none;
-}
 :host([error]) #save-button {
 	display: none;
 }
@@ -49,4 +36,15 @@ loading-indicator {
 	left: 50%;
 	transform: translate(-50%, -50%);
 	z-index: 1;
+}
+
+
+@media (min-width: 992px) {
+	:host form {
+		row-gap: 1.5rem;
+		grid-template-columns: auto 1fr;
+	}
+	:host form .content {
+		padding-bottom: 0;
+	}
 }

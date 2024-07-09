@@ -26,6 +26,10 @@ class DeviceStore {
 		this.load();
 	}
 
+	setCameraDeviceId(deviceId: string) {
+		this.cameraDeviceId = deviceId;
+	}
+
 	setMicrophoneDeviceId(deviceId: string) {
 		this.microphoneDeviceId = deviceId;
 	}
