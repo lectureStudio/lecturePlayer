@@ -62,15 +62,13 @@ export class AudioSettings extends MediaSettings {
 
 		Devices.enumerateAudioDevices(true)
 			.then((result: DeviceInfo) => {
-				this.error = false;
-
 				this.updateBlockedSettings(result);
 				this.updateModel(result, false);
 			})
 			.catch(error => {
 				console.error(error);
 
-				this.setDeviceError(error, true);
+				this.setDeviceError(error);
 			})
 			.finally(() => {
 				this.initialized = true;
@@ -147,7 +145,7 @@ export class AudioSettings extends MediaSettings {
 			.catch(error => {
 				console.error(error);
 
-				this.setDeviceError(error, false);
+				this.setDeviceError(error);
 			});
 	}
 
@@ -187,39 +185,37 @@ export class AudioSettings extends MediaSettings {
 
 			<sl-alert variant="warning" .open="${this.devicesBlocked}">
 				<sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
-				<strong>${t("devices.permission")}</strong>
+				<strong>${t("devices.audio.permission")}</strong>
 			</sl-alert>
 
-			${when(!this.error, () => html`
-				<form id="device-select-form">
-					<span>${t("settings.audio.microphone")}</span>
-					<div class="content">
-						${when(courseStore.activeCourse?.isConference ?? false, () => html`
-							<sl-switch id="microphoneMuteOnEntry" name="microphoneMuteOnEntry" size="small" ?checked=${deviceStore.microphoneMuteOnEntry}>${t("devices.microphone.mute.on.entry")}</sl-switch>
-						`)}
-						${this.renderDevices(this.audioInputDevices, this.onMicrophoneChange, "microphoneDeviceId", "microphoneSelect")}
-						<canvas id="meter" width="300" height="5"></canvas>
-					</div>
+			<form id="device-select-form">
+				<span>${t("settings.audio.microphone")}</span>
+				<div class="content">
+					${when(courseStore.activeCourse?.isConference ?? false, () => html`
+						<sl-switch id="microphoneMuteOnEntry" name="microphoneMuteOnEntry" size="small" ?checked=${deviceStore.microphoneMuteOnEntry}>${t("devices.microphone.mute.on.entry")}</sl-switch>
+					`)}
+					${this.renderDevices(this.audioInputDevices, this.onMicrophoneChange, "microphoneDeviceId", "microphoneSelect")}
+					<canvas id="meter" width="300" height="5"></canvas>
+				</div>
 
-					<span>${t("settings.audio.speaker")}</span>
-					<div class="content">
-						${when(deviceStore.canSelectSpeaker, () => html`
-							${this.renderDevices(this.audioOutputDevices, this.onSpeakerChange, "speakerDeviceId", "speakerSelect")}
-						`)}
-					</div>
+				<span>${t("settings.audio.speaker")}</span>
+				<div class="content">
+					${when(deviceStore.canSelectSpeaker, () => html`
+						${this.renderDevices(this.audioOutputDevices, this.onSpeakerChange, "speakerDeviceId", "speakerSelect")}
+					`)}
+				</div>
 
-					<span>${t("settings.audio.feedback")}</span>
-					<div class="content">
-						<span>${t("settings.audio.feedback.description")}</span>
-						<sl-button @click="${this.onEchoTest}" variant="${this.echoTest?.isStarted() ? "primary" : "default"}" size="small">
-							${t(this.echoTest?.isStarted() ? "settings.audio.feedback.stop" : "settings.audio.feedback.start")}
-							<sl-icon slot="prefix" name="${this.echoTest?.isStarted() ? "microphone-mute" : "microphone"}"></sl-icon>
-						</sl-button>
-					</div>
-				</form>
+				<span>${t("settings.audio.feedback")}</span>
+				<div class="content">
+					<span>${t("settings.audio.feedback.description")}</span>
+					<sl-button @click="${this.onEchoTest}" variant="${this.echoTest?.isStarted() ? "primary" : "default"}" size="small">
+						${t(this.echoTest?.isStarted() ? "settings.audio.feedback.stop" : "settings.audio.feedback.start")}
+						<sl-icon slot="prefix" name="${this.echoTest?.isStarted() ? "microphone-mute" : "microphone"}"></sl-icon>
+					</sl-button>
+				</div>
+			</form>
 
-				<audio id="audio" playsinline autoplay muted></audio>
-			`)}
+			<audio id="audio" playsinline autoplay muted></audio>
 		`;
 	}
 }

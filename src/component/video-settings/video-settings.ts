@@ -42,7 +42,9 @@ export class VideoSettings extends MediaSettings {
 	}
 
 	override queryDevices(): void {
-		if (this.initialized && this.isNone(deviceStore.cameraDeviceId)) {
+		const noneSelected = this.isNone(deviceStore.cameraDeviceId);
+
+		if (this.initialized && noneSelected) {
 			return;
 		}
 
@@ -50,27 +52,26 @@ export class VideoSettings extends MediaSettings {
 
 		Devices.enumerateVideoDevices()
 			.then((result: DeviceInfo) => {
-				this.error = false;
-
 				this.updateBlockedSettings(result);
-				this.updateModel(result, false);
+				this.updateModel(result);
 			})
 			.catch(error => {
-				console.error(error);
+				console.error(error.name, error);
 
-				const isNoneSelected = this.isNone(deviceStore.cameraDeviceId);
-				if (!isNoneSelected) {
-					// Set error only if a real device is selected.
-					this.setDeviceError(error, true);
+				this.setVideoVisible(false);
+
+				if (Devices.noPermission(error)) {
+					this.setDeviceError(error);
 				}
+				else {
+					this.setEnabled(true);
 
-				this.setEnabled(true);
-
-				// List all available video devices.
-				Devices.enumerateVideoDeviceNames()
-					.then((result: DeviceInfo) => {
-						this.updateModel(result, !isNoneSelected);
-					});
+					// List all available video devices.
+					Devices.enumerateVideoDeviceNames()
+						.then((result: DeviceInfo) => {
+							this.updateModel(result, !noneSelected);
+						});
+				}
 			})
 			.finally(() => {
 				this.initialized = true;
@@ -78,7 +79,7 @@ export class VideoSettings extends MediaSettings {
 			});
 	}
 
-	protected override updateModel(result: DeviceInfo, cameraBlocked: boolean): void {
+	protected override updateModel(result: DeviceInfo, cameraBlocked: boolean = false): void {
 		const devices = result.devices;
 		const stream = result.stream;
 
@@ -170,7 +171,8 @@ export class VideoSettings extends MediaSettings {
 			.catch(error => {
 				console.error(error);
 
-				this.setDeviceError(error, false);
+				this.setQuerying(false);
+				this.setDeviceError(error);
 			});
 	}
 
@@ -178,11 +180,11 @@ export class VideoSettings extends MediaSettings {
 		return html`
 			<sl-alert variant="warning" .open="${this.devicesBlocked}">
 				<sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
-				<strong>${t("devices.permission")}</strong>
+				<strong>${t("devices.video.permission")}</strong>
 			</sl-alert>
 			<sl-alert variant="warning" .open="${this.inputBlocked}">
 				<sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
-				<strong>${t("devices.camera.blocked")}</strong>
+				<strong>${t("devices.video.blocked")}</strong>
 			</sl-alert>
 
 			<form id="device-select-form">

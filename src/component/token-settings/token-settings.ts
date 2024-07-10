@@ -84,8 +84,8 @@ export class TokenSettings extends Component {
 						`)}
 				</div>
 			</sl-card>
-			<sl-alert variant="warning" open>
-				<sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
+			<sl-alert variant="primary" open>
+				<sl-icon slot="icon" name="info-circle"></sl-icon>
 				<span>${t("settings.api.token.warn")}</span>
 			</sl-alert>
 

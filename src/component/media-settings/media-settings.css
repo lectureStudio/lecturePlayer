@@ -22,12 +22,10 @@
 :host form sl-button sl-icon {
 	font-size: var(--sl-button-font-size-large);
 }
+:host(:not([enabled])) sl-button,
 :host(:not([enabled])) sl-select {
 	pointer-events: none;
 	opacity: 0.4;
-}
-:host([error]) #save-button {
-	display: none;
 }
 
 loading-indicator {

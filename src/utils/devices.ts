@@ -11,6 +11,14 @@ export interface DeviceInfo {
 
 export class Devices {
 
+	static noPermission(error: Error) {
+		return (error.name == "NotAllowedError" || error.name == "PermissionDeniedError");
+	}
+
+	static notReadable(error: Error) {
+		return error.name == "NotReadableError";
+	}
+
 	static cameraErrorHandler(error: unknown) {
 		if (error instanceof Error) {
 			if (error.name === "NotAllowedError") {
@@ -70,6 +78,14 @@ export class Devices {
 
 		// If no default one found, return the first available device.
 		return devices[0];
+	}
+
+	static filterByGroupId(devices: MediaDeviceInfo[]) {
+		const filtered = devices.filter((dev1, index, arr) =>
+			arr.findIndex(dev2 => (dev2.groupId === dev1.groupId && dev2.kind === dev1.kind)) === index,
+		);
+
+		return filtered.sort((dev1, dev2) => dev1.label.localeCompare(dev2.label));
 	}
 
 	static enumerateAudioDevices(useSettings: boolean, constraints: MediaStreamConstraints = {}): Promise<DeviceInfo> {
@@ -145,7 +161,7 @@ export class Devices {
 					return navigator.mediaDevices.enumerateDevices()
 						.then(devices => {
 							const result = {
-								devices: devices,
+								devices: this.filterByGroupId(devices),
 								stream: stream,
 								constraints: constraints
 							};

@@ -18,9 +18,6 @@ export abstract class MediaSettings extends SettingsBase {
 	accessor enabled: boolean = false;
 
 	@property({ type: Boolean, reflect: true })
-	accessor error: boolean = false;
-
-	@property({ type: Boolean, reflect: true })
 	accessor querying: boolean = false;
 
 	@property({ type: Boolean })
@@ -54,25 +51,12 @@ export abstract class MediaSettings extends SettingsBase {
 		this.querying = querying;
 	}
 
-	protected setError() {
-		this.error = true;
-
-		// Enable only buttons in the footer.
-		this.renderRoot.querySelectorAll<HTMLInputElement>("footer button").forEach(element => {
-			element.disabled = false;
-		});
-	}
-
-	protected setDeviceError(error: Error, lock: boolean) {
-		if (error.name == "NotReadableError") {
+	protected setDeviceError(error: Error) {
+		if (Devices.notReadable(error)) {
 			this.inputBlocked = true;
 		}
-		else if (error.name == "NotAllowedError" || error.name == "PermissionDeniedError") {
+		else if (Devices.noPermission(error)) {
 			this.devicesBlocked = true;
-		}
-
-		if (lock) {
-			this.setError();
 		}
 	}
 
