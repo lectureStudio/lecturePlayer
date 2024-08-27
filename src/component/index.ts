@@ -11,6 +11,7 @@ export * from './controls/documents-button';
 export * from './controls/document-navigation';
 export * from './controls/settings-button';
 export * from './loading-indicator/loading-indicator';
+export * from './course-list-item/course-list-item';
 export * from './course-no-access/course-no-access';
 export * from './course-offline/course-offline';
 export * from './course-feature-view/course-feature-view';

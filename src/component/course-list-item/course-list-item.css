@@ -1,0 +1,39 @@
+:host {
+	display: flex;
+	flex-direction: column;
+	padding: 1rem;
+	margin: 0.25rem;
+}
+:host(:hover) {
+	cursor: pointer;
+}
+.course-item-header {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+}
+.course-item-header sl-button[disabled]::part(base) {
+	cursor: default;
+	opacity: inherit;
+}
+.course-title {
+	font-weight: var(--sl-font-weight-semibold);
+	padding: 0.2rem 0;
+}
+.course-authors {
+	font-size: var(--sl-font-size-small);
+	padding-bottom: 0.75rem;
+}
+
+sl-details::part(base) {
+	border: 0;
+	border-radius: 0;
+	background-color: inherit;
+}
+sl-details::part(header) {
+	padding: 0;
+}
+sl-details::part(content) {
+	padding: 0 var(--sl-spacing-medium);
+}

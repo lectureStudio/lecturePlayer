@@ -60,7 +60,7 @@ export class CourseFeatureView extends Component {
 
 		this.tabSwipeObserver = new SwipeObserver();
 
-		// Matches with the css query.
+		// Matches with the CSS query.
 		this.maxWidth600Query = window.matchMedia("(max-width: 600px) , (orientation: portrait)");
 		this.maxWidth600Query.onchange = (event) => {
 			this.onCompactLayout(event.matches);
