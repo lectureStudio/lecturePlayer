@@ -1,0 +1,33 @@
+:host {
+	display: flex;
+	flex-direction: column;
+}
+.assign-container {
+	display: flex;
+	gap: 1rem;
+	margin: 1rem 0;
+}
+.assign-container > sl-button {
+	margin-top: calc(var(--sl-input-label-font-size-medium) + var(--sl-spacing-x-small) + var(--sl-spacing-3x-small));
+}
+.assign-container > :first-child {
+	flex: 1;
+}
+
+.change-block-icon {
+	font-size: var(--sl-font-size-large);
+}
+.change-block-icon::part(base) {
+	padding: 0.375rem;
+}
+
+.button-group-toolbar {
+	background-color: var(--sl-color-neutral-100);
+	border-radius: var(--sl-input-border-radius-small);
+	margin: var(--sl-spacing-large) 0 var(--sl-spacing-x-small) 0;
+	padding: var(--sl-spacing-x-small);
+}
+
+input[type=file] {
+	display: none;
+}

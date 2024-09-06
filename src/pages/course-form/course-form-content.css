@@ -1,0 +1,16 @@
+:host {
+	display: flex;
+}
+form,
+table {
+	width: 100%;
+}
+form sl-button[type=submit] {
+	width: fit-content;
+	margin-top: 1rem;
+}
+form label {
+	font-size: var(--sl-input-label-font-size-medium);
+	color: var(--sl-input-label-color);
+	margin-bottom: var(--sl-spacing-3x-small);
+}

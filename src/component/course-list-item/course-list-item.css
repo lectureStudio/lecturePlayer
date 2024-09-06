@@ -25,6 +25,9 @@
 	font-size: var(--sl-font-size-small);
 	padding-bottom: 0.75rem;
 }
+.course-state {
+	white-space: nowrap;
+}
 
 sl-details::part(base) {
 	border: 0;

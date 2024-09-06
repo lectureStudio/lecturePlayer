@@ -1,3 +1,4 @@
+import { Router } from "@vaadin/router";
 import { t } from "i18next";
 import { CSSResultGroup, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -22,9 +23,21 @@ export class CourseListItem extends Component {
 
 	protected override render() {
 		return html`
+			<div class="course-item-header">
+				<span class="course-title">${ this.course.title }</span>
+				<div class="course-state">
+					<sl-button-group label="editing">
 
-				<div class="course-item-header">
-					<span class="course-title">${ this.course.title }</span>
+						<sl-tooltip content="${t("course.list.edit")}">
+							<sl-button @click="${this.onEditCourse}" size="small" class="button-edit"><sl-icon name="course-edit"></sl-icon></sl-button>
+						</sl-tooltip>
+
+
+						<sl-tooltip content="${t("course.list.delete")}">
+							<sl-button @click="${this.onDeleteCourse}" size="small" class="button-delete"><sl-icon name="course-delete"></sl-icon></sl-button>
+						</sl-tooltip>
+
+					</sl-button-group>
 					<sl-button-group label="features">
 						${when(this.course.isProtected, () => html`
 							<sl-tooltip content="${t("course.list.protected")}">
@@ -48,14 +61,27 @@ export class CourseListItem extends Component {
 						`)}
 					</sl-button-group>
 				</div>
-				<span class="course-authors">${ t("course.list.authors", { authors: this.toAuthorsString(this.course.authors) }) }</span>
-				<sl-details
-					@click=${(e: MouseEvent): void => { e.stopImmediatePropagation() }}
-					summary="${ t("course.list.description") }">
-						${ unsafeHTML(this.course.description) }
-				</sl-details>
-
+			</div>
+			<span class="course-authors">${ t("course.list.authors", { authors: this.toAuthorsString(this.course.authors) }) }</span>
+			<sl-details
+				@click=${(e: MouseEvent): void => { e.stopImmediatePropagation() }}
+				summary="${ t("course.list.description") }">
+					${ unsafeHTML(this.course.description) }
+			</sl-details>
 		`;
+	}
+
+	private onDeleteCourse(e: MouseEvent): void {
+		e.stopImmediatePropagation();
+
+
+	}
+
+	private onEditCourse(e: MouseEvent): void {
+		e.stopImmediatePropagation();
+
+		// Navigate to the course page.
+		Router.go(`/course/edit/${this.course.defaultAccessLink}`);
 	}
 
 	private toAuthorsString(authors: CourseAuthor[]): string {

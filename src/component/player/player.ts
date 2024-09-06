@@ -7,14 +7,14 @@ import { applicationContext, ApplicationContext } from "../../context/applicatio
 import { PlayerController } from './player.controller';
 import { I18nLitElement } from '../i18n-mixin';
 import { Component } from '../component';
-import playerStyles from './player.css';
+import styles from './player.css';
 
 @customElement('lecture-player')
 export class LecturePlayer extends Component {
 
 	static override styles = <CSSResultGroup>[
 		I18nLitElement.styles,
-		playerStyles,
+		styles,
 	];
 
 	@provide({ context: applicationContext })
@@ -43,6 +43,7 @@ export class LecturePlayer extends Component {
 		await router.setRoutes([
 			{ path: "/", component: "course-list" },
 			{ path: "/course/:courseId", component: "course-view" },
+			{ path: "/course/edit/:courseId", component: "course-form" },
 			{ path: "/settings", component: "app-settings" },
 			{ path: "(.*)", component: "not-found" },
 		]);

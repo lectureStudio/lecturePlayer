@@ -1,0 +1,42 @@
+:host {
+	display: flex;
+	flex: auto;
+	justify-content: center;
+	height: 100%;
+}
+sl-tab-panel {
+	height: 100%;
+	padding: 0 var(--sl-spacing-x-small);
+}
+sl-tab-group::part(base),
+sl-tab-group::part(body) {
+	height: 100%;
+}
+
+.form-container {
+	flex-direction: column;
+}
+sl-button {
+	width: fit-content;
+}
+
+@media (min-width: 576px) {
+	.form-container {
+		width: 80%;
+	}
+}
+@media (min-width: 768px) {
+	.form-container {
+		width: 70%;
+	}
+}
+@media (min-width: 992px) {
+	.form-container {
+		width: 60%;
+	}
+}
+@media (min-width: 1200px) {
+	.form-container {
+		width: 50%;
+	}
+}

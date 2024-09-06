@@ -18,6 +18,7 @@ export * from './course-feature-view/course-feature-view';
 export * from './course-stream-view/course-stream-view';
 export * from './chat-box/chat-box';
 export * from './chat-form/chat-form';
+export * from './import-users-modal/import-users.modal';
 export * from './participant-list/participant-list-item';
 export * from './participant-list/participant-list';
 export * from './participant-view/participant-view';

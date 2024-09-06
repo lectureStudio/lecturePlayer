@@ -7,12 +7,6 @@ import { Utils } from "../../utils/utils";
 @customElement("reconnect-modal")
 export class ReconnectModal extends Modal {
 
-	private abort() {
-		this.dispatchEvent(Utils.createEvent("reconnect-modal-abort"));
-
-		super.close();
-	}
-
 	protected override render() {
 		return html`
 			<sl-dialog label="${t("reconnect.title")}">
@@ -26,5 +20,11 @@ export class ReconnectModal extends Modal {
 				</div>
 			</sl-dialog>
 		`;
+	}
+
+	private abort() {
+		this.dispatchEvent(Utils.createEvent("reconnect-modal-abort"));
+
+		super.close();
 	}
 }
