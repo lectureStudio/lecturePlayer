@@ -1,10 +1,12 @@
 import { makeAutoObservable } from "mobx";
-import { Course } from "../model/course";
+import { Course, CourseRole } from "../model/course";
 import { privilegeStore } from "./privilege.store";
 
 class CourseStore {
 
 	courses: Course[] = [];
+
+	courseRoles: CourseRole[] = [];
 
 	activeCourse: Course | null;
 
@@ -23,12 +25,20 @@ class CourseStore {
 		this.courses = courses;
 	}
 
+	setCourseRoles(courseRoles: CourseRole[]) {
+		this.courseRoles = courseRoles.sort((a, b) => a.order - b.order);
+	}
+
 	findCourseById(courseId: number): Course | undefined {
 		return this.courses.find((course) => course.id === courseId);
 	}
 
 	findCourseByAccessLink(accessLink: string): Course | undefined {
 		return this.courses.find((course) => course.defaultAccessLink === accessLink);
+	}
+
+	findCourseRoleByName(roleName: string): CourseRole | undefined {
+		return this.courseRoles.find(role => role.name === roleName);
 	}
 
 	hasChatFeature() {

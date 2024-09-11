@@ -67,6 +67,28 @@ export class PlayerController implements ReactiveController {
 		const courses = await CourseApi.getCourses();
 
 		courseStore.setCourses(courses);
+
+		courseStore.setCourseRoles([
+			{
+				name: "organisator",
+				description: "course.role.organisator",
+				order: 0
+			},
+			{
+				name: "co-organisator",
+				description: "course.role.co-organisator",
+				order: 1
+			},
+			{
+				name: "registered-participant",
+				description: "course.role.registered-participant",
+				order: 2
+			},
+			{
+				name: "participant",
+				description: "course.role.participant",
+				order: 3
+			}]);
 	}
 
 	private onFullscreen(event: LpFullscreenEvent) {

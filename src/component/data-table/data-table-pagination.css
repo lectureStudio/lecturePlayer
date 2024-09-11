@@ -1,0 +1,30 @@
+:host {
+	display: flex;
+	margin: 0.5rem 0;
+}
+sl-button-group {
+	flex-wrap: nowrap;
+	margin-left: auto;
+	margin-right: 0;
+}
+sl-button.selected {
+	z-index: 3;
+}
+sl-button.selected::part(base) {
+	background-color: var(--sl-color-primary-100);
+	border-color: var(--sl-color-primary-300);
+}
+sl-button.selected:hover::part(base) {
+	background-color: var(--sl-color-primary-50);
+	border-color: var(--sl-color-primary-400);
+	color: var(--sl-color-primary-700);
+	z-index: 4;
+}
+
+.summary {
+	display: flex;
+	align-items: center;
+	font-size: var(--sl-font-size-small);
+	font-weight: var(--sl-font-weight-semibold);
+	letter-spacing: var(--sl-letter-spacing-normal);
+}

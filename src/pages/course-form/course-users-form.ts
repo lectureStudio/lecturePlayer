@@ -1,4 +1,5 @@
 import { consume } from "@lit/context";
+import { columnBodyRenderer } from "@vaadin/grid/lit";
 import { CSSResultGroup, html } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";
@@ -6,22 +7,13 @@ import { ImportUsersModal } from "../../component";
 import { Component } from "../../component/component";
 import { I18nLitElement, t } from "../../component/i18n-mixin";
 import { applicationContext, ApplicationContext } from "../../context/application.context";
-import { CourseManagedUser, CourseRole, courseRoles, managedUsers } from "../../model/course";
+import { CourseManagedUser } from "../../model/course";
+import { CourseCsvUser } from "../../model/course-csv-user";
+import { courseStore } from "../../store/course.store";
 import { parseCsvFile } from "../../utils/csv";
-import styles from "./course-users-form.css";
+import { validateForm } from "../../utils/form";
 import contentStyles from "./course-form-content.css";
-
-import "@vaadin/grid";
-// import '@vaadin/vaadin-grid/vaadin-grid';
-// import '@vaadin/vaadin-grid/vaadin-grid-column';
-// import '@vaadin/vaadin-grid/theme/lumo/vaadin-grid.js';
-
-interface Person {
-	firstName: string;
-	lastName: string;
-	email: string;
-	profession: string;
-}
+import styles from "./course-users-form.css";
 
 @customElement('course-users-form')
 export class CourseUsersForm extends Component {
@@ -35,54 +27,26 @@ export class CourseUsersForm extends Component {
 	@consume({ context: applicationContext })
 	accessor applicationContext: ApplicationContext;
 
-	@query("#description-editor")
-	accessor editorDiv: HTMLElement;
-
 	@query("#selectCsvFileInput")
 	accessor fileInput: HTMLInputElement;
 
-	@query("#user-table")
-	accessor userTable: HTMLTableElement;
-
-	private readonly courseRoles: CourseRole[];
+	@query("#assign-form")
+	accessor assignForm: HTMLFormElement;
 
 	@state()
-	private accessor items: Person[] = [
-		{
-			firstName: "John",
-			lastName: "Doe",
-			email: "john.doe@mail.com",
-			profession: "Agent",
-		},
-		{
-			firstName: "Max",
-			lastName: "Mustermann",
-			email: "max.muster@test.de",
-			profession: "Muster",
-		},
-	];
+	private accessor managedUsers: CourseManagedUser[] = [];
 
-
-	constructor() {
-		super();
-
-		this.courseRoles = courseRoles.sort((a, b) => a.order - b.order);
-	}
 
 	protected override firstUpdated() {
+		// Register 'file opened' listener.
 		this.fileInput.addEventListener("change", () => {
 			if (this.fileInput.files) {
+				parseCsvFile(this.fileInput.files[0])
+					.then(users => this.openUsersModal(users))
+					.catch(reason => console.error(reason));
+
 				// Clear input.
 				this.fileInput.value = "";
-
-				parseCsvFile(this.fileInput.files[0]);
-
-				const importModal = new ImportUsersModal();
-				importModal.addEventListener("import-users-modal-import", () => {
-
-				});
-
-				this.applicationContext.modalController.registerModal("ImportUsersModal", importModal);
 			}
 		});
 	}
@@ -105,57 +69,92 @@ export class CourseUsersForm extends Component {
 				</sl-button-group>
 			</div>
 
-			<vaadin-grid .items="${this.items}">
-				<vaadin-grid-column path="firstName"></vaadin-grid-column>
-				<vaadin-grid-column path="lastName"></vaadin-grid-column>
-				<vaadin-grid-column path="email"></vaadin-grid-column>
-				<vaadin-grid-column path="profession"></vaadin-grid-column>
-			</vaadin-grid>
+			<form id="assign-form" class="validity-styles">
+				<div class="assign-container">
+					<sl-input type="email" name="user-email" placeholder="${t("course.form.user.management.mail.placeholder")}" label="${t("course.form.user.management.mail")}" required></sl-input>
+					<sl-select name="user-role" placeholder="${t("course.form.user.management.role.placeholder")}" label="${t("course.form.user.management.role")}" placement="bottom" hoist required>
+						${repeat(courseStore.courseRoles, (role) => role.name, (role) => html`
+							<sl-option value="${t(role.name)}">${t(role.description)}</sl-option>
+						`)}
+					</sl-select>
+					<sl-button @click="${this.onAssignNewUser}">
+						${t("course.form.user.management.assign")}
+					</sl-button>
+				</div>
+			</form>
 
-			<div class="assign-container">
-				<sl-input type="email" name="user-email" placeholder="${t("course.form.user.management.mail.placeholder")}" label="${t("course.form.user.management.mail")}" required></sl-input>
-				<sl-select name="user-role" placeholder="${t("course.form.user.management.role.placeholder")}" label="${t("course.form.user.management.role")}" placement="bottom" hoist required>
-					${repeat(this.courseRoles, (role) => role.name, (role) => html`
-						<sl-option value="${t(role.name)}">${t(role.description)}</sl-option>
-					`)}
-				</sl-select>
-				<sl-button @click="${this.onAssignUser}">
-					${t("course.form.user.management.assign")}
-				</sl-button>
-			</div>
-
-			<table id="user-table">
-				<thead>
-					<tr>
-						<th>${t("course.form.user.management.mail")}</th>
-						<th>${t("course.form.user.management.name")}</th>
-						<th>${t("course.form.user.management.role")}</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody>
-					${repeat(managedUsers, (managedUser) => managedUser.user.userId, (managedUser) => html`
-						<tr>
-							<td>${managedUser.user.email}</td>
-							<td>${managedUser.user.firstName} ${managedUser.user.familyName}</td>
-							<td>${t(managedUser.role.description)}</td>
-							<td class="fit-width, text-end">
-								<sl-tooltip content="${t("course.form.user.management.delete")}">
-									<sl-icon-button @click=${(): void => { this.onDeleteAssignment(managedUser) }} name="course-delete" class="icon-danger"></sl-icon-button>
-								</sl-tooltip>
-								<sl-tooltip content="${t(managedUser.blocked ? "course.form.user.management.unblock" : "course.form.user.management.block")}">
-									<sl-icon-button @click=${(): void => { this.onChangeUserBlock(managedUser) }} name="${managedUser.blocked ? "person-unblock" : "person-block"}" class="change-block-icon"></sl-icon-button>
-								</sl-tooltip>
-							</td>
-						</tr>
-					`)}
-				</tbody>
-			</table>
+			<data-table .items="${this.managedUsers}" pageSize="5">
+				<data-table-column
+					path="user.email"
+					header="${t("course.form.user.management.mail")}"
+					auto-width>
+				</data-table-column>
+				<data-table-column
+					header="${t("course.form.user.management.name")}"
+					${columnBodyRenderer(this.userTableNameRenderer)}
+					auto-width>
+				</data-table-column>
+				<data-table-column
+					header="${t("course.form.user.management.role")}"
+					${columnBodyRenderer(this.userTableRoleRenderer)}
+					auto-width>
+				</data-table-column>
+				<data-table-column
+					${columnBodyRenderer(this.userTableButtonRenderer)}>
+				</data-table-column>
+			</data-table>
 		`;
 	}
 
-	private onAssignUser() {
+	private userTableNameRenderer(managedUser: CourseManagedUser) {
+		return `${managedUser.user.firstName} ${managedUser.user.familyName}`;
+	}
 
+	private userTableRoleRenderer(managedUser: CourseManagedUser) {
+		return t(managedUser.role.description);
+	}
+
+	private userTableButtonRenderer(managedUser: CourseManagedUser) {
+		return html`
+			<div class="text-end">
+				<sl-tooltip content="${t("course.form.user.management.delete")}">
+					<sl-icon-button @click=${(): void => { this.onDeleteAssignment(managedUser) }} name="course-delete" class="icon-danger"></sl-icon-button>
+				</sl-tooltip>
+				<sl-tooltip
+					content="${t(managedUser.blocked ? "course.form.user.management.unblock" : "course.form.user.management.block")}">
+					<sl-icon-button @click=${(): void => { this.onChangeUserBlock(managedUser) }} name="${managedUser.blocked ? "person-unblock" : "person-block"}"></sl-icon-button>
+				</sl-tooltip>
+			</div>
+		`;
+	}
+
+	private openUsersModal(users: CourseCsvUser[]) {
+		const importModal = new ImportUsersModal();
+		importModal.users = users;
+		importModal.addEventListener("import-users-modal-import", () => {
+			// Convert imported users to managed users.
+			this.managedUsers = this.managedUsers.concat(importModal.users.map(user => {
+				return {
+					user: {
+						userId: "",
+						firstName: user.firstName,
+						familyName: user.familyName,
+						email: user.email,
+					},
+					role: user.role,
+					blocked: false
+				} as CourseManagedUser
+			}));
+		});
+
+		this.applicationContext.modalController.registerModal("ImportUsersModal", importModal);
+	}
+
+	private onAssignNewUser() {
+		if (validateForm(this.assignForm)) {
+			const data = new FormData(this.assignForm);
+
+		}
 	}
 
 	private onDeleteAssignment(managedUser: CourseManagedUser) {

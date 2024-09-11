@@ -1,5 +1,5 @@
+import { courseStore } from "../store/course.store";
 import { MessageFeature, QuizFeature } from "./course-feature";
-import { CourseParticipant } from "./participant";
 
 export interface CourseAlias {
 
@@ -82,29 +82,6 @@ export const aliase: CourseAlias[] = [
 	},
 ];
 
-export const courseRoles: CourseRole[] = [
-	{
-		name: "organisator",
-		description: "course.role.organisator",
-		order: 0
-	},
-	{
-		name: "co-organisator",
-		description: "course.role.co-organisator",
-		order: 1
-	},
-	{
-		name: "registered-participant",
-		description: "course.role.registered-participant",
-		order: 2
-	},
-	{
-		name: "participant",
-		description: "course.role.participant",
-		order: 3
-	},
-];
-
 export const coursePrivileges: CoursePrivilege[] = [
 	{
 		name: "COURSE_ALTER_PRIVILEGES",
@@ -180,28 +157,5 @@ export const coursePrivileges: CoursePrivilege[] = [
 		name: "AVATAR_SEE",
 		description: "course.privilege.avatar.see",
 		order: 14
-	},
-];
-
-export const managedUsers: CourseManagedUser[] = [
-	{
-		user: {
-			userId: "123",
-			email: "margot@schuerrs.de",
-			firstName: "Margot",
-			familyName: "Schürr",
-		},
-		role: courseRoles[1],
-		blocked: true,
-	},
-	{
-		user: {
-			userId: "456",
-			email: "max@muster.de",
-			firstName: "Max",
-			familyName: "Mustermann",
-		},
-		role: courseRoles[2],
-		blocked: false,
 	},
 ];

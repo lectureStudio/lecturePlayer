@@ -3,7 +3,8 @@ import { customElement, query } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";
 import { Component } from "../../component/component";
 import { I18nLitElement, t } from "../../component/i18n-mixin";
-import { CoursePrivilege, coursePrivileges, CourseRole, courseRoles } from "../../model/course";
+import { CoursePrivilege, coursePrivileges } from "../../model/course";
+import { courseStore } from "../../store/course.store";
 import styles from "./course-roles-form.css";
 import contentStyles from "./course-form-content.css";
 
@@ -19,20 +20,13 @@ export class CourseRolesForm extends Component {
 	@query("#description-editor")
 	accessor editorDiv: HTMLElement;
 
-	private readonly courseRoles: CourseRole[];
-
 	private readonly coursePrivileges: CoursePrivilege[]
 
 
 	constructor() {
 		super();
 
-		this.courseRoles = courseRoles.sort((a, b) => a.order - b.order);
 		this.coursePrivileges = coursePrivileges.sort((a, b) => a.order - b.order);
-	}
-
-	protected override firstUpdated() {
-
 	}
 
 	protected override render() {
@@ -42,7 +36,7 @@ export class CourseRolesForm extends Component {
 					<tr>
 						<th class="fit-width">${t("course.privilege")}</th>
 	
-						${repeat(this.courseRoles, (role) => role.name, (role) => html`
+						${repeat(courseStore.courseRoles, (role) => role.name, (role) => html`
 							<th class="fit-width">${t(role.description)}</th>
 						`)}
 					</tr>
@@ -54,7 +48,7 @@ export class CourseRolesForm extends Component {
 								${t(privilege.description)}
 							</td>
 
-							${repeat(this.courseRoles, (role) => role.name, (role) => html`
+							${repeat(courseStore.courseRoles, (role) => role.name, (role) => html`
 								<td class="fit-width, text-center">
 									<sl-checkbox></sl-checkbox>
 								</td>

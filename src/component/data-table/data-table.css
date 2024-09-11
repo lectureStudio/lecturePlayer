@@ -1,0 +1,16 @@
+vaadin-grid::part(row):hover {
+	--row-bg: var(--sl-color-neutral-100);
+	z-index: 1000;
+}
+vaadin-grid::part(cell) {
+	background: var(--row-bg);
+}
+vaadin-grid::part(row) {
+	border-bottom: 1px solid var(--sl-color-neutral-200);
+}
+vaadin-grid::part(cell) {
+	border-top: 0;
+}
+vaadin-grid::part(header-cell) {
+	background-color: var(--sl-color-neutral-50);
+}
