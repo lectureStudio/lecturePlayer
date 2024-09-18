@@ -30,6 +30,10 @@ export class CourseEventService extends EventTarget implements EventSubService {
 		this.subscribeQueue(client, "/speech", "lp-speech-state");
 	}
 
+	dispose(): void {
+		// No-op
+	}
+
 	private subscribeTopic(client: Client, eventName: string, eventType: string) {
 		client.subscribe("/topic/course/event/" + this.courseId + eventName, (message: Message) => {
 			this.handleEvent(eventType, message.body);

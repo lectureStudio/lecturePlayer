@@ -4,7 +4,7 @@ import { ToolContext } from "../tool/tool-context";
 import { SlideDocument } from "../model/document";
 import { PenPoint } from "../geometry/pen-point";
 import { AtomicTool } from "../tool/atomic.tool";
-import { RenderController } from "../render/render-controller";
+import { RenderController } from "../controller/render.controller";
 import { documentStore } from "../store/document.store";
 
 export class StreamActionExecutor implements ActionExecutor {

@@ -72,7 +72,7 @@ export class CourseAccessForm extends Component {
 										() => html`
 											<sl-format-date
 												month="long" day="numeric" year="numeric" hour="numeric" minute="numeric" hour-format="24"
-												date="${alias.expiry}" lang="${uiStateStore.language}">
+												date="${alias.expiry ?? ""}" lang="${uiStateStore.language}">
 											</sl-format-date>
 										`,
 										() => html`
@@ -98,11 +98,6 @@ export class CourseAccessForm extends Component {
 						`)}
 					</tbody>
 				</table>
-
-				<sl-button @click="${this.onSaveCourse}" type="submit" size="small">
-					<sl-icon slot="prefix" name="save"></sl-icon>
-					${t("course.form.save")}
-				</sl-button>
 			</form>
 		`;
 	}

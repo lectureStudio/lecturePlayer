@@ -8,7 +8,7 @@ export namespace PersonalTokenApi {
 	}
 
 	export function generatePersonalToken(): Promise<PersonalToken> {
-		return new HttpRequest().post<PersonalToken>("/api/v1/token");
+		return new HttpRequest().post<PersonalToken, undefined>("/api/v1/token");
 	}
 
 	export function deletePersonalToken(): Promise<void> {

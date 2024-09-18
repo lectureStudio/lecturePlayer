@@ -16,7 +16,7 @@ export class DataTable extends Component {
 	];
 
 	@property({ type: Number })
-	accessor pageSize: Number = 10;
+	accessor pageSize: number = 10;
 
 	@state()
 	accessor pageItems: object[];

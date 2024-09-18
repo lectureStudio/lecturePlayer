@@ -19,7 +19,7 @@ export class DataTablePagination extends Component {
 	accessor items: object[];
 
 	@state()
-	accessor page: Number = 0;
+	accessor page: number = 0;
 
 	@state()
 	accessor pages: number[];

@@ -38,7 +38,7 @@ export class SpeechAcceptedModal extends Modal {
 		const audioTrack = this.stream.getAudioTracks()[0];
 
 		if (audioTrack) {
-			Devices.getAudioLevel(audioTrack, this.meterCanvas);
+			//Devices.getAudioLevel(audioTrack, this.meterCanvas);
 		}
 
 		super.firstUpdated();

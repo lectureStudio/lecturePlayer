@@ -95,7 +95,7 @@ export class Devices {
 			if (audioSource) {
 				constraints.audio = {
 					deviceId: { exact: audioSource },
-					...constraints.audio
+					...(constraints.audio as MediaTrackConstraints)
 				}
 			}
 		}

@@ -14,7 +14,7 @@ class ScreenAction extends Action {
 
 	public override toBuffer(): ArrayBuffer {
 		const dataLength = 0;
-		const { buffer, _dataView } = super.createBuffer(12 + dataLength);
+		const { buffer } = super.createBuffer(12 + dataLength);
 
 		return buffer;
 	}

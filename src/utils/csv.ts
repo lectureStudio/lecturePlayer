@@ -2,7 +2,7 @@ import Papa, { ParseResult } from 'papaparse';
 import { CourseCsvUser } from "../model/course-csv-user";
 
 export function parseCsvFile(file: File) {
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve: (value: string) => void, reject) => {
 			const reader = new FileReader();
 			reader.addEventListener("load", () => {
 				try {
@@ -52,16 +52,16 @@ function parseCsv(input: string): Promise<CourseCsvUser[]> {
 			complete: function (results) {
 				resolve(mapCsvFields(results));
 			},
-			error: function (err) {
+			error: function (err: Error) {
 				reject(err);
 			},
 		});
 	});
 }
 
-function mapCsvFields(results: ParseResult<object>): CourseCsvUser[] {
+function mapCsvFields(results: ParseResult<unknown>): CourseCsvUser[] {
 	if (!results.meta.fields) {
-		return;
+		return [];
 	}
 
 	const firstNameField = results.meta.fields[0];
@@ -69,10 +69,11 @@ function mapCsvFields(results: ParseResult<object>): CourseCsvUser[] {
 	const emailField = results.meta.fields[3];
 
 	return results.data.map(value => {
+		const data: any = value;
 		return {
-			firstName: value[firstNameField],
-			familyName: value[familyNameField],
-			email: value[emailField],
-		}
+			firstName: data[firstNameField],
+			familyName: data[familyNameField],
+			email: data[emailField],
+		} as CourseCsvUser
 	});
 }

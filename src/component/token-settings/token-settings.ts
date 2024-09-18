@@ -1,4 +1,4 @@
-import { CSSResultGroup, html } from "lit";
+import { CSSResultGroup, html, PropertyValues } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { when } from "lit/directives/when.js";
 import { PersonalToken } from "../../model/personal-token";
@@ -46,7 +46,9 @@ export class TokenSettings extends Component {
 			});
 	}
 
-	protected firstUpdated() {
+	protected override firstUpdated(_changedProperties: PropertyValues) {
+		super.firstUpdated(_changedProperties);
+
 		this.loadToken();
 	}
 
@@ -63,7 +65,7 @@ export class TokenSettings extends Component {
 							<sl-badge variant="neutral">${t("settings.api.token.never.created")}</sl-badge>
 						`,
 						() => html`
-							<sl-format-date date="${this.token?.dateCreated}"
+							<sl-format-date date="${this.token?.dateCreated ?? ""}"
 											.lang="${lang}"
 											month="long" day="numeric" year="numeric"
 											hour="numeric" minute="numeric" hour-format="24">
@@ -76,7 +78,7 @@ export class TokenSettings extends Component {
 							<sl-badge variant="neutral">${t("settings.api.token.never.used")}</sl-badge>
 						`,
 						() => html`
-							<sl-format-date .date="${this.token?.dateLastUsed}"
+							<sl-format-date .date="${this.token?.dateLastUsed ?? ""}"
 											.lang="${lang}"
 											month="long" day="numeric" year="numeric"
 											hour="numeric" minute="numeric" hour-format="24">
@@ -94,7 +96,7 @@ export class TokenSettings extends Component {
 					<sl-icon slot="icon" name="check2-circle"></sl-icon>
 					<span>${t("settings.api.token.copy.note")}</span>
 					<div class="token-container">
-						<sl-input id="token" type="password" .value="${this.token?.token}" size="small" filled disabled></sl-input>
+						<sl-input id="token" type="password" .value="${this.token?.token ?? ""}" size="small" filled disabled></sl-input>
 						<sl-copy-button
 							from="token.value"
 							copy-label="${t("label.copy")}"

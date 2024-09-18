@@ -63,16 +63,11 @@ export class CourseDescriptionForm extends Component {
 
 				<label>${t("course.form.description")}</label>
 				<div id="description-editor"></div>
-
-				<sl-button @click="${this.onSaveCourse}" type="submit" size="small">
-					<sl-icon slot="prefix" name="save"></sl-icon>
-					${t("course.form.save")}
-				</sl-button>
 			</form>
 		`;
 	}
 
-	private setEditorTranslation(quill: Quill, key: string, value: string, selector: string = undefined) {
+	private setEditorTranslation(quill: Quill, key: string, value: string, selector: string | undefined = undefined) {
 		if (selector) {
 			const button = (quill.container.previousSibling as HTMLElement).querySelector<HTMLElement>(selector);
 			if (button) {
@@ -85,7 +80,7 @@ export class CourseDescriptionForm extends Component {
 	}
 
 	private quillEmbedShadowRoot(quill: Quill) {
-		const normalizeNative = (nativeRange) => {
+		const normalizeNative = (nativeRange: any) => {
 			if (nativeRange) {
 				const range = nativeRange;
 
@@ -122,7 +117,7 @@ export class CourseDescriptionForm extends Component {
 			return normalizeNative(selection);
 		};
 
-		const selectionListener = (..._args) => {
+		const selectionListener = (..._args: any[]) => {
 			quill.selection.update();
 		};
 

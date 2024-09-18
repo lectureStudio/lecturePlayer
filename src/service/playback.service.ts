@@ -2,7 +2,7 @@ import { Action } from "../action/action";
 import { StreamActionExecutor } from "../action/action.executor";
 import { StreamActionPlayer } from "../action/stream-action-player";
 import { SlideDocument } from "../model/document";
-import { RenderController } from "../render/render-controller";
+import { RenderController } from "../controller/render.controller";
 import { documentStore } from "../store/document.store";
 
 export class PlaybackService {

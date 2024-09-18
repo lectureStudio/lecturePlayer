@@ -3,8 +3,6 @@ import { customElement, property, query } from 'lit/decorators.js';
 import { t } from '../i18n-mixin';
 import { Modal } from '../modal/modal';
 import { Utils } from '../../utils/utils';
-import { SoundSettings } from '../media-settings/sound-settings';
-import { CameraSettings } from '../media-settings/camera-settings';
 import { SlTab, SlTabPanel } from '@shoelace-style/shoelace';
 import styles from "./settings.modal.css";
 
@@ -20,10 +18,10 @@ export class SettingsModal extends Modal {
 	accessor section: string = "audio";
 
 	@query('camera-settings')
-	accessor cameraSettings: CameraSettings;
+	accessor cameraSettings: any;
 
 	@query('sound-settings')
-	accessor soundSettings: SoundSettings;
+	accessor soundSettings: any;
 
 
 	save() {

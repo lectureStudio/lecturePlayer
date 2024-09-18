@@ -42,7 +42,7 @@ export class LanguageService extends EventTarget {
 				nonExplicitSupportedLngs: true,
 				ns: "main",
 				resources: resources
-			} as Callback);
+			} as Partial<Callback>);
 	}
 
 	private loadLocales() {

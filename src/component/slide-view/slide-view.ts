@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
-import { RenderController } from '../../render/render-controller';
+import { RenderController } from '../../controller/render.controller';
 import { RenderSurface } from '../../render/render-surface';
 import { SlideRenderSurface, } from '../../render/slide-render-surface';
 import { TextLayerSurface } from '../../render/text-layer-surface';
