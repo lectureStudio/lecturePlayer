@@ -1,4 +1,3 @@
-import { courseStore } from "../store/course.store";
 import { MessageFeature, QuizFeature } from "./course-feature";
 
 export interface CourseAlias {

@@ -69,7 +69,7 @@ function mapCsvFields(results: ParseResult<unknown>): CourseCsvUser[] {
 	const emailField = results.meta.fields[3];
 
 	return results.data.map(value => {
-		const data: any = value;
+		const data: Indexable = value as Indexable;
 		return {
 			firstName: data[firstNameField],
 			familyName: data[familyNameField],

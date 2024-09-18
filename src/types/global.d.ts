@@ -9,6 +9,20 @@ interface Indexable {
 	[key: string]: unknown;
 }
 
+declare class TypedEventTarget<T> extends EventTarget {
+
+	addEventListener<K extends keyof GlobalEventHandlersEventMap>(
+		type: K,
+		listener: (this: T, ev: GlobalEventHandlersEventMap[K]) => void,
+		options?: AddEventListenerOptions | boolean): void;
+
+	removeEventListener<K extends keyof GlobalEventHandlersEventMap>(
+		type: K,
+		listener: (this: T, ev: GlobalEventHandlersEventMap[K]) => void,
+		options?: EventListenerOptions | boolean): void;
+
+}
+
 interface OpenFileOptions {
 
 	extensions?: string[];

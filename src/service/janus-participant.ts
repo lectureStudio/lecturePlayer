@@ -15,7 +15,7 @@ export enum JanusStreamType {
 
 }
 
-export abstract class JanusParticipant extends EventTarget {
+export abstract class JanusParticipant extends TypedEventTarget<JanusParticipant> {
 
 	private statsService: RTCStatsService;
 

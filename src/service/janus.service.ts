@@ -15,7 +15,7 @@ import { userStore } from "../store/user.store";
 import { EventEmitter } from "../utils/event-emitter";
 import { LpParticipantConnectionStateEvent, LpParticipantDataEvent, LpParticipantDestroyedEvent, LpParticipantErrorEvent, LpParticipantJoinedEvent, LpParticipantLeftEvent, LpParticipantStateEvent, ParticipantData } from "../event";
 
-export class JanusService extends EventTarget {
+export class JanusService extends TypedEventTarget<JanusService> {
 
 	private readonly statsIntervalMs = 1000;
 
