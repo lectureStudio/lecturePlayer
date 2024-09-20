@@ -16,6 +16,10 @@ sl-tab-group::part(body) {
 .form-container {
 	flex-direction: column;
 }
+.form-footer {
+	margin: var(--sl-spacing-small) 0;
+}
+
 sl-button {
 	width: fit-content;
 }

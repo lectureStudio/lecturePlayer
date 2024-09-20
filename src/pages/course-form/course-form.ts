@@ -35,6 +35,13 @@ export class CourseForm extends Component {
 						<course-users-form></course-users-form>
 					</sl-tab-panel>
 				</sl-tab-group>
+
+				<div class="form-footer">
+					<sl-button @click="${this.onSaveCourse}" type="submit" size="small">
+						<sl-icon slot="prefix" name="save"></sl-icon>
+						${t("course.form.save")}
+					</sl-button>
+				</div>
 			</div>
 		`;
 	}

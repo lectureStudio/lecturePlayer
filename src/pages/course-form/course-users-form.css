@@ -20,7 +20,6 @@
 .button-group-toolbar {
 	background-color: var(--sl-color-neutral-100);
 	border-radius: var(--sl-input-border-radius-small);
-	margin: var(--sl-spacing-large) 0 var(--sl-spacing-x-small) 0;
 	padding: var(--sl-spacing-x-small);
 }
 

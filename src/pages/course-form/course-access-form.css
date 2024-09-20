@@ -1,7 +1,19 @@
+:host {
+	display: flex;
+	flex-direction: column;
+}
+:host > :not(:first-child) {
+	display: flex;
+	flex-direction: column;
+	margin-top: 1.75rem;
+}
+:host > :not(:first-child) label {
+	margin-bottom: 0.5rem;
+}
 .alias-container {
 	display: flex;
 	gap: 1rem;
-	margin: 0 0.5rem;
+	margin: 0.5rem 0.5rem 0 0.5rem;
 }
 .alias-container > sl-button {
 	margin-top: calc(var(--sl-input-label-font-size-medium) + var(--sl-spacing-x-small) + var(--sl-spacing-3x-small));

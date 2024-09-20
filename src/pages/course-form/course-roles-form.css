@@ -1,3 +1,4 @@
-table {
-	font-size: small;
+:host {
+	display: flex;
+	width: 100%;
 }

@@ -90,6 +90,10 @@ sl-option::part(base) {
 .text-end {
 	text-align: right;
 }
+.text-small {
+	font-size: small;
+}
+
 .help-text {
 	display: block;
 	color: var(--sl-input-help-text-color);
@@ -161,11 +165,6 @@ sl-radio-group .help-text {
 .validity-styles [data-user-valid]::part(form-control-help-text),
 .validity-styles sl-checkbox[data-user-valid]::part(label) {
 	color: var(--sl-input-label-color);
-}
-
-.validity-styles sl-checkbox[data-user-valid]::part(control) {
-	background-color: var(--sl-color-success-600);
-	outline: none;
 }
 
 .validity-styles sl-input:focus-within[data-user-valid]::part(base),

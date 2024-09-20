@@ -1,5 +1,5 @@
 import { columnBodyRenderer } from "@vaadin/grid/lit";
-import { CSSResultGroup, html } from "lit";
+import { html } from "lit";
 import { customElement, state, query } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";
 import { CourseCsvUser } from "../../model/course-csv-user";
@@ -8,15 +8,9 @@ import { validateForm } from "../../utils/form";
 import { Modal } from "../modal/modal";
 import { t } from '../i18n-mixin';
 import { Utils } from "../../utils/utils";
-import styles from "./import-users-modal.css";
 
 @customElement("import-users-modal")
 export class ImportUsersModal extends Modal {
-
-	static override styles = <CSSResultGroup>[
-		Modal.styles,
-		styles,
-	];
 
 	@query("#import-form")
 	accessor form: HTMLFormElement;
@@ -43,7 +37,7 @@ export class ImportUsersModal extends Modal {
 								`)}
 							</sl-select>
 						</div>
-						<data-table .items="${this.users}" pageSize="10">
+						<data-table .items="${this.users}" pageSize="10" pagination>
 							<data-table-column
 								path="firstName"
 								header="${t("course.form.user.management.first-name")}"
@@ -67,7 +61,7 @@ export class ImportUsersModal extends Modal {
 				</article>
 				<div slot="footer">
 					<sl-button type="button" @click="${this.abort}" size="small" form="import-form">
-						${t("import.users.abort")}
+						${t("button.cancel")}
 					</sl-button>
 					<sl-button type="button" @click="${this.import}" variant="primary" size="small">
 						${t("import.users.import")}

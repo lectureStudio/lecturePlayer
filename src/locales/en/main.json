@@ -1,4 +1,6 @@
 {
+	"button.cancel": "Cancel",
+
 	"course.overview": "Course Overview",
 	"course.loading": "Loading Course...",
 	"course.unavailable": "The stream has not started yet. Please try again closer to the event start time.",
@@ -189,11 +191,14 @@
 	"course.form.description.editor.save": "Save",
 	"course.form.user.management": "User Management",
 	"course.form.user.management.help": "Assign additional course roles to individual participants. In the Email address field, specify the primary email address of participants who will receive extended privileges for this course.",
+	"course.form.user.management.guest": "Invite guest",
+	"course.form.user.management.guest.help": "Guests can use the portal like everyone else. To invite a guest, also enter the guest's first name and surname.",
 	"course.form.user.management.mail": "E-mail Address",
 	"course.form.user.management.mail.placeholder": "joe.public@mail.com",
 	"course.form.user.management.name": "Name",
 	"course.form.user.management.role": "Course Role",
 	"course.form.user.management.role.placeholder": "Select a role",
+	"course.form.user.management.role.assign": "Assign Role",
 	"course.form.user.management.assign": "Assign",
 	"course.form.user.management.block": "Block",
 	"course.form.user.management.unblock": "Unblock",

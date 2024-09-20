@@ -58,7 +58,7 @@ export class CourseDescriptionForm extends Component {
 
 	protected override render() {
 		return html`
-			<form class="validity-styles">
+			<form id="description-form" class="validity-styles">
 				<sl-input name="title" label="${t("course.form.description.title")}" help-text="${t("course.form.description.title.help")}" autocomplete="off" pattern="\\w{3,64}" required></sl-input>
 
 				<label>${t("course.form.description")}</label>

@@ -2,16 +2,13 @@ import { consume } from "@lit/context";
 import { columnBodyRenderer } from "@vaadin/grid/lit";
 import { CSSResultGroup, html } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
-import { repeat } from "lit/directives/repeat.js";
-import { ImportUsersModal } from "../../component";
+import { AssignRoleModal, ImportUsersModal } from "../../component";
 import { Component } from "../../component/component";
 import { I18nLitElement, t } from "../../component/i18n-mixin";
 import { applicationContext, ApplicationContext } from "../../context/application.context";
 import { CourseManagedUser } from "../../model/course";
 import { CourseCsvUser } from "../../model/course-csv-user";
-import { courseStore } from "../../store/course.store";
 import { parseCsvFile } from "../../utils/csv";
-import { validateForm } from "../../utils/form";
 import contentStyles from "./course-form-content.css";
 import styles from "./course-users-form.css";
 
@@ -30,9 +27,6 @@ export class CourseUsersForm extends Component {
 	@query("#selectCsvFileInput")
 	accessor fileInput: HTMLInputElement;
 
-	@query("#assign-form")
-	accessor assignForm: HTMLFormElement;
-
 	@state()
 	private accessor managedUsers: CourseManagedUser[] = [];
 
@@ -42,7 +36,7 @@ export class CourseUsersForm extends Component {
 		this.fileInput.addEventListener("change", () => {
 			if (this.fileInput.files) {
 				parseCsvFile(this.fileInput.files[0])
-					.then(users => this.openUsersModal(users))
+					.then(users => this.openImportUsersModal(users))
 					.catch(reason => console.error(reason));
 
 				// Clear input.
@@ -53,11 +47,16 @@ export class CourseUsersForm extends Component {
 
 	protected override render() {
 		return html`
-			<span class="help-text">${t("course.form.user.management.help")}</span>
-
 			<div class="button-group-toolbar">
+				<sl-button-group label="assign">
+					<sl-button @click="${this.openAssignRoleModal}" size="small">
+						<sl-icon slot="prefix" name="person-role"></sl-icon>
+						${t("course.form.user.management.role.assign")}
+					</sl-button>
+				</sl-button-group>
+
 				<input type="file" id="selectCsvFileInput" accept=".csv"/>
-				<sl-button-group label="CSV">
+				<sl-button-group label="csv">
 					<sl-button @click="${this.onImportCSV}" size="small">
 						<sl-icon slot="prefix" name="import"></sl-icon>
 						${t("course.form.user.management.csv.import")}
@@ -69,21 +68,7 @@ export class CourseUsersForm extends Component {
 				</sl-button-group>
 			</div>
 
-			<form id="assign-form" class="validity-styles">
-				<div class="assign-container">
-					<sl-input type="email" name="user-email" placeholder="${t("course.form.user.management.mail.placeholder")}" label="${t("course.form.user.management.mail")}" required></sl-input>
-					<sl-select name="user-role" placeholder="${t("course.form.user.management.role.placeholder")}" label="${t("course.form.user.management.role")}" placement="bottom" hoist required>
-						${repeat(courseStore.courseRoles, (role) => role.name, (role) => html`
-							<sl-option value="${t(role.name)}">${t(role.description)}</sl-option>
-						`)}
-					</sl-select>
-					<sl-button @click="${this.onAssignNewUser}">
-						${t("course.form.user.management.assign")}
-					</sl-button>
-				</div>
-			</form>
-
-			<data-table .items="${this.managedUsers}" pageSize="5">
+			<data-table .items="${this.managedUsers}" pageSize="10" pagination>
 				<data-table-column
 					path="user.email"
 					header="${t("course.form.user.management.mail")}"
@@ -91,13 +76,13 @@ export class CourseUsersForm extends Component {
 				</data-table-column>
 				<data-table-column
 					header="${t("course.form.user.management.name")}"
-					${columnBodyRenderer(this.userTableNameRenderer)}
-					auto-width>
+					auto-width
+					${columnBodyRenderer(this.userTableNameRenderer)}>
 				</data-table-column>
 				<data-table-column
 					header="${t("course.form.user.management.role")}"
-					${columnBodyRenderer(this.userTableRoleRenderer)}
-					auto-width>
+					auto-width
+					${columnBodyRenderer(this.userTableRoleRenderer)}>
 				</data-table-column>
 				<data-table-column
 					${columnBodyRenderer(this.userTableButtonRenderer)}>
@@ -128,7 +113,16 @@ export class CourseUsersForm extends Component {
 		`;
 	}
 
-	private openUsersModal(users: CourseCsvUser[]) {
+	private openAssignRoleModal() {
+		const assignModal = new AssignRoleModal();
+		assignModal.addEventListener("import-users-modal-import", () => {
+
+		});
+
+		this.applicationContext.modalController.registerModal("AssignRoleModal", assignModal);
+	}
+
+	private openImportUsersModal(users: CourseCsvUser[]) {
 		const importModal = new ImportUsersModal();
 		importModal.users = users;
 		importModal.addEventListener("import-users-modal-import", () => {
@@ -148,13 +142,6 @@ export class CourseUsersForm extends Component {
 		});
 
 		this.applicationContext.modalController.registerModal("ImportUsersModal", importModal);
-	}
-
-	private onAssignNewUser() {
-		if (validateForm(this.assignForm)) {
-			const data = new FormData(this.assignForm);
-
-		}
 	}
 
 	private onDeleteAssignment(managedUser: CourseManagedUser) {

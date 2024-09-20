@@ -1,5 +1,6 @@
 import { CSSResultGroup, html } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
+import { when } from "lit/directives/when.js";
 import { Component } from "../component";
 import { DataTablePagination } from "./data-table-pagination";
 import { I18nLitElement } from "../i18n-mixin";
@@ -16,7 +17,10 @@ export class DataTable extends Component {
 	];
 
 	@property({ type: Number })
-	accessor pageSize: number = 10;
+	accessor pageSize = 10;
+
+	@property({ type: Boolean })
+	accessor pagination = false;
 
 	@state()
 	accessor pageItems: object[];
@@ -31,8 +35,12 @@ export class DataTable extends Component {
 	accessor gridPagination: DataTablePagination;
 
 
-	protected override firstUpdated() {
-		this.gridPagination.table = this;
+	protected override async firstUpdated() {
+		this.pageItems = this.items;
+
+		if (this.gridPagination) {
+			this.gridPagination.table = this;
+		}
 
 		// Fix tooltip clipping in cells.
 		const shadowRoot = this.grid.shadowRoot;
@@ -47,11 +55,13 @@ export class DataTable extends Component {
 
 	protected override render() {
 		return html`
-			<vaadin-grid .items="${this.pageItems}" page-size="${this.pageSize}" size="${this.pageSize}" theme="no-border" all-rows-visible>
+			<vaadin-grid part="table" .items="${this.pageItems}" page-size="${this.pageSize}" size="${this.pageSize}" theme="no-border" all-rows-visible>
 				<slot></slot>
 			</vaadin-grid>
 
-			<data-table-pagination .table="${this}" .items="${this.items}"></data-table-pagination>
+			${when(this.pagination, () => html`
+				<data-table-pagination .table="${this}" .items="${this.items}"></data-table-pagination>
+			`)}
 		`;
 	}
 }

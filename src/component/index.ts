@@ -3,6 +3,7 @@ export * from './player/player';
 export * from './api-settings/api-settings';
 export * from './audio-settings/audio-settings';
 export * from './slide-view/slide-view';
+export * from './assign-role-modal/assign-role-modal';
 export * from './conference-view/conference-view';
 export * from './controls/player-controls';
 export * from './controls/audio-volume-button';

@@ -1,3 +1,6 @@
+:host {
+	width: 100%;
+}
 vaadin-grid::part(row):hover {
 	--row-bg: var(--sl-color-neutral-100);
 	z-index: 1000;

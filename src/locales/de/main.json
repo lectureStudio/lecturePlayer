@@ -1,4 +1,6 @@
 {
+	"button.cancel": "Abbrechen",
+
 	"course.overview": "Kurs-Übersicht",
 	"course.loading": "Lade Kurs...",
 	"course.unavailable": "Der Stream hat noch nicht begonnen. Bitte versuchen Sie es kurz vor Beginn der Veranstaltung erneut.",
@@ -189,6 +191,8 @@
 	"course.form.description.editor.save": "Speichern",
 	"course.form.user.management": "Benutzerverwaltung",
 	"course.form.user.management.help": "Weisen Sie einzelnen Teilnehmer:innen zusätzliche Kursrollen zu. Geben Sie im Feld E-Mail-Adresse die primäre E-Mail-Adresse von Teilnehmer:innen an, die erweiterte Rechte für diesen Kurs erhalten.",
+	"course.form.user.management.guest": "Gast einladen",
+	"course.form.user.management.guest.help": "Gäste können das Portal wie alle anderen Teilnehmer:innen nutzen. Um einen Gast einzuladen, geben Sie zusätzlich den Vor- und Nachnamen des Gastes ein.",
 	"course.form.user.management.mail": "E-Mail-Adresse",
 	"course.form.user.management.mail.placeholder": "max.mustermann@mail.de",
 	"course.form.user.management.name": "Name",
@@ -196,6 +200,7 @@
 	"course.form.user.management.last-name": "Nachname",
 	"course.form.user.management.role": "Kursrolle",
 	"course.form.user.management.role.placeholder": "Wählen Sie eine Rolle aus",
+	"course.form.user.management.role.assign": "Kursrolle Zuweisen",
 	"course.form.user.management.assign": "Zuweisen",
 	"course.form.user.management.block": "Sperren",
 	"course.form.user.management.unblock": "Entsperren",
