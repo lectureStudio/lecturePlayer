@@ -5,6 +5,7 @@ import { Utils } from "../utils/utils";
 import { RTCStatsService } from "./rtc-stats.service";
 import { EventEmitter } from "../utils/event-emitter";
 import { LpDeviceMuteEvent, ParticipantConnectionState, ParticipantError, ParticipantState } from "../event";
+import TypedEventTarget from "../utils/typed-event-target";
 
 export enum JanusStreamType {
 

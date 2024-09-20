@@ -65,7 +65,7 @@ export class AssignRoleModal extends Modal {
 
 	private onAssignNewUser() {
 		if (validateForm(this.form)) {
-			const managedUser = serialize(this.form) as CourseManagedUser;
+			const managedUser = serialize(this.form) as unknown as CourseManagedUser;
 
 			console.log(managedUser);
 

@@ -86,7 +86,7 @@ export class StreamActionPlayer extends ActionPlayer {
 				try {
 					action.execute(this.executor);
 				}
-				catch (cause) {
+				catch (_cause) {
 					//console.error(cause);
 				}
 
