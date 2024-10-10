@@ -5,6 +5,7 @@ import { when } from "lit/directives/when.js";
 import { courseStore } from "../../store/course.store";
 import { deviceStore } from "../../store/device.store";
 import { DeviceInfo, Devices } from "../../utils/devices";
+import { VirtualBackground } from "../../utils/virtual-background";
 import { t } from "../i18n-mixin";
 import { MediaSettings } from "../media-settings/media-settings";
 import styles from './video-settings.css';
@@ -16,6 +17,8 @@ export class VideoSettings extends MediaSettings {
 		MediaSettings.styles,
 		styles
 	];
+
+	private virtualBackground: VirtualBackground;
 
 	@property({ type: Boolean })
 	accessor active: boolean;
@@ -39,6 +42,12 @@ export class VideoSettings extends MediaSettings {
 				this.stopCapture();
 			}
 		}
+	}
+
+	protected override async firstUpdated() {
+		super.firstUpdated();
+
+		this.virtualBackground = new VirtualBackground();
 	}
 
 	override queryDevices(): void {
@@ -88,14 +97,28 @@ export class VideoSettings extends MediaSettings {
 		this.videoInputDevices = devices.filter(device => device.kind === "videoinput");
 		this.inputBlocked = cameraBlocked;
 
-		this.video.srcObject = stream || null;
-		this.video.muted = true;
+		// this.video.srcObject = stream || null;
+		// this.video.muted = true;
 
 		if (!this.videoInputDevices.find(devInfo => { return devInfo.deviceId === deviceStore.cameraDeviceId })) {
 			Devices.stopVideoTracks(this.video.srcObject as MediaStream);
 
 			this.setVideoVisible(false);
 		}
+
+		// this.updateCanvasSize();
+		// this.virtualBackground.setCanvas(this.canvas);
+		this.virtualBackground.setVideoStream(stream!);
+		this.virtualBackground.start()
+			.then(track => {
+				console.log(track);
+
+				const newStream = new MediaStream();
+				newStream.addTrack(track)
+
+				this.video.srcObject = newStream || null;
+				this.video.muted = true;
+			});
 
 		this.setQuerying(false);
 		this.setEnabled(true);
@@ -110,6 +133,8 @@ export class VideoSettings extends MediaSettings {
 	}
 
 	private stopCapture() {
+		this.virtualBackground.stop();
+
 		if (this.video) {
 			Devices.stopVideoTracks(this.video.srcObject as MediaStream);
 
@@ -174,6 +199,19 @@ export class VideoSettings extends MediaSettings {
 				this.setQuerying(false);
 				this.setDeviceError(error);
 			});
+	}
+
+	private updateCanvasSize() {
+		// Adapt the canvas to the size of the video element.
+		const width = this.video.videoWidth;
+		const height = this.video.videoHeight;
+
+		console.log(width, height)
+
+		// if (this.canvas.width !== width || this.canvas.height !== height) {
+		// 	this.canvas.width = width;
+		// 	this.canvas.height = height;
+		// }
 	}
 
 	protected override render() {

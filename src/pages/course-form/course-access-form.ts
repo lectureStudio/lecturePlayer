@@ -1,9 +1,11 @@
+import { consume } from "@lit/context";
 import { columnBodyRenderer } from "@vaadin/grid/lit";
 import { CSSResultGroup, html } from "lit";
 import { customElement, query } from "lit/decorators.js";
 import { when } from "lit/directives/when.js";
 import { Component } from "../../component/component";
 import { I18nLitElement, t } from "../../component/i18n-mixin";
+import { CourseFormContext, courseFormContext } from "../../context/course-form.context";
 import { aliase, CourseAlias } from "../../model/course";
 import { uiStateStore } from "../../store/ui-state.store";
 import styles from "./course-access-form.css";
@@ -18,17 +20,20 @@ export class CourseAccessForm extends Component {
 		contentStyles
 	];
 
+	@consume({ context: courseFormContext })
+	accessor formContext: CourseFormContext;
+
 	@query("#description-editor")
 	accessor editorDiv: HTMLElement;
 
 
 	protected override render() {
 		return html`
-			<sl-input type="password" name="passcode" label="${t("course.form.access.passcode")}" help-text="${t("course.form.access.passcode.help")}" autocomplete="off" password-toggle></sl-input>
+			<sl-input type="password" name="passcode" .value="${this.formContext.courseForm.passcode}" label="${t("course.form.access.passcode")}" help-text="${t("course.form.access.passcode.help")}" autocomplete="off" password-toggle></sl-input>
 
 			<div>
 				<label>${t("course.form.access.visibility")}</label>
-				<sl-switch help-text="${t("course.form.access.visibility.help")}">${t("course.form.access.visibility.label")}</sl-switch>
+				<sl-switch .checked="${this.formContext.courseForm.isHidden}" help-text="${t("course.form.access.visibility.help")}">${t("course.form.access.visibility.label")}</sl-switch>
 			</div>
 
 			<div>
@@ -91,11 +96,11 @@ export class CourseAccessForm extends Component {
 				() => html`
 					<sl-format-date
 						month="long" day="numeric" year="numeric" hour="numeric" minute="numeric" hour-format="24"
-						date="${ alias.expiry }" lang="${ uiStateStore.language }">
+						date="${alias.expiry ?? ""}" lang="${uiStateStore.language}">
 					</sl-format-date>
 				`,
 				() => html`
-					<sl-badge variant="warning">${ t("course.form.access.access-link.expiry.never") }</sl-badge>
+					<sl-badge variant="warning">${t("course.form.access.access-link.expiry.never")}</sl-badge>
 				`,
 			)}
 		`;

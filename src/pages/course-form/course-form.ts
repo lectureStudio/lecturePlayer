@@ -1,7 +1,10 @@
+import { provide } from "@lit/context";
 import { CSSResultGroup, html } from "lit";
-import { customElement } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
+import { autorun, observable } from "mobx";
 import { Component } from "../../component/component";
 import { I18nLitElement, t } from "../../component/i18n-mixin";
+import { courseFormContext, CourseFormContext } from "../../context/course-form.context";
 import styles from "./course-form.css";
 
 @customElement('course-form')
@@ -12,6 +15,17 @@ export class CourseForm extends Component {
 		styles,
 	];
 
+	@provide({ context: courseFormContext })
+	@property({ attribute: false })
+	@observable
+	accessor courseFormContext: CourseFormContext;
+
+
+	override firstUpdated() {
+		autorun(() => {
+			console.log("form", this.courseFormContext?.courseForm)
+		});
+	}
 
 	protected override render() {
 		return html`
@@ -21,7 +35,7 @@ export class CourseForm extends Component {
 					<sl-tab slot="nav" panel="access">${t("course.form.access")}</sl-tab>
 					<sl-tab slot="nav" panel="roles">${t("course.form.roles")}</sl-tab>
 					<sl-tab slot="nav" panel="user-management">${t("course.form.user.management")}</sl-tab>
-	
+
 					<sl-tab-panel name="description">
 						<course-description-form></course-description-form>
 					</sl-tab-panel>

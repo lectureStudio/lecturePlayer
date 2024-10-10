@@ -63,9 +63,20 @@ export interface CourseManagedUser {
 	};
 	readonly role: CourseRole;
 	readonly blocked: boolean;
+
 }
 
+export interface CourseForm {
 
+	title: string;
+	description: string;
+	passcode: string;
+	isHidden: boolean;
+	roles: CourseRole[];
+	privilegedUsers: CourseManagedUser[];
+	accessLinks: CourseAlias[];
+
+}
 
 export const aliase: CourseAlias[] = [
 	{
