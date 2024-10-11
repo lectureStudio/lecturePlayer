@@ -1,6 +1,6 @@
 export interface RecordingState {
 	courseId: number;
-	recorded: boolean;
+	started: boolean;
 }
 
 export type LpRecordingStateEvent = CustomEvent<RecordingState>;

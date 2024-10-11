@@ -199,7 +199,7 @@ export class PlayerController extends Controller implements ReactiveController {
 	private loadParticipants() {
 		return CourseParticipantApi.getParticipants(courseStore.courseId)
 			.then(participants => {
-				console.log("* on participants", participants);
+				// console.log("* on participants", participants);
 
 				participantStore.setParticipants(participants);
 			});
@@ -266,12 +266,6 @@ export class PlayerController extends Controller implements ReactiveController {
 					this.playbackController.setActiveDocument(documentStore.activeDocument);
 				}
 
-				this.modalController.registerModal("RecordedModal", new RecordedModal(), false, false);
-
-				if (courseStore.recorded) {
-					this.modalController.openModal("RecordedModal");
-				}
-
 				uiStateStore.setDocumentState(State.CONNECTED);
 
 				this.updateConnectionState();
@@ -312,7 +306,7 @@ export class PlayerController extends Controller implements ReactiveController {
 	private onEventServiceState(event: LpEventServiceStateEvent) {
 		const state = event.detail;
 
-		console.log("* on event service", state, uiStateStore.state);
+		console.log("* on event service", State[state]);
 
 		if (state == State.CONNECTED) {
 			switch (uiStateStore.state) {
@@ -350,7 +344,7 @@ export class PlayerController extends Controller implements ReactiveController {
 	private onChatState(event: LpChatStateEvent) {
 		const chatState = event.detail;
 
-		console.log("* on chat", chatState, uiStateStore.state);
+		console.log("* on chat", chatState);
 
 		featureStore.setChatFeature(chatState.started ? chatState.feature : undefined);
 
@@ -404,12 +398,14 @@ export class PlayerController extends Controller implements ReactiveController {
 	private onRecordingState(event: LpRecordingStateEvent) {
 		const recordingState = event.detail;
 
-		if (recordingState.recorded) {
-			this.modalController.openModal("RecordedModal");
+		if (recordingState.started && !courseStore.recorded && uiStateStore.state === State.CONNECTED) {
+			this.showRecordedModal();
 		}
 		else {
 			this.modalController.closeModal("RecordedModal");
 		}
+
+		courseStore.setRecorded(recordingState.started);
 	}
 
 	private onStreamState(event: LpStreamStateEvent) {
@@ -566,6 +562,10 @@ export class PlayerController extends Controller implements ReactiveController {
 			if (streamState === State.CONNECTED && documentState === State.CONNECTED) {
 				this.setConnectionState(State.CONNECTED);
 
+				if (courseStore.recorded && !this.connecting) {
+					this.showRecordedModal();
+				}
+
 				this.connecting = false;
 			}
 			else if (streamState === State.DISCONNECTED) {
@@ -616,5 +616,9 @@ export class PlayerController extends Controller implements ReactiveController {
 				this.setReconnecting();
 				break;
 		}
+	}
+
+	private showRecordedModal() {
+		this.modalController.registerModal("RecordedModal", new RecordedModal());
 	}
 }
