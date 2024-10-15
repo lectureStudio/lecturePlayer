@@ -1,4 +1,5 @@
 import { ReactiveController } from "lit";
+import { RecordedModal } from "../recorded-modal/recorded.modal";
 import { PlayerView } from "./player-view";
 import { featureStore } from "../../store/feature.store";
 import { courseStore } from "../../store/course.store";
@@ -28,6 +29,10 @@ export class PlayerViewController implements ReactiveController {
 
 			this.host.requestUpdate();
 		});
+
+		if (courseStore.recorded) {
+			this.host.playerController.modalController.registerModal("RecordedModal", new RecordedModal());
+		}
 	}
 
 	update() {

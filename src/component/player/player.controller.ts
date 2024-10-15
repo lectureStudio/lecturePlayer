@@ -1,40 +1,50 @@
+import { t } from 'i18next';
 import { ReactiveController } from 'lit';
-import { EventService } from '../../service/event.service';
+import {
+	LpChatResponseEvent,
+	LpChatStateEvent,
+	LpEventServiceStateEvent,
+	LpMediaStateEvent,
+	LpParticipantModerationEvent,
+	LpParticipantPresenceEvent,
+	LpQuizStateEvent,
+	LpRecordingStateEvent,
+	LpStreamStateEvent,
+} from '../../event';
+import { MouseListener } from '../../event/mouse-listener';
 import { ChatService } from '../../service/chat.service';
+import { EventService } from '../../service/event.service';
 import { ModerationService } from "../../service/moderation.service";
+import { chatStore } from '../../store/chat.store';
+import { courseStore } from '../../store/course.store';
+import { deviceStore } from '../../store/device.store';
+import { documentStore } from '../../store/document.store';
+import { featureStore } from '../../store/feature.store';
+import { participantStore } from '../../store/participants.store';
+import { privilegeStore } from '../../store/privilege.store';
+import { streamStatsStore } from '../../store/stream-stats.store';
+import { uiStateStore } from '../../store/ui-state.store';
+import { userStore } from '../../store/user.store';
+import { ToolController } from '../../tool/tool-controller';
+import { CourseChatApi } from '../../transport/course-chat-api';
+import { CourseParticipantApi } from '../../transport/course-participant-api';
+import { CourseStateApi } from '../../transport/course-state-api';
+import { CourseUserApi } from '../../transport/course-user-api';
 import { DeviceInfo, Devices } from '../../utils/devices';
+import { EventEmitter } from '../../utils/event-emitter';
 import { MediaProfile, Settings } from '../../utils/settings';
 import { State } from '../../utils/state';
+import { Toaster } from '../../utils/toaster';
 import { Utils } from '../../utils/utils';
+import { ApplicationContext } from '../controller/context';
+import { Controller } from '../controller/controller';
+import { RootController } from '../controller/root.controller';
 import { EntryModal } from '../entry-modal/entry.modal';
 import { PlayerViewController } from '../player-view/player-view.controller';
 import { ReconnectModal } from '../reconnect-modal/reconnect.modal';
 import { RecordedModal } from '../recorded-modal/recorded.modal';
-import { LecturePlayer } from './player';
-import { featureStore } from '../../store/feature.store';
-import { chatStore } from '../../store/chat.store';
-import { privilegeStore } from '../../store/privilege.store';
-import { participantStore } from '../../store/participants.store';
-import { courseStore } from '../../store/course.store';
-import { userStore } from '../../store/user.store';
-import { documentStore } from '../../store/document.store';
-import { uiStateStore } from '../../store/ui-state.store';
-import { ToolController } from '../../tool/tool-controller';
-import { MouseListener } from '../../event/mouse-listener';
 import { SlideView } from '../slide-view/slide-view';
-import { deviceStore } from '../../store/device.store';
-import { CourseStateApi } from '../../transport/course-state-api';
-import { CourseUserApi } from '../../transport/course-user-api';
-import { CourseParticipantApi } from '../../transport/course-participant-api';
-import { CourseChatApi } from '../../transport/course-chat-api';
-import { ApplicationContext } from '../controller/context';
-import { EventEmitter } from '../../utils/event-emitter';
-import { RootController } from '../controller/root.controller';
-import { Controller } from '../controller/controller';
-import { streamStatsStore } from '../../store/stream-stats.store';
-import { LpChatResponseEvent, LpChatStateEvent, LpEventServiceStateEvent, LpMediaStateEvent, LpParticipantPresenceEvent, LpParticipantModerationEvent, LpQuizStateEvent, LpRecordingStateEvent, LpStreamStateEvent } from '../../event';
-import { Toaster } from '../../utils/toaster';
-import { t } from 'i18next';
+import { LecturePlayer } from './player';
 
 export class PlayerController extends Controller implements ReactiveController {
 
@@ -398,8 +408,10 @@ export class PlayerController extends Controller implements ReactiveController {
 	private onRecordingState(event: LpRecordingStateEvent) {
 		const recordingState = event.detail;
 
+		console.log("******** recording state", recordingState.started)
+
 		if (recordingState.started && !courseStore.recorded && uiStateStore.state === State.CONNECTED) {
-			this.showRecordedModal();
+			this.modalController.registerModal("RecordedModal", new RecordedModal());
 		}
 		else {
 			this.modalController.closeModal("RecordedModal");
@@ -562,10 +574,6 @@ export class PlayerController extends Controller implements ReactiveController {
 			if (streamState === State.CONNECTED && documentState === State.CONNECTED) {
 				this.setConnectionState(State.CONNECTED);
 
-				if (courseStore.recorded && !this.connecting) {
-					this.showRecordedModal();
-				}
-
 				this.connecting = false;
 			}
 			else if (streamState === State.DISCONNECTED) {
@@ -616,9 +624,5 @@ export class PlayerController extends Controller implements ReactiveController {
 				this.setReconnecting();
 				break;
 		}
-	}
-
-	private showRecordedModal() {
-		this.modalController.registerModal("RecordedModal", new RecordedModal());
 	}
 }
