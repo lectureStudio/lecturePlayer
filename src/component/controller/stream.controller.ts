@@ -14,7 +14,7 @@ import { RootController } from "./root.controller";
 
 export class StreamController extends Controller {
 
-	private readonly janusEndpoint = `https://${window.location.hostname}:8089/janus`;
+	private readonly janusEndpoint = `https://${window.location.hostname}/janus`;
 
 	private readonly janusService: JanusService;
 
