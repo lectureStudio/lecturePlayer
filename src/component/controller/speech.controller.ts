@@ -18,6 +18,8 @@ export class SpeechController extends Controller {
 
 	private speechStarted: boolean;
 
+	private speechWithdrawn: boolean;
+
 	private devicesSelected: boolean;
 
 
@@ -31,15 +33,11 @@ export class SpeechController extends Controller {
 	private onSpeechState(event: LpSpeechStateEvent) {
 		const speechState = event.detail;
 
-		if (this.speechRequestId && speechState.requestId === this.speechRequestId) {
+		if (this.speechRequestId && speechState.requestId === this.speechRequestId && !this.speechWithdrawn) {
 			if (speechState.accepted) {
 				this.speechAccepted();
 			}
 			else {
-				Toaster.showInfo(`${this.speechStarted
-					? t("course.speech.request.ended")
-					: t("course.speech.request.rejected")}`);
-
 				this.speechCanceled();
 			}
 		}
@@ -91,7 +89,7 @@ export class SpeechController extends Controller {
 			.catch(error => {
 				console.error(error.name);
 
-				// Try again without camera which might be blocked.
+				// Try again without a camera which might be blocked.
 				constraints.video = undefined;
 
 				navigator.mediaDevices.getUserMedia(constraints)
@@ -101,7 +99,7 @@ export class SpeechController extends Controller {
 					.catch(error => {
 						console.error(error.name);
 
-						// Give up. Show error message.
+						// Give up. Show an error message.
 						this.cancelSpeech();
 
 						Toaster.showError(t("course.speech.request.aborted"));
@@ -113,37 +111,56 @@ export class SpeechController extends Controller {
 		CourseSpeechApi.requestSpeech(courseStore.courseId)
 			.then(requestId => {
 				this.speechRequestId = requestId;
+				this.speechWithdrawn = false;
 			})
 			.catch(error => console.error(error));
 	}
 
 	private cancelSpeech() {
+		this.speechWithdrawn = true;
+
 		if (!this.speechRequestId) {
 			this.speechCanceled();
-			this.showWithdrawn();
 			return;
 		}
 
 		CourseSpeechApi.cancelSpeech(courseStore.courseId, this.speechRequestId)
 			.then(() => {
 				this.speechCanceled();
-				this.showWithdrawn();
 			})
 			.catch(error => console.error(error));
 	}
 
-	private showWithdrawn() {
+	private showSpeechWithdrawn() {
 		Toaster.showInfo(`${this.speechStarted, t("course.speech.request.withdrawn")}`);
 	}
 
 	private speechCanceled() {
+		if (!this.speechWithdrawn) {
+			Toaster.showInfo(`${this.speechStarted
+				? t("course.speech.request.ended")
+				: t("course.speech.request.rejected")}`);
+		}
+
 		this.speechRequestId = undefined;
 		this.speechStarted = false;
+
+		const modal = this.modalController.getModal("SpeechAcceptedModal") as SpeechAcceptedModal;
+		if (modal) {
+			modal.done = true;
+		}
 
 		// Close dialog in case the request was initially accepted.
 		this.modalController.closeAndDeleteModal("SpeechAcceptedModal");
 
 		this.eventEmitter.dispatchEvent(Utils.createEvent<void>("lp-speech-canceled"));
+	}
+
+	private startSpeech(camBlocked: boolean) {
+		this.streamController.startSpeech(!camBlocked);
+
+		this.speechStarted = true;
+		this.speechWithdrawn = false;
 	}
 
 	private showSpeechAcceptedModal(stream: MediaStream, camBlocked: boolean) {
@@ -153,11 +170,10 @@ export class SpeechController extends Controller {
 			speechModal.cameraBlocked = camBlocked;
 			speechModal.addEventListener("speech-accepted-canceled", () => {
 				this.cancelSpeech();
+				this.showSpeechWithdrawn();
 			});
 			speechModal.addEventListener("speech-accepted-start", () => {
-				this.streamController.startSpeech(!camBlocked);
-
-				this.speechStarted = true;
+				this.startSpeech(camBlocked);
 			});
 
 			this.modalController.registerModal("SpeechAcceptedModal", speechModal);

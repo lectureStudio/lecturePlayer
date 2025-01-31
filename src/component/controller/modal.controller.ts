@@ -25,6 +25,10 @@ export class ModalController extends Controller {
 		}
 	}
 
+	getModal(name: string): Modal | undefined {
+		return this.modals.get(name);
+	}
+
 	openModal(name: string) {
 		const modal = this.modals.get(name);
 

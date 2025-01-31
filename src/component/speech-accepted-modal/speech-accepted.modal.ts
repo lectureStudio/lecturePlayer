@@ -60,10 +60,9 @@ export class SpeechAcceptedModal extends Modal {
 		Devices.stopMediaTracks(this.stream);
 
 		if (!this.done) {
+			this.done = true;
 			this.dispatchEvent(Utils.createEvent("speech-accepted-canceled"));
 		}
-
-		this.done = true;
 
 		super.close();
 	}
