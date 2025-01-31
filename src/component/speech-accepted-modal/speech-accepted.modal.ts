@@ -23,6 +23,8 @@ export class SpeechAcceptedModal extends Modal {
 	@property({ type: Boolean, reflect: true })
 	accessor cameraBlocked: boolean;
 
+	done: boolean = false;
+
 	stream: MediaStream;
 
 
@@ -46,16 +48,22 @@ export class SpeechAcceptedModal extends Modal {
 
 	protected startSpeech() {
 		this.dispatchEvent(Utils.createEvent("speech-accepted-start"));
+		this.done = true;
 		this.close();
 	}
 
 	protected cancelSpeech() {
-		this.dispatchEvent(Utils.createEvent("speech-accepted-canceled"));
 		this.close();
 	}
 
 	override close() {
 		Devices.stopMediaTracks(this.stream);
+
+		if (!this.done) {
+			this.dispatchEvent(Utils.createEvent("speech-accepted-canceled"));
+		}
+
+		this.done = true;
 
 		super.close();
 	}
