@@ -95,6 +95,21 @@ export class QuizForm extends Component {
 				}
 			});
 		}
+		else if (type === QuizType.FreeText) {
+			feature?.options.forEach((option: string, index: number) => {
+				// Currently there is only one rule implemented for the numeric type.
+				const error = (this.fieldErrors as Indexable)[index] as string;
+
+				itemTemplates.push(html`
+					<div class="quiz-option">
+						<sl-input type="text" label="${ option }" name="options" id="option-${ index }" size="small"></sl-input>
+						${when(error, () => html`
+							<span class="form-control-desc error-feedback">${ t(error) }</span>
+						`)}
+					</div>
+				`);
+			});
+		}
 
 		return html`
 			<form id="quiz-form">

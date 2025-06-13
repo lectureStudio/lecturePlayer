@@ -22,7 +22,8 @@ export enum QuizType {
 
 	Multiple = "MULTIPLE",
 	Single = "SINGLE",
-	Numeric = "NUMERIC"
+	Numeric = "NUMERIC",
+	FreeText = "FREE_TEXT"
 
 }
 
