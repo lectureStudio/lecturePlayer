@@ -26,15 +26,18 @@ class lectPlayer {
 	initI18n() {
 		i18next
 			.use(LanguageDetector)
-			.init({
-				debug: false,
-				supportedLngs: ["de", "en"],
-				fallbackLng: "en",
-				// Allow "en" to be used for "en-US", "en-CA", etc.
-				nonExplicitSupportedLngs: true,
-				ns: "main",
-				resources: resources
-			});
+				.init({
+					debug: false,
+					supportedLngs: ["de", "en"],
+					fallbackLng: "en",
+					// Allow "en" to be used for "en-US", "en-CA", etc.
+					nonExplicitSupportedLngs: true,
+					ns: "main",
+					resources: resources,
+					detection: {
+						caches: [],
+					},
+				});
 	}
 }
 

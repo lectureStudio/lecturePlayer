@@ -6,10 +6,6 @@ import { Transform } from "../geometry/transform";
 export class PdfTextRenderer {
 
 	async render(pageProxy: PDFPageProxy, transform: Transform, root: HTMLElement): Promise<void> {
-		if (!pdfjs.renderTextLayer) {
-			return Promise.reject("renderTextLayer() is not available");
-		}
-
 		const viewport = pageProxy.getViewport().clone({ dontFlip: true });
 
 		const readableStream = pageProxy.streamTextContent({

@@ -80,7 +80,7 @@ export class QuizBox extends Component {
 				${t("course.feature.quiz")}
 			</header>
 			<section part="section">
-				<quiz-form></quiz-form>
+				<quiz-form @quiz-submit="${this.post}"></quiz-form>
 			</section>
 			<footer part="footer">
 				<sl-button @click="${this.post}" ?disabled="${uiStateStore.quizSent}" form="quiz-form" id="quiz-submit" size="small">

@@ -39,6 +39,13 @@ export class QuizForm extends Component {
 			});
 	}
 
+	private onKeyDown(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			event.preventDefault();
+			this.dispatchEvent(new CustomEvent('quiz-submit', { bubbles: true, composed: true }));
+		}
+	}
+
 	override render() {
 		const feature = featureStore.quizFeature;
 		const itemTemplates = new Array<TemplateResult>();
@@ -63,7 +70,7 @@ export class QuizForm extends Component {
 		}
 		else if (type === QuizType.Numeric) {
 			feature?.options.forEach((option: string, index: number) => {
-				// Currently there is only one rule implemented for the numeric type.
+				// Currently, there is only one rule implemented for the numeric type.
 				const error = (this.fieldErrors as Indexable)[index] as string;
 
 				if (inputRules && inputRules[index]) {
@@ -97,7 +104,7 @@ export class QuizForm extends Component {
 		}
 		else if (type === QuizType.FreeText) {
 			feature?.options.forEach((option: string, index: number) => {
-				// Currently there is only one rule implemented for the numeric type.
+				// Currently, there is only one rule implemented for the numeric type.
 				const error = (this.fieldErrors as Indexable)[index] as string;
 
 				itemTemplates.push(html`
@@ -112,7 +119,7 @@ export class QuizForm extends Component {
 		}
 
 		return html`
-			<form id="quiz-form">
+			<form id="quiz-form" @keydown=${this.onKeyDown}>
 				<input type="hidden" name="serviceId" value="${ifDefined(feature?.featureId)}" />
 
 				<div class="quiz-question">
