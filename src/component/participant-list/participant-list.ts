@@ -1,11 +1,20 @@
 import { CSSResultGroup, html } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
+import { uiStateStore } from "../../store/ui-state.store";
 import { I18nLitElement, t } from '../i18n-mixin';
 import { SortOrder, SortConfig } from '../../utils/sort';
 import { CourseParticipant } from '../../model/participant';
 import { SlMenu, SlMenuItem } from '@shoelace-style/shoelace';
-import { FirstNameComparator, LastNameComparator, ParticipantSortProperty, ParticipantSortPropertyType, ParticipantSortPropertyUtil, ParticipantTypeComparator, participantStore } from '../../store/participants.store';
+import {
+	FirstNameComparator,
+	LastNameComparator,
+	ParticipantSortProperty,
+	ParticipantSortPropertyType,
+	ParticipantSortPropertyUtil,
+	participantStore,
+	ParticipantTypeComparator,
+} from '../../store/participants.store';
 import { Component } from '../component';
 import { ModerationService } from "../../service/moderation.service";
 import participantListStyles from './participant-list.css';
@@ -36,6 +45,10 @@ export class ParticipantList extends Component {
 
 	override connectedCallback() {
 		super.connectedCallback();
+
+		// Initialize from store-persisted settings.
+		this.sortProperty = uiStateStore.participantsSortProperty;
+		this.sortConfig.order = uiStateStore.participantsSortOrder;
 
 		this.setSortComparators(this.sortProperty);
 	}
@@ -92,7 +105,10 @@ export class ParticipantList extends Component {
 	}
 
 	private onSortOrder() {
-		this.sortConfig.order = (this.sortConfig.order === SortOrder.Ascending) ? SortOrder.Descending : SortOrder.Ascending
+		this.sortConfig.order = (this.sortConfig.order === SortOrder.Ascending) ? SortOrder.Descending : SortOrder.Ascending;
+
+		uiStateStore.setParticipantsSortOrder(this.sortConfig.order);
+		uiStateStore.persist();
 
 		this.requestUpdate();
 	}
@@ -132,6 +148,10 @@ export class ParticipantList extends Component {
 		}
 
 		this.setSortComparators(property);
+
+		uiStateStore.setParticipantsSortProperty(property);
+		uiStateStore.persist();
+
 		this.sortProperty = property;
 	}
 

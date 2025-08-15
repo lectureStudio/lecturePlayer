@@ -1,7 +1,9 @@
 import { makeAutoObservable } from "mobx";
 import { Dimension } from "../geometry/dimension";
 import { ContentFocus, ContentLayout } from "../model/content";
+import { SortOrder } from "../utils/sort";
 import { State } from "../utils/state";
+import { ParticipantSortProperty } from "./participants.store";
 
 export enum ColorScheme {
 
@@ -37,6 +39,10 @@ class UiStateStore {
 	chatVisible: boolean = true;
 
 	participantsVisible: boolean = true;
+
+	participantsSortProperty: ParticipantSortProperty = ParticipantSortProperty.LastName;
+
+	participantsSortOrder: SortOrder = SortOrder.Ascending;
 
 	screenVisible: boolean = false;
 
@@ -101,6 +107,14 @@ class UiStateStore {
 		this.participantsVisible = visible;
 	}
 
+	setParticipantsSortProperty(property: ParticipantSortProperty) {
+		this.participantsSortProperty = property;
+	}
+
+	setParticipantsSortOrder(order: SortOrder) {
+		this.participantsSortOrder = order;
+	}
+
 	toggleParticipantsVisible() {
 		this.participantsVisible = !this.participantsVisible;
 	}
@@ -130,9 +144,17 @@ class UiStateStore {
 	}
 
 	persist() {
-		const { colorScheme } = this;
+		const {
+			colorScheme,
+			participantsSortProperty,
+			participantsSortOrder
+		} = this;
 
-		localStorage.setItem("ui.store", JSON.stringify({ colorScheme }));
+		localStorage.setItem("ui.store", JSON.stringify({
+			colorScheme,
+			participantsSortProperty,
+			participantsSortOrder
+		}));
 	}
 
 	private load() {
