@@ -56,7 +56,7 @@
 		"esbuild-plugin-umd-wrapper": "^2.0.0",
 		"eslint": "^8.57.0",
 		"eslint-plugin-lit": "^1.14.0",
-		"jspdf": "^3.0.1",
+		"jspdf": "^3.0.2",
 		"lit-css-loader": "^3.0.0",
 		"mini-css-extract-plugin": "^2.9.4",
 		"rollup-plugin-lit-css": "^5.0.0",
