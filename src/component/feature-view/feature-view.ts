@@ -63,8 +63,8 @@ export class PlayerFeatureView extends Component {
 
 		this.tabSwipeObserver = new SwipeObserver();
 
-		// Matches with the css query.
-		this.maxWidth600Query = window.matchMedia("(max-width: 600px) , (orientation: portrait)");
+		// Matches with the CSS query.
+		this.maxWidth600Query = window.matchMedia("(max-width: 1000px) , (orientation: portrait)");
 		this.maxWidth600Query.onchange = (event) => {
 			this.onCompactLayout(event.matches);
 		};
@@ -242,7 +242,7 @@ export class PlayerFeatureView extends Component {
 
 		let tab: SlTab | null = this.tabGroup.querySelector("sl-tab[active]");
 
-		// Select non-participants tab for activation.
+		// Select the non-participants tab for activation.
 		if (tab && tab.panel !== "participants") {
 			this.section = tab.panel;
 		}
