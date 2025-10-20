@@ -113,7 +113,7 @@
 	"course.feature.quiz.count.error": "Nur eine Antwort pro Quiz erlaubt",
 	"course.feature.quiz.input.invalid": "Eingabe nicht erlaubt",
 	"course.feature.quiz.sent": "Ihre Antwort wurde erfolgreich verschickt",
-	"course.participants": "Teilnehmer:innen",
+	"course.participants": "Teilnehmer",
 	"course.participants.me": "Ich",
 	"course.role.organisator": "Organisator:in",
 	"course.role.co_organisator": "Co-Organisator:in",

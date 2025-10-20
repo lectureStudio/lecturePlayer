@@ -16,6 +16,12 @@ export class LecturePlayerStyles extends I18nLitElement {
 					scroll-behavior: smooth;
 				}
 
+				/* Global scroll lock for pseudo fullscreen */
+				html.lp-scroll-lock, body.lp-scroll-lock {
+					overflow: hidden !important;
+					height: 100% !important;
+				}
+
 				.sl-toast-stack {
 					position: fixed;
 					left: 50%;

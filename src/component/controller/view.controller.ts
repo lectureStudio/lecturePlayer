@@ -63,6 +63,30 @@ export class ViewController extends Controller {
 	setFullscreen(enable: boolean) {
 		const isFullscreen = document.fullscreenElement !== null;
 
+		const isIOS = () => {
+			return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && (navigator as any).maxTouchPoints > 1);
+		};
+
+		const supportsFullscreenAPI = !!(this.context.host.requestFullscreen && document.exitFullscreen);
+
+		// If iOS or Fullscreen API not supported, fallback to pseudo fullscreen
+		if (!supportsFullscreenAPI || isIOS()) {
+			if (enable) {
+				this.context.host.setAttribute('pseudo-fullscreen', '');
+				document.documentElement.classList.add('lp-scroll-lock');
+				document.body.classList.add('lp-scroll-lock');
+				// Notify UI listeners to update icons/titles
+				document.dispatchEvent(new CustomEvent('lp-pseudo-fullscreenchange', { detail: true }));
+			}
+			else {
+				this.context.host.removeAttribute('pseudo-fullscreen');
+				document.documentElement.classList.remove('lp-scroll-lock');
+				document.body.classList.remove('lp-scroll-lock');
+				document.dispatchEvent(new CustomEvent('lp-pseudo-fullscreenchange', { detail: false }));
+			}
+			return;
+		}
+
 		if (enable) {
 			if (this.context.host.requestFullscreen && !isFullscreen) {
 				this.context.host.requestFullscreen();

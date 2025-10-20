@@ -43,6 +43,9 @@ export class PlayerFeatureView extends Component {
 	@property({ type: Boolean, reflect: true })
 	accessor unreadMessagesVisible: boolean = false;
 
+	@property({ type: Boolean, reflect: true })
+	accessor fullscreen: boolean = false;
+
 	unreadMessagesExist: boolean = false;
 
 	section: string = "chat";
@@ -130,6 +133,22 @@ export class PlayerFeatureView extends Component {
 			this.prevSection = e.detail.name;
 		});
 
+		// Observe fullscreen change by, e.g., escape-key.
+		document.addEventListener("fullscreenchange", () => {
+			this.fullscreen = document.fullscreenElement !== null;
+			this.requestUpdate();
+		});
+		this.fullscreen = document.fullscreenElement !== null;
+
+		// Listen for pseudo fullscreen changes (iOS fallback)
+		document.addEventListener('lp-pseudo-fullscreenchange', ((e: Event) => {
+			try {
+				const ce = e as CustomEvent<boolean>;
+				this.fullscreen = ce.detail;
+				this.requestUpdate();
+			} catch { /* noop */ }
+		}) as EventListener);
+
 		// Register and observe horizontal swipe events.
 		this.tabGroup.addEventListener("swiped-left", () => {
 			const tabs = this.tabGroup.querySelectorAll("sl-tab");
@@ -178,7 +197,10 @@ export class PlayerFeatureView extends Component {
 								${this.renderParticipants()}
 								${this.renderQuiz()}
 								${this.renderChat()}
-							</sl-tab-group>
+ 						</sl-tab-group>
+ 						<sl-button class="fullscreen-button" size="small" title="${this.fullscreen ? t("controls.fullscreen.off") : t("controls.fullscreen.on")}" aria-label="Fullscreen" @click="${this.emitFullscreen}" circle>
+							<sl-icon name="${this.fullscreen ? 'fullscreen-exit' : 'fullscreen'}"></sl-icon>
+ 						</sl-button>
 						</div>
 					</div>
 				</sl-split-panel>
@@ -295,5 +317,19 @@ export class PlayerFeatureView extends Component {
 				}
 			}
 		}
+	}
+
+	private emitFullscreen() {
+		// Align with global fullscreen event contract used by controllers
+		const nextState = !this.fullscreen;
+		// Optimistically update the local state so the icon/title switch instantly (avoids iOS race conditions)
+		this.fullscreen = nextState;
+		this.requestUpdate();
+
+		this.dispatchEvent(new CustomEvent<boolean>('lp-fullscreen', {
+			detail: nextState,
+			bubbles: true,
+			composed: true
+		}));
 	}
 }

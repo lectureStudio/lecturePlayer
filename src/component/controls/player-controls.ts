@@ -72,6 +72,11 @@ export class PlayerControls extends Component {
 		document.addEventListener("fullscreenchange", () => {
 			this.fullscreen = document.fullscreenElement !== null;
 		});
+		// Observe pseudo fullscreen changes (iOS fallback)
+		document.addEventListener('lp-pseudo-fullscreenchange', ((e: Event) => {
+			const ce = e as CustomEvent<boolean>;
+			this.fullscreen = ce.detail;
+		}));
 		this.eventEmitter.addEventListener("lp-speech-canceled", () => {
 			this.handUp = false;
 		});
