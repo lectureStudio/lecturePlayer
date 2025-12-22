@@ -107,6 +107,23 @@ export class Devices {
 		});
 	}
 
+	/**
+	 * Enumerates all media devices without requesting permission.
+	 * Device labels may be empty if permission has not been granted,
+	 * but device IDs will still be available for output devices (speakers).
+	 */
+	static enumerateDevices(): Promise<DeviceInfo> {
+		return new Promise<DeviceInfo>((resolve, reject) => {
+			return navigator.mediaDevices.enumerateDevices()
+				.then(devices => {
+					resolve({ devices: devices });
+				})
+				.catch(error => {
+					reject(error);
+				});
+		});
+	}
+
 	static enumerateVideoDevices(): Promise<DeviceInfo> {
 		const constraints: MediaStreamConstraints = {};
 
