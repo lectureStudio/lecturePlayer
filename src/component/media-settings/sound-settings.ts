@@ -82,6 +82,22 @@ export class SoundSettings extends MediaSettings {
 		this.audioInputDevices = devices.filter(device => device.kind === "audioinput");
 		this.audioOutputDevices = devices.filter(device => device.kind === "audiooutput");
 
+		// Set default microphone if not already set.
+		if (!deviceStore.microphoneDeviceId && this.audioInputDevices.length > 0) {
+			const defaultMic = Devices.getDefaultDevice(this.audioInputDevices);
+			if (defaultMic) {
+				deviceStore.microphoneDeviceId = defaultMic.deviceId;
+			}
+		}
+
+		// Set default speaker if not already set.
+		if (!deviceStore.speakerDeviceId && deviceStore.canSelectSpeaker && this.audioOutputDevices.length > 0) {
+			const defaultSpeaker = Devices.getDefaultDevice(this.audioOutputDevices);
+			if (defaultSpeaker) {
+				deviceStore.speakerDeviceId = defaultSpeaker.deviceId;
+			}
+		}
+
 		this.audio.srcObject = result.stream || null;
 		this.audio.muted = true;
 

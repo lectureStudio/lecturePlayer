@@ -225,32 +225,29 @@ export class PlayerController extends Controller implements ReactiveController {
 	}
 
 	private loadMediaDevices() {
-		return Devices.enumerateAudioDevices(false)
+		// Enumerate devices without requesting microphone permission.
+		// This avoids showing the permission dialog on startup.
+		// Microphone permission will be requested when the user initiates speech.
+		return Devices.enumerateDevices()
 			.then((deviceInfo: DeviceInfo) => {
 				console.log("* on media devices");
 
-				// Stream is not needed.
-				Devices.stopMediaTracks(deviceInfo.stream);
-
-				// Select default devices.
-				if (!deviceStore.microphoneDeviceId) {
-					const audioInputDevices = deviceInfo.devices.filter(device => device.kind === "audioinput");
-
-					deviceStore.microphoneDeviceId = Devices.getDefaultDevice(audioInputDevices).deviceId;
-				}
+				// Select default speaker device (no permission required for output devices).
 				if (!deviceStore.speakerDeviceId && deviceStore.canSelectSpeaker && !Utils.isFirefox()) {
 					const audioOutputDevices = deviceInfo.devices.filter(device => device.kind === "audiooutput");
+					const defaultSpeaker = Devices.getDefaultDevice(audioOutputDevices);
 
-					deviceStore.speakerDeviceId = Devices.getDefaultDevice(audioOutputDevices).deviceId;
+					if (defaultSpeaker) {
+						deviceStore.speakerDeviceId = defaultSpeaker.deviceId;
+					}
 				}
+
+				// Set camera to "none" by default if not already set.
 				if (!deviceStore.cameraDeviceId) {
 					deviceStore.cameraDeviceId = "none";
 				}
 
-				deviceStore.microphoneBlocked = false;
-			})
-			.catch(_error => {
-				deviceStore.microphoneBlocked = true;
+				// Note: microphoneDeviceId will be set when user opens settings or initiates speech.
 			});
 	}
 
