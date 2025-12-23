@@ -4,6 +4,7 @@ import { RenderController } from "./render-controller.js";
 import { jsPDF } from "jspdf";
 import { SlideDocument } from "../model/document.js";
 import { PdfJsDocument } from "../model/pdf-js-document.js";
+import * as pdfjs from "pdfjs-dist";
 import { PDFDocumentProxy } from "pdfjs-dist";
 import { TextShape } from "../model/shape/text.shape.js";
 import { PointerShape } from "../model/shape/pointer.shape.js";
@@ -16,12 +17,13 @@ import { Rectangle } from "../geometry/rectangle.js";
 import type { SlideView } from "../component/slide-view/slide-view.js";
 import "../component/slide-view/slide-view.js";
 
-import "pdfjs-dist/build/pdf.js";
+// Configure PDF.js worker for tests
+pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.mjs";
 
-const pdfjsLib = window["pdfjs-dist/build/pdf"];
-pdfjsLib.GlobalWorkerOptions.workerSrc = "node_modules/pdfjs-dist/build/pdf.worker.js";
+describe("RenderController", function() {
+	// Increase timeout for PDF.js worker initialization
+	this.timeout(10000);
 
-describe("RenderController", () => {
 	let controller: RenderController;
 	let slideView: SlideView;
 	let document: SlideDocument;
@@ -132,7 +134,7 @@ function createDocument(pageCount: number) {
 	const buffer = document.output("arraybuffer");
 
 	return new Promise<SlideDocument>((resolve, reject) => {
-		const loadingTask = pdfjsLib.getDocument(buffer);
+		const loadingTask = pdfjs.getDocument(buffer);
 		loadingTask.promise
 			.then(async (pdf: PDFDocumentProxy) => {
 				resolve(await PdfJsDocument.create(pdf));

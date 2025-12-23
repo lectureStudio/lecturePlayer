@@ -4,16 +4,17 @@ import { SlideRenderSurface } from "./slide-render-surface.js";
 import { Rectangle } from "../geometry/rectangle.js";
 import { SlideDocument } from "../model/document.js";
 import { Transform } from "../geometry/transform.js";
+import * as pdfjs from "pdfjs-dist";
 import { PDFDocumentProxy } from "pdfjs-dist";
 import { PdfJsDocument } from "../model/pdf-js-document.js";
 import jsPDF from "jspdf";
 
-import "pdfjs-dist/build/pdf.js";
+// Configure PDF.js worker for tests
+pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.mjs";
 
-const pdfjsLib = window["pdfjs-dist/build/pdf"];
-pdfjsLib.GlobalWorkerOptions.workerSrc = "node_modules/pdfjs-dist/build/pdf.worker.js";
-
-describe("SlideRenderSurface", () => {
+describe("SlideRenderSurface", function() {
+	// Increase timeout for PDF.js worker initialization
+	this.timeout(10000);
 	let canvas: HTMLCanvasElement;
 	let region: Rectangle;
 	let surface: SlideRenderSurface;
@@ -63,7 +64,7 @@ function createDocument(pageCount: number) {
 	const buffer = document.output("arraybuffer");
 
 	return new Promise<SlideDocument>((resolve, reject) => {
-		const loadingTask = pdfjsLib.getDocument(buffer);
+		const loadingTask = pdfjs.getDocument(buffer);
 		loadingTask.promise
 			.then(async (pdf: PDFDocumentProxy) => {
 				resolve(await PdfJsDocument.create(pdf));
