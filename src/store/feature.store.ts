@@ -25,7 +25,8 @@ class FeatureStore {
 	}
 
 	hasChatFeature() {
-		return this.chatFeature != null && privilegeStore.canReadMessages();
+		// Users who may only write (e.g. to organisers) still need the chat to be available.
+		return this.chatFeature != null && privilegeStore.canUseChat();
 	}
 
 	hasQuizFeature() {
