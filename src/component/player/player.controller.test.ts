@@ -239,6 +239,51 @@ describe("PlayerController", () => {
 		});
 	});
 
+	describe("chat with write-only privileges", () => {
+		async function connectWithPrivileges(privileges: string[]) {
+			let historyRequested = false;
+
+			CourseStateApi.getCourseState = () => Promise.resolve({
+				courseId: 77,
+				title: "Test Course",
+				description: "Test Description",
+				timeStarted: Date.now(),
+				conference: false,
+				recorded: false,
+				userPrivileges: privileges.map(name => ({ name })),
+				messageFeature: { featureId: "chat-1" },
+				quizFeature: null,
+				activeDocument: null,
+				documentMap: {}
+			} as any);
+			CourseChatApi.getChatHistory = () => {
+				historyRequested = true;
+				return Promise.resolve({ messages: [] });
+			};
+
+			await fixture(html`<lecture-player courseId="77"></lecture-player>`);
+			await new Promise(resolve => setTimeout(resolve, 100));
+
+			return historyRequested;
+		}
+
+		it("provides chat but skips history when user may only write to organisers", async () => {
+			const historyRequested = await connectWithPrivileges([
+				"PARTICIPATION", "CHAT_WRITE_TO_ORGANISATOR", "QUIZ_PARTICIPATION"
+			]);
+
+			expect(featureStore.hasChatFeature()).to.be.true;
+			expect(historyRequested).to.be.false;
+		});
+
+		it("loads history when user can read messages", async () => {
+			const historyRequested = await connectWithPrivileges(["CHAT_READ", "CHAT_WRITE"]);
+
+			expect(featureStore.hasChatFeature()).to.be.true;
+			expect(historyRequested).to.be.true;
+		});
+	});
+
 	describe("event handling", () => {
 		describe("onChatState", () => {
 			it("handles chat stopped event", async () => {

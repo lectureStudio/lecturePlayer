@@ -216,6 +216,11 @@ export class PlayerController extends Controller implements ReactiveController {
 	}
 
 	private loadChatHistory() {
+		if (!privilegeStore.canReadMessages()) {
+			// Users without read privilege must not receive the chat history.
+			return Promise.resolve();
+		}
+
 		return CourseChatApi.getChatHistory(courseStore.courseId)
 			.then(history => {
 				console.log("* on chat history");

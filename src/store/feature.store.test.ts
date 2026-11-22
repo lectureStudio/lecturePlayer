@@ -44,10 +44,27 @@ describe("FeatureStore", () => {
 			expect(featureStore.hasChatFeature()).to.be.false;
 		});
 
-		it("returns false when user cannot read messages", () => {
+		it("returns false when user has no chat privileges", () => {
 			featureStore.setChatFeature({ enabled: true });
-			// No privileges set, so cannot read messages
+			// No privileges set, so cannot read or write messages
 			expect(featureStore.hasChatFeature()).to.be.false;
+		});
+
+		it("returns true when user can read messages", () => {
+			privilegeStore.setPrivileges([{ name: "CHAT_READ" }]);
+			featureStore.setChatFeature({ enabled: true });
+			expect(featureStore.hasChatFeature()).to.be.true;
+		});
+
+		it("returns true when user can only write messages to organisers", () => {
+			privilegeStore.setPrivileges([
+				{ name: "PARTICIPATION" },
+				{ name: "CHAT_WRITE_TO_ORGANISATOR" },
+				{ name: "QUIZ_PARTICIPATION" },
+			]);
+			featureStore.setChatFeature({ enabled: true });
+			expect(featureStore.hasChatFeature()).to.be.true;
+			expect(featureStore.hasFeatures()).to.be.true;
 		});
 	});
 
