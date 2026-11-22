@@ -41,7 +41,7 @@
 		"@types/node": "^20.19.22",
 		"@web/dev-server-esbuild": "^1.0.4",
 		"@web/dev-server-import-maps": "^0.2.1",
-		"@web/test-runner": "^0.20.2",
+		"@web/test-runner": "^1.0.1",
 		"@web/test-runner-playwright": "^0.11.0",
 		"babel-loader": "^10.0.0",
 		"baseline-browser-mapping": "^2.9.11",
